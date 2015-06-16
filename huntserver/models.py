@@ -5,21 +5,31 @@ from django.contrib.auth.models import User
 class Hunt(models.Model):
     hunt_name = models.CharField(max_length=200)
     start_date = models.DateTimeField()
+    
+    def __unicode__(self):
+        return self.hunt_name
 
 class Puzzle(models.Model):
-    puzzle_number = models.IntegerField(unique=True)
+    puzzle_name = models.CharField(max_length=200)
     answer = models.CharField(max_length=100)
     link = models.URLField(max_length=200)
     num_required_to_unlock = models.IntegerField(default=1)
-    unlocks = models.ManyToManyField("self")
+    unlocks = models.ManyToManyField("self", blank=True, symmetrical=False)
     hunt = models.ForeignKey(Hunt)
     #Reward upon completion? 
     
+    def __unicode__(self):
+        return self.puzzle_name
+    
 class Team(models.Model):
     team_name = models.CharField(max_length=200)
-    solved = models.ManyToManyField(Puzzle)
+    solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for')
+    unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for')
     login_info = models.ForeignKey(User)
     hunt = models.ForeignKey(Hunt)
+
+    def __unicode__(self):
+        return self.team_name
 
 class Person(models.Model):
     first_name = models.CharField(max_length=20)
@@ -29,8 +39,14 @@ class Person(models.Model):
     comments = models.CharField(max_length=400)
     team = models.ForeignKey(Team)
     
+    def __unicode__(self):
+        return self.first_name + self.last_name
+    
 class Submission(models.Model):
     team = models.ForeignKey(Team)
     submission_time = models.DateTimeField()
     submission_text = models.CharField(max_length=100)
     response_text = models.CharField(max_length=400)
+    
+    def __unicode__(self):
+        return self.submission_text
