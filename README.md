@@ -8,6 +8,13 @@ Setup details:
 * then run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/ (this will be replaced with apache in the production version)
 
 
+Project Details:
+* Planned models and views can be found and contributed to [here](https://docs.google.com/document/d/1m_et2SfdcPdOuWgtSCfs9RXN9QTxW9WGgjHZsOQ2yFo/edit)
+* The django project is named ```puzzlehunt_server``` amd the app is named ```huntserver```
+* We are using setup and coding practices taken from the django tutorial [here](https://docs.djangoproject.com/en/1.8/intro/tutorial01/)
+* There is a branch with the tutorial server mentioned above up to halfway through the 4th part for code refrence.
+
+
 Base Features:
 * Answer Submission
 * Team ID sign in and view stats
