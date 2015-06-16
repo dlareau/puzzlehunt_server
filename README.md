@@ -4,9 +4,14 @@ Server for Puzzlehunt CMU's bi-annual puzzlehunt.
 Setup details:
 * requires mySQL, python 2.7 and django
 * expects a pre-existing database named puzzlehunt_db
+* expects a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```
+* The above can be accomplished by running the following commands as a superuser:
+    ** ```CREATE DATABASE puzzlehunt_db;```
+    ** ```CREATE USER 'hunt'@'localhost' IDENITFIED BY 'wrongbaa';```
+    ** ```GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'hunt'@'localhost' WITH GRANT OPTION;```
 * run ```python manage.py migrate``` to have django configure the database
 * then run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/ (this will be replaced with apache in the production version)
-
+ 
 
 Project Details:
 * Planned models and views can be found and contributed to [here](https://docs.google.com/document/d/1m_et2SfdcPdOuWgtSCfs9RXN9QTxW9WGgjHZsOQ2yFo/edit)
