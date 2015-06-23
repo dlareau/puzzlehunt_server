@@ -1,8 +1,19 @@
 # puzzlehunt_server
 Server for Puzzlehunt CMU's bi-annual puzzlehunt.
 
+Required Software:
+* python 2.7
+* Django 1.8 (pip)
+* nginx
+* mysql-client
+* mysql-server
+* python-mysqldb
+* redis-server
+* python-dev
+* django-websocket-redis (pip)
+I'm sure I'm missing a few others (I'll try to get this virtualenv'd but no promises)
+
 Setup details:
-* requires mySQL, python 2.7 and django
 * expects a pre-existing database named puzzlehunt_db
 * expects a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```
 * The above can be accomplished by running the following commands as a superuser:
@@ -10,7 +21,7 @@ Setup details:
    * ```CREATE USER 'hunt'@'localhost' IDENITFIED BY 'wrongbaa';```
    * ```GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'hunt'@'localhost' WITH GRANT OPTION;```
 * run ```python manage.py migrate``` to have django configure the database
-* then run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/ (this will be replaced with apache in the production version)
+* then run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/ (this will be replaced with nginx in the production version)
  
 
 Project Details:
