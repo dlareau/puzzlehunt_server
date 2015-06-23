@@ -6,10 +6,16 @@ ensure redis is up
 
 python manage.py collectstatic
 
-uwsgi --socket django.sock  --plugins python --buffer-size=32768 --workers=5 --master --module wsgi_django --chmod-socket=666
+uwsgi --ini wdjango.ini& uwsgi --ini wweb.ini&
+
+
+
+old commands:
+uwsgi --socket django.sock --buffer-size=32768 --workers=5 --master --module wsgi_django --chmod-socket=666
 
 uwsgi --http-socket web.sock --gevent 1000 --http-websockets --workers=2 --master --module wsgi_websocket --chmod-socket=666
 
+References:
 How to websocket: http://django-websocket-redis.readthedocs.org/en/latest/usage.html
 
 Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutorials/Django_and_nginx.html
