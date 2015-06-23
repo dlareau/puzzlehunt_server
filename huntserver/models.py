@@ -10,6 +10,7 @@ class Hunt(models.Model):
         return self.hunt_name
 
 class Puzzle(models.Model):
+    puzzle_number = models.IntegerField()
     puzzle_name = models.CharField(max_length=200)
     answer = models.CharField(max_length=100)
     link = models.URLField(max_length=200)
