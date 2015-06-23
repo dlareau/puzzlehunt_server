@@ -4,7 +4,6 @@ Server for Puzzlehunt CMU's bi-annual puzzlehunt.
 Required Software:
 * python 2.7
 * Django 1.8 (pip)
-* nginx
 * mysql-client
 * mysql-server
 * python-mysqldb
