@@ -19,10 +19,10 @@ from . import views
 urlpatterns = [
     # ex: /
     url(r'^$', views.index, name='index'),
-    # ex: /puzzles/53f/
-    url(r'^(?P<puzzle_id>[0-9a-fA-F]{3})/$', views.puzzle, name='puzzle'),
+    # ex: /puzzle/53f/
+    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', views.puzzle, name='puzzle'),
     # ex: /hunt/3/
-    url(r'^(?P<hunt_num>[0-9]+)/$', views.hunt, name='hunt'),
+    url(r'^hunt/(?P<hunt_num>[0-9]+)/$', views.hunt, name='hunt'),
     # ex: /stats/
     url(r'^stats/$', views.public_stats, name='public_stats'),
 ]

@@ -1,0 +1,9 @@
+{% if puzzles %}
+    <ul>
+    {% for puzzle in puzzles %}
+        <li><a href="{% url 'huntserver:puzzle' puzzle.puzzle_id %}">{{ puzzle.puzzle_name }} - {{ puzzle.puzzle_number }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No puzzles are available.</p>
+{% endif %}
