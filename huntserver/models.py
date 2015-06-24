@@ -50,6 +50,7 @@ class Submission(models.Model):
     submission_time = models.DateTimeField()
     submission_text = models.CharField(max_length=100)
     response_text = models.CharField(max_length=400)
+    puzzle = models.ForeignKey(Puzzle)
     
     def __unicode__(self):
         return self.submission_text
