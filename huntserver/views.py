@@ -2,16 +2,15 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext, loader
-from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
 
-from .models import Hunt, Puzzle
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
+from .models import Hunt, Puzzle, Submission, Team, Person
 
 #models needed: puzzle, hunt, index, stats
 #for now, index should really just call hunt(highest #)
 
 #code below is from tutorial and will not run properly
+@login_required
 def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
     puzzles = sorted(hunt.puzzle_set.all(), key=lambda p: p.puzzle_number)
@@ -22,12 +21,10 @@ def index(request):
     return hunt(request, newest_hunt)
 
 def puzzle(request, puzzle_id):
-    redis_publisher = RedisPublisher(facility='foobar', broadcast=True)
-    message = RedisMessage('Hello World')
-    # and somewhere else
-    redis_publisher.publish_message(message)
     puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
-    return render(request, 'puzzle.html', {'puzzle': puzzle})
+    submissions = puzzle.submission_set.all()
+    context = {'puzzle': puzzle, 'submission_list': submissions}
+    return render(request, 'puzzle.html', context)
 
 #TODO: fix
 def public_stats(request):
