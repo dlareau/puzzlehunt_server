@@ -5,6 +5,8 @@ from django.template import RequestContext, loader
 from django.core.urlresolvers import reverse
 
 from .models import Hunt, Puzzle
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
 
 #models needed: puzzle, hunt, index, stats
 #for now, index should really just call hunt(highest #)
@@ -19,11 +21,15 @@ def index(request):
     newest_hunt = 1 #TODO: fix
     return hunt(request, newest_hunt)
 
-#TODO: fix
 def puzzle(request, puzzle_id):
+    redis_publisher = RedisPublisher(facility='foobar', broadcast=True)
+    message = RedisMessage('Hello World')
+    # and somewhere else
+    redis_publisher.publish_message(message)
     puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
     return render(request, 'puzzle.html', {'puzzle': puzzle})
 
+#TODO: fix
 def public_stats(request):
     newest_hunt = 1
     return hunt(request, newest_hunt)
