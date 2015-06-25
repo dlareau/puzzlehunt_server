@@ -1,0 +1,54 @@
+html {
+    background-image: url(http://www.millionaireinvestor.asia/images/Background.jpg); }
+
+body {
+    font-family: verdana;
+    font-size: 14px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 800px;
+    background: white;
+    border: 4px solid black; }
+
+.puzzle, .info {
+    overflow: auto; }
+
+.puzzle fieldset {
+    float: left;
+    padding: 20px;
+    margin: 20px; }
+
+.puzzle fieldset#submit {
+    width: 30%; }
+
+.puzzle fieldset#answers {
+    width: 48%; }
+
+.puzzle .info h1 {
+    float: left; }
+
+.puzzle .info a {
+    float: right; }
+
+#map {
+    position: relative; }
+  
+  #map .puzzle {
+      position: absolute;
+      overflow: visible;
+      width: 20px;
+      height: 20px; }
+  
+    #map .puzzle .cloud {
+	position: absolute; }
+      
+    #map .puzzle .done {
+	width: 48px;
+	position: absolute;
+	top: -16px;
+	left: -8px;
+	z-index: -1; }
+    #map .puzzle a {
+	font-weight: bold;
+	color: white;
+	font-size: 20px; }
