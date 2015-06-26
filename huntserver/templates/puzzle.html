@@ -17,11 +17,10 @@
 
   <fieldset id='submit'>
     <legend>Submit an answer</legend>
-    <form action="/puzzle/{{ puzzle.puzzle_id }}/submit" method='post'
-          data-remote=true>
+    <form action="/puzzle/{{ puzzle.puzzle_id }}/" method='post'>
+      {% csrf_token %}
       <div>
-        <label for='answer'>Answer:</label>
-        <input type='text' id='answer' name='answer'/><br/>
+	{{ form }}
         <input type='submit' value='Submit' data-disable-with='Submitting...'/>
       </div>
     </form>
@@ -37,7 +36,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for submission in submission_list %}
+        {% for submission in submission_list reversed%}
 	<tr data-id='table_row{{ forloop.counter0 }}'>
 	    <td>{{ submission.submission_time|time:"h:i a" }}</td>
 	      <td>{{ submission.submission_text }} </td>

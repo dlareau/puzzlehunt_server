@@ -49,7 +49,7 @@ class Submission(models.Model):
     team = models.ForeignKey(Team)
     submission_time = models.DateTimeField()
     submission_text = models.CharField(max_length=100)
-    response_text = models.CharField(max_length=400)
+    response_text = models.CharField(blank=True, max_length=400)
     puzzle = models.ForeignKey(Puzzle)
     
     def __unicode__(self):
