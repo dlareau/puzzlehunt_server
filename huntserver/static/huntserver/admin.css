@@ -1,0 +1,81 @@
+
+body {
+  font-family: verdana;
+  font-size: 14px;
+  padding: 0;
+  margin: 0; }
+
+
+header {
+  margin: 0;
+  background: #414141;
+  color: white;
+  overflow: auto; }
+
+  header h1 {
+    padding: 20px;
+    margin: 0;
+    float: left; }
+
+  header ul {
+    float: left;
+    list-style: none; }
+
+  header li {
+    width: 100px;
+    float: left;
+    text-align: center; }
+
+    header li a {
+      color: white;
+      text-decoration: none; }
+
+      header li a:hover {
+        color: #DBDBDB; }
+
+
+#content {
+  margin: 20px; }
+
+
+#queue {
+  width: 100%; }
+
+  #queue td {
+    padding: 5px;
+    border: 1px solid black; }
+
+  #queue .correct {
+    background: #cbf5cb; }
+
+  #queue .incorrect-unreplied {
+    background: #ffa300; }
+
+  #queue .incorrect-replied {
+    background: #febdbd; }
+
+  #queue .invalid-answer {
+    background: yellow; }
+
+
+td {
+  padding: 5px;
+  border: 1px solid black; }
+
+
+#puzzles .meta {
+  background: #DADAF8; }
+
+
+#puzzles .second {
+  background: #E5FAE2; }
+
+
+#progress {
+  font-size: 80%; }
+
+  #progress .solved {
+    background: #92E292; }
+
+  #progress .available {
+    background: yellow; }

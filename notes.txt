@@ -22,3 +22,7 @@ Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutori
 
 Where I got development setup from: http://django-websocket-redis.readthedocs.org/en/latest/running.html#django-with-websockets-for-redis-behind-nginx-using-uwsgi
 
+List of websockets:
+- puzzle_submissions -> self, admin
+- home_page_update -> self
+- 
