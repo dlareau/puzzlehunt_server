@@ -1,0 +1,128 @@
+{% extends "staff_base.html" %}
+{% block title %}Queue{% endblock title %}
+
+{% block includes %} 
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+  <h1>Submission Queue</h1>
+
+  <table id='queue'>
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>Puzzle</th>
+        <th>Answer</th>
+        <th>Submitted At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for submission in submission_list reversed %}
+        <tr class="
+        {% if submission.response_text == '' %}
+          incorrect-unreplied 
+        {% elif submission.response_text == 'Correct!' %} 
+          correct 
+        {% else %}
+          incorrect-replied 
+        {% endif %} submission" data-id='{{ submission.pk }}'>
+          <td>{{ submission.team.team_name }}</td>
+          <td>{{ submission.puzzle.puzzle_name }}</td>
+          <td>{{ submission.submission_text }}</td>
+          <td>{{ submission.submission_time|time:"h:i a" }}</td>
+          <td>
+            {% if submission.response_text == '' %}
+              <a href='#' class='needs-response'>[manual response]</a>
+              <a href='#' class='canned-response'>[canned response]</a>
+
+              <form class='sub_form' action="/staff/queue/" method="post" style="display:none">
+                {% csrf_token %}
+                <p>
+                  {{ form.response }}
+                  <input type="hidden" name="sub_id" value="{{ submission.pk }}">
+                  <input type="Submit" value="Send Response"/>
+                </p>
+              </form>
+            {% else%}
+              Response: {{submission.response_text}}
+            {% endif  %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script type='text/javascript'>
+    $(document).ready(function() {
+      var flashing = false,
+          focused = true;
+      var title = document.title;
+      window.addEventListener('focus', function() {
+        focused = true;
+        flashing = false;
+      });
+      window.addEventListener('blur', function() {
+        focused = false;
+      });
+
+      /* flash the title if necessary */
+      setInterval(function() {
+        if (flashing && !focused) {
+          if (document.title[0] == '[') {
+            document.title = title;
+          } else {
+            document.title = '[' + title + '] - New Submissions';
+          }
+        } else {
+          document.title = title;
+        }
+      }, 1000);
+
+      // /* Open a socket and listen for new submissions */
+      // listen('/admin/event/queue', function(m) {
+      //   var data = JSON.parse(m.data);
+      //   var row = $($.parseHTML(data.Html));
+      //   if (data.Type == 'new') {
+      //     if (!row.hasClass('correct')) {
+      //       flashing = !focused;
+      //       $('audio')[0].play();
+      //     }
+      //     $('#queue tbody').prepend(row);
+      //   } else {
+      //     $('tr[data-id=' + data.Id + ']').replaceWith(row);
+      //   }
+      // });
+
+      $(document).ready(function () {
+          $('.sub_form').on('submit', function(e) {
+              e.preventDefault();
+              $.ajax({
+                  url : $(this).attr('action') || window.location.pathname,
+                  type: "POST",
+                  data: $(this).serialize(),
+                  error: function (jXHR, textStatus, errorThrown) {
+                      alert(errorThrown);
+                  }
+              });
+          });
+      });
+
+      /* open a text box for submitting an email */
+      $(document).delegate('.needs-response', 'click', function() {
+        $(this).siblings('form').show();
+        return false;
+      });
+      $(document).delegate('.canned-response', 'click', function() {
+        $(this).siblings('form').submit();
+        return false;
+      });
+    });
+  </script>
+  <audio>
+    <source src="{{ STATIC_URL }}goat.mp3"  type="audio/mp3"/>
+  </audio>
+{% endblock content %}

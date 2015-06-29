@@ -25,4 +25,6 @@ urlpatterns = [
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', views.hunt, name='hunt'),
     # ex: /stats/
     url(r'^stats/$', views.public_stats, name='public_stats'),
+    # ex: /staff/queue/
+    url(r'^staff/queue/$', views.queue, name='queue'),
 ]

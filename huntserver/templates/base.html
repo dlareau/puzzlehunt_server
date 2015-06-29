@@ -6,6 +6,11 @@
     {% block includes %} {% endblock includes %}
   </head>
   <body>
+    {% if user.is_authenticated %}
+      <p>Welcome, {{ user.username }}  <a href="{% url 'logout' %}">[logout]</a></p>
+    {% else %}
+      <p>Welcome Guest, Please log in</p>
+    {% endif %}
     {% block content %} 
     
     {% endblock content %}
