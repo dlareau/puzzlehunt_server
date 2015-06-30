@@ -2,127 +2,177 @@
 {% block title %}Queue{% endblock title %}
 
 {% block includes %} 
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
-<script src="{{ STATIC_URL }}jquery.min.js"></script>
+  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+  <script src="{{ STATIC_URL }}js.cookie.js"></script>
 {% endblock includes %}
 
 {% block content %}
-  <h1>Submission Queue</h1>
+<h1>Submission Queue</h1>
 
-  <table id='queue'>
-    <thead>
-      <tr>
-        <th>Team</th>
-        <th>Puzzle</th>
-        <th>Answer</th>
-        <th>Submitted At</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
+<table id='queue'>
+  <thead>
+    <tr>
+      <th>Team</th>
+      <th>Puzzle</th>
+      <th>Answer</th>
+      <th>Submitted At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
 
-    <tbody>
-      {% for submission in submission_list reversed %}
-        <tr class="
+  <tbody id='sub_table'>
+    {% for submission in submission_list reversed %}
+    <tr class="
+    {% if submission.response_text == '' %}
+      incorrect-unreplied 
+    {% elif submission.response_text == 'Correct!' %} 
+      correct 
+    {% else %}
+      incorrect-replied 
+    {% endif %} submission" data-id='{{ submission.pk }}'>
+      <td>{{ submission.team.team_name }}</td>
+      <td>{{ submission.puzzle.puzzle_name }}</td>
+      <td>{{ submission.submission_text }}</td>
+      <td>{{ submission.submission_time|time:"h:i a" }}</td>
+      <td>
         {% if submission.response_text == '' %}
-          incorrect-unreplied 
-        {% elif submission.response_text == 'Correct!' %} 
-          correct 
-        {% else %}
-          incorrect-replied 
-        {% endif %} submission" data-id='{{ submission.pk }}'>
-          <td>{{ submission.team.team_name }}</td>
-          <td>{{ submission.puzzle.puzzle_name }}</td>
-          <td>{{ submission.submission_text }}</td>
-          <td>{{ submission.submission_time|time:"h:i a" }}</td>
-          <td>
-            {% if submission.response_text == '' %}
-              <a href='#' class='needs-response'>[manual response]</a>
-              <a href='#' class='canned-response'>[canned response]</a>
+        <a href='#' class='needs-response'>[manual response]</a>
+        <a href='#' class='canned-response'>[canned response]</a>
 
-              <form class='sub_form' action="/staff/queue/" method="post" style="display:none">
-                {% csrf_token %}
-                <p>
-                  {{ form.response }}
-                  <input type="hidden" name="sub_id" value="{{ submission.pk }}">
-                  <input type="Submit" value="Send Response"/>
-                </p>
-              </form>
-            {% else%}
-              Response: {{submission.response_text}}
-            {% endif  %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        <form class='sub_form' action="/staff/queue/" method="post" style="display:none">
+          {% csrf_token %}
+          <p>
+            {{ form.response }}
+            <input type="hidden" name="sub_id" value="{{ submission.pk }}">
+            <input type="Submit" value="Send Response"/>
+          </p>
+        </form>
+        {% else%}
+          Response: {{submission.response_text}}
+        {% endif  %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-  <script type='text/javascript'>
-    $(document).ready(function() {
-      var flashing = false,
-          focused = true;
-      var title = document.title;
-      window.addEventListener('focus', function() {
-        focused = true;
-        flashing = false;
-      });
-      window.addEventListener('blur', function() {
-        focused = false;
-      });
+<script type='text/javascript'>
+  $(document).ready(function() {
+    var flashing = false,
+    focused = true;
+    var title = document.title;
 
-      /* flash the title if necessary */
-      setInterval(function() {
-        if (flashing && !focused) {
-          if (document.title[0] == '[') {
-            document.title = title;
-          } else {
-            document.title = '[' + title + '] - New Submissions';
-          }
-        } else {
-          document.title = title;
-        }
-      }, 1000);
+    $('.sub_form').on('submit', formListener);
 
-      // /* Open a socket and listen for new submissions */
-      // listen('/admin/event/queue', function(m) {
-      //   var data = JSON.parse(m.data);
-      //   var row = $($.parseHTML(data.Html));
-      //   if (data.Type == 'new') {
-      //     if (!row.hasClass('correct')) {
-      //       flashing = !focused;
-      //       $('audio')[0].play();
-      //     }
-      //     $('#queue tbody').prepend(row);
-      //   } else {
-      //     $('tr[data-id=' + data.Id + ']').replaceWith(row);
-      //   }
-      // });
-
-      $(document).ready(function () {
-          $('.sub_form').on('submit', function(e) {
-              e.preventDefault();
-              $.ajax({
-                  url : $(this).attr('action') || window.location.pathname,
-                  type: "POST",
-                  data: $(this).serialize(),
-                  error: function (jXHR, textStatus, errorThrown) {
-                      alert(errorThrown);
-                  }
-              });
-          });
-      });
-
-      /* open a text box for submitting an email */
-      $(document).delegate('.needs-response', 'click', function() {
-        $(this).siblings('form').show();
-        return false;
-      });
-      $(document).delegate('.canned-response', 'click', function() {
-        $(this).siblings('form').submit();
-        return false;
-      });
+    window.addEventListener('focus', function() {
+      focused = true;
+      flashing = false;
     });
-  </script>
-  <audio>
-    <source src="{{ STATIC_URL }}goat.mp3"  type="audio/mp3"/>
-  </audio>
+    window.addEventListener('blur', function() {
+      focused = false;
+    });
+
+    /* flash the title if necessary */
+    setInterval(function() {
+      if (flashing && !focused) {
+        if (document.title[0] == '[') {
+          document.title = title;
+        } else {
+          document.title = '[' + title + '] - New Submissions';
+        }
+      } else {
+        document.title = title;
+      }
+    }, 1000);
+
+    var ws4redis = WS4Redis({
+      uri: '{{ WEBSOCKET_URI }}puzzle_submissions?subscribe-user',
+      receive_message: receiveMessage,
+      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+    });
+
+    function rowFromSubmission(submission){
+      var row_class, response;
+      if(submission['response_text'] == '') {
+        row_class = "incorrect-unreplied";
+        response = "<a href='#' class='needs-response'>[manual response]</a>\n" +
+              "<a href='#' class='canned-response'>[canned response]</a>\n" +
+
+              "<form class='sub_form' action='/staff/queue/' method='post' style='display:none'>\n" + 
+                "<input type='hidden' name='csrfmiddlewaretoken' value='" + Cookies.get('csrftoken') + "'>\n" + 
+                "<p>\n" + 
+                  "<input id='id_response' maxlength='400' name='response' type='text' value='Wrong Answer'>\n" +
+                  "<input type='hidden' name='sub_id' value='" + submission['pk'] + "'>\n" + 
+                  "<input type='Submit' value='Send Response'/>\n" + 
+                "</p>\n" +
+              "</form>";
+      } else {
+        if(submission['response_text'] == 'Correct!') {
+          row_class = "correct"; 
+        } else {
+          row_class = "incorrect-replied";
+        }
+        response = "Response: " + submission['response_text'];
+      }
+
+      var d = new Date();
+      d.setTime(Date.parse(submission['submission_time']));
+      var hours = d.getHours() > 12 ? d.getHours()-12 : d.getHours(); 
+      var minutes = d.getMinutes().toString().length == 1 ? ("0" + d.getMinutes()) : d.getMinutes();
+      var time = hours.toString().length  == 1 ? "0" + hours : hours;
+      time = time + ":" + minutes;
+      time = time + (d.getHours() > 12 ? " p.m." : " a.m.");
+      var row = $("<tr data-id='" + submission['pk'] + "' class='" + 
+            row_class +  "'> </tr>");
+      var col1 = $("<td> " + submission['team'] + " </td>");
+      var col2 = $("<td> " + submission['puzzle_name'] + " </td>");
+      var col3 = $("<td> " + submission['submission_text'] + " </td>");
+      var col4 = $("<td> " + time + " </td>");
+      var col5 = $("<td> " + response + " </td>");
+      row.append(col1,col2,col3,col4,col5);
+      return row;   
+    }
+
+    function formListener(e) {
+      e.preventDefault();
+      $.ajax({
+        url : $(this).attr('action') || window.location.pathname,
+        type: "POST",
+        data: $(this).serialize(),
+        error: function (jXHR, textStatus, errorThrown) {
+          alert(errorThrown);
+        }
+      });
+    }
+
+    function receiveMessage(msg) {
+      var submission = JSON.parse(msg);
+      var row = rowFromSubmission(submission);
+      if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
+        if(submission['response_text'] != 'Correct!') {
+          flashing = !focused;
+          $('audio')[0].play();
+        }
+        row.prependTo("#sub_table");
+      } else {
+        $('tr[data-id=' + submission['pk'] + ']').replaceWith(row);
+      }   
+      $('.sub_form').on('submit', formListener);
+    }
+
+    /* open a text box for submitting an email */
+    $(document).delegate('.needs-response', 'click', function() {
+      $(this).siblings('form').show();
+      return false;
+    });
+    $(document).delegate('.canned-response', 'click', function() {
+      $(this).siblings('form').submit();
+      return false;
+    });
+  });
+</script>
+<audio>
+  <source src="{{ STATIC_URL }}goat.mp3"  type="audio/mp3"/>
+</audio>
 {% endblock content %}

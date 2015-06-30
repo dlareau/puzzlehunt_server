@@ -1,17 +1,29 @@
 # Create your views here.
-from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse
-from django.template import RequestContext, loader
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from django.conf import settings
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage, SELF
-import json
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core import serializers
+from django.shortcuts import get_object_or_404, render, redirect
+from django.template import RequestContext, loader
+from django.utils import timezone
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
+import json
 
 from .models import Hunt, Puzzle, Submission, Team, Person
 from .forms import AnswerForm, SubmissionForm
+
+def send_submission_update(s):
+    redis_publisher = RedisPublisher(facility='puzzle_submissions',
+                                     users=[s.team.login_info.username, settings.ADMIN_ACCT])
+    modelJSON = json.loads(serializers.serialize("json", [s]))[0]
+    message = modelJSON['fields']
+    message['puzzle'] = s.puzzle.puzzle_id
+    message['puzzle_name'] = s.puzzle.puzzle_name
+    message['team'] = s.team.team_name
+    message['pk'] = modelJSON['pk']
+    message = RedisMessage(json.dumps(message))
+    redis_publisher.publish_message(message)
 
 @login_required
 def hunt(request, hunt_num):
@@ -50,14 +62,7 @@ def puzzle(request, puzzle_id):
             s.save()
 
             #get websocket publisher for admin and the user
-            redis_publisher = RedisPublisher(facility='puzzle_submissions',
-                                             users=[SELF, settings.ADMIN_ACCT])
-            modelJSON = json.loads(serializers.serialize("json", [s]))[0]
-            message = modelJSON['fields']
-            message['puzzle'] = puzzle_id
-            message['pk'] = modelJSON['pk']
-            message = RedisMessage(json.dumps(message))
-            redis_publisher.publish_message(message)
+            send_submission_update(s)
 
         return redirect('huntserver:puzzle', puzzle_id=puzzle_id)
 
@@ -77,11 +82,13 @@ def queue(request):
             s = Submission.objects.get(pk=form.cleaned_data['sub_id'])
             s.response_text = response
             s.save()
+            send_submission_update(s)
+
         return redirect('huntserver:queue')
     
     else:   
         hunt = get_object_or_404(Hunt, hunt_number=settings.CURRENT_HUNT_NUM)
-        submissions = Submission.objects.filter(puzzle__hunt=hunt)
+        submissions = Submission.objects.filter(puzzle__hunt=hunt).order_by('pk')
         form = SubmissionForm()
         context = {'form': form, 'submission_list': submissions}
         return render(request, 'queue.html', context)

@@ -65,12 +65,12 @@ jQuery(document).ready(function($) {
         alert(errorThrown);
       }
     });
-    $("#sub_form")[0].reset();
   });
 
-    // receive a message though the websocket from the server
-    function receiveMessage(msg) {
-      submission = JSON.parse(msg);
+  // receive a message though the websocket from the server
+  function receiveMessage(msg) {
+    submission = JSON.parse(msg);
+    if(submission.puzzle == "{{ puzzle.puzzle_id }}"){
       d = new Date();
       d.setTime(Date.parse(submission['submission_time']));
       hours = d.getHours() > 12 ? d.getHours()-12 : d.getHours(); 
@@ -78,14 +78,18 @@ jQuery(document).ready(function($) {
       time = hours.toString.length  == 1 ? "0" + hours : hours
       time = time + ":" + minutes;
       time = time + (d.getHours() > 12 ? " p.m." : " a.m.");
-      if(submission.puzzle == "{{ puzzle.puzzle_id }}"){
-         row = $("<tr data-id='" + submission['pk'] + "''> </tr>");
-         col1 = $("<td> " + time + " </td>");
-         col2 = $("<td> " + submission['submission_text'] + " </td>");
-         col3 = $("<td> " + submission['response_text'] + " </td>");
-         row.append(col1,col2,col3).prependTo("#sub_table");   
+      row = $("<tr data-id='" + submission['pk'] + "'> </tr>");
+      col1 = $("<td> " + time + " </td>");
+      col2 = $("<td> " + submission['submission_text'] + " </td>");
+      col3 = $("<td> " + submission['response_text'] + " </td>");
+      row.append(col1,col2,col3);
+      if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
+        row.prependTo("#sub_table");
+      } else {
+        $('tr[data-id=' + submission['pk'] + ']').replaceWith(row);
       }
     }
-  });
+  }
+});
 </script>
 {% endblock content %}
