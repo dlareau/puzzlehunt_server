@@ -31,13 +31,13 @@ Project Details:
 
 
 Base Features:
-- [ ] Answer Submission
+- [x] Answer Submission
 - [x] Team ID sign in
-- [ ] Answer response system
+- [x] Answer response system
 - [x] Landing Page
 - [x] admin view - edit data
 - [ ] admin view - graphs
-- [ ] admin view - queue
+- [x] admin view - queue
 - [ ] admin view - puzzle stats
 - [x] Graph unlocking structure
 
@@ -45,12 +45,12 @@ Base Features:
 Desired Features
 - [ ] Charts 
 - [ ] Hints
-- [ ] Manual response being correct
-- [ ] Admins be able to see manual responses
+- [x] Manual response being correct
+- [x] Admins be able to see manual responses
 - [ ] Send more than one manual response
 - [ ] Multiple Landing pages
 - [ ] Show top k teams without score
 - [ ] Solve count for each puzzle public
-- [ ] Very clear puzzle labeling
+- [x] Very clear puzzle labeling
 - [ ] Ability for puzzle solutions to unlock objects
 - [ ] Server can get puzzles from links using button on admin page.
