@@ -12,6 +12,7 @@ import json
 
 from .models import Hunt, Puzzle, Submission, Team, Person
 from .forms import AnswerForm, SubmissionForm
+from .puzzle import *
 
 def send_submission_update(s):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
@@ -25,20 +26,6 @@ def send_submission_update(s):
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
 
-# Automatic answer response rules
-def respond_to_submission(s):
-    # Compare against correct answer
-    if(puzzle.answer.lower() == user_answer.lower()):
-        return "Correct!"
-    # Answers should not contain spaces
-    elif(" " in user_answer):
-        return "Invalid answer (spaces)"
-    # Answers should not contain underscores
-    elif("_" in user_answer):
-        return "Invalid answer (underscores)"
-    else:
-        return ""
-    
 @login_required
 def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
@@ -71,12 +58,12 @@ def puzzle(request, puzzle_id):
             user_answer = form.cleaned_data['answer']
             s = Submission(submission_text = user_answer, puzzle = puzzle,
                            submission_time = timezone.now(), team = team)
-            s.response_text = respond_to_submission(s)
+            s.response_text = respond_to_submission(s, puzzle)
             s.save()
 
             #get websocket publisher for admin and the user
             send_submission_update(s)
-
+            unlock_puzzles(team)
         return redirect('huntserver:puzzle', puzzle_id=puzzle_id)
 
     #If not a submission, just render the puzzle page
