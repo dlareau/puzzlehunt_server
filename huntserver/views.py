@@ -25,6 +25,20 @@ def send_submission_update(s):
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
 
+# Automatic answer response rules
+def respond_to_submission(s):
+    # Compare against correct answer
+    if(puzzle.answer.lower() == user_answer.lower()):
+        return "Correct!"
+    # Answers should not contain spaces
+    elif(" " in user_answer):
+        return "Invalid answer (spaces)"
+    # Answers should not contain underscores
+    elif("_" in user_answer):
+        return "Invalid answer (underscores)"
+    else:
+        return ""
+    
 @login_required
 def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
@@ -57,8 +71,7 @@ def puzzle(request, puzzle_id):
             user_answer = form.cleaned_data['answer']
             s = Submission(submission_text = user_answer, puzzle = puzzle,
                            submission_time = timezone.now(), team = team)
-            if(puzzle.answer.lower() == user_answer.lower()):
-                s.response_text = "Correct!"
+            s.response_text = respond_to_submission(s)
             s.save()
 
             #get websocket publisher for admin and the user
@@ -68,7 +81,7 @@ def puzzle(request, puzzle_id):
 
     #If not a submission, just render the puzzle page
     else:
-        submissions = puzzle.submission_set.filter(team=team)
+        submissions = puzzle.submission_set.filter(team=team).order_by('pk')
         form = AnswerForm()
         context = {'form': form, 'puzzle': puzzle, 'submission_list': submissions}
         return render(request, 'puzzle.html', context)
