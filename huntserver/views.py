@@ -13,6 +13,7 @@ import json
 from .models import Hunt, Puzzle, Submission, Team, Person
 from .forms import AnswerForm, SubmissionForm
 
+# Will update submitter and staff client versions of a submission s
 def send_submission_update(s):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
                                      users=[s.team.login_info.username, settings.ADMIN_ACCT])
@@ -73,8 +74,6 @@ def puzzle(request, puzzle_id):
                            submission_time = timezone.now(), team = team)
             s.response_text = respond_to_submission(s)
             s.save()
-
-            #get websocket publisher for admin and the user
             send_submission_update(s)
 
         return redirect('huntserver:puzzle', puzzle_id=puzzle_id)
