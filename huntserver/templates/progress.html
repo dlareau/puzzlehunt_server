@@ -19,31 +19,31 @@
       </tr>
     </thead>
     <tbody>
-			{% for team in team_list %}
-				<tr>
-					<td>{{ team.team_name }}</td>
-					<td class='num'></td>
-					{% for puzzle in puzzle_list %}
-						{% with solves=team.solve_set.all unlocks=team.unlocks.all %}
-						{% for solve in solves %}
-						{% if puzzle == solve.puzzle %}
-							<td class='solved' > {{ solve.submission.submission_time|time:"h:i a" }} </td>
-						{% elif puzzle in unlocks %}
-							<td class='available' ></td>
-						{% else %}
-							<td class='unavailable'
-<!-- 									data-id='{{ $puzzle.Id.Hex }}{{ $team.Id.Hex }}'>
-								<a href="/admin/puzzles/{{ $puzzle.Id.Hex }}/unlock/{{ $team.Id.Hex }}"
-									 data-method="post" data-remote='true'>
-								 unlock
-								</a> -->
-							</td>
-						{% endif %}
-						{% endfor %}
-						{% endwith %}
-					{% endfor %}
-				</tr>
-			{% endfor %}
+      {% for team in team_list %}
+	<tr>
+	  <td>{{ team.team_name }}</td>
+	  <td class='num'></td>
+	  {% for puzzle in puzzle_list %}
+	  {% with solves=team.solve_set.all unlocks=team.unlocks.all %}
+	  {% for solve in solves %}
+	    {% if puzzle == solve.puzzle %}
+	  <td class='solved' > {{ solve.submission.submission_time|time:"h:i a" }} </td>
+	    {% endif %}
+	  {% endfor}
+	  {% if puzzle in unlocks %}
+	    <td class='available' ></td>
+	  {% else %}
+	    <td class='unavailable'>
+	      <!--<a href="/admin/puzzles/"
+		data-method="post" data-remote='true'>
+		unlock
+	      </a> -->
+	    </td>
+	  {% endif %}
+	  {% endwith %}
+	  {% endfor %}
+	</tr>
+      {% endfor %}
     </tbody>
   </table>
   
