@@ -1,0 +1,74 @@
+{% extends "staff_base.html" %}
+{% block title %}Puzzle Progress{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+{% endblock includes %}
+
+{% block content %}
+  <h1>Puzzle Progress</h1>
+  <table id='progress'>
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>#</th>
+        {% for puzzle in puzzle_list %}
+          <th>{{ puzzle.puzzle_name }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+			{% for team in team_list %}
+				<tr>
+					<td>{{ team.team_name }}</td>
+					<td class='num'></td>
+					{% for puzzle in puzzle_list %}
+						{% with solves=team.solve_set.all unlocks=team.unlocks.all %}
+						{% for solve in solves %}
+						{% if puzzle == solve.puzzle %}
+							<td class='solved' > {{ solve.submission.submission_time|time:"h:i a" }} </td>
+						{% elif puzzle in unlocks %}
+							<td class='available' ></td>
+						{% else %}
+							<td class='unavailable'
+<!-- 									data-id='{{ $puzzle.Id.Hex }}{{ $team.Id.Hex }}'>
+								<a href="/admin/puzzles/{{ $puzzle.Id.Hex }}/unlock/{{ $team.Id.Hex }}"
+									 data-method="post" data-remote='true'>
+								 unlock
+								</a> -->
+							</td>
+						{% endif %}
+						{% endfor %}
+						{% endwith %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+    </tbody>
+  </table>
+  
+<!--   <script type='text/javascript'>
+    $(function() {
+      var updateSolved = function() {
+        $.each($('#progress tr'), function(_, row) {
+          var amt = $(row).find('td.solved').length;
+          $(row).find('.num').text(amt);
+        });
+      };
+      listen('/admin/event/progress', function(m) {
+        var data = JSON.parse(m.data);
+        $('td[data-id=' + data.Id + ']').replaceWith(data.Html);
+        updateSolved();
+      });
+      updateSolved();
+    });
+  </script> -->
+
+<!--   <a href="/admin/reset"
+     data-confirm="Are you sure?"
+     data-method="post">Reset all progress</a>
+  &middot;
+  <a href="/admin/release"
+     data-confirm="Are you sure?"
+     data-method="post">Release initial puzzles</a> -->
+{% endblock content %}
