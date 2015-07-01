@@ -92,6 +92,14 @@ def queue(request):
         context = {'form': form, 'submission_list': submissions}
         return render(request, 'queue.html', context)
 
+@login_required
+def progress(request):
+    hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    puzzles = hunt.puzzle_set.all()
+    teams = hunt.team_set.all()
+    context = {'puzzle_list':puzzles, 'team_list':teams}
+    return render(request, 'progress.html', context)
+
 #TODO: fix
 @login_required
 def public_stats(request):

@@ -27,4 +27,6 @@ urlpatterns = [
     url(r'^stats/$', views.public_stats, name='public_stats'),
     # ex: /staff/queue/
     url(r'^staff/queue/$', views.queue, name='queue'),
+    # ex: /staff/progress/
+    url(r'^staff/progress/$', views.progress, name='progress'),
 ]
