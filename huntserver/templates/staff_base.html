@@ -6,8 +6,23 @@
     {% block includes %} {% endblock includes %}
   </head>
   <body>
-    {% block content %} 
-    
-    {% endblock content %}
+    <header>
+      <h1>Puzzlehunt Admin</h1>
+      <ul>
+	<li><a href="/admin/huntserver/hunt/">Hunts</a><li>
+        <li><a href="/admin/huntserver/team/">Teams</a></li>
+        <li><a href="/admin/huntserver/puzzle/">Puzzles</a></li>
+        <li><a href="/staff/progress">Progress</a></li>
+        <li><a href="/staff/queue">Queue</a></li>
+        <!--<li><a href="/admin/charts">Charts</a></li> !-->
+      </ul>
+    </header>
+    <section id="content">
+      {% block content %}
+
+      {% endblock content %}
+      <br/>
+      <code style='margin-top: 50px;display:block'>B======D~</code>
+    </section>
   </body>
 </html>

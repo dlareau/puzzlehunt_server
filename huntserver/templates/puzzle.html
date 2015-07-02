@@ -65,7 +65,7 @@ jQuery(document).ready(function($) {
         alert(errorThrown);
       }
     });
-  });
+  }); 
 
   // receive a message though the websocket from the server
   function receiveMessage(msg) {
@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
       d = new Date();
       d.setTime(Date.parse(submission['submission_time']));
       hours = d.getHours() > 12 ? d.getHours()-12 : d.getHours(); 
-      minutes = d.getMinutes().toString().length == 1 ? ("0" + d.getMinutes) : d.getMinutes()
+      minutes = d.getMinutes().toString().length == 1 ? ("0" + d.getMinutes()) : d.getMinutes()
       time = hours.toString().length  == 1 ? "0" + hours : hours
       time = time + ":" + minutes;
       time = time + (d.getHours() > 12 ? " p.m." : " a.m.");

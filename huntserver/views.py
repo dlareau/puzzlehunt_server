@@ -61,6 +61,9 @@ def puzzle(request, puzzle_id):
                            submission_time = timezone.now(), team = team)
             s.response_text = respond_to_submission(s, puzzle)
             s.save()
+            if(s.response_text == "Correct!"):
+                Solve.objects.create(puzzle=s.puzzle, team=s.team, submission=s)
+            s.save()
             send_submission_update(s)
             unlock_puzzles(team)
         return redirect('huntserver:puzzle', puzzle_id=puzzle_id)
@@ -95,9 +98,19 @@ def queue(request):
 @login_required
 def progress(request):
     hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    puzzles = hunt.puzzle_set.all()
-    teams = hunt.team_set.all()
-    context = {'puzzle_list':puzzles, 'team_list':teams}
+    puzzles = hunt.puzzle_set.all().order_by('puzzle_number')
+    teams = hunt.team_set.all().order_by('team_name')
+    sol_array = []
+    for team in teams:
+        sol_array.append({'name':team.team_name, 'num':len(team.solved.all()), 'cells':[]})
+        for puzzle in puzzles:
+            if(puzzle in team.solved.all()):
+                sol_array[-1]['cells'].append(team.solve_set.get(puzzle=puzzle))
+            elif(puzzle in team.unlocked.all()):                
+                sol_array[-1]['cells'].append("unlocked")
+            else:
+                sol_array[-1]['cells'].append("locked")
+    context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}
     return render(request, 'progress.html', context)
 
 #TODO: fix

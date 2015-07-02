@@ -1,9 +1,8 @@
-from .models import Hunt, Puzzle, Submission, Team, Person
+from .models import *
 
 def respond_to_submission(s, puzzle):
     # Compare against correct answer
     if(puzzle.answer.lower() == s.submission_text.lower()):
-        s.team.solved.add(puzzle)
         return "Correct!"
     # Answers should not contain spaces
     elif(" " in s.submission_text):
