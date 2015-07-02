@@ -1,0 +1,43 @@
+#branding {
+    width: inherit;
+}
+
+#header #branding header {
+  padding: 0 !important;
+  font-family: verdana !important;
+  margin: 0 !important;
+  background: #414141;
+  color: white;
+  overflow: auto; }
+
+#header #branding header h1 {
+    font-size: 28px !important;
+    font-weight: bold !important;
+    padding: 20px !important;
+    color: white;
+    margin: 0 !important;
+    float: left !important; }
+
+  #header #branding header ul {
+      float: left !important;
+  }
+
+  ul li {
+    list-style: none !important; }
+    float: left !important;
+    margin: 20px !important;
+    width: 100px !important;
+    float: left !important;
+    text-align: center !important;
+    font-size: 14px !important;
+  }
+
+  .stafflinks ul li a{
+      font-size: 14px !important;
+    color: blue !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+  }
+
+  #header #branding header li a:hover {
+    color: #DBDBDB !important; }

@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from . import views
+from django.contrib import admin
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     # ex: /
@@ -25,8 +27,10 @@ urlpatterns = [
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', views.hunt, name='hunt'),
     # ex: /stats/
     url(r'^stats/$', views.public_stats, name='public_stats'),
-    # ex: /staff/queue/
+
     url(r'^staff/queue/$', views.queue, name='queue'),
-    # ex: /staff/progress/
     url(r'^staff/progress/$', views.progress, name='progress'),
+    url(r'^staff/hunts/$',  RedirectView.as_view(url='/admin/huntserver/hunt/', permanent=False)),
+    url(r'^staff/teams/$', RedirectView.as_view(url='/admin/huntserver/team/', permanent=False)),
+    url(r'^staff/puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
 ]
