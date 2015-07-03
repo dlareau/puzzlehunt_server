@@ -2,42 +2,42 @@
     width: inherit;
 }
 
-#header #branding header {
-  padding: 0 !important;
-  font-family: verdana !important;
-  margin: 0 !important;
-  background: #414141;
-  color: white;
-  overflow: auto; }
+#header header {
+    padding: 0px;
+    margin: 0px;
+    font-family: verdana;
+    background: #414141;
+    overflow: auto;
+}
 
-#header #branding header h1 {
-    font-size: 28px !important;
-    font-weight: bold !important;
-    padding: 20px !important;
+#header header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    padding: 20px;
     color: white;
-    margin: 0 !important;
-    float: left !important; }
+    margin: 0px;
+    float: left;
+}
 
-  #header #branding header ul {
-      float: left !important;
-  }
+header ul {
+    float: left;
+    margin: 15px;
+    margin-left: 0px;
+}
+  
+header ul li {
+    list-style: none;
+    float: left;
+    width: 100px;
+    text-align: center;
+    font-size: 14px;
+}
 
-  ul li {
-    list-style: none !important; }
-    float: left !important;
-    margin: 20px !important;
-    width: 100px !important;
-    float: left !important;
-    text-align: center !important;
-    font-size: 14px !important;
-  }
+.stafflinks ul li a{
+    font-size: 14px;
+    text-decoration: none;
+}
 
-  .stafflinks ul li a{
-      font-size: 14px !important;
-    color: blue !important;
-    text-decoration: none !important;
-    font-size: 14px !important;
-  }
-
-  #header #branding header li a:hover {
-    color: #DBDBDB !important; }
+#header #branding header li a:hover {
+    color: #DBDBDB;
+}
