@@ -13,8 +13,6 @@ from .forms import *
 from .puzzle import *
 from .redis import *
 
-# Will update submitter and staff client versions of a submission
-
 @login_required
 def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)

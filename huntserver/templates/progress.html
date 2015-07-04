@@ -74,7 +74,6 @@
         return;
       }
       var update = JSON.parse(msg);
-      console.log(update);
       $td = $("#p" + update.puzzle_id + "t" + update.team_pk);
       if(update.status_type == "solve"){
         $td.removeClass();
