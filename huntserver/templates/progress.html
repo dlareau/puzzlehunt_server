@@ -49,6 +49,7 @@
   
   <script type='text/javascript'>
   $(document).ready(function() {
+    is_first_message = true;
     var ws4redis = WS4Redis({
       uri: '{{ WEBSOCKET_URI }}puzzle_status?subscribe-user',
       receive_message: receiveMessage,
@@ -68,7 +69,12 @@
     });
 
     function receiveMessage(msg) {
+      if(is_first_message){
+        is_first_message = false;
+        return;
+      }
       var update = JSON.parse(msg);
+      console.log(update);
       $td = $("#p" + update.puzzle_id + "t" + update.team_pk);
       if(update.status_type == "solve"){
         $td.removeClass();
@@ -77,21 +83,18 @@
       }
       else if(update.status_type == "unlock"){
         $td.removeClass();
-        $td.addClass('available')
-        $td.html(" ")
-      }
-      else{
-
+        $td.addClass('available');
+        $td.html(" ");
       }
     }
   });
   </script>
-
-<!--   <a href="/admin/reset"
-     data-confirm="Are you sure?"
-     data-method="post">Reset all progress</a>
-  &middot;
-  <a href="/admin/release"
-     data-confirm="Are you sure?"
-     data-method="post">Release initial puzzles</a> -->
+  </br></br>
+  <a href="/staff/progress/?reset=1" onclick="return confirm('Are you sure?')">
+    Reset All Progress
+  </a>
+  </br>
+  <a href="/staff/progress/?initial=1" onclick="return confirm('Are you sure?')">
+    Release Initial Puzzles
+  </a>
 {% endblock content %}

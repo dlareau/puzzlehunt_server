@@ -1,4 +1,5 @@
 from .models import *
+from .redis import *
 
 def respond_to_submission(s, puzzle):
     # Compare against correct answer
@@ -24,6 +25,8 @@ def unlock_puzzles(team):
             mapping[other.puzzle_number] = mapping[other.puzzle_number]+1
     for puzzle in puzzles:
         if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
-            team.unlocked.add(puzzle)
+            if(puzzle not in team.unlocked.all()):
+                team.unlocked.add(puzzle)
+                send_status_update(puzzle, team, "unlock")
     
         

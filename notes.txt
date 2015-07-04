@@ -18,3 +18,12 @@ Where I got development setup from: http://django-websocket-redis.readthedocs.or
 List of planned websockets:
 - puzzle_submissions -> self, admin
 - home_page_update -> self
+
+Known issues: (listed here so they don't become unknown)
+ - Websockets sends UTC solve time to progress page
+ - Any user can access staff page and unlock/reset puzzles
+ - Access to puzzles isn't limited by team.unlocked
+ - Code is horribly uncommented
+ - HTML has inbody script :(
+ - Admin pages don't have logout button
+ - There is no error page for not being allowed somewhere.

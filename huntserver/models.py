@@ -13,7 +13,7 @@ class Hunt(models.Model):
 class Puzzle(models.Model):
     puzzle_number = models.IntegerField()
     puzzle_name = models.CharField(max_length=200)
-    puzzle_id = models.CharField(max_length=8) #hex only please
+    puzzle_id = models.CharField(max_length=8, unique=True) #hex only please
     answer = models.CharField(max_length=100)
     link = models.URLField(max_length=200)
     num_required_to_unlock = models.IntegerField(default=1)

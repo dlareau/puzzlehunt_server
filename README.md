@@ -12,7 +12,7 @@ Required Software:
 * django-websocket-redis (pip)
 I'm sure I'm missing a few others (I'll try to get this virtualenv'd but no promises)
 
-Setup details:
+Database setup details:
 * expects a pre-existing database named puzzlehunt_db
 * expects a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```
 * The above can be accomplished by running the following commands as a superuser:
@@ -24,7 +24,8 @@ Setup details:
  
 
 Project Details:
-* Planned models and views can be found and contributed to [here](https://docs.google.com/document/d/1m_et2SfdcPdOuWgtSCfs9RXN9QTxW9WGgjHZsOQ2yFo/edit)
+* Check out file_map.txt for new developers.
+* Planned (now out of date) models and views can be found and contributed to [here](https://docs.google.com/document/d/1m_et2SfdcPdOuWgtSCfs9RXN9QTxW9WGgjHZsOQ2yFo/edit)
 * The django project is named ```puzzlehunt_server``` amd the app is named ```huntserver```
 * We are using setup and coding practices taken from the django tutorial [here](https://docs.djangoproject.com/en/1.8/intro/tutorial01/)
 * There is a branch with the tutorial server mentioned above up to halfway through the 4th part for code refrence.
@@ -38,7 +39,7 @@ Base Features:
 - [x] admin view - edit data
 - [ ] admin view - graphs
 - [x] admin view - queue
-- [ ] admin view - puzzle stats
+- [x] admin view - puzzle stats
 - [x] Graph unlocking structure
 
 

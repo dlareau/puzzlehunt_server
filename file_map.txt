@@ -16,6 +16,7 @@ often there are 2 copies of an item, one for the server, and one for our app.
 │   │   ├── 0011_auto_20150701_1127.py
 │   ├── models.py                         ! The model specification for the app
 │   ├── puzzle.py                         # Puzzle related functions
+│   ├── redis.py                          # Websocket related functions
 │   ├── static                            # A static file directory
 │   │   ├── huntserver                    # Place static files for the app here
 │   │   │   ├── admin_addon.css           # Remodels django admin style to ours
@@ -23,7 +24,7 @@ often there are 2 copies of an item, one for the server, and one for our app.
 │   │   │   └── base.css                  ! The style for our user pages
 │   │   ├── jquery.min.js                 # Source of jquery for the server
 │   │   └── js.cookie.js                  # Used in Queue.html, do not remove
-│   ├── templates                         ! Templates for the app            
+│   ├── templates                         ! Templdates for the app            
 │   │   ├── base.html                     # Base template for user pages
 │   │   ├── hunt1.html                    ! Each hunt gets it's own html and
 │   │   ├── hunt2.html                      the files are numbered sequentially
