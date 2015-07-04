@@ -14,49 +14,78 @@
         <th>Team</th>
         <th>#</th>
         {% for puzzle in puzzle_list %}
-          <th>{{ puzzle.puzzle_name }}</th>
+          <th data-id='{{ puzzle.puzzle_id }}'>{{ puzzle.puzzle_name }}</th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
       {% for row in sol_array %}
-	<tr>
-	  <td>{{ row.name }}</td>
-	  <td class='num'>{{ row.num }}</td>
-	  {% for cell in row.cells %}
-	  {% if cell == "locked"%}
-	    <td class='unavailable'>
-	      <!--<a href="/admin/puzzles/" data-method="post" data-remote='true'> 
-		unlock
-	      </a> -->
-	    </td>
-	  {% elif cell == "unlocked" %}
-	    <td class='available' ></td>
-	  {% else %}
-	<td class='solved' > {{ cell.submission.submission_time|time:"h:i a" }} </td>
-	  {% endif %}
-	  {% endfor %}
-	</tr>
+        <tr>
+          <td>{{ row.team.team_name }}</td>
+          <td class='num'>{{ row.num }}</td>
+          {% for cell in row.cells %}
+          {% if cell.0 == "locked"%}
+            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='unavailable' 
+             style='text-align:center;'>
+              <form class='unlock_form' action="/staff/unlock/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="team_id" value="{{ row.team.pk }}">
+                <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">
+                <input type="Submit" value="Unlock" />
+              </form>
+            </td>
+          {% elif cell.0 == "unlocked" %}
+            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' ></td>
+          {% else %}
+            <td d='p{{ cell.1 }}t{{ row.team.pk }}' class='solved' > 
+              {{ cell.0.submission.submission_time|time:"h:i a" }} 
+            </td>
+          {% endif %}
+          {% endfor %}
+        </tr>
       {% endfor %}
     </tbody>
   </table>
   
-<!--   <script type='text/javascript'>
-    $(function() {
-      var updateSolved = function() {
-        $.each($('#progress tr'), function(_, row) {
-          var amt = $(row).find('td.solved').length;
-          $(row).find('.num').text(amt);
-        });
-      };
-      listen('/admin/event/progress', function(m) {
-        var data = JSON.parse(m.data);
-        $('td[data-id=' + data.Id + ']').replaceWith(data.Html);
-        updateSolved();
-      });
-      updateSolved();
+  <script type='text/javascript'>
+  $(document).ready(function() {
+    var ws4redis = WS4Redis({
+      uri: '{{ WEBSOCKET_URI }}puzzle_status?subscribe-user',
+      receive_message: receiveMessage,
+      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
     });
-  </script> -->
+
+    $('.unlock_form').on('submit', function(e) {
+      e.preventDefault();
+      $.ajax({
+        url : $(this).attr('action') || window.location.pathname,
+        type: "POST",
+        data: $(this).serialize(),
+        error: function (jXHR, textStatus, errorThrown) {
+          alert(errorThrown);
+        }
+      });
+    });
+
+    function receiveMessage(msg) {
+      var update = JSON.parse(msg);
+      $td = $("#p" + update.puzzle_id + "t" + update.team_pk);
+      if(update.status_type == "solve"){
+        $td.removeClass();
+        $td.addClass('solved');
+        $td.html(update.time_str);
+      }
+      else if(update.status_type == "unlock"){
+        $td.removeClass();
+        $td.addClass('available')
+        $td.html(" ")
+      }
+      else{
+
+      }
+    }
+  });
+  </script>
 
 <!--   <a href="/admin/reset"
      data-confirm="Are you sure?"

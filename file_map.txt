@@ -1,0 +1,52 @@
+This is not a comprehensive list, but it addresses the important files.
+
+Files or folders marked with ! are where 90% of the development should happen.
+
+If feel you need to modify something outside those folders, double check, as 
+often there are 2 copies of an item, one for the server, and one for our app.
+
+├── base.sql                              # Backup of database, out of date
+├── file_map.txt                          # This file :P
+├── huntserver                            # Directory for the huntserver app
+│   ├── admin.py                          # Controls the huntserver admin view
+│   ├── forms.py                          # Models for the forms used 
+│   ├── migrations                        # DB migrations for updating new DBs
+│   │   ├── 0001_initial.py               
+│   │   │     ...
+│   │   ├── 0011_auto_20150701_1127.py
+│   ├── models.py                         ! The model specification for the app
+│   ├── puzzle.py                         # Puzzle related functions
+│   ├── static                            # A static file directory
+│   │   ├── huntserver                    # Place static files for the app here
+│   │   │   ├── admin_addon.css           # Remodels django admin style to ours
+│   │   │   ├── admin.css                 # The style for our custom staff pages
+│   │   │   └── base.css                  ! The style for our user pages
+│   │   ├── jquery.min.js                 # Source of jquery for the server
+│   │   └── js.cookie.js                  # Used in Queue.html, do not remove
+│   ├── templates                         ! Templates for the app            
+│   │   ├── base.html                     # Base template for user pages
+│   │   ├── hunt1.html                    ! Each hunt gets it's own html and
+│   │   ├── hunt2.html                      the files are numbered sequentially
+│   │   ├── progress.html                 # Template for /staff/progress
+│   │   ├── puzzle.html                   ! Template for individual puzzles
+│   │   ├── queue.html                    # Template for /staff/queue
+│   │   ├── registration                  
+│   │   │   └── login.html                # Template for non-logged in users
+│   │   └── staff_base.html               # Base template for staff pages
+│   ├── urls.py                           ! Router for the app (USE THIS ONE)
+│   ├── views.py                          ! Views for the app
+├── manage.py                             # useful django created python script
+├── notes.txt                             # Notes, eventually to be in README.md
+├── puzzlehunt_server                     # Directory for the whole server
+│   ├── settings.py                       # Settings for the whole server
+│   ├── urls.py                           # Urls for the server (SPARINGLY EDIT)
+├── README.md                             ! Readme for the project
+├── static                                # static host directory (DONT USE!!!)
+├── templates                             # Global templates
+│   └── admin                             
+│       └── base_site.html                # Template to get custom admin banner 
+├── uwsgi_params                          # Parameters for the production server
+├── wdjango.ini                           # Django initialization file
+├── wsgi_django.py                        # wsgi server for django
+├── wsgi_websocket.py                     # wsgi server for websockets
+└── wweb.ini                              # Websocket initialization file

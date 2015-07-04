@@ -8,13 +8,6 @@ python manage.py collectstatic
 
 uwsgi --ini wdjango.ini& uwsgi --ini wweb.ini&
 
-
-
-old commands:
-uwsgi --socket django.sock --buffer-size=32768 --workers=5 --master --module wsgi_django --chmod-socket=666
-
-uwsgi --http-socket web.sock --gevent 1000 --http-websockets --workers=2 --master --module wsgi_websocket --chmod-socket=666
-
 References:
 How to websocket: http://django-websocket-redis.readthedocs.org/en/latest/usage.html
 
@@ -22,7 +15,6 @@ Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutori
 
 Where I got development setup from: http://django-websocket-redis.readthedocs.org/en/latest/running.html#django-with-websockets-for-redis-behind-nginx-using-uwsgi
 
-List of websockets:
+List of planned websockets:
 - puzzle_submissions -> self, admin
 - home_page_update -> self
-- 

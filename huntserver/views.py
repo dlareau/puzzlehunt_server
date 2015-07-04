@@ -8,13 +8,14 @@ from django.template import RequestContext, loader
 from django.utils import timezone
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
+from django.utils.dateformat import DateFormat
 import json
 
 from .models import Hunt, Puzzle, Submission, Team, Person
-from .forms import AnswerForm, SubmissionForm
+from .forms import *
 from .puzzle import *
 
-# Will update submitter and staff client versions of a submission s
+# Will update submitter and staff client versions of a submission
 def send_submission_update(s):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
                                      users=[s.team.login_info.username, settings.ADMIN_ACCT])
@@ -24,6 +25,23 @@ def send_submission_update(s):
     message['puzzle_name'] = s.puzzle.puzzle_name
     message['team'] = s.team.team_name
     message['pk'] = modelJSON['pk']
+    message = RedisMessage(json.dumps(message))
+    redis_publisher.publish_message(message)
+
+def send_status_update(puzzle, team, status_type):
+    # status_type should be either "solve" or "unlock"
+    redis_publisher = RedisPublisher(facility='puzzle_status',
+                                     users=[team.login_info.username, settings.ADMIN_ACCT])
+    message = dict()
+    message['puzzle_id'] = puzzle.puzzle_id
+    message['puzzle_num'] = puzzle.puzzle_number
+    message['puzzle_name'] = puzzle.puzzle_name
+    message['team_pk'] = team.pk
+    message['status_type'] = status_type
+    if(status_type == 'solve'):
+        time = team.solve_set.get(puzzle=puzzle).submission.submission_time
+        df = DateFormat(time)
+        message['time_str'] = df.format("h:i a")
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
 
@@ -63,6 +81,7 @@ def puzzle(request, puzzle_id):
             s.save()
             if(s.response_text == "Correct!"):
                 Solve.objects.create(puzzle=s.puzzle, team=s.team, submission=s)
+                send_status_update(puzzle, team, "solve")
             s.save()
             send_submission_update(s)
             unlock_puzzles(team)
@@ -102,16 +121,30 @@ def progress(request):
     teams = hunt.team_set.all().order_by('team_name')
     sol_array = []
     for team in teams:
-        sol_array.append({'name':team.team_name, 'num':len(team.solved.all()), 'cells':[]})
+        sol_array.append({'team':team, 'num':len(team.solved.all()), 'cells':[]})
         for puzzle in puzzles:
             if(puzzle in team.solved.all()):
-                sol_array[-1]['cells'].append(team.solve_set.get(puzzle=puzzle))
+                sol_array[-1]['cells'].append([team.solve_set.get(puzzle=puzzle), puzzle.puzzle_id])
             elif(puzzle in team.unlocked.all()):                
-                sol_array[-1]['cells'].append("unlocked")
+                sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id])
             else:
-                sol_array[-1]['cells'].append("locked")
+                sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
     context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}
     return render(request, 'progress.html', context)
+
+def unlock(request):
+    if request.method == 'POST':
+        form = UnlockForm(request.POST)
+        if form.is_valid():
+            t = Team.objects.get(pk=form.cleaned_data['team_id'])
+            p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
+            t.unlocked.add(p)
+            send_status_update(p, t, "unlock")
+            t.save()
+        return redirect('huntserver:progress')
+    
+    else:   
+        return hunt(request, settings.CURRENT_HUNT_NUM)
 
 #TODO: fix
 @login_required
