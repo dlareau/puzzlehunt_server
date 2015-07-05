@@ -27,7 +27,7 @@
           {% if cell.0 == "locked"%}
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='unavailable' 
              style='text-align:center;'>
-              <form class='unlock_form' action="/staff/unlock/" method="post">
+              <form class='unlock_form' action="/staff/progress/" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="team_id" value="{{ row.team.pk }}">
                 <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">

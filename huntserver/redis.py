@@ -6,14 +6,14 @@ from django.core import serializers
 from django.conf import settings
 from django.utils.dateformat import DateFormat
 
-def send_submission_update(s):
+def send_submission_update(submission):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
-                                     users=[s.team.login_info.username, settings.ADMIN_ACCT])
-    modelJSON = json.loads(serializers.serialize("json", [s]))[0]
+             users=[submission.team.login_info.username, settings.ADMIN_ACCT])
+    modelJSON = json.loads(serializers.serialize("json", [submission]))[0]
     message = modelJSON['fields']
-    message['puzzle'] = s.puzzle.puzzle_id
-    message['puzzle_name'] = s.puzzle.puzzle_name
-    message['team'] = s.team.team_name
+    message['puzzle'] = submission.puzzle.puzzle_id
+    message['puzzle_name'] = submission.puzzle.puzzle_name
+    message['team'] = submission.team.team_name
     message['pk'] = modelJSON['pk']
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)

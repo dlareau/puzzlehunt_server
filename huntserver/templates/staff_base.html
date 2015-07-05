@@ -1,22 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{% block title %} Puzzlehunt! {% endblock title %}</title>
+    <title>{% block title %} Puzzlehunt Admin {% endblock title %}</title>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
     {% block includes %} {% endblock includes %}
   </head>
   <body>
-    <header>
-      <h1>Puzzlehunt Admin</h1>
-      <ul>
-	<li><a href="/admin/huntserver/hunt/">Hunts</a><li>
-        <li><a href="/admin/huntserver/team/">Teams</a></li>
-        <li><a href="/admin/huntserver/puzzle/">Puzzles</a></li>
-        <li><a href="/staff/progress">Progress</a></li>
-        <li><a href="/staff/queue">Queue</a></li>
-        <!--<li><a href="/admin/charts">Charts</a></li> !-->
-      </ul>
-    </header>
+    {% include "staff_header.html" %}
     <section id="content">
       {% block content %}
 

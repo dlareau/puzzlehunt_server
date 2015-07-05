@@ -6,10 +6,10 @@
     <div id="puzzles">
       {% for puzzle in puzzles %}
         <div id='puzzle{{ puzzle.puzzle_number }}' class='puzzle icon'>
-	  <a href='puzzle/{{ puzzle.puzzle_id }}/' class='icon-link'>
-	    <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
-	  </a>
-	</div>
+          <a href='puzzle/{{ puzzle.puzzle_id }}/' class='icon-link'>
+            <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
+          </a>
+        </div>
       {% endfor %}
     </div>
     <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>

@@ -24,7 +24,8 @@ often there are 2 copies of an item, one for the server, and one for our app.
 │   │   │   └── base.css                  ! The style for our user pages
 │   │   ├── jquery.min.js                 # Source of jquery for the server
 │   │   └── js.cookie.js                  # Used in Queue.html, do not remove
-│   ├── templates                         ! Templates for the app            
+│   ├── templates                         ! Templates for the app       
+│   │   ├── access_error.html             # Template for access denied errors     
 │   │   ├── base.html                     # Base template for user pages
 │   │   ├── hunt1.html                    ! Each hunt gets it's own html and
 │   │   ├── hunt2.html                      the files are numbered sequentially

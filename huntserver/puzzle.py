@@ -1,18 +1,28 @@
 from .models import *
 from .redis import *
 
-def respond_to_submission(s, puzzle):
+def respond_to_submission(submission):
     # Compare against correct answer
-    if(puzzle.answer.lower() == s.submission_text.lower()):
-        return "Correct!"
+    if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
+        Solve.objects.create(puzzle=submission.puzzle, 
+            team=submission.team, submission=submission)
+
+        send_status_update(submission.puzzle, submission.team, "solve")
+        unlock_puzzles(submission.team)
+        response = "Correct!"
     # Answers should not contain spaces
-    elif(" " in s.submission_text):
-        return "Invalid answer (spaces)"
+    elif(" " in submission.submission_text):
+        response = "Invalid answer (spaces)"
     # Answers should not contain underscores
-    elif("_" in s.submission_text):
-        return "Invalid answer (underscores)"
+    elif("_" in submission.submission_text):
+        response = "Invalid answer (underscores)"
     else:
-        return ""
+        response = ""
+
+    submission.response_text = response
+    submission.save()
+    send_submission_update(submission)
+    return response
 
 def unlock_puzzles(team):
     puzzles = team.hunt.puzzle_set.all().order_by('puzzle_number')
@@ -29,4 +39,3 @@ def unlock_puzzles(team):
                 team.unlocked.add(puzzle)
                 send_status_update(puzzle, team, "unlock")
     
-        
