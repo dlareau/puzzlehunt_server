@@ -90,11 +90,12 @@
         $td.removeClass();
         $td.addClass('solved');
         $td.html(update.time_str);
+        $td.css("background", "");
       }
       else if(update.status_type == "unlock"){
         $td.removeClass();
         $td.addClass('available');
-        $td.data("date", (Date.now()/1000))
+        $td.data("date", (Date.now()/1000));
         $td.html(" ");
       }
     }

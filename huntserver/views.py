@@ -134,6 +134,23 @@ def progress(request):
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}
         return render(request, 'progress.html', context)
 
+@login_required
+def charts(request):
+    if(not is_admin(request)):
+        return render(request, 'access_error.html')
+
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
+    puzzle_info_dicts = []
+    for puzzle in puzzles:
+        puzzle_info_dicts.append({
+            "name": puzzle.puzzle_name,
+            "locked": curr_hunt.team_set.count()-puzzle.unlocked_for.count(),
+            "unlocked": puzzle.unlocked_for.count() - puzzle.solved_for.count(),
+            "solved": puzzle.solved_for.count()
+            })
+    context = {'data1_list':puzzle_info_dicts}
+    return render(request, 'charts.html', context)
 
 #TODO: fix
 @login_required

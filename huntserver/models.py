@@ -64,3 +64,6 @@ class Unlock(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     team = models.ForeignKey(Team)
     time = models.DateTimeField()
+
+    def __unicode__(self):
+        return self.team.team_name + ": " + self.puzzle.puzzle_name
