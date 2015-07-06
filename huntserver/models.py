@@ -38,12 +38,12 @@ class Person(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     email = models.EmailField()
-    phone = models.CharField(max_length=20)
-    comments = models.CharField(max_length=400)
-    team = models.ForeignKey(Team)
+    phone = models.CharField(max_length=20, blank=True)
+    comments = models.CharField(max_length=400, blank=True)
+    team = models.ForeignKey(Team, blank=True)
     
     def __unicode__(self):
-        return self.first_name + self.last_name
+        return self.first_name + " " + self.last_name
     
 class Submission(models.Model):
     team = models.ForeignKey(Team)
