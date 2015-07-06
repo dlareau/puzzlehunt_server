@@ -27,7 +27,7 @@ class Puzzle(models.Model):
 class Team(models.Model):
     team_name = models.CharField(max_length=200)
     solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
-    unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for')
+    unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
     login_info = models.ForeignKey(User)
     hunt = models.ForeignKey(Hunt)
 
@@ -60,3 +60,7 @@ class Solve(models.Model):
     team = models.ForeignKey(Team)
     submission = models.ForeignKey(Submission, blank=True)
     
+class Unlock(models.Model):
+    puzzle = models.ForeignKey(Puzzle)
+    team = models.ForeignKey(Team)
+    time = models.DateTimeField()

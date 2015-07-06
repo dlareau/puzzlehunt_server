@@ -1,5 +1,6 @@
 from .models import *
 from .redis import *
+from django.utils import timezone
 
 def respond_to_submission(submission):
     # Compare against correct answer
@@ -36,6 +37,6 @@ def unlock_puzzles(team):
     for puzzle in puzzles:
         if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
             if(puzzle not in team.unlocked.all()):
-                team.unlocked.add(puzzle)
+                Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
                 send_status_update(puzzle, team, "unlock")
     

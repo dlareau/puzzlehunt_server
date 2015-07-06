@@ -99,7 +99,7 @@ def progress(request):
         if form.is_valid():
             t = Team.objects.get(pk=form.cleaned_data['team_id'])
             p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
-            t.unlocked.add(p)
+            Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
             send_status_update(p, t, "unlock")
             t.save()
         return redirect('huntserver:progress')
@@ -113,6 +113,7 @@ def progress(request):
     elif request.GET.get('reset'):
         for team in teams:
             team.unlocked.clear()
+            team.unlock_set.all().delete()
             team.solved.clear()
             team.solve_set.all().delete()
             team.submission_set.all().delete()
@@ -126,7 +127,8 @@ def progress(request):
                 if(puzzle in team.solved.all()):
                     sol_array[-1]['cells'].append([team.solve_set.filter(puzzle=puzzle)[0], puzzle.puzzle_id])
                 elif(puzzle in team.unlocked.all()):                
-                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id])
+                    unlock_time = team.unlock_set.filter(puzzle=puzzle)[0].time
+                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id, unlock_time])
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}

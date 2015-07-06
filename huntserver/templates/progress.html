@@ -35,9 +35,9 @@
               </form>
             </td>
           {% elif cell.0 == "unlocked" %}
-            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' ></td>
+            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}></td>
           {% else %}
-            <td d='p{{ cell.1 }}t{{ row.team.pk }}' class='solved' > 
+            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='solved' > 
               {{ cell.0.submission.submission_time|time:"h:i a" }} 
             </td>
           {% endif %}
@@ -49,6 +49,17 @@
   
   <script type='text/javascript'>
   $(document).ready(function() {
+    function recolor () {
+      $(".available").each(function(){
+        var time_diff = Math.floor(Date.now()/1000) - $(this).data("date");
+        var ratio = Math.floor(Math.min((1-time_diff/14400), 1)*255);
+        var color = "rgb(255, " + ratio + ", 0)"
+        $(this).css("background", color);
+      });
+    }
+    recolor();
+    setInterval(recolor, 5000);
+
     is_first_message = true;
     var ws4redis = WS4Redis({
       uri: '{{ WEBSOCKET_URI }}puzzle_status?subscribe-user',
@@ -83,6 +94,7 @@
       else if(update.status_type == "unlock"){
         $td.removeClass();
         $td.addClass('available');
+        $td.data("date", (Date.now()/1000))
         $td.html(" ");
       }
     }
