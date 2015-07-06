@@ -6,12 +6,14 @@ from .models import *
 class PuzzleAdmin(admin.ModelAdmin):
     filter_horizontal = ('unlocks',)
 
-class SolveInline(admin.TabularInline):
-    model = Solve
-    extra = 2
+class PersonInline(admin.TabularInline):
+    model = Person
+    extra = 5
+    max_num = 5 
 
 class TeamAdmin(admin.ModelAdmin):
-    inlines = (SolveInline,)
+    inlines = (PersonInline, )
+    filter_horizontal = ('unlocked',)
     
 admin.site.register(Hunt)
 admin.site.register(Puzzle, PuzzleAdmin)
