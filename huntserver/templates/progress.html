@@ -60,7 +60,6 @@
     recolor();
     setInterval(recolor, 5000);
 
-    is_first_message = true;
     var ws4redis = WS4Redis({
       uri: '{{ WEBSOCKET_URI }}puzzle_status?subscribe-user',
       receive_message: receiveMessage,
@@ -80,10 +79,6 @@
     });
 
     function receiveMessage(msg) {
-      if(is_first_message){
-        is_first_message = false;
-        return;
-      }
       var update = JSON.parse(msg);
       $td = $("#p" + update.puzzle_id + "t" + update.team_pk);
       if(update.status_type == "solve"){

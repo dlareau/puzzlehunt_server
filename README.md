@@ -37,21 +37,21 @@ Base Features:
 - [x] Answer response system
 - [x] Landing Page
 - [x] admin view - edit data
-- [ ] admin view - graphs
+- [x] admin view - graphs
 - [x] admin view - queue
 - [x] admin view - puzzle stats
 - [x] Graph unlocking structure
 
 
 Desired Features
-- [ ] Charts 
+- [ ] Public facing charts and leaderboard (disableable)
 - [ ] Hints
 - [x] Manual response being correct
 - [x] Admins be able to see manual responses
 - [ ] Send more than one manual response
 - [ ] Multiple Landing pages
-- [ ] Show top k teams without score
-- [ ] Solve count for each puzzle public
 - [x] Very clear puzzle labeling
 - [ ] Ability for puzzle solutions to unlock objects
+- [ ] Ability to set interactive unlocks and give notifications
+- [ ] Chatroom with staff for difficulties
 - [ ] Server can get puzzles from links using button on admin page.
