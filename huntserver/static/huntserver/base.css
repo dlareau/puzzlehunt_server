@@ -4,15 +4,46 @@ html {
 body {
     font-family: verdana;
     font-size: 14px;
+    margin: 20px;
     padding: 20px;
-    margin: 20px auto;
-    width: 1000px;
     background: white;
-    border: 4px solid black; }
+    border: 4px solid black; 
+}
 
+header {
+    margin: 0 -20px;
+    margin-top: -20px;
+    background-color: lightgray;
+    padding: 15px; 
+    overflow: hidden;
+}
+
+#left-header{
+    float: left;
+}
+
+#right-header{
+    float: right;
+}
+
+.puzzle {
+    overflow: hidden;
+}
+
+th {
+    text-align: left;
+}
+
+.puzzle img{
+    margin-left: 15px;
+    width: 30px;
+    height: 30px;
+}
+
+/* For the puzzle page */
 .puzzle, .info {
     overflow: auto; }
-
+    
 .puzzle fieldset {
     float: left;
     padding: 20px;
@@ -29,26 +60,3 @@ body {
 
 .puzzle .info a {
     float: right; }
-
-#map {
-    position: relative; }
-  
-  #map .puzzle {
-      position: absolute;
-      overflow: visible;
-      width: 20px;
-      height: 20px; }
-  
-    #map .puzzle .cloud {
-	position: absolute; }
-      
-    #map .puzzle .done {
-	width: 48px;
-	position: absolute;
-	top: -16px;
-	left: -8px;
-	z-index: -1; }
-    #map .puzzle a {
-	font-weight: bold;
-	color: white;
-	font-size: 20px; }

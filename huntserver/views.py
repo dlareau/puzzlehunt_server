@@ -20,18 +20,20 @@ def is_admin(request):
 @login_required
 def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
-
+    team = Team.objects.get(login_info=request.user)
+    
     # Show all puzzles from old hunts to anybody
     if(hunt.hunt_number == settings.CURRENT_HUNT_NUM):
-        team = Team.objects.get(login_info=request.user)
         puzzle_list = team.unlocked.filter(hunt=hunt)
     else:
         puzzle_list = hunt.puzzle_set.all()
         
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
 
+    context = {'puzzles': puzzles, 'team': team}
+    
     # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
-    return render(request, 'hunt' + str(hunt_num) + '.html', {'puzzles': puzzles})
+    return render(request, 'hunt' + str(hunt_num) + '.html', context)
 
 
 @login_required

@@ -2,15 +2,40 @@
 {% block title %}Puzzles!{% endblock title %}
 
 {% block content %}
-    <h1 class="title">Puzzle Listing</h1>
+    <h1 class="title">Unlocked Puzzles</h1>
     <div id="puzzles">
-      {% for puzzle in puzzles %}
-        <div id='puzzle{{ puzzle.puzzle_number }}' class='puzzle icon'>
-          <a href='puzzle/{{ puzzle.puzzle_id }}/' class='icon-link'>
-            <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
-          </a>
-        </div>
-      {% endfor %}
+      <table>
+	<thead>
+	  <tr>
+	    <th style='width: 80px;'>Solved?</th>
+	    <th style='width: 100px;'>Answer</th>
+	    <th style='width: 400px;'>Puzzle Name/Link</th>
+	    </tr>
+	  </thead>
+	<tbody>
+	  {% for puzzle in puzzles %}
+          <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
+	    <td>
+	      {% if puzzle in team.solved.all %}
+	      <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
+	      {% else %}
+	      <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
+	      {% endif %}
+	    </td>
+	    <td>
+	      {% if puzzle in team.solved.all %}
+	        {{ puzzle.answer|upper }}
+	      {% endif %}
+	    </td>
+	    <td>
+	      <a href='puzzle/{{ puzzle.puzzle_id }}/' >
+		<p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
+              </a>
+	    </td>
+          </div>
+	  {% endfor %}
+	</tbody>
+      </table>
     </div>
     <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
 {% endblock content %}
