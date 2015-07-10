@@ -154,6 +154,9 @@ def charts(request):
     context = {'data1_list':puzzle_info_dicts}
     return render(request, 'charts.html', context)
 
+def control(request):
+    return render(request, 'control.html')
+
 #TODO: fix
 @login_required
 def public_stats(request):

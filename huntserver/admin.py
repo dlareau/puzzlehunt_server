@@ -5,7 +5,8 @@ from .models import *
 
 class PuzzleAdmin(admin.ModelAdmin):
     filter_horizontal = ('unlocks',)
-
+    list_filter = ('hunt',)
+    
 class PersonInline(admin.TabularInline):
     model = Person
     extra = 5
@@ -13,7 +14,7 @@ class PersonInline(admin.TabularInline):
 
 class TeamAdmin(admin.ModelAdmin):
     inlines = (PersonInline, )
-    filter_horizontal = ('unlocked',)
+    list_filter = ('hunt',)
     
 admin.site.register(Hunt)
 admin.site.register(Puzzle, PuzzleAdmin)
