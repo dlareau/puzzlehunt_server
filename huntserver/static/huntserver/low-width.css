@@ -1,0 +1,16 @@
+#content-right {
+    float: none;
+    /*    display:none;*/
+    border: none;
+    padding-right: 20px;
+    width: auto;
+}
+
+#plot {
+    width: auto;
+}
+
+#content-left {
+    float:none;
+    border: none;
+}

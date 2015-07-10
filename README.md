@@ -46,6 +46,7 @@ Base Features:
 Desired Features
 - [ ] Public facing charts and leaderboard (disableable)
 - [ ] Hints
+- [x] Upgraded Hunt home page with answers and status
 - [x] Manual response being correct
 - [x] Admins be able to see manual responses
 - [ ] Send more than one manual response
@@ -55,3 +56,4 @@ Desired Features
 - [ ] Ability to set interactive unlocks and give notifications
 - [ ] Chatroom with staff for difficulties
 - [ ] Server can get puzzles from links using button on admin page.
+- [ ] Upgrade puzzle page to have in-body pdf/puzzle

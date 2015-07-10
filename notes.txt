@@ -23,5 +23,4 @@ Known issues: (listed here so they don't become unknown)
  - Websockets sends UTC solve time to progress page
  - Code is horribly uncommented
  - HTML has inbody script :(
- - Admin pages don't have logout button
- - Visitors to old hunts should not be able to submit. 
+ - Visitors to old hunts should not be able to submit.

@@ -1,41 +1,56 @@
 {% extends "base.html" %}
 {% block title %}Puzzles!{% endblock title %}
 
+{% block includes %}
+<link rel="stylesheet" type="text/css" media='screen and (max-width: 1200px)' href="/static/huntserver/low-width.css">
+{% endblock %}
+
 {% block content %}
+  <div id='container'>
+  <div id='content-left'>
     <h1 class="title">Unlocked Puzzles</h1>
     <div id="puzzles">
       <table>
-	<thead>
-	  <tr>
-	    <th style='width: 80px;'>Solved?</th>
-	    <th style='width: 100px;'>Answer</th>
-	    <th style='width: 400px;'>Puzzle Name/Link</th>
-	    </tr>
-	  </thead>
-	<tbody>
-	  {% for puzzle in puzzles %}
+    <thead>
+      <tr>
+        <th style='width: 80px;'>Solved?</th>
+        <th style='width: 100px;'>Answer</th>
+        <th style='width: 320px;'>Puzzle Name/Link</th>
+        </tr>
+      </thead>
+    <tbody>
+      {% for puzzle in puzzles %}
           <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
-	    <td>
-	      {% if puzzle in team.solved.all %}
-	      <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
-	      {% else %}
-	      <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
-	      {% endif %}
-	    </td>
-	    <td>
-	      {% if puzzle in team.solved.all %}
-	        {{ puzzle.answer|upper }}
-	      {% endif %}
-	    </td>
-	    <td>
-	      <a href='puzzle/{{ puzzle.puzzle_id }}/' >
-		<p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
+        <td>
+          {% if puzzle in team.solved.all %}
+          <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
+          {% else %}
+          <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
+          {% endif %}
+        </td>
+        <td>
+          {% if puzzle in team.solved.all %}
+            {{ puzzle.answer|upper }}
+          {% endif %}
+        </td>
+        <td>
+          <a href='/puzzle/{{ puzzle.puzzle_id }}/' >
+        <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
               </a>
-	    </td>
+        </td>
           </div>
-	  {% endfor %}
-	</tbody>
+      {% endfor %}
+    </tbody>
       </table>
     </div>
     <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
+  </div>
+  <div id='content-right'>
+    <div id='plot'>
+      Plot goes gere!
+      </br>
+      {% lorem 3 p %}
+    </div>
+  </div>
+  </div>
 {% endblock content %}

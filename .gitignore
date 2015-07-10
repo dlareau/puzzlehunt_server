@@ -1,2 +1,4 @@
 *.pyc
 /static/
+/huntserver/static/huntserver/*.pdf
+/huntserver/static/huntserver/*.png
