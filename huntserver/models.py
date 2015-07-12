@@ -28,7 +28,7 @@ class Team(models.Model):
     team_name = models.CharField(max_length=200)
     solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
     unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
-    login_info = models.ForeignKey(User)
+    login_info = models.OneToOneField(User)
     hunt = models.ForeignKey(Hunt)
 
     def __unicode__(self):
