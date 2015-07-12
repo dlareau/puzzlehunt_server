@@ -106,21 +106,9 @@ def progress(request):
             t.save()
         return redirect('huntserver:progress')
 
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    teams = curr_hunt.team_set.all().order_by('team_name')
-    if request.GET.get('initial'):
-        for team in teams:
-            unlock_puzzles(team)
-        return redirect('huntserver:progress')
-    elif request.GET.get('reset'):
-        for team in teams:
-            team.unlocked.clear()
-            team.unlock_set.all().delete()
-            team.solved.clear()
-            team.solve_set.all().delete()
-            team.submission_set.all().delete()
-        return redirect('huntserver:progress')
     else:
+        curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+        teams = curr_hunt.team_set.all().order_by('team_name')
         puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
         sol_array = []
         for team in teams:
@@ -154,8 +142,59 @@ def charts(request):
     context = {'data1_list':puzzle_info_dicts}
     return render(request, 'charts.html', context)
 
+@login_required
+def chat(request):
+    if request.method == 'POST':
+        if(request.POST.get('team_pk') != ""):
+            m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
+                is_response=(request.POST.get('is_response')=="true"),
+                team=Team.objects.get(pk=request.POST.get('team_pk')))
+            send_chat_message(m)
+        return redirect('huntserver:chat')
+    else:
+        team = Team.objects.get(login_info=request.user);
+        messages = Message.objects.filter(team=team).order_by('time')
+        message_list = []
+        for message in messages:
+            message_list.append({'time': message.time, 'text':message.text,
+                'team':message.team, 'is_response': message.is_response})
+        return render(request, 'chat.html', {'messages': message_list, 'team':team})
+
+@login_required
+def admin_chat(request):
+    if(not is_admin(request)):
+        return render(request, 'access_error.html')
+
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time')
+    message_list = []
+    for message in messages:
+        message_list.append({'time': message.time, 'text':message.text,
+            'team':{'pk': message.team.pk, 'name': message.team.team_name},
+            'is_response': message.is_response})
+    return render(request, 'staff_chat.html', {'messages': message_list})
+
+@login_required
 def control(request):
-    return render(request, 'control.html')
+    if(not is_admin(request)):
+        return render(request, 'access_error.html')
+    
+    if request.GET.get('initial'):
+        for team in teams:
+            unlock_puzzles(team)
+        return redirect('huntserver:progress')
+    elif request.GET.get('reset'):
+        for team in teams:
+            team.unlocked.clear()
+            team.unlock_set.all().delete()
+            team.solved.clear()
+            team.solve_set.all().delete()
+            team.submission_set.all().delete()
+        return redirect('huntserver:progress')
+    elif request.GET.get('getpuzzles'):
+        print("Can't do nothin...")
+    else:
+        return render(request, 'access_error.html')
 
 #TODO: fix
 @login_required

@@ -97,11 +97,15 @@
   });
   </script>
   </br></br>
-  <a href="/staff/progress/?reset=1" onclick="return confirm('Are you sure?')">
+  <a href="/staff/control/?reset=1" onclick="return confirm('Are you sure?')">
     Reset All Progress
   </a>
   </br>
-  <a href="/staff/progress/?initial=1" onclick="return confirm('Are you sure?')">
+  <a href="/staff/control/?getpuzzles=1" onclick="return confirm('Are you sure?')">
+    Fetch puzzles from URLs
+  </a>
+  </br>
+  <a href="/staff/control/?initial=1" onclick="return confirm('Are you sure?')">
     Release Initial Puzzles
   </a>
 {% endblock content %}

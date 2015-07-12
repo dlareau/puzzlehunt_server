@@ -1,0 +1,93 @@
+{% extends "staff_base.html" %}
+{% block title %}Hunt Control{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
+{% endblock includes %}
+
+{% block content %}
+  <h1> Staff Chat </h1>
+  <div id="chatcontainer">
+    {% regroup messages by team as team_messages %}
+    <div>
+      {% for group in team_messages %}
+        <button data-id='{{ group.grouper.pk }}' class="chatselect">
+          {{ group.grouper.name|truncatechars:10 }}
+        </button>
+      {% endfor %}
+    </div>
+    </br></br>
+    {% for group in team_messages %}
+      <div id='chat_{{ group.grouper.pk }}' class="chatwindow">
+        {% for message in group.list %}
+          {% if message.is_response %}
+            <div style='white-space:pre-wrap; color:red;'>Admin     : {{ message.text }}</div>
+          {% else %}
+            <div style='white-space:pre-wrap;'>{{ group.grouper.name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+  <div style="margin-top: 10px">
+    <input id="messagebox" typpe='text'> </input>
+    <button id="sendbutton">Send</button>
+  </div>
+  <script type='text/javascript'>
+  $(document).ready(function() {
+    curr_team = "";
+
+    var ws4redis = WS4Redis({
+      uri: '{{ WEBSOCKET_URI }}chat_message?subscribe-user',
+      receive_message: receiveMessage,
+      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+    });
+
+    $('#sendbutton').click(function() {
+      data = {team_pk: curr_team, message: $('#messagebox').val(), 
+              is_response: true, csrfmiddlewaretoken: '{{ csrf_token }}'};
+      jQuery.post("/chat/", data);
+      $('#messagebox').val('');
+    });
+    function map_buttons() {
+      $('.chatselect').click(function() {
+        $('.chatselect').each(function() {
+          $("#chat_" + $(this).data('id')).hide();
+        });
+        $("#chat_" + $(this).data('id')).show();
+        curr_team = $(this).data('id');
+      });
+    }
+    map_buttons();
+
+
+    function receiveMessage(msg) {
+      var message = JSON.parse(msg);
+      if(message.is_response){
+        message.team_name = "Admin";
+      }
+      if(message.team_name.length > 10){
+        message.team_name.length = message.team_name.slice(0,10);
+      }
+      if(message.team_name.length < 10){
+        message.team_name += Array(11-message.team_name.length).join(" ");
+      }
+      if($("#chat_"+ message.team_pk).length == 0){
+        $("#chatcontainer").append("<div id='chat_" + message.team_pk + "'  class='chatwindow'>");
+        var b = "<button data-id='" + message.team_pk + "'class='chatselect'>";
+        $("#chatcontainer").prepend(b + message.team_name + "</button>");
+        map_buttons();
+      }
+      var message_window = $("#chat_" + message.team_pk);
+      var div = "<div style='white-space:pre-wrap;";
+      if(message.is_response){
+        div += " color:red;";
+      }
+      div += "'>" + message.team_name + ": " + message.text + "</div>";
+      message_window.append(div);
+    }
+  });
+  </script>
+{% endblock content %}

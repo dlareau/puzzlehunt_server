@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Hunt Control{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
+{% endblock includes %}
+
+{% block content %}
+<div style="overflow: hidden; margin-bottom: 20px" >
+  <h1> Chat with staff </h1>
+  <p> Chatbox: </p>
+  <div style="padding: 15px;" id="chatcontainer">
+    {% for message in messages %}
+      {% if message.is_response %}
+        <div style='white-space:pre-wrap; color:red;'>Admin     : {{ message.text }}</div>
+      {% else %}
+        <div style='white-space:pre-wrap;'>{{ team.team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div style="margin-top: 10px">
+    <input id="messagebox" typpe='text'> </input>
+    <button id="sendbutton">Send</button>
+  </div>
+</div>
+  <script type='text/javascript'>
+  $(document).ready(function() {
+    var ws4redis = WS4Redis({
+      uri: '{{ WEBSOCKET_URI }}chat_message?subscribe-user',
+      receive_message: receiveMessage,
+      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+    });
+
+    $('#sendbutton').click(function() {
+      data = {team_pk: {{ team.pk }}, message: $('#messagebox').val(), 
+              is_response: false, csrfmiddlewaretoken: '{{ csrf_token }}'};
+      jQuery.post("/chat/", data);
+      $('#messagebox').val('');
+    });
+    function receiveMessage(msg) {
+      var message = JSON.parse(msg);
+      console.log(message);
+      if(message.is_response){
+        message.team_name = "Admin";
+      }
+      if(message.team_name.length > 10){
+        message.team_name.length = message.team_name.slice(0,10);
+      }
+      if(message.team_name.length < 10){
+        message.team_name += Array(11-message.team_name.length).join(" ");
+      }
+      var message_window = $("#chatcontainer");
+      var div = "<div style='white-space:pre-wrap;";
+      if(message.is_response){
+        div += " color:red;";
+      }
+      div += "'>" + message.team_name + ": " + message.text + "</div>";
+      message_window.append(div);
+    }
+  });
+  </script>
+{% endblock content %}

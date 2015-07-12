@@ -40,3 +40,5 @@ def unlock_puzzles(team):
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
                 send_status_update(puzzle, team, "unlock")
     
+def download_puzzles(hunt):
+    return

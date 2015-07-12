@@ -1,0 +1,32 @@
+#chatcontainer {
+  border: 1px solid black; 
+  max-width: 900px; 
+  min-height: 100px; 
+  background-color: lightgrey; 
+  border-radius:3px;
+}
+
+.chatselect {
+  float:left !important;
+  padding: 10px !important;
+}
+
+.chatwindow {
+  display:none; 
+  overflow-y: auto; 
+  padding:10px; 
+  font-family: Lucida Console;
+}
+
+#messagebox {
+  border-radius:3px; 
+  height: 25px; 
+  width: 400px; 
+  float: left; 
+  margin-right: 10px;
+}
+
+#sendbutton {
+  height: 25px;
+  float: left;
+}

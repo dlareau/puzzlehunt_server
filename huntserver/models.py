@@ -67,3 +67,9 @@ class Unlock(models.Model):
 
     def __unicode__(self):
         return self.team.team_name + ": " + self.puzzle.puzzle_name
+
+class Message(models.Model):
+    team = models.ForeignKey(Team)
+    is_response = models.BooleanField()
+    text = models.CharField(max_length=400)
+    time = models.DateTimeField()

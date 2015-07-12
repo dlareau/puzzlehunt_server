@@ -34,3 +34,16 @@ def send_status_update(puzzle, team, status_type):
         message['time_str'] = df.format("h:i a")
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
+
+def send_chat_message(message):
+    redis_publisher = RedisPublisher(facility='chat_message',
+                      users=[settings.ADMIN_ACCT, message.team.login_info.username])
+    packet = dict()
+    packet['team_pk'] = message.team.pk
+    packet['team_name'] = message.team.team_name
+    packet['text'] = message.text
+    packet['is_response'] = message.is_response
+    df = DateFormat(message.time)
+    packet['time'] = df.format("h:i a")
+    packet = RedisMessage(json.dumps(packet))
+    redis_publisher.publish_message(packet)
