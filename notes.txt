@@ -20,7 +20,8 @@ List of planned websockets:
 - home_page_update -> self
 
 Known issues: (listed here so they don't become unknown)
- - Websockets sends UTC solve time to progress page
  - Code is horribly uncommented
  - HTML has inbody script :(
  - Visitors to old hunts should not be able to submit.
+ - All puzzle images are of Old Games
+ - puzzle answer submission does not clear form

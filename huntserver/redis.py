@@ -5,6 +5,8 @@ import json
 from django.core import serializers
 from django.conf import settings
 from django.utils.dateformat import DateFormat
+from dateutil import tz
+time_zone = tz.gettz(settings.TIME_ZONE)
 
 def send_submission_update(submission):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
@@ -15,6 +17,8 @@ def send_submission_update(submission):
     message['puzzle_name'] = submission.puzzle.puzzle_name
     message['team'] = submission.team.team_name
     message['pk'] = modelJSON['pk']
+    df = DateFormat(submission.submission_time.astimezone(time_zone))
+    message['time_str'] = df.format("h:i a")
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
 
@@ -30,7 +34,7 @@ def send_status_update(puzzle, team, status_type):
     message['status_type'] = status_type
     if(status_type == 'solve'):
         time = team.solve_set.filter(puzzle=puzzle)[0].submission.submission_time
-        df = DateFormat(time)
+        df = DateFormat(time.astimezone(time_zone))
         message['time_str'] = df.format("h:i a")
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
@@ -43,7 +47,7 @@ def send_chat_message(message):
     packet['team_name'] = message.team.team_name
     packet['text'] = message.text
     packet['is_response'] = message.is_response
-    df = DateFormat(message.time)
+    df = DateFormat(message.time.astimezone(time_zone))
     packet['time'] = df.format("h:i a")
     packet = RedisMessage(json.dumps(packet))
     redis_publisher.publish_message(packet)

@@ -77,15 +77,8 @@ jQuery(document).ready(function($) {
   function receiveMessage(msg) {
     submission = JSON.parse(msg);
     if(submission.puzzle == "{{ puzzle.puzzle_id }}"){
-      d = new Date();
-      d.setTime(Date.parse(submission['submission_time']));
-      hours = d.getHours() > 12 ? d.getHours()-12 : d.getHours(); 
-      minutes = d.getMinutes().toString().length == 1 ? ("0" + d.getMinutes()) : d.getMinutes()
-      time = hours.toString().length  == 1 ? "0" + hours : hours
-      time = time + ":" + minutes;
-      time = time + (d.getHours() > 12 ? " p.m." : " a.m.");
       row = $("<tr data-id='" + submission['pk'] + "'> </tr>");
-      col1 = $("<td> " + time + " </td>");
+      col1 = $("<td> " + submission['time_str'] + " </td>");
       col2 = $("<td> " + submission['submission_text'] + " </td>");
       col3 = $("<td> " + submission['response_text'] + " </td>");
       row.append(col1,col2,col3);

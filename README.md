@@ -54,6 +54,6 @@ Desired Features
 - [x] Very clear puzzle labeling
 - [ ] Ability for puzzle solutions to unlock objects
 - [ ] Ability to set interactive unlocks and give notifications
-- [ ] Chatroom with staff for difficulties
+- [x] Chatroom with staff for difficulties
 - [ ] Server can get puzzles from links using button on admin page.
 - [ ] Upgrade puzzle page to have in-body pdf/puzzle

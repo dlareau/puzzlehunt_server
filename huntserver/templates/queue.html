@@ -116,19 +116,12 @@
         response = "Response: " + submission['response_text'];
       }
 
-      var d = new Date();
-      d.setTime(Date.parse(submission['submission_time']));
-      var hours = d.getHours() > 12 ? d.getHours()-12 : d.getHours(); 
-      var minutes = d.getMinutes().toString().length == 1 ? ("0" + d.getMinutes()) : d.getMinutes();
-      var time = hours.toString().length  == 1 ? "0" + hours : hours;
-      time = time + ":" + minutes;
-      time = time + (d.getHours() > 12 ? " p.m." : " a.m.");
       var row = $("<tr data-id='" + submission['pk'] + "' class='" + 
             row_class +  "'> </tr>");
       var col1 = $("<td> " + submission['team'] + " </td>");
       var col2 = $("<td> " + submission['puzzle_name'] + " </td>");
       var col3 = $("<td> " + submission['submission_text'] + " </td>");
-      var col4 = $("<td> " + time + " </td>");
+      var col4 = $("<td> " + submission['time_str'] + " </td>");
       var col5 = $("<td> " + response + " </td>");
       row.append(col1,col2,col3,col4,col5);
       return row;   
