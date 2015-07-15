@@ -25,7 +25,6 @@ Database setup details:
 
 Project Details:
 * Check out file_map.txt for new developers.
-* Planned (now out of date) models and views can be found and contributed to [here](https://docs.google.com/document/d/1m_et2SfdcPdOuWgtSCfs9RXN9QTxW9WGgjHZsOQ2yFo/edit)
 * The django project is named ```puzzlehunt_server``` amd the app is named ```huntserver```
 * We are using setup and coding practices taken from the django tutorial [here](https://docs.djangoproject.com/en/1.8/intro/tutorial01/)
 * There is a branch with the tutorial server mentioned above up to halfway through the 4th part for code refrence.
@@ -55,5 +54,5 @@ Desired Features
 - [ ] Ability for puzzle solutions to unlock objects
 - [ ] Ability to set interactive unlocks and give notifications
 - [x] Chatroom with staff for difficulties
-- [ ] Server can get puzzles from links using button on admin page.
-- [ ] Upgrade puzzle page to have in-body pdf/puzzle
+- [x] Server can get puzzles from links using button on admin page.
+- [x] Upgrade puzzle page to have in-body pdf/puzzle

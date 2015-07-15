@@ -96,6 +96,6 @@ th {
 
 .puzzle #puzzleimg {
     width: 100%;
-    max-width: 1000px;
+    max-width: 900px;
     border: 1px solid black;
 }

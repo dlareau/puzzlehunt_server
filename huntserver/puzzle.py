@@ -1,6 +1,9 @@
 from .models import *
 from .redis import *
+from django.conf import settings
 from django.utils import timezone
+from subprocess import call, check_output
+from time import sleep
 
 def respond_to_submission(submission):
     # Compare against correct answer
@@ -41,4 +44,19 @@ def unlock_puzzles(team):
                 send_status_update(puzzle, team, "unlock")
     
 def download_puzzles(hunt):
+    directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
+    call(["rm", "-r", directory])
+    call(["mkdir", directory])
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    for puzzle in curr_hunt.puzzle_set.all():
+        file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
+        call(["wget", puzzle.link, "-O", file_str])
+        pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
+        for i in range(pages):
+            call(["convert", "-density", "200", "-scale", "x800", file_str + "[" + str(i) + "]", directory + "/" + puzzle.puzzle_id + "-" + str(i) + ".png"])
+        
+    #get document: wget {{URL}} -o {{FILENAME}}
+    #get pages: pdfinfo {{FILENAME}} | grep Pages | awk '{print $2}'
+    #convert: convert -density 200 -scale x800 {{FILENAME}}[i] {{OUTFILE}}
+
     return

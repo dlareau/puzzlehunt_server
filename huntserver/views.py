@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext, loader
 from django.utils import timezone
+from subprocess import check_output
 
 from .models import *
 from .forms import *
@@ -61,7 +62,11 @@ def puzzle(request, puzzle_id):
         if(puzzle.hunt != curr_hunt or puzzle in team.unlocked.all()):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
-            context = {'form': form, 'puzzle': puzzle, 'submission_list': submissions}
+            directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
+            file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
+            pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
+            page_range=range(pages)
+            context = {'form': form, 'pages': page_range, 'puzzle': puzzle, 'submission_list': submissions}
             return render(request, 'puzzle.html', context)
         else:
             return render(request, 'access_error.html')
@@ -192,7 +197,8 @@ def control(request):
             team.submission_set.all().delete()
         return redirect('huntserver:progress')
     elif request.GET.get('getpuzzles'):
-        print("Can't do nothin...")
+        download_puzzles(Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM))
+        return redirect('huntserver:progress')
     else:
         return render(request, 'access_error.html')
 

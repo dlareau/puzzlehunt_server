@@ -13,18 +13,18 @@
 {% block content %}
 <div class='puzzle'>
   <div class='info'>
-    <h1><a href='{{ puzzle.link }}'>
-      P{{ puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}
-    </a></h1>
+    <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
+    <h3><a href='{{ puzzle.link }}'>
+      Click here for a downloadable pdf
+    </a></h3>
   </div>
-
   <fieldset id='submit'>
     <legend>Submit an answer</legend>
     <form id='sub_form' action="/puzzle/{{ puzzle.puzzle_id }}/" method='post'>
       {% csrf_token %}
       <div>
         {{ form }}
-        <input type='submit' value='Submit' data-disable-with='Submitting...'/>
+        <input type='submit' value='Submit'/>
       </div>
     </form>
   </fieldset>
@@ -50,7 +50,9 @@
    </table>
   </fieldset>
   <div>
-    <img id="puzzleimg" src="{{ STATIC_URL }}huntserver/output.png"  alt="No image here">
+    {% for i in pages %}
+    <img id="puzzleimg" src="{{ STATIC_URL }}huntserver/puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="No image here">
+    {% endfor %}
   </div>
 </div>
 <script>
