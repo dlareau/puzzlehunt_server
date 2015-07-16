@@ -46,9 +46,7 @@
           {% csrf_token %}
           <p>
             <input id='id_response' maxlength='400' name='response' type='text' 
-              value='{% if submission.response_text == '' %} Wrong answer 
-                     {% else %} {{submission.response_text}} 
-                     {% endif %}'>
+              value='{% if submission.response_text == '' %}Wrong answer{% else %}{{submission.response_text}}{% endif %}'>
             <input type="hidden" name="sub_id" value="{{ submission.pk }}">
             <input type="Submit" value="Send Response"/>
           </p>

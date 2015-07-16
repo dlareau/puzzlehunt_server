@@ -2,6 +2,7 @@ from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 from .models import *
 import json
+from django.utils.html import escape
 from django.core import serializers
 from django.conf import settings
 from django.utils.dateformat import DateFormat
@@ -13,6 +14,7 @@ def send_submission_update(submission):
              users=[submission.team.login_info.username, settings.ADMIN_ACCT])
     modelJSON = json.loads(serializers.serialize("json", [submission]))[0]
     message = modelJSON['fields']
+    message['response_text'] = escape(message['response_text'])
     message['puzzle'] = submission.puzzle.puzzle_id
     message['puzzle_name'] = submission.puzzle.puzzle_name
     message['team'] = submission.team.team_name
