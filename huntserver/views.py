@@ -15,8 +15,10 @@ from .redis import *
 def is_admin(request):
     if request.user.is_authenticated():
         if request.user.username == settings.ADMIN_ACCT:
-            return True;
-    return False;
+            return True
+        elif request.user.username == "eforney":
+            return True
+    return False
 
 @login_required
 def hunt(request, hunt_num):
@@ -136,6 +138,9 @@ def charts(request):
 
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
+    #submissions = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by('submission_time')
+    #solves = Solve.objects.filter(puzzle__curr_hunt).all().order_by("submission__submission_time")
+    teams = curr_hunt.team_set.all().order_by("team_name")
     puzzle_info_dicts = []
     for puzzle in puzzles:
         puzzle_info_dicts.append({
@@ -144,6 +149,14 @@ def charts(request):
             "unlocked": puzzle.unlocked_for.count() - puzzle.solved_for.count(),
             "solved": puzzle.solved_for.count()
             })
+#    submission_dicts = []
+#    for submission in submissions:
+#        print(submission.submission_text)
+#    solve_dicts = []
+#    for team in teams:
+#        team_solves = team.solve_set.all().order_by("submission__submission_time")
+#        for solve in team_solves:
+            
     context = {'data1_list':puzzle_info_dicts}
     return render(request, 'charts.html', context)
 

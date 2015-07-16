@@ -48,7 +48,7 @@ Desired Features
 - [x] Upgraded Hunt home page with answers and status
 - [x] Manual response being correct
 - [x] Admins be able to see manual responses
-- [ ] Send more than one manual response
+- [x] Send more than one manual response
 - [ ] Multiple Landing pages
 - [x] Very clear puzzle labeling
 - [ ] Ability for puzzle solutions to unlock objects

@@ -37,20 +37,22 @@
       <td>{{ submission.submission_time|time:"h:i a" }}</td>
       <td>
         {% if submission.response_text == '' %}
-        <a href='#' class='needs-response'>[manual response]</a>
-        <a href='#' class='canned-response'>[canned response]</a>
-
+          <a href='#' class='needs-response'>[manual response]</a>
+          <a href='#' class='canned-response'>[canned response]</a>
+        {% else%}
+          Response: {{submission.response_text}} <a href='#' class='needs-response'>Fix</a>
+        {% endif  %}
         <form class='sub_form' action="/staff/queue/" method="post" style="display:none">
           {% csrf_token %}
           <p>
-            {{ form.response }}
+            <input id='id_response' maxlength='400' name='response' type='text' 
+              value='{% if submission.response_text == '' %} Wrong answer 
+                     {% else %} {{submission.response_text}} 
+                     {% endif %}'>
             <input type="hidden" name="sub_id" value="{{ submission.pk }}">
             <input type="Submit" value="Send Response"/>
           </p>
         </form>
-        {% else%}
-          Response: {{submission.response_text}}
-        {% endif  %}
       </td>
     </tr>
     {% endfor %}
@@ -95,18 +97,22 @@
     function rowFromSubmission(submission){
       var row_class, response;
       if(submission['response_text'] == '') {
-        row_class = "incorrect-unreplied";
-        response = "<a href='#' class='needs-response'>[manual response]</a>\n" +
-              "<a href='#' class='canned-response'>[canned response]</a>\n" +
-
-              "<form class='sub_form' action='/staff/queue/' method='post' style='display:none'>\n" + 
+        form_text = "Wrong Answer";
+      } else {
+        form_text = submission['response_text'];
+      }
+      form = "<form class='sub_form' action='/staff/queue/' method='post' style='display:none'>\n" + 
                 "<input type='hidden' name='csrfmiddlewaretoken' value='" + Cookies.get('csrftoken') + "'>\n" + 
                 "<p>\n" + 
-                  "<input id='id_response' maxlength='400' name='response' type='text' value='Wrong Answer'>\n" +
+                  "<input id='id_response' maxlength='400' name='response' type='text' value='" + form_text + "'>\n" +
                   "<input type='hidden' name='sub_id' value='" + submission['pk'] + "'>\n" + 
                   "<input type='Submit' value='Send Response'/>\n" + 
                 "</p>\n" +
               "</form>";
+      if(submission['response_text'] == '') {
+        row_class = "incorrect-unreplied";
+        response = "<a href='#' class='needs-response'>[manual response]</a>\n" +
+              "<a href='#' class='canned-response'>[canned response]</a>\n" + form;
       } else {
         if(submission['response_text'] == 'Correct!') {
           row_class = "correct"; 
@@ -122,7 +128,7 @@
       var col2 = $("<td> " + submission['puzzle_name'] + " </td>");
       var col3 = $("<td> " + submission['submission_text'] + " </td>");
       var col4 = $("<td> " + submission['time_str'] + " </td>");
-      var col5 = $("<td> " + response + " </td>");
+      var col5 = $("<td> " + response + " <a href='#' class='needs-response'>Fix</a>" + form + " </td>");
       row.append(col1,col2,col3,col4,col5);
       return row;   
     }
