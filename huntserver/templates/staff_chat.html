@@ -51,6 +51,15 @@
       jQuery.post("/chat/", data);
       $('#messagebox').val('');
     });
+    $(document).on("keypress", "#messagebox", function(e) {
+      if (e.which == 13) {
+        data = {team_pk: curr_team, message: $('#messagebox').val(),
+                is_response: true, csrfmiddlewaretoken: '{{ csrf_token }}'};
+        jQuery.post("/chat/", data);
+        $('#messagebox').val('');
+      }
+    });
+  
     function map_buttons() {
       $('.chatselect').click(function() {
         $('.chatselect').each(function() {

@@ -8,21 +8,15 @@ python manage.py collectstatic
 
 uwsgi --ini wdjango.ini& uwsgi --ini wweb.ini&
 
-References:
-How to websocket: http://django-websocket-redis.readthedocs.org/en/latest/usage.html
-
 Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutorials/Django_and_nginx.html
-
-Where I got development setup from: http://django-websocket-redis.readthedocs.org/en/latest/running.html#django-with-websockets-for-redis-behind-nginx-using-uwsgi
-
-List of planned websockets:
-- puzzle_submissions -> self, admin
-- home_page_update -> self
 
 Known issues: (listed here so they don't become unknown)
  - Code is horribly uncommented
  - Chat needs to be inline block
- - chat needs to trigger on enter
+ - vertically center login page?
+ - up puzzle image quality
+ - clear text entry box for puzzle submission.
+ - We are horribly vulnerable to XSS
  - HTML has inbody script :(
  - Visitors to old hunts should not be able to submit.
  - All puzzle images are of Old Games

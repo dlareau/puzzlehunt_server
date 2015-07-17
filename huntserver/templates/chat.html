@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Hunt Control{% endblock title %}
+{% block title %} Chat with Staff{% endblock title %}
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
 {% endblock includes %}
+
+{% block right-header %}  <a href='/'>Go back to all puzzles</a>{% endblock %}
 
 {% block content %}
 <div style="overflow: hidden; margin-bottom: 20px" >
@@ -39,9 +41,16 @@
       jQuery.post("/chat/", data);
       $('#messagebox').val('');
     });
+    $(document).on("keypress", "#messagebox", function(e) {
+      if (e.which == 13) {
+        data = {team_pk: {{ team.pk }}, message: $('#messagebox').val(),
+                is_response: false, csrfmiddlewaretoken: '{{ csrf_token }}'};
+        jQuery.post("/chat/", data);
+        $('#messagebox').val('');
+      }                                                                                
+    });   
     function receiveMessage(msg) {
       var message = JSON.parse(msg);
-      console.log(message);
       if(message.is_response){
         message.team_name = "Admin";
       }
