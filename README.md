@@ -27,7 +27,6 @@ Project Details:
 * Check out file_map.txt for new developers.
 * The django project is named ```puzzlehunt_server``` amd the app is named ```huntserver```
 * We are using setup and coding practices taken from the django tutorial [here](https://docs.djangoproject.com/en/1.8/intro/tutorial01/)
-* There is a branch with the tutorial server mentioned above up to halfway through the 4th part for code refrence.
 
 
 Base Features:
