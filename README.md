@@ -48,9 +48,8 @@ Desired Features
 - [x] Manual response being correct
 - [x] Admins be able to see manual responses
 - [x] Send more than one manual response
-- [ ] Multiple Landing pages
 - [x] Very clear puzzle labeling
-- [ ] Ability for puzzle solutions to unlock objects
+- [x] Ability for puzzle solutions to unlock objects
 - [ ] Ability to set interactive unlocks and give notifications
 - [x] Chatroom with staff for difficulties
 - [x] Server can get puzzles from links using button on admin page.
