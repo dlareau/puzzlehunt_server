@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Puzzles!{% endblock title %}
+
+{% block includes %}
+<link rel="stylesheet" type="text/css" media='screen and (max-width: 1200px)' href="/static/huntserver/low-width.css">
+{% endblock %}
+
+{% block content %}
+  <div id='container'>
+    <h1 class="title">Unlocked Objects</h1>
+    <div id="puzzles">
+      <table>
+        <thead>
+          <tr>
+            <th style='width: 320px;'>Puzzle Name</th>
+            <th style='width: 100px;'>Object unlocked</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for unlockable in unlockables %}
+          <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
+          <td style="padding-right: 15px;">
+            <p class="puzzle-name">P{{unlockable.puzzle.puzzle_number}} - {{ unlockable.puzzle.puzzle_name }}</p>
+          </td>
+          <td style="width: 50%;">
+            {% if unlockable.content_type == "TXT" %}
+              {{unlockable.content}}
+            {% elif unlockable.content_type == "WEB" %}
+              <a href="{{unlockable.content}}"> {{unlockable.content}} </a>
+            {% endif %}
+          </td>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
+  </div>
+{% endblock content %}

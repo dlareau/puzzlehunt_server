@@ -28,6 +28,7 @@ class Team(models.Model):
     team_name = models.CharField(max_length=200)
     solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
     unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
+    objects = models.ManyToManyField("Unlockable", blank=True)
     login_info = models.OneToOneField(User)
     hunt = models.ForeignKey(Hunt)
 
@@ -73,3 +74,15 @@ class Message(models.Model):
     is_response = models.BooleanField()
     text = models.CharField(max_length=400)
     time = models.DateTimeField()
+
+class Unlockable(models.Model):
+    TYPE_CHOICES = (
+        ('IMG', 'Image'),
+        ('PDF', 'PDF'),
+        ('TXT', 'Text'),
+        ('WEB', 'Link'),
+    )
+    puzzle = models.ForeignKey(Puzzle)
+    content_type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='TXT')
+    content = models.CharField(max_length=500)
+    

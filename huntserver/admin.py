@@ -3,9 +3,13 @@ from django.contrib import admin
 # Register your models here.
 from .models import *
 
+class UnlockableInline(admin.TabularInline):
+    model = Unlockable
+    extra = 1
+
 class PuzzleAdmin(admin.ModelAdmin):
-    filter_horizontal = ('unlocks',)
     list_filter = ('hunt',)
+    inlines = (UnlockableInline, )
     
 class PersonInline(admin.TabularInline):
     model = Person

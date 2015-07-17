@@ -170,13 +170,19 @@ def chat(request):
             send_chat_message(m)
         return redirect('huntserver:chat')
     else:
-        team = Team.objects.get(login_info=request.user);
+        team = Team.objects.get(login_info=request.user)
         messages = Message.objects.filter(team=team).order_by('time')
         message_list = []
         for message in messages:
             message_list.append({'time': message.time, 'text':message.text,
                 'team':message.team, 'is_response': message.is_response})
         return render(request, 'chat.html', {'messages': message_list, 'team':team})
+
+@login_required
+def unlockables(request):
+    team = Team.objects.get(login_info=request.user)
+    unlockables = Unlockable.objects.filter(puzzle__in=team.solved.all())
+    return render(request, 'unlockables.html', {'unlockables': unlockables})
 
 @login_required
 def admin_chat(request):
