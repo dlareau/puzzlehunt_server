@@ -6,12 +6,17 @@ ensure redis is up
 
 python manage.py collectstatic
 
+(I don't know how to properly kill this, maybe use two separate tmux sessions)
 uwsgi --ini wdjango.ini& uwsgi --ini wweb.ini&
 
 Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutorials/Django_and_nginx.html
 
 Known issues: (listed here so they don't become unknown)
  - Code is horribly uncommented
+  - Puzzle.py
+  - Redis.py
+  - Views.py
+  - Templates
  - Chat needs to be inline block
  - vertically center login page?
  - up puzzle image quality
@@ -19,5 +24,3 @@ Known issues: (listed here so they don't become unknown)
  - We are horribly vulnerable to XSS
  - HTML has inbody script :(
  - Visitors to old hunts should not be able to submit.
- - All puzzle images are of Old Games
- - puzzle answer submission does not clear form
