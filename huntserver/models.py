@@ -28,7 +28,7 @@ class Team(models.Model):
     team_name = models.CharField(max_length=200)
     solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
     unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
-    objects = models.ManyToManyField("Unlockable", blank=True)
+    unlockables = models.ManyToManyField("Unlockable", blank=True)
     login_info = models.OneToOneField(User)
     hunt = models.ForeignKey(Hunt)
 
@@ -42,6 +42,7 @@ class Person(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     comments = models.CharField(max_length=400, blank=True)
     team = models.ForeignKey(Team, blank=True)
+    year = models.IntegerField(blank=True, null=True)
     
     def __unicode__(self):
         return self.first_name + " " + self.last_name

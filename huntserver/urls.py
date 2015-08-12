@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^stats/$', views.public_stats, name='public_stats'),
     url(r'^chat/$',  views.chat, name='chat'),
     url(r'^objects/$', views.unlockables, name='unlockables'),
+    url(r'^registration/$', views.registration, name='registration'),
 
     #Staff pages
     url(r'^staff/queue/$', views.queue, name='queue'),

@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext, loader
 from django.utils import timezone
 from subprocess import check_output
+from django.http import HttpResponse
+from django.contrib.auth import authenticate
 
 from .models import *
 from .forms import *
@@ -16,9 +18,37 @@ def is_admin(request):
     if request.user.is_authenticated():
         if request.user.username == settings.ADMIN_ACCT:
             return True
-        elif request.user.username == "eforney":
-            return True
     return False
+
+def registration(request):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    if(request.method == 'POST'):
+        if(request.POST.get("validate")):
+            team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
+            user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
+            if user is not None:
+                return HttpResponse('success')
+            else:
+                return HttpResponse('fail')
+        elif(request.POST.get("new")):
+            form = RegistrationForm(request.POST)
+            if form.is_valid():
+                u = User.objects.create_user(form.cleaned_data['username'], password=form.cleaned_data['password'])
+                t = Team.objects.create(team_name = form.cleaned_data['team_name'], login_info = u, hunt = curr_hunt)
+                p = Person.objects.create(first_name = form.cleaned_data['first_name'], last_name = form.cleaned_data['last_name'], email = form.cleaned_data['email'], phone = form.cleaned_data['phone'], comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
+            return HttpResponse('success')
+        elif(request.POST.get("existing")):
+            form = RegistrationForm(request.POST)
+            if form.is_valid():
+                team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
+                p = Person.objects.create(first_name = form.cleaned_data['first_name'], last_name = form.cleaned_data['last_name'], email = form.cleaned_data['email'], phone = form.cleaned_data['phone'], comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
+            return HttpResponse('success')
+        else:
+            return HttpResponse('fail')
+    else:
+        form = RegistrationForm()
+        teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('team_name')
+        return render(request, "registration.html", {'form': form, 'teams': teams})
 
 @login_required
 def hunt(request, hunt_num):
@@ -203,6 +233,8 @@ def control(request):
     if(not is_admin(request)):
         return render(request, 'access_error.html')
     
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = curr_hunt.team_set.all().order_by('team_name')
     if request.GET.get('initial'):
         for team in teams:
             unlock_puzzles(team)

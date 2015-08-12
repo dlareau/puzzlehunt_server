@@ -8,8 +8,9 @@ from time import sleep
 def respond_to_submission(submission):
     # Compare against correct answer
     if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
-        Solve.objects.create(puzzle=submission.puzzle, 
-            team=submission.team, submission=submission)
+        if(submission.puzzle not in submission.team.solved.all()):
+            Solve.objects.create(puzzle=submission.puzzle, 
+                team=submission.team, submission=submission)
 
         send_status_update(submission.puzzle, submission.team, "solve")
         unlock_puzzles(submission.team)
