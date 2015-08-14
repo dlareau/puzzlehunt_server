@@ -12,15 +12,11 @@ class Hunt(models.Model):
     
     @property
     def is_locked(self):
-        print(timezone.now())
-        print(self.start_date)
         if timezone.now() < self.start_date:
             return True
         return False
     @property
     def is_open(self):
-        print(timezone.now())
-        print(self.start_date)
         if timezone.now() > self.start_date and timezone.now() < self.end_date:
             return True
         return False
@@ -98,6 +94,9 @@ class Message(models.Model):
     is_response = models.BooleanField()
     text = models.CharField(max_length=400)
     time = models.DateTimeField()
+
+    def __unicode__(self):
+        return self.team.team_name + ": " + self.text
 
 class Unlockable(models.Model):
     TYPE_CHOICES = (

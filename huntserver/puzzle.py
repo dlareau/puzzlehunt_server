@@ -8,12 +8,11 @@ from time import sleep
 def respond_to_submission(submission):
     # Compare against correct answer
     if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
-        if(submission.puzzle not in submission.team.solved.all()):
+        if(submission.puzzle not in submission.team.solved.all() and submission.puzzle.hunt.is_open):
             Solve.objects.create(puzzle=submission.puzzle, 
                 team=submission.team, submission=submission)
-
-        send_status_update(submission.puzzle, submission.team, "solve")
-        unlock_puzzles(submission.team)
+            send_status_update(submission.puzzle, submission.team, "solve")
+            unlock_puzzles(submission.team)
         response = "Correct!"
     # Answers should not contain spaces
     elif(" " in submission.submission_text):
@@ -23,6 +22,11 @@ def respond_to_submission(submission):
         response = "Invalid answer (underscores)"
     else:
         response = ""
+
+    if(submission.puzzle.hunt.is_public):
+        if(response == ""):
+            response = "wrong answer."
+        response = "Hunt is over, but " + response
 
     submission.response_text = response
     submission.save()
@@ -54,7 +58,7 @@ def download_puzzles(hunt):
         call(["wget", puzzle.link, "-O", file_str])
         pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
         for i in range(pages):
-            call(["convert", "-density", "200", "-scale", "x800", file_str + "[" + str(i) + "]", directory + "/" + puzzle.puzzle_id + "-" + str(i) + ".png"])
+            call(["convert", "-density", "200", "-scale", "x1000", file_str + "[" + str(i) + "]", directory + "/" + puzzle.puzzle_id + "-" + str(i) + ".png"])
         
     #get document: wget {{URL}} -o {{FILENAME}}
     #get pages: pdfinfo {{FILENAME}} | grep Pages | awk '{print $2}'

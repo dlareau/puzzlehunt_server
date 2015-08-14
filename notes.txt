@@ -12,18 +12,11 @@ uwsgi --ini wdjango.ini& uwsgi --ini wweb.ini&
 Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutorials/Django_and_nginx.html
 
 Known issues: (listed here so they don't become unknown)
- - Code is horribly uncommented
-  - Puzzle.py
-  - Redis.py
-  - Views.py
-  - Templates
- - Chat needs to be inline block
- - vertically center login page?
- - up puzzle image quality
- - clear text entry box for puzzle submission.
- - We are horribly vulnerable to XSS
- - HTML has inbody script :(
- - Visitors to old hunts should not be able to submit.
-  - Closed hunts should not accept new answers
+ - Chat needs to be inline block (dynamic sizing reasons)
+  - Text in chat box should wrap
  - Registration details such as password, team existence, and teams size need to be verified
   - Some need serverside verification as well
+Large scale issues: 
+ - Code is horribly uncommented (Puzzle.py, Redis.py, Views.py, Templates)
+ - We are horribly vulnerable to XSS
+ - HTML has inbody script :(

@@ -70,10 +70,8 @@ def hunt(request, hunt_num):
         puzzle_list = hunt.puzzle_set.all()
     elif(hunt.is_locked):
         return render(request, 'not_released.html', {'reason': "locked"})
-        print("locked")
     elif(hunt.is_open):
         if(team.hunt != hunt):
-            print("wrong team")
             return render(request, 'not_released.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
@@ -112,14 +110,15 @@ def puzzle(request, puzzle_id):
 
     else:
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-        if(puzzle.hunt.is_locked or puzzle in team.unlocked.all()):
+        if(puzzle.hunt.is_public or puzzle in team.unlocked.all()):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
             directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
             file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
             pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
             page_range=range(pages)
-            context = {'form': form, 'pages': page_range, 'puzzle': puzzle, 'submission_list': submissions}
+            context = {'form': form, 'pages': page_range, 'puzzle': puzzle, 
+                       'submission_list': submissions}
             return render(request, 'puzzle.html', context)
         else:
             return render(request, 'access_error.html')
