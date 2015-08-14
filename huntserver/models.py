@@ -1,12 +1,35 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 class Hunt(models.Model):
     hunt_name = models.CharField(max_length=200)
     hunt_number = models.IntegerField(unique=True)
+    #Very bad things could happen if end date is before start date
     start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
     
+    @property
+    def is_locked(self):
+        print(timezone.now())
+        print(self.start_date)
+        if timezone.now() < self.start_date:
+            return True
+        return False
+    @property
+    def is_open(self):
+        print(timezone.now())
+        print(self.start_date)
+        if timezone.now() > self.start_date and timezone.now() < self.end_date:
+            return True
+        return False
+    @property
+    def is_public(self):
+        if timezone.now() > self.end_date:
+            return True
+        return False
+
     def __unicode__(self):
         return self.hunt_name
 

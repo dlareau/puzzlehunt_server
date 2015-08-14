@@ -24,3 +24,6 @@ Known issues: (listed here so they don't become unknown)
  - We are horribly vulnerable to XSS
  - HTML has inbody script :(
  - Visitors to old hunts should not be able to submit.
+  - Closed hunts should not accept new answers
+ - Registration details such as password, team existence, and teams size need to be verified
+  - Some need serverside verification as well

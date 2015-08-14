@@ -6,23 +6,23 @@
     {% block includes %} {% endblock includes %}
   </head>
   <body>
-    {% if user.is_authenticated %}
     <header>
       <div id='left-header'>
-	{% block left-header %}
-	Team: {{user.team_set.all.0.team_name}}
-	</br>
-	<a href="/accounts/logout/">[Click here to logout]</a>
-	{% endblock %}
+        {% block left-header %}
+          {% if user.is_authenticated %}
+            Team: {{user.team.team_name}}
+            </br>
+            <a href="/accounts/logout/">[Click here to logout]</a>
+          {% else %}
+            <p>Welcome Guest, Please <a href="/accounts/login/">log in</a> or <a href="/registration/">register.</a></p>
+          {% endif %}
+        {% endblock %}
       </div>
       <div id='right-header'> 
-	{% block right-header %}
-	{% endblock %}
+        {% block right-header %}
+        {% endblock %}
       </div> 
     </header>
-    {% else %}
-      <p>Welcome Guest, Please log in</p>
-    {% endif %}
     {% block content %} 
     
     {% endblock content %}

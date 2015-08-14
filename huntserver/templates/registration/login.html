@@ -2,6 +2,8 @@
 {% load i18n %}
 
 {% block content %}
+<br>
+Please enter your team's username and password:
 
 <form method="post" action=".">
   {% csrf_token %}
@@ -11,4 +13,4 @@
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
-{% endblock %}
+{% endblock %} 

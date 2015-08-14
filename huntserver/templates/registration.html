@@ -5,208 +5,125 @@
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
   <style>
     .reg_choice {
-    border: 1px solid black;
-    padding: 10px;
-    margin-bottom: 20px;
-    width: 400px;
-    border-radius: 5px;
+      border: 1px solid black;
+      padding: 10px;
+      margin-bottom: 20px;
+      width: 400px;
+      border-radius: 5px;
     }
   </style>
+  <script src="{{ STATIC_URL }}huntserver/registration.js"></script>
 {% endblock includes %}
 
 {% block content %}
     <h1 class="title">Registration</h1>
     <div id="stage1">
       <div class="reg_choice" data-id="1">
-	Register a new team.
+        Register a new team.
       </div>
       <div class="reg_choice" data-id="2">
-	Join an existing team.
+        Join an existing team.
       </div>
       <div class="reg_choice" data-id="3">
-	Modify an existing registration.
+        Modify an existing registration.
       </div>
     </div>
     <div style="display:none;" id="stage2">
       <div id="stage2-1" style="display:none;">
-	<form id="newTeamForm">
-	  <table>
-	    <tr>
-	      <td>{{ form.team_name.label_tag }}</td>
-	      <td>{{ form.team_name }}</td>
-	    </tr>
-	    </br>
-	    <tr>
-	      <td  colspan="2"></br>Please select the username and password you will use to log in during the hunt</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.username.label_tag }}</td>
-	      <td>{{ form.username }}</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.password.label_tag }}</td>
-	      <td>{{ form.password }}</td>
-	    </tr>
-	  </table>
-	</form>
-	</br>
-	<input type="button" class="back2to1" value="Back" />
-	<input type="button" id="next2to3New" value="Next" />	
+        <form id="newTeamForm">
+          <table>
+            <tr>
+              <td>{{ form.team_name.label_tag }}</td>
+              <td>{{ form.team_name }}</td>
+            </tr>
+            </br>
+            <tr>
+              <td  colspan="2"></br>Please select the username and password your whole team will use to log in during the hunt</td>
+            </tr>
+            <tr>
+              <td>{{ form.username.label_tag }}</td>
+              <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+              <td>{{ form.password.label_tag }}</td>
+              <td>{{ form.password }}</td>
+            </tr>
+            <tr>
+              <td>{{ form.confirm_password.label_tag }}</td>
+              <td>{{ form.confirm_password }}</td>
+            </tr>
+          </table>
+          <input type="button" class="back2to1" value="Back" />
+          <input type="submit" id="next2to3New" value="Next" /> 
+        </form>
+        </br>  
       </div>
       <div id="stage2-2" style="display:none;">
-	<form id="existingTeamForm">
-	  {% csrf_token %}
-	  <table>
-	    <tr>
-	      <td>Team name: </td>
-	      <td>
-		<select name="team_name">
-		  <option value=""></option>
-		  {% for team in teams %}
-		    <option value="{{team.team_name}}">{{team.team_name}}</option>
-		  {% endfor %}
-		</select>
-	      </td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.password.label_tag }}</td>
-	      <td>{{ form.password }}</td>
-	    </tr>
-	  </table>
-	  </br>
-	  <input type="button" class="back2to1" value="Back" />
-	  <input type="submit" id="next2to3Existing" value="Next" />	
-	</form>
+        <form id="existingTeamForm">
+          {% csrf_token %}
+          <table>
+            <tr>
+              <td>Team name: </td>
+              <td>
+                <select name="team_name">
+                  <option value=""></option>
+                  {% for team in teams %}
+                    <option value="{{team.team_name}}">{{team.team_name}}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ form.password.label_tag }}</td>
+              <td>{{ form.password }}</td>
+            </tr>
+          </table>
+          </br>
+          <input type="button" class="back2to1" value="Back" />
+          <input type="submit" id="next2to3Existing" value="Next" />    
+        </form>
       </div>
       <div id="stage2-3" style="display:none;">
-	We do not currently support modifying registrations (soon though!)
-	</br>
-	<input type="button" class="back2to1" value="Back" />
+        We do not currently support modifying registrations (soon though!)
+        </br>
+        <input type="button" class="back2to1" value="Back" />
       </div>
     </div>
     <div style="display:none;" id="stage3">
       <form action="/registration/" id="individualForm">
-	{% csrf_token %}
-	<table>
-	  <tr>
-	    <td>{{ form.first_name.label_tag }}</td>
-	    <td>{{ form.first_name }}</td>
-	  </tr>
-	  <tr>
-	    <td>{{ form.last_name.label_tag }}</td>
-	    <td>{{ form.last_name }}</td>
-	  </tr>
-	  <tr>
-	    <td>{{ form.phone.label_tag }}</td>
-	    <td>{{ form.phone }}</td>
-	  </tr>
-	  <tr>
-	    <td>{{ form.email.label_tag }}</td>
-	    <td>{{ form.email }}</td>
-	  </tr>
-	  <tr>
-	    <td>{{ form.dietary_issues.label_tag }}</td>
-	    <td>{{ form.dietary_issues }}</td>
-	  </tr>
-	  <tr>
-	    <td>{{ form.year.label_tag }}</td>
-	    <td>{{ form.year }}</td>
-	    </tr>
-	</table>
-	</br>
-	<input type="submit" value="Submit" />
+        {% csrf_token %}
+        <table>
+          <tr>
+            <td>{{ form.first_name.label_tag }}</td>
+            <td>{{ form.first_name }}</td>
+          </tr>
+          <tr>
+            <td>{{ form.last_name.label_tag }}</td>
+            <td>{{ form.last_name }}</td>
+          </tr>
+          <tr>
+            <td>{{ form.phone.label_tag }}</td>
+            <td>{{ form.phone }}</td>
+          </tr>
+          <tr>
+            <td>{{ form.email.label_tag }}</td>
+            <td>{{ form.email }}</td>
+          </tr>
+          <tr>
+            <td>{{ form.dietary_issues.label_tag }}</td>
+            <td>{{ form.dietary_issues }}</td>
+          </tr>
+          <tr>
+            <td>{{ form.year.label_tag }}</td>
+            <td>{{ form.year }}</td>
+            </tr>
+        </table>
+        </br>
+        <input type="submit" value="Submit" />
       </form>
     </div>
     <div style="display:none;" id="stage4">
       <h2>Thank you for registering!</h2>
       You will be redirected to the main page shortly
     </div>
-    <script>
-      $(document).ready(function(){
-        stage2Selection = 1;
-        $(".reg_choice").hover(function(){
-          $(this).css("background-color", "LightGrey");
-        }, function(){
-          $(this).css("background-color", "white");
-        });
-        $(".reg_choice").click(function(){
-          $("#stage2-" + stage2Selection).hide();
-          stage2Selection = $(this).data("id")
-          $("#stage2-" + $(this).data("id")).show();
-          $("#stage1").fadeOut(500, function(){$("#stage2").fadeIn(500);});
-        });
-        $('#individualForm').on('submit', function (e) {
-          //e.preventDefault();
-          if(stage2Selection == 1){
-            var data = $("#newTeamForm, #individualForm").serialize() + "&new=True";
-          } else if(stage2Selection == 2){
-            var data = $("#existingTeamForm, #individualForm").serialize() + "&existing=True";
-          } else if(stage2Selection == 3){
-            alert("This function is not yet ready");
-          } else{
-            alert("invalid stage 2 choice");
-          }
-          clean = true;
-          $("#individualForm :input").each(function() {
-            if($(this).val() === "")
-              clean = false;
-          });
-          if(clean){
-            $.ajax({
-              url : $(this).attr('action') || window.location.pathname,
-              type: "POST",
-              data: data,
-              success: function (){
-                $("#stage3").fadeOut(500, function(){$("#stage4").fadeIn(500);});
-                window.setTimeout(function(){window.location.href = "/";}, 4000);
-              },
-              error: function (html, jXHR, textStatus, errorThrown) {
-                console.log(html)
-                alert(errorThrown);
-              }
-            });
-          } else {
-            alert("Empty form element");
-          }
-          return false;
-        });
-        $("#next2to3New").bind('click', function() {
-          clean = true;
-          $("#newTeamForm :input").each(function() {
-            if($(this).val() === "")
-              clean = false;
-          });
-          if(clean){
-            $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
-          } else{
-            alert("Empty form element");
-          }
-        });
-        $(".back2to1").bind('click', function() {
-          $("#stage2").fadeOut(500, function(){$("#stage1").fadeIn(500);});
-        });
-        $('#existingTeamForm').on('submit', function (e) {
-          if($("#existingTeamForm select").val() == "")
-            return false;
-          e.preventDefault();
-          $.ajax({
-            url : $(this).attr('action') || window.location.pathname,
-            type: "POST",
-            data: $("#existingTeamForm").serialize() + "&validate=True",
-            success: function(html){
-              if(html == "fail"){
-                alert("Incorrect password");
-              }else{
-                $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
-              }
-            },
-            error: function (html, jXHR, textStatus, errorThrown) {
-              alert(errorThrown);
-            }
-          });
-          return false;
-        });
-      
-      });
-    </script>
 {% endblock content %}

@@ -3,4 +3,4 @@
 /static/
 /huntserver/static/huntserver/*.pdf
 /huntserver/static/huntserver/*.png
-/huntserver/static/huntserver/*
+/huntserver/static/huntserver/puzzles/*

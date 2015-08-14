@@ -33,15 +33,25 @@ def registration(request):
         elif(request.POST.get("new")):
             form = RegistrationForm(request.POST)
             if form.is_valid():
-                u = User.objects.create_user(form.cleaned_data['username'], password=form.cleaned_data['password'])
-                t = Team.objects.create(team_name = form.cleaned_data['team_name'], login_info = u, hunt = curr_hunt)
-                p = Person.objects.create(first_name = form.cleaned_data['first_name'], last_name = form.cleaned_data['last_name'], email = form.cleaned_data['email'], phone = form.cleaned_data['phone'], comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
+                u = User.objects.create_user(form.cleaned_data['username'], 
+                    password=form.cleaned_data['password'])
+                t = Team.objects.create(team_name = form.cleaned_data['team_name'], 
+                    login_info = u, hunt = curr_hunt)
+                p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
+                    last_name = form.cleaned_data['last_name'], 
+                    email = form.cleaned_data['email'], 
+                    phone = form.cleaned_data['phone'], 
+                    comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
             return HttpResponse('success')
         elif(request.POST.get("existing")):
             form = RegistrationForm(request.POST)
             if form.is_valid():
                 team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
-                p = Person.objects.create(first_name = form.cleaned_data['first_name'], last_name = form.cleaned_data['last_name'], email = form.cleaned_data['email'], phone = form.cleaned_data['phone'], comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
+                p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
+                    last_name = form.cleaned_data['last_name'], 
+                    email = form.cleaned_data['email'], 
+                    phone = form.cleaned_data['phone'], 
+                    comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
             return HttpResponse('success')
         else:
             return HttpResponse('fail')
@@ -56,10 +66,21 @@ def hunt(request, hunt_num):
     team = Team.objects.get(login_info=request.user)
     
     # Show all puzzles from old hunts to anybody
-    if(hunt.hunt_number == settings.CURRENT_HUNT_NUM):
-        puzzle_list = team.unlocked.filter(hunt=hunt)
-    else:
+    if(is_admin(request)):
         puzzle_list = hunt.puzzle_set.all()
+    elif(hunt.is_locked):
+        return render(request, 'not_released.html', {'reason': "locked"})
+        print("locked")
+    elif(hunt.is_open):
+        if(team.hunt != hunt):
+            print("wrong team")
+            return render(request, 'not_released.html', {'reason': "team"})
+        else:
+            puzzle_list = team.unlocked.filter(hunt=hunt)
+    elif(hunt.is_public):
+        puzzle_list = hunt.puzzle_set.all()
+    else:
+        return render(request, 'access_error.html')
         
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
 
@@ -91,7 +112,7 @@ def puzzle(request, puzzle_id):
 
     else:
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-        if(puzzle.hunt != curr_hunt or puzzle in team.unlocked.all()):
+        if(puzzle.hunt.is_locked or puzzle in team.unlocked.all()):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
             directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
