@@ -31,6 +31,7 @@
     <div style="display:none;" id="stage2">
       <div id="stage2-1" style="display:none;">
         <form id="newTeamForm">
+          {% csrf_token %}
           <table>
             <tr>
               <td>{{ form.team_name.label_tag }}</td>

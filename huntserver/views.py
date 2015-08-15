@@ -23,34 +23,51 @@ def is_admin(request):
 def registration(request):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     if(request.method == 'POST'):
+        # Check for correct password when doing existing registration
         if(request.POST.get("validate")):
             team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
+            if(len(team.person_set.all()) >= team.hunt.team_size):
+                return HttpResponse('fail-full')
             user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
             if user is not None:
                 return HttpResponse('success')
             else:
+                return HttpResponse('fail-password')
+                
+        # Check if team already exists when doing new registration
+        elif(request.POST.get("check")):
+            print(curr_hunt.team_set.all())
+            if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
                 return HttpResponse('fail')
+            else:
+                return HttpResponse('success')
+
+        # Create new team and person
         elif(request.POST.get("new")):
             form = RegistrationForm(request.POST)
-            if form.is_valid():
-                u = User.objects.create_user(form.cleaned_data['username'], 
-                    password=form.cleaned_data['password'])
-                t = Team.objects.create(team_name = form.cleaned_data['team_name'], 
-                    login_info = u, hunt = curr_hunt)
-                p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
-                    last_name = form.cleaned_data['last_name'], 
-                    email = form.cleaned_data['email'], 
-                    phone = form.cleaned_data['phone'], 
-                    comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
+            if (form.is_valid()):
+                if(form.cleaned_data['password'] == form.cleaned_data['confirm_password']):
+                    u = User.objects.create_user(form.cleaned_data['username'], 
+                        password=form.cleaned_data['password'])
+                    t = Team.objects.create(team_name = form.cleaned_data['team_name'], 
+                        login_info = u, hunt = curr_hunt)
+                    p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
+                        last_name = form.cleaned_data['last_name'], 
+                        email = form.cleaned_data['email'], 
+                        phone = form.cleaned_data['phone'], 
+                        comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
             return HttpResponse('success')
+
+        # Find existing team and add person. 
         elif(request.POST.get("existing")):
             form = RegistrationForm(request.POST)
             if form.is_valid():
-                team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
-                p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
-                    last_name = form.cleaned_data['last_name'], 
-                    email = form.cleaned_data['email'], 
-                    phone = form.cleaned_data['phone'], 
+                if(len(team.person_set.all()) < team.hunt.team_size):
+                    team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
+                    p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
+                        last_name = form.cleaned_data['last_name'], 
+                        email = form.cleaned_data['email'], 
+                        phone = form.cleaned_data['phone'], 
                     comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
             return HttpResponse('success')
         else:

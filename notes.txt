@@ -14,8 +14,6 @@ Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutori
 Known issues: (listed here so they don't become unknown)
  - Chat needs to be inline block (dynamic sizing reasons)
   - Text in chat box should wrap
- - Registration details such as password, team existence, and teams size need to be verified
-  - Some need serverside verification as well
 Large scale issues: 
  - Code is horribly uncommented (Puzzle.py, Redis.py, Views.py, Templates)
  - We are horribly vulnerable to XSS

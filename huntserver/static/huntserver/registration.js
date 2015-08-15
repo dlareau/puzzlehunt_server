@@ -26,7 +26,6 @@ $(document).ready(function(){
     e.preventDefault();
     if($("#id_password").val() != $("#id_confirm_password").val()){
       alert("Passwords don't match");
-      console.log("what?");
       return false;
     }
     clean = true;
@@ -35,7 +34,21 @@ $(document).ready(function(){
         clean = false;
     });
     if(clean){
-      $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
+      $.ajax({
+        url : $(this).attr('action') || window.location.pathname,
+        type: "POST",
+        data: $("#newTeamForm").serialize() + "&check=True",
+        success: function(html){
+          if(html == "fail"){ 
+            alert("That team already exists");
+          } else {
+            $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
+          }
+        },
+        error: function (jXHR, textStatus, errorThrown) {
+          alert(errorThrown); 
+        }
+      });
     } else{
       alert("Please fill out form.");
     }
@@ -54,8 +67,10 @@ $(document).ready(function(){
       type: "POST",
       data: $("#existingTeamForm").serialize() + "&validate=True",
       success: function(html){
-        if(html == "fail"){
+        if(html == "fail-password"){
           alert("Incorrect password");
+        }else if(html == "fail-full"){
+          alert("Team is already full, contact team leader or staff.")
         }else{
           $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
         }

@@ -6,6 +6,7 @@ from django.utils import timezone
 class Hunt(models.Model):
     hunt_name = models.CharField(max_length=200)
     hunt_number = models.IntegerField(unique=True)
+    team_size = models.IntegerField()
     #Very bad things could happen if end date is before start date
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
