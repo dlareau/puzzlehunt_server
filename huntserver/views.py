@@ -26,26 +26,28 @@ def registration(request):
         # Check for correct password when doing existing registration
         if(request.POST.get("validate")):
             team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
+            # Check that the team is not full
             if(len(team.person_set.all()) >= team.hunt.team_size):
                 return HttpResponse('fail-full')
+            # Check that the password is correct
             user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
             if user is not None:
                 return HttpResponse('success')
             else:
                 return HttpResponse('fail-password')
-                
+
         # Check if team already exists when doing new registration
         elif(request.POST.get("check")):
-            print(curr_hunt.team_set.all())
             if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
                 return HttpResponse('fail')
             else:
                 return HttpResponse('success')
 
-        # Create new team and person
+        # Create new user, team, and person
         elif(request.POST.get("new")):
             form = RegistrationForm(request.POST)
             if (form.is_valid()):
+                # Make sure their passwords matched
                 if(form.cleaned_data['password'] == form.cleaned_data['confirm_password']):
                     u = User.objects.create_user(form.cleaned_data['username'], 
                         password=form.cleaned_data['password'])
@@ -62,17 +64,19 @@ def registration(request):
         elif(request.POST.get("existing")):
             form = RegistrationForm(request.POST)
             if form.is_valid():
+                # Make sure there is room on the team
                 if(len(team.person_set.all()) < team.hunt.team_size):
                     team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
                     p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
                         last_name = form.cleaned_data['last_name'], 
                         email = form.cleaned_data['email'], 
                         phone = form.cleaned_data['phone'], 
-                    comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
+                        comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
             return HttpResponse('success')
         else:
             return HttpResponse('fail')
     else:
+        # Standard rendering of registration page
         form = RegistrationForm()
         teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('team_name')
         return render(request, "registration.html", {'form': form, 'teams': teams})
@@ -82,18 +86,24 @@ def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
     team = Team.objects.get(login_info=request.user)
     
-    # Show all puzzles from old hunts to anybody
+    # Admins get all access, wrong teams/early lookers get an error page
+    # real teams get appropriate puzzles, and puzzles from past hunts are public
     if(is_admin(request)):
         puzzle_list = hunt.puzzle_set.all()
+    # Hunt has not yet started
     elif(hunt.is_locked):
         return render(request, 'not_released.html', {'reason': "locked"})
+    # Hunt has started
     elif(hunt.is_open):
+        # see if the team does not belong to the hunt being accessed
         if(team.hunt != hunt):
             return render(request, 'not_released.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
+    # Hunt is over
     elif(hunt.is_public):
         puzzle_list = hunt.puzzle_set.all()
+    # How did you get here?
     else:
         return render(request, 'access_error.html')
         
@@ -115,6 +125,8 @@ def puzzle(request, puzzle_id):
     puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
     team = Team.objects.get(login_info=request.user);
 
+    # Create submission object and then rely on puzzle.py->respond_to_submission
+    # for automatic responses.
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
@@ -127,14 +139,16 @@ def puzzle(request, puzzle_id):
 
     else:
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+        # Only allowed access if the hunt is public or if unlocked by team
         if(puzzle.hunt.is_public or puzzle in team.unlocked.all()):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
+            # Directory for puzzle PNGs
             directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
             file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
+            # Ideally this should be done some other way to reduce command calls
             pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
-            page_range=range(pages)
-            context = {'form': form, 'pages': page_range, 'puzzle': puzzle, 
+            context = {'form': form, 'pages': range(pages), 'puzzle': puzzle, 
                        'submission_list': submissions}
             return render(request, 'puzzle.html', context)
         else:
@@ -164,7 +178,7 @@ def queue(request):
         context = {'form': form, 'submission_list': submissions}
         return render(request, 'queue.html', context)
 
-# This is a big one
+
 @login_required
 def progress(request):
     if(not is_admin(request)):
@@ -265,6 +279,7 @@ def admin_chat(request):
             'is_response': message.is_response})
     return render(request, 'staff_chat.html', {'messages': message_list})
 
+# Not actually a page, just various control functions
 @login_required
 def control(request):
     if(not is_admin(request)):
