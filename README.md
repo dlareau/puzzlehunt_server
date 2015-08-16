@@ -1,16 +1,23 @@
 # puzzlehunt_server
 Server for Puzzlehunt CMU's bi-annual puzzlehunt.
 
-Required Software:
+System packages:
 * python 2.7
-* Django 1.8 (pip)
 * mysql-client
 * mysql-server
 * python-mysqldb
 * redis-server
 * python-dev
-* django-websocket-redis (pip)
-I'm sure I'm missing a few others (I'll try to get this virtualenv'd but no promises)
+imagemagick
+libmysqlclient-dev
+
+Python packages (pip)
+* django
+* django-websocket-redis
+* MySQL-python
+* python-dateutil
+* django-redis-sessions
+(I'll try to get this virtualenv'd but no promises)
 
 Database setup details:
 * expects a pre-existing database named puzzlehunt_db
@@ -42,15 +49,15 @@ Base Features:
 
 
 Desired Features
-- [ ] Public facing charts and leaderboard (disableable)
-- [ ] Hints
 - [x] Upgraded Hunt home page with answers and status
 - [x] Manual response being correct
 - [x] Admins be able to see manual responses
 - [x] Send more than one manual response
 - [x] Very clear puzzle labeling
 - [x] Ability for puzzle solutions to unlock objects
-- [ ] Ability to set interactive unlocks and give notifications
 - [x] Chatroom with staff for difficulties
 - [x] Server can get puzzles from links using button on admin page.
 - [x] Upgrade puzzle page to have in-body pdf/puzzle
+- [ ] Ability to set interactive unlocks and give notifications
+- [ ] Hints
+- [ ] Public facing charts and leaderboard (disableable)
