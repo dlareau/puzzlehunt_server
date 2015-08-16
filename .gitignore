@@ -4,3 +4,4 @@
 /huntserver/static/huntserver/*.pdf
 /huntserver/static/huntserver/*.png
 /huntserver/static/huntserver/puzzles/*
+/puzzlehunt_server/secret_settings.py
