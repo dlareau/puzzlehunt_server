@@ -14,7 +14,8 @@ Where I got nginx setup from: http://uwsgi-docs.readthedocs.org/en/latest/tutori
 Known issues: (listed here so they don't become unknown)
  - Chat needs to be inline block (dynamic sizing reasons)
   - Text in chat box should wrap
+ - Should serve downloadable PDFs from our server using the downloaded pdfs.
 Large scale issues: 
- - Code is horribly uncommented (Puzzle.py, Redis.py, Views.py, Templates)
+ - Templates lack commenting
  - We are horribly vulnerable to XSS
- - HTML has inbody script :(
+ - HTML has inbody script in many cases :(

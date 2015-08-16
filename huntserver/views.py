@@ -64,9 +64,9 @@ def registration(request):
         elif(request.POST.get("existing")):
             form = RegistrationForm(request.POST)
             if form.is_valid():
+                team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
                 # Make sure there is room on the team
                 if(len(team.person_set.all()) < team.hunt.team_size):
-                    team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
                     p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
                         last_name = form.cleaned_data['last_name'], 
                         email = form.cleaned_data['email'], 
@@ -160,6 +160,7 @@ def queue(request):
     if(not is_admin(request)):
         return render(request, 'access_error.html')
 
+    # Process admin responses to submissions
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
         if form.is_valid():
@@ -167,6 +168,7 @@ def queue(request):
             s = Submission.objects.get(pk=form.cleaned_data['sub_id'])
             s.response_text = response
             s.save()
+            # Update relevant parties
             send_submission_update(s)
 
         return redirect('huntserver:queue')
@@ -184,6 +186,7 @@ def progress(request):
     if(not is_admin(request)):
         return render(request, 'access_error.html')
 
+    # Admin unlocking a puzzle
     if request.method == 'POST':
         form = UnlockForm(request.POST)
         if form.is_valid():
@@ -198,15 +201,24 @@ def progress(request):
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
         teams = curr_hunt.team_set.all().order_by('team_name')
         puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
+        # An array of solves, organized by team then by puzzle
+        # This array is essentially the grid on the progress page
+        # The structure is messy, it was built part by part as features were added
         sol_array = []
         for team in teams:
+            # Basic team information for row headers
+            # The last element ('cells') is an array of the row's data
             sol_array.append({'team':team, 'num':len(team.solved.all()), 'cells':[]})
+            # What goes in each cell (item in "cells") is based on puzzle status
             for puzzle in puzzles:
+                # Solved => solve object and puzzle id
                 if(puzzle in team.solved.all()):
                     sol_array[-1]['cells'].append([team.solve_set.filter(puzzle=puzzle)[0], puzzle.puzzle_id])
+                # Unlocked => Identify as unlocked, puzzle id, and unlock time
                 elif(puzzle in team.unlocked.all()):                
                     unlock_time = team.unlock_set.filter(puzzle=puzzle)[0].time
                     sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id, unlock_time])
+                # Locked => Identify as locked and puzzle id
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}

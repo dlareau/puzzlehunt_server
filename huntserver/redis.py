@@ -9,6 +9,8 @@ from django.utils.dateformat import DateFormat
 from dateutil import tz
 time_zone = tz.gettz(settings.TIME_ZONE)
 
+# Sends an update on an answer submission to staff and the submitter
+# Is called usually after any modification to the submission
 def send_submission_update(submission):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
              users=[submission.team.login_info.username, settings.ADMIN_ACCT])
@@ -24,6 +26,9 @@ def send_submission_update(submission):
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
 
+# Sends an update to staff and a team about when a puzzle is solved or unlocked
+# This does not actually solve or unlock anything, and relies on there actually
+# being a solve or unlock object, so please call appropriately
 def send_status_update(puzzle, team, status_type):
     # status_type should be either "solve" or "unlock"
     redis_publisher = RedisPublisher(facility='puzzle_status',
@@ -41,6 +46,7 @@ def send_status_update(puzzle, team, status_type):
     message = RedisMessage(json.dumps(message))
     redis_publisher.publish_message(message)
 
+# Displays a chat message to the relevant users
 def send_chat_message(message):
     redis_publisher = RedisPublisher(facility='chat_message',
                       users=[settings.ADMIN_ACCT, message.team.login_info.username])
