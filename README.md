@@ -8,8 +8,8 @@ System packages:
 * python-mysqldb
 * redis-server
 * python-dev
-imagemagick
-libmysqlclient-dev
+* imagemagick
+* libmysqlclient-dev
 
 Python packages (pip)
 * django
@@ -17,6 +17,7 @@ Python packages (pip)
 * MySQL-python
 * python-dateutil
 * django-redis-sessions
+
 (I'll try to get this virtualenv'd but no promises)
 
 Database setup details:
