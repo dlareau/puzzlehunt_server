@@ -22,7 +22,8 @@ Python packages (pip)
 
 Database setup details:
 * expects a pre-existing database named puzzlehunt_db
-* expects a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```
+* Database settings are in puzzlehunt_server/secret_settings.py the example used below has the following settings:
+ a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```. Production values should be different. 
 * The above can be accomplished by running the following commands as a superuser:
    * ```CREATE DATABASE puzzlehunt_db;```
    * ```CREATE USER 'hunt'@'localhost' IDENTIFIED BY 'wrongbaa';```
