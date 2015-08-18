@@ -29,6 +29,9 @@ urlpatterns = [
     url(r'^chat/$',  views.chat, name='chat'),
     url(r'^objects/$', views.unlockables, name='unlockables'),
     url(r'^registration/$', views.registration, name='registration'),
+    url(r'^protected/(?P<app>[0-9a-zA-Z]+)/(?P<folder>[0-9a-zA-Z-_]*?)(/)?'+ 
+        r'(?P<file_name>[0-9a-zA-Z-_]+\.[0-9a-zA-Z]+)$', 
+        views.protected_static, name='protected_static'),
 
     #Staff pages
     url(r'^staff/queue/$', views.queue, name='queue'),

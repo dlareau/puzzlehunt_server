@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext, loader
 from django.utils import timezone
 from subprocess import check_output
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth import authenticate
 
 from .models import *
@@ -19,6 +19,33 @@ def is_admin(request):
         if request.user.username == settings.ADMIN_ACCT:
             return True
     return False
+
+
+def protected_static(request, app, folder, file_name):
+    allowed = False
+    # print(app)
+    # print(folder)
+    # print(file_name)
+    if(app == "huntserver" and folder == "puzzles"):
+        if request.user.is_authenticated():
+            puzzle_id = file_name[0:3]
+            puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
+            team = Team.objects.get(login_info=request.user);
+            if puzzle in team.unlocked.all():
+                allowed = True
+    else:
+        allowed = True
+
+    # do your permission things here, and set allowed to True if applicable
+    if allowed:
+        response = HttpResponse()
+        url = '/static/' + app + "/" + folder + "/" + file_name
+        # let nginx determine the correct content type 
+        response['Content-Type']=""
+        response['X-Accel-Redirect'] = url
+        return response
+    
+    return HttpResponseNotFound('<h1>Page not found</h1>')
 
 def registration(request):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
