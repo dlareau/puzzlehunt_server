@@ -5,7 +5,6 @@ Files or folders marked with ! are where 90% of the development should happen.
 If feel you need to modify something outside those folders, double check, as 
 often there are 2 copies of an item, one for the server, and one for our app.
 
-├── base.sql                              # Backup of database, out of date
 ├── file_map.txt                          # This file :P
 ├── huntserver                            # Directory for the huntserver app
 │   ├── admin.py                          # Controls the huntserver admin view
@@ -13,7 +12,7 @@ often there are 2 copies of an item, one for the server, and one for our app.
 │   ├── migrations                        # DB migrations for updating new DBs
 │   │   ├── 0001_initial.py               
 │   │   │     ...
-│   │   ├── 0011_auto_20150701_1127.py
+│   │   └── 0028_hunt_team_size.py
 │   ├── models.py                         ! The model specification for the app
 │   ├── puzzle.py                         # Puzzle related functions
 │   ├── redis.py                          # Websocket related functions
@@ -21,27 +20,40 @@ often there are 2 copies of an item, one for the server, and one for our app.
 │   │   ├── huntserver                    # Place static files for the app here
 │   │   │   ├── admin_addon.css           # Remodels django admin style to ours
 │   │   │   ├── admin.css                 # The style for our custom staff pages
-│   │   │   └── base.css                  ! The style for our user pages
+│   │   │   ├── base.css                  ! The style for our user pages
+│   │   │   ├── chat.css                  # The style for chat pages
+│   │   │   ├── low-width.css             # Style for the low-width homepage
+│   │   │   ├── puzzles                   # Directory with downloaded puzzles
+│   │   │   └── registration.js           # Javascript for registration (large)
 │   │   ├── jquery.min.js                 # Source of jquery for the server
 │   │   └── js.cookie.js                  # Used in Queue.html, do not remove
 │   ├── templates                         ! Templates for the app       
 │   │   ├── access_error.html             # Template for access denied errors     
 │   │   ├── base.html                     # Base template for user pages
+│   │   ├── charts.html                   # Template for /staff/charts
+│   │   ├── chat.html                     # Template for /chat
 │   │   ├── hunt1.html                    ! Each hunt gets it's own html and
 │   │   ├── hunt2.html                      the files are numbered sequentially
+│   │   ├── not_released.html             # Template for privacy based errors
 │   │   ├── progress.html                 # Template for /staff/progress
 │   │   ├── puzzle.html                   ! Template for individual puzzles
 │   │   ├── queue.html                    # Template for /staff/queue
 │   │   ├── registration                  
 │   │   │   └── login.html                # Template for non-logged in users
-│   │   └── staff_base.html               # Base template for staff pages
+│   │   ├── registration.html             # Template for the registration page
+│   │   ├── staff_base.html               # Base template for staff pages
+│   │   ├── staff_chat.html               # Template for /staff/chat
+│   │   ├── staff_header.html             # Template for the staff header
+│   │   └── unlockables.html              # Template for the unlockables page
 │   ├── urls.py                           ! Router for the app (USE THIS ONE)
 │   ├── views.py                          ! Views for the app
 ├── manage.py                             # useful django created python script
 ├── notes.txt                             # Notes, eventually to be in README.md
 ├── puzzlehunt_server                     # Directory for the whole server
+│   ├── secret_settings.py                # Non-published settings (NOT IN GIT!)
+│   ├── secret_settings.py.template       # A template for the settings (IN GIT)
 │   ├── settings.py                       # Settings for the whole server
-│   ├── urls.py                           # Urls for the server (SPARINGLY EDIT)
+│   └── urls.py                           # Urls for the server (SPARINGLY EDIT)
 ├── README.md                             ! Readme for the project
 ├── static                                # static host directory (DONT USE!!!)
 ├── templates                             # Global templates
