@@ -1,5 +1,5 @@
 # puzzlehunt_server
-Server for Puzzlehunt CMU's bi-annual puzzlehunt.
+Server for Puzzlehunt CMU's bi-annual puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, team logins, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a chat with the staff feature, and automatic file fetching and hosting. 
 
 System packages:
 * python 2.7
@@ -18,10 +18,10 @@ Python packages (pip)
 * python-dateutil
 * django-redis-sessions
 
-(I'll try to get this virtualenv'd but no promises)
+(Working on getting a virtualenv solution set up)
 
 Database setup details:
-* expects a pre-existing database named puzzlehunt_db
+* expects a pre-existing empty database named puzzlehunt_db
 * Database settings are in puzzlehunt_server/secret_settings.py the example used below has the following settings:
  a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```. Production values should be different. 
 * The above can be accomplished by running the following commands as a superuser:
@@ -35,31 +35,9 @@ Database setup details:
 Project Details:
 * Check out file_map.txt for new developers.
 * The django project is named ```puzzlehunt_server``` amd the app is named ```huntserver```
-* We are using setup and coding practices taken from the django tutorial [here](https://docs.djangoproject.com/en/1.8/intro/tutorial01/)
-
-
-Base Features:
-- [x] Answer Submission
-- [x] Team ID sign in
-- [x] Answer response system
-- [x] Landing Page
-- [x] admin view - edit data
-- [x] admin view - graphs
-- [x] admin view - queue
-- [x] admin view - puzzle stats
-- [x] Graph unlocking structure
-
+* Instructions to start the server can be found in notes.txt
 
 Desired Features
-- [x] Upgraded Hunt home page with answers and status
-- [x] Manual response being correct
-- [x] Admins be able to see manual responses
-- [x] Send more than one manual response
-- [x] Very clear puzzle labeling
-- [x] Ability for puzzle solutions to unlock objects
-- [x] Chatroom with staff for difficulties
-- [x] Server can get puzzles from links using button on admin page.
-- [x] Upgrade puzzle page to have in-body pdf/puzzle
 - [ ] Ability to set interactive unlocks and give notifications
 - [ ] Hints
 - [ ] Public facing charts and leaderboard (disableable)
