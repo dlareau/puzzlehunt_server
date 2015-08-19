@@ -21,14 +21,12 @@ def is_admin(request):
     return False
 
 
-def protected_static(request, app, folder, file_name):
+def protected_static(request, file_path):
     allowed = False
-    # print(app)
-    # print(folder)
-    # print(file_name)
-    if(app == "huntserver" and folder == "puzzles"):
+    levels = file_path.split("/")
+    if(len(levels) > 2 and levels[0] == "huntserver" and levels[1] == "puzzles"):
         if request.user.is_authenticated():
-            puzzle_id = file_name[0:3]
+            puzzle_id = levels[2][0:3]
             puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
             team = Team.objects.get(login_info=request.user);
             if puzzle in team.unlocked.all():
@@ -39,7 +37,7 @@ def protected_static(request, app, folder, file_name):
     # do your permission things here, and set allowed to True if applicable
     if allowed:
         response = HttpResponse()
-        url = '/static/' + app + "/" + folder + "/" + file_name
+        url = '/static/' + file_path
         # let nginx determine the correct content type 
         response['Content-Type']=""
         response['X-Accel-Redirect'] = url
