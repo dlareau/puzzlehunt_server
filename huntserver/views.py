@@ -20,26 +20,30 @@ def is_admin(request):
             return True
     return False
 
-
+# All static file requests are routed through here with file_path resembling:
+# huntserver/puzzles/001.pdf or admin/js/somefile.js etc...
 def protected_static(request, file_path):
     allowed = False
     levels = file_path.split("/")
+    # The only files we really have to protect are in huntserver/puzzles/*
     if(len(levels) > 2 and levels[0] == "huntserver" and levels[1] == "puzzles"):
         if request.user.is_authenticated():
             puzzle_id = levels[2][0:3]
             puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
             team = Team.objects.get(login_info=request.user);
+            # Only allowed access to the image if the puzzle is unlocked
             if puzzle in team.unlocked.all():
                 allowed = True
+    # At the moment, if it's not a puzzle file, it's allowed
     else:
         allowed = True
 
-    # do your permission things here, and set allowed to True if applicable
     if allowed:
         response = HttpResponse()
         url = '/static/' + file_path
         # let nginx determine the correct content type 
         response['Content-Type']=""
+        # This is what lets django access the normally restricted /static/
         response['X-Accel-Redirect'] = url
         return response
     

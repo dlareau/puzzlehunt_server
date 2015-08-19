@@ -12,7 +12,7 @@
 <div class='puzzle'>
   <div class='info'>
     <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
-    <h3><a href='{{ puzzle.link }}'>
+    <h3><a href='{{ STATIC_URL }}huntserver/puzzles/{{ puzzle.puzzle_id }}.pdf'>
       Click here for a downloadable pdf
     </a></h3>
   </div>
