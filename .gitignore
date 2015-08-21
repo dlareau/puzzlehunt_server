@@ -5,3 +5,4 @@
 /huntserver/static/huntserver/*.png
 /huntserver/static/huntserver/puzzles/*
 /puzzlehunt_server/secret_settings.py
+/docs/_build/
