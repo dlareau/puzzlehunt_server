@@ -4,15 +4,9 @@
    contain the root `toctree` directive.
 
 Welcome to PuzzlehuntCMU's Server documentation!
-=============================================
+==================================================
 
-A Server for Puzzlehunt CMU's bi-annual puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, team logins, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a chat with the staff feature, and automatic file fetching and hosting.
-
-Contents:
-
-.. toctree::
-   :maxdepth: 2
-
+A Server for Puzzlehunt CMU's bi-annual puzzlehunt. 	      
 
 Features
 --------
@@ -32,28 +26,39 @@ Installation
 ------------
 
 You need the following packages for installation, more info to come soon:
+
 System packages:
-* python 2.7
-* mysql-client
-* mysql-server
-* python-mysqldb
-* redis-server
-* python-dev
-* imagemagick
-* libmysqlclient-dev
 
-Python packages (pip)
-* django
-* django-websocket-redis
-* MySQL-python
-* python-dateutil
-* django-redis-sessions
+- python 2.7
+- mysql-client
+- mysql-server
+- python-mysqldb
+- redis-server
+- python-dev
+- imagemagick
+- libmysqlclient-dev
 
+Python packages (pip):
+  
+- django
+- django-websocket-redis
+- MySQL-python
+- python-dateutil
+- django-redis-sessions
+
+Contents
+--------  
+
+.. toctree::
+   :maxdepth: 2
+
+   setup
+  
 Contribute
 ----------
 
-- Issue Tracker: github.com/flybye22/puzzlehunt_server/issues
-- Source Code: github.com/flybye22/puzzlehunt_server
+- Issue Tracker: http://www.github.com/flybye22/puzzlehunt_server/issues
+- Source Code: http://www.github.com/flybye22/puzzlehunt_server
 
 Support
 -------
