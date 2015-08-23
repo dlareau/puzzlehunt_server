@@ -95,12 +95,16 @@ WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 # Database information now in file not tracked by git
 
 
+# Login redirect override from /accounts/profile/ to /
+
+LOGIN_REDIRECT_URL = '/'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 

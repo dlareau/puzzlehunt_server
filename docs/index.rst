@@ -22,29 +22,6 @@ Features
 - Chat with the staff
 - Automatic file fetching and hosting
 
-Installation
-------------
-
-You need the following packages for installation, more info to come soon:
-
-System packages:
-
-- python 2.7
-- mysql-client
-- mysql-server
-- python-mysqldb
-- redis-server
-- python-dev
-- imagemagick
-- libmysqlclient-dev
-
-Python packages (pip):
-  
-- django
-- django-websocket-redis
-- MySQL-python
-- python-dateutil
-- django-redis-sessions
 
 Contents
 --------  
@@ -53,6 +30,10 @@ Contents
    :maxdepth: 2
 
    setup
+   basics
+   hunt_creation
+   hunt_running
+   customization
   
 Contribute
 ----------
