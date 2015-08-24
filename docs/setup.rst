@@ -25,15 +25,49 @@ Install the following python packages using pip:
 - python-dateutil
 - django-redis-sessions
 
+Code Setup
+----------
+
+If you haven't already, clone the repository to a location that the user running
+the server will have access to. 
+
+Instantiate a copy of the secret settings file by copying the secret settings
+template:
+    ``cp puzzlehunt_server/secret_settings.py.template puzzlehunt_server/secret_settings.py``
+
+Then replace the default settings such as the admin account username, the 
+database login details, and secret key. (If needed, look up instructions on how
+to generate a new secret key)
+
 Database setup
 --------------
 
-- expects a pre-existing empty database named puzzlehunt_db
-- Database settings are in puzzlehunt_server/secret_settings.py the example used below has the following settings:
- a user named ```hunt``` on domain ```localhost``` with password ```wrongbaa``` with access to ```puzzlehunt_db```. Production values should be different. 
-- The above can be accomplished by running the following commands as a superuser:
-   - ```CREATE DATABASE puzzlehunt_db;```
-   - ```CREATE USER 'hunt'@'localhost' IDENTIFIED BY 'wrongbaa';```
-   - ```GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'hunt'@'localhost' WITH GRANT OPTION;```
-- run ```python manage.py migrate``` to have django configure the database
-- then run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/ (this will be replaced with nginx in the production version)
+This project is configured to use a MySQL database. It can be configured to use
+a different type of database by modifying settings in secret_settings.py, but 
+those modifications are out of the scope of this setup.
+
+First we have to create the user and database that the application will use. To 
+do so, log into the mysql client as a superuser and enter the following 
+commands. (subsituting your password and username)
+
+- ``CREATE DATABASE puzzlehunt_db;``
+- ``CREATE USER 'nottherealusername'@'localhost' IDENTIFIED BY 'nottherealpassword';``
+- ``GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'nottherealusername'@'localhost' WITH GRANT OPTION;``
+
+
+Redis setup
+-----------
+
+Start up the redis server using ``sudo service redis-server start``. You can
+check if worked by running ``redis-cli ping`` and getting the response ``PONG``.
+
+Django setup
+------------
+
+Migrate the database by running ``python manage.py migrate``. 
+
+Create a superuser for the project by running 
+``python manage.py createsuperuser`` and following the instructions. The 
+username here should match the setting ADMIN_ACCT in secret_settings.py.
+
+Run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/
