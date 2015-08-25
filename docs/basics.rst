@@ -29,8 +29,8 @@ by running ``python manage.py collectstatic``.
 This main static directory is not tracked by git,
 and therefore you should not put any content directly into this folder. 
 
-Puzzles should not be checked into the github repository.
-They should exist on some accessible online file source (we use dropbox)
+Puzzles should not be checked into the Github repository.
+They should exist on some accessible online file source (we use Dropbox)
 and will be downloaded and converted when the admin choses to do so.
 Once downloaded, the puzzle files live in ``{PROJECT FOLDER}/huntserver/static/huntserver/puzzles/``
 named using the puzzle ids that are unique. 
@@ -47,8 +47,8 @@ Websockets
 ----------
 This project accomplishes live page content with the use of websockets powered by ws4redis.
 These websockets are controlled by a redis message passing server running alongside the django server.
-This allows asychronous communication to the clients webpage,
-however communication from the webpage is synchronous with respect to the django server.
+This allows asynchronous communication to the clients webpage,
+however communication from the webpage is synchronous with respect to the Django server.
 This limitation is overcome by using POST requests as an asynchronous method of communication with the server from the client. 
 
 Database
