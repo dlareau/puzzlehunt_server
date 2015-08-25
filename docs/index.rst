@@ -31,6 +31,7 @@ Contents
 
    setup
    basics
+   models
    hunt_creation
    hunt_running
    customization

@@ -16,7 +16,7 @@ from .redis import *
 
 def is_admin(request):
     if request.user.is_authenticated():
-        if request.user.username == settings.ADMIN_ACCT:
+        if request.user.username in settings.ADMIN_ACCTS:
             return True
     return False
 
@@ -32,6 +32,7 @@ def protected_static(request, file_path):
             puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
             team = Team.objects.get(login_info=request.user);
             # Only allowed access to the image if the puzzle is unlocked
+            # TODO: add condition for hunt is over.
             if puzzle in team.unlocked.all():
                 allowed = True
     # At the moment, if it's not a puzzle file, it's allowed
@@ -151,7 +152,7 @@ def index(request):
 
 @login_required
 def puzzle(request, puzzle_id):
-    puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
+    puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = Team.objects.get(login_info=request.user);
 
     # Create submission object and then rely on puzzle.py->respond_to_submission
