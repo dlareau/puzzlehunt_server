@@ -47,7 +47,7 @@ but those modifications are out of the scope of this setup.
 
 First we have to create the user and database that the application will use.
 To do so, log into the mysql client as a superuser and enter the following commands.
-(subsituting your password and username)
+(substituting your password and username)
 
 - ``CREATE DATABASE puzzlehunt_db;``
 - ``CREATE USER 'nottherealusername'@'localhost' IDENTIFIED BY 'nottherealpassword';``
