@@ -95,7 +95,7 @@ $(document).ready(function(){
     }
     clean = true;
     $("#individualForm :input").each(function() {
-      if($(this).val() === "" && $(this).attr("id") != "id_dietary_issues")
+	if($(this).val() === "" && $(this).attr("id") != "id_dietary_issues" && $(this).attr("id") != "id_phone")
         clean = false;
     });
     if(clean){
