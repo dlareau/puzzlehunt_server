@@ -108,7 +108,7 @@ def registration(request):
     else:
         # Standard rendering of registration page
         form = RegistrationForm()
-        teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('team_name')
+        teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
         return render(request, "registration.html", {'form': form, 'teams': teams})
 
 @login_required

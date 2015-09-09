@@ -67,7 +67,8 @@ jQuery(document).ready(function($) {
       url : $(this).attr('action') || window.location.pathname,
       type: "POST",
       data: $(this).serialize(),
-      error: function (jXHR, textStatus, errorThrown) {
+        error: function (jXHR, textStatus, errorThrown) {
+        console.log(jXHR.responseText);
         alert(errorThrown);
       }
     });

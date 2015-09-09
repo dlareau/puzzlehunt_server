@@ -13,7 +13,7 @@ time_zone = tz.gettz(settings.TIME_ZONE)
 # Is called usually after any modification to the submission
 def send_submission_update(submission):
     redis_publisher = RedisPublisher(facility='puzzle_submissions',
-             users=[submission.team.login_info.username, settings.ADMIN_ACCT])
+             users=[submission.team.login_info.username, settings.ADMIN_ACCTS[0]])
     modelJSON = json.loads(serializers.serialize("json", [submission]))[0]
     message = modelJSON['fields']
     message['response_text'] = escape(message['response_text'])
@@ -32,7 +32,7 @@ def send_submission_update(submission):
 def send_status_update(puzzle, team, status_type):
     # status_type should be either "solve" or "unlock"
     redis_publisher = RedisPublisher(facility='puzzle_status',
-                                     users=[team.login_info.username, settings.ADMIN_ACCT])
+                                     users=[team.login_info.username, settings.ADMIN_ACCTS[0]])
     message = dict()
     message['puzzle_id'] = puzzle.puzzle_id
     message['puzzle_num'] = puzzle.puzzle_number
@@ -49,7 +49,7 @@ def send_status_update(puzzle, team, status_type):
 # Displays a chat message to the relevant users
 def send_chat_message(message):
     redis_publisher = RedisPublisher(facility='chat_message',
-                      users=[settings.ADMIN_ACCT, message.team.login_info.username])
+                      users=[settings.ADMIN_ACCT[0], message.team.login_info.username])
     packet = dict()
     packet['team_pk'] = message.team.pk
     packet['team_name'] = message.team.team_name
