@@ -88,6 +88,8 @@ def registration(request):
                         email = form.cleaned_data['email'], 
                         phone = form.cleaned_data['phone'], 
                         comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
+                    if(not curr_hunt.is_locked):
+                        unlock_puzzles(t)
             return HttpResponse('success')
 
         # Find existing team and add person. 
@@ -174,6 +176,7 @@ def puzzle(request, puzzle_id):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
             # Directory for puzzle PNGs
+            # TODO: what do we do if this doesn't exist
             directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
             file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
             # Ideally this should be done some other way to reduce command calls
