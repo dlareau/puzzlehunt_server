@@ -68,13 +68,21 @@ def unlock_puzzles(team):
 # Has to also get number of pages so that the whole pdf doesn't become one image
 def download_puzzles(hunt):
     directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
+    # TODO: maybe move folder, see if success, then delete.
+    # maybe overwrite files with wget?
+
+    # Remove old folder
     call(["rm", "-r", directory])
     call(["mkdir", directory])
+    
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     for puzzle in curr_hunt.puzzle_set.all():
+        # Get the file
         file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
         call(["wget", puzzle.link, "-O", file_str])
+        # get file info
         pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
+        # convert file page by page
         for i in range(pages):
             call(["convert", "-density", "200", "-scale", "x1000", file_str + "[" + str(i) + "]", directory + "/" + puzzle.puzzle_id + "-" + str(i) + ".png"])
         

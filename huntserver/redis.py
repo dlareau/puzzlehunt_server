@@ -49,7 +49,7 @@ def send_status_update(puzzle, team, status_type):
 # Displays a chat message to the relevant users
 def send_chat_message(message):
     redis_publisher = RedisPublisher(facility='chat_message',
-                      users=[settings.ADMIN_ACCT[0], message.team.login_info.username])
+                      users=[settings.ADMIN_ACCTS[0], message.team.login_info.username])
     packet = dict()
     packet['team_pk'] = message.team.pk
     packet['team_name'] = message.team.team_name
