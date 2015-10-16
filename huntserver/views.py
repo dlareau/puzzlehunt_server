@@ -177,9 +177,10 @@ def puzzle(request, puzzle_id):
             form = AnswerForm()
             # Directory for puzzle PNGs
             # TODO: what do we do if this doesn't exist
-            directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
+            directory = "/home/hunt/puzzlehunt_server/static/huntserver/puzzles"
             file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
             # Ideally this should be done some other way to reduce command calls
+            print("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'")
             pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
             context = {'form': form, 'pages': range(pages), 'puzzle': puzzle, 
                        'submission_list': submissions}
@@ -355,3 +356,13 @@ def control(request):
 def public_stats(request):
     newest_hunt = 1
     return hunt(request, newest_hunt)
+
+def emails(request):
+    if(not is_admin(request)):
+        return render(request, 'access_error.html')
+    
+    people = Person.objects.filter(team__hunt__hunt_number=settings.CURRENT_HUNT_NUM)
+    emails = []
+    for person in people:
+        emails.append(person.email)
+    return HttpResponse(", ".join(emails))
