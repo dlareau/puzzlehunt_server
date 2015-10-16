@@ -79,10 +79,11 @@ def registration(request):
             if (form.is_valid()):
                 # Make sure their passwords matched
                 if(form.cleaned_data['password'] == form.cleaned_data['confirm_password']):
+                    loc = ["NAR", "Has a room", "offcampus"][int(form.cleaned_data['location'])-1]
                     u = User.objects.create_user(form.cleaned_data['username'], 
                         password=form.cleaned_data['password'])
                     t = Team.objects.create(team_name = form.cleaned_data['team_name'], 
-                        login_info = u, hunt = curr_hunt)
+                        login_info = u, hunt = curr_hunt, location=loc)
                     p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
                         last_name = form.cleaned_data['last_name'], 
                         email = form.cleaned_data['email'], 

@@ -51,6 +51,7 @@ class Team(models.Model):
     unlockables = models.ManyToManyField("Unlockable", blank=True)
     login_info = models.OneToOneField(User)
     hunt = models.ForeignKey(Hunt)
+    location = models.CharField(max_length=80, blank=True)
 
     def __unicode__(self):
         return self.team_name
