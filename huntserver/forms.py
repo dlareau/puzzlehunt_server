@@ -16,7 +16,7 @@ class RegistrationForm(forms.Form):
     username = forms.CharField(label='Team Username', required=False)
     password = forms.CharField(label='Team Password', widget=forms.PasswordInput())
     confirm_password = forms.CharField(label='Confirm Password', required=False, widget=forms.PasswordInput())
-    location = forms.ChoiceField(label="Do you want to be provided a room on campus close to the hunt?", choices=([(1, "Yes"), (2, "No, we have a room"), (3, "No, we are a remote team")])) 
+    location = forms.ChoiceField(label="Do you want to be provided a room on campus close to the hunt?", choices=([(1, "Yes"), (2, "No, we have a room"), (3, "No, we are a remote team")]), required=False) 
     first_name = forms.CharField(label='First Name')
     last_name =  forms.CharField(label='Last Name')
     phone = forms.CharField(label='Phone Number', required=False)
