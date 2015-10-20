@@ -34,7 +34,7 @@
         Join an existing team.
       </div>
       <div class="reg_choice" data-id="3">
-        Modify an existing registration.
+        Check on an existing team registration.
       </div>
     </div>
     <div style="display:none;" id="stage2">
@@ -98,9 +98,42 @@
         </form>
       </div>
       <div id="stage2-3" style="display:none;">
-        We do not currently support modifying registrations (soon though!)
-        </br>
-        <input type="button" class="back2to1" value="Back" />
+	<form action="/registration/" id="teamInfoForm">
+	  {% csrf_token %}
+          <table>
+            <tr>
+              <td>Team name: </td>
+              <td>
+                <select name="team_name">
+                  <option value=""></option>
+                  {% for team in teams %}
+                    <option value="{{team.team_name}}">{{team.team_name}}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>{{ form.password.label_tag }}</td>
+              <td>{{ form.password }}</td>
+            </tr>
+          </table>
+          </br>
+          <input type="submit" id="getTeamInfo" value="Check" />    
+          <input type="button" class="back2to1" value="Back" />
+	</form>
+	<h2><u> Results </u></h2>
+	<h3> Members: </h3>
+	<table rules="cols">
+	  <thead>
+	    <tr>
+	      <th>First Name</th>
+	      <th>Last Name</th>
+	      <th>Email</th>
+	    </tr>
+	  </thead>
+	  <tbody id="member-table">
+	  </tbody>
+	</table>
       </div>
     </div>
     <div style="display:none;" id="stage3">

@@ -8,6 +8,7 @@ from django.utils import timezone
 from subprocess import check_output
 from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth import authenticate
+import json
 
 from .models import *
 from .forms import *
@@ -63,6 +64,18 @@ def registration(request):
             user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
             if user is not None:
                 return HttpResponse('success')
+            else:
+                return HttpResponse('fail-password')
+
+        # Check for correct password when doing existing registration
+        if(request.POST.get("data")):
+            team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
+            # Check that the password is correct
+            user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
+            if user is not None:
+                a = Person.objects.filter(team=team).all().values('first_name', 'last_name', 'email')
+                print(a)
+                return HttpResponse(json.dumps(list(a)))
             else:
                 return HttpResponse('fail-password')
 

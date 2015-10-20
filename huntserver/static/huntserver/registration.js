@@ -72,11 +72,42 @@ $(document).ready(function(){
         }else if(html == "fail-full"){
           alert("Team is already full, contact team leader or staff.")
         }else{
-          $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
+	    $("#stage2").fadeOut(500, function(){$("#stage3").fadeIn(500);});
         }
       },
       error: function (jXHR, textStatus, errorThrown) {
         alert(errorThrown);
+      }
+    });
+    return false;
+  });
+
+  // Stage2-3 Proccessing
+  $('#teamInfoForm').on('submit', function (e) {
+    if($("#teamInfoForm select").val() == ""){
+      alert("Please pick a team.");
+      return false;
+    }
+    e.preventDefault();
+    $.ajax({
+      url : $(this).attr('action') || window.location.pathname,
+      type: "POST",
+      data: $("#teamInfoForm").serialize() + "&data=True",
+      success: function(html){
+        if(html == "fail-password"){
+            alert("Incorrect password");
+        }else{
+	    $("#member-table").html("")
+          members = JSON.parse(html);
+	  trHTML = ""  
+	  $.each(members, function (i, item) {
+	    trHTML += '<tr><td>' + item.first_name + '</td><td>' + item.last_name + '</td><td>' + item.email + '</td></tr>';
+	  });
+	  $('#member-table').append(trHTML);
+        }
+      },
+      error: function (jXHR, textStatus, errorThrown) {
+          alert(errorThrown);
       }
     });
     return false;
