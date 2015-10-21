@@ -54,7 +54,7 @@ class Team(models.Model):
     location = models.CharField(max_length=80, blank=True)
 
     def __unicode__(self):
-        return self.team_name
+        return "(" + self.location + ") " + self.team_name
 
 class Person(models.Model):
     first_name = models.CharField(max_length=20)
