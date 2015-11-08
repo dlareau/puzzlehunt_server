@@ -53,7 +53,7 @@ def send_chat_message(message):
     packet = dict()
     packet['team_pk'] = message.team.pk
     packet['team_name'] = message.team.team_name
-    packet['text'] = message.text
+    packet['text'] = escape(message.text)
     packet['is_response'] = message.is_response
     df = DateFormat(message.time.astimezone(time_zone))
     packet['time'] = df.format("h:i a")

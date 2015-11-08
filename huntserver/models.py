@@ -42,7 +42,7 @@ class Puzzle(models.Model):
     #Reward upon completion? 
     
     def __unicode__(self):
-        return self.puzzle_name
+        return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
     
 class Team(models.Model):
     team_name = models.CharField(max_length=200)
@@ -54,7 +54,7 @@ class Team(models.Model):
     location = models.CharField(max_length=80, blank=True)
 
     def __unicode__(self):
-        return "(" + self.location + ") " + self.team_name
+        return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name
 
 class Person(models.Model):
     first_name = models.CharField(max_length=20)

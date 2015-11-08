@@ -13,7 +13,7 @@ def respond_to_submission(submission):
     # Compare against correct answer
     if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
         # Make sure we don't have duplicate or after hunt submission objects
-        if(submission.puzzle not in submission.team.solved.all()):# and submission.puzzle.hunt.is_open):
+        if((submission.puzzle not in submission.team.solved.all()) and (not submission.puzzle.hunt.is_open)):
             Solve.objects.create(puzzle=submission.puzzle, 
                 team=submission.team, submission=submission)
             send_status_update(submission.puzzle, submission.team, "solve")

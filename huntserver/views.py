@@ -181,7 +181,7 @@ def puzzle(request, puzzle_id):
                 puzzle = puzzle, submission_time = timezone.now(), team = team)
             respond_to_submission(s)
 
-        return redirect('huntserver:puzzle', puzzle_id=puzzle_id)
+        return HttpResponse('success')
 
     else:
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
@@ -219,7 +219,7 @@ def queue(request):
             # Update relevant parties
             send_submission_update(s)
 
-        return redirect('huntserver:queue')
+        return HttpResponse('success')
     
     else:   
         hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
@@ -243,7 +243,7 @@ def progress(request):
             Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
             send_status_update(p, t, "unlock")
             t.save()
-        return redirect('huntserver:progress')
+        return HttpResponse('success')
 
     else:
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
@@ -309,7 +309,7 @@ def chat(request):
                 is_response=(request.POST.get('is_response')=="true"),
                 team=Team.objects.get(pk=request.POST.get('team_pk')))
             send_chat_message(m)
-        return redirect('huntserver:chat')
+        return HttpResponse('success')
     else:
         team = Team.objects.get(login_info=request.user)
         messages = Message.objects.filter(team=team).order_by('time')
