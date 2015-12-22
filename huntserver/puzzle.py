@@ -67,7 +67,7 @@ def unlock_puzzles(team):
 # and convert it to PNGs. It first clears the old PNGs and PDFs.
 # Has to also get number of pages so that the whole pdf doesn't become one image
 def download_puzzles(hunt):
-    directory = "static/huntserver/puzzles"
+    directory = settings.MEDIA_ROOT + "puzzles"
     # TODO: maybe move folder, see if success, then delete.
     # maybe overwrite files with wget?
 

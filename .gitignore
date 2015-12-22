@@ -1,6 +1,7 @@
 *.*~
 *.pyc
 /static/
+/media/
 /huntserver/static/huntserver/*.pdf
 /huntserver/static/huntserver/*.png
 /huntserver/static/huntserver/puzzles/*

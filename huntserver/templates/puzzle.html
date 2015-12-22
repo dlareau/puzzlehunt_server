@@ -12,7 +12,7 @@
 <div class='puzzle'>
   <div class='info'>
     <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
-    <h3><a href='{{ STATIC_URL }}huntserver/puzzles/{{ puzzle.puzzle_id }}.pdf'>
+    <h3><a href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf'>
       Click here for a downloadable pdf
     </a></h3>
   </div>
@@ -49,7 +49,7 @@
   </fieldset>
   <div>
     {% for i in pages %}
-    <img id="puzzleimg" src="{{ STATIC_URL }}huntserver/puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="No image here">
+    <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="No image here">
     {% endfor %}
   </div>
 </div>
