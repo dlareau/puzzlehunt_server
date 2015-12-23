@@ -1,76 +1,69 @@
 {% extends "base.html" %}
 {% block title %}Puzzles!{% endblock title %}
 
-{% block includes %}
-<link rel="stylesheet" type="text/css" media='screen and (max-width: 1200px)' href="{{ STATIC_URL }}huntserver/low-width.css">
-<style>
-  body {
-    padding-bottom: 0px;
-  }
-</style>
-{% endblock %}
-
 {% block content %}
-  <div id='container'>
-  <div id='content-left'>
-    <h1 class="title">Unlocked Puzzles</h1>
-    <a href='/objects/' > 
-      <p style="margin-top: -10px;"> Click here for unlocked objects </p> 
-    </a>
-    <div id="puzzles">
-      <table>
-    <thead>
-      <tr>
-        <th style='width: 80px;'>Solved?</th>
-        <th style='width: 100px;'>Answer</th>
-        <th style='width: 320px;'>Puzzle Name/Link</th>
-        </tr>
-      </thead>
-    <tbody>
-      {% for puzzle in puzzles %}
-          <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
-        <td>
-          {% if puzzle in team.solved.all %}
-          <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
-          {% else %}
-          <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
-          {% endif %}
-        </td>
-        <td>
-          {% if puzzle in team.solved.all %}
-            {{ puzzle.answer|upper }}
-          {% endif %}
-        </td>
-        <td>
-          <a href='/puzzle/{{ puzzle.puzzle_id }}/' >
-        <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
-              </a>
-        </td>
-          </div>
-      {% endfor %}
-    </tbody>
-      </table>
+<div class="container">
+  <div class="row">
+    <div class="content col-md-6">
+      <h1 class="title">Unlocked Puzzles</h1>
+      <a href='/objects/' > 
+        <p style="margin-top: -5px;"> Click here for unlocked objects </p> 
+      </a>
+      <div id="puzzles">
+        <table>
+          <thead>
+            <tr>
+              <th style='width: 80px;'>Solved?</th>
+              <th style='width: 100px;'>Answer</th>
+              <th style='width: 320px;'>Puzzle Name/Link</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for puzzle in puzzles %}
+              <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
+                <td>
+                  {% if puzzle in team.solved.all %}
+                  <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
+                  {% else %}
+                  <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if puzzle in team.solved.all %}
+                    {{ puzzle.answer|upper }}
+                  {% endif %}
+                </td>
+                <td>
+                <a href='/puzzle/{{ puzzle.puzzle_id }}/' >
+                  <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
+                </a>
+                </td>
+              </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a> or try our new <a href="/chat/"> Chat Feature</a>.</p>
     </div>
-    <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a> or try our new <a href="/chat/"> Chat Feature</a>.</p>
-  </div>
-  <div id='content-right'>
-    <div id='plot'>
-      Hello Space Cadet(s)!
-      </br>
-      <p>
-      You are part of the emergency response team that has been woken out of cryostasis to help
-      get the ship back on course.
-      </p>
-      <p>
-	It would seem an engineer had woken up unexpectedly from cryostasis causing him to go crazy. Before he was subdued he had managed to deactivate the engines and change all of the door passwords. He did leave some clues behind in the form of puzzles. 
-      </p>
-      <p>
-	Please look over the puzzles he left, use the answers to unlock futher rooms (which we suspect will contain further puzzles), make your way to the engine room and reactivate the engine.
-      </p>
-      </br>
-      Thanks,</br>
-      Command
+    <div class="content col-md-5">
+      <div id='plot'>
+        Hello Space Cadet(s)!
+        </br>
+        <p>
+        You are part of the emergency response team that has been woken out of cryostasis to help
+        get the ship back on course.
+        </p>
+        <p>
+  	It would seem an engineer had woken up unexpectedly from cryostasis causing him to go crazy. Before he was subdued he had managed to deactivate the engines and change all of the door passwords. He did leave some clues behind in the form of puzzles. 
+        </p>
+        <p>
+  	Please look over the puzzles he left, use the answers to unlock futher rooms (which we suspect will contain further puzzles), make your way to the engine room and reactivate the engine.
+        </p>
+        </br>
+        Thanks,</br>
+        Command
+      </div>
     </div>
   </div>
-  </div>
+</div>
 {% endblock content %}

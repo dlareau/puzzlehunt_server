@@ -1,63 +1,24 @@
-\html {
-    background-image: url(http://www.millionaireinvestor.asia/images/Background.jpg);
+body {
+    background: url(http://www.millionaireinvestor.asia/images/Background.jpg);
 }
 
-body {
+.content {
     font-family: verdana;
     font-size: 14px;
-    margin: 20px;
-    padding: 20px;
+    padding: 10px;
+    padding-top: 0px;
+    margin-right: 10px;
+    margin-bottom: 10px;
     background: white;
-    border: 4px solid black; 
-}
-
-header {
-    margin: 0 -20px;
-    margin-top: -20px;
-    background-color: lightgray;
-    padding: 15px;
-    border-bottom: 4px solid black;
-    overflow: hidden;
-}
-
-#container {
-    overflow: hidden;
-}
-
-#content-left {
-    float: left;
-    border-right: 4px solid black;
-}
-
-#content-right {
-    padding: 20px;
-    border-left: 4px solid black;
-    margin-left: -4px;
-    padding-right: 0px;
-    float: left;
-}
-
-#plot {
-    width: 450px;
-    background-color: white; /* maybe gray? */
-    border: 1px solid black;
-    padding: 5px;
-}
-
-#left-header{
-    float: left;
-}
-
-#right-header{
-    float: right;
-}
-
-.puzzle {
-    overflow: hidden;
+    border: 3px solid black; 
 }
 
 th {
     text-align: left;
+}
+
+#plot {
+    margin-top: 10px;
 }
 
 .puzzle td img{
@@ -66,23 +27,9 @@ th {
     height: 30px;
 }
 
-/* For the puzzle page */
+/*for puzzle page*/
 .puzzle, .info {
     overflow: auto;
-}
-    
-.puzzle fieldset {
-    float: left;
-    padding: 20px;
-    margin: 20px;
-}
-
-.puzzle fieldset#submit {
-    width: 30%;
-}
-
-.puzzle fieldset#answers {
-    width: 40%;
 }
 
 .puzzle .info h1 {
@@ -91,6 +38,14 @@ th {
 
 .puzzle .info a {
     float: right;
+}
+
+.puzzle fieldset {
+    margin: 20px;
+}
+
+.puzzle fieldset td,th {
+    padding-right: 10px;
 }
 
 .puzzle #puzzleimg {
