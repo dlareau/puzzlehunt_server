@@ -1,14 +1,12 @@
+{% load bootstrap_tags %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>{% block title %} Puzzlehunt! {% endblock title %}</title>
-    <script src="{{ STATIC_URL }}jquery.min.js"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/base.css">
+    <script src="{{ STATIC_URL }}jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
     {% block includes %} {% endblock includes %}
   </head>
   <body>
@@ -32,12 +30,11 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             {% block left-header %}
+              <li class='{% active_page request "index" %}'><a href="{% url 'huntserver:index' %}"> Puzzles </a></li>
               {% if user.is_authenticated %}
-                <li class="active"><a href="#">Link </a></li>
-                <li><a href="#">Link</a></li>
-              {% else %}                
-                <li class="active"><a href="#">Link </a></li>
-                <li><a href="#">Link</a></li>
+                <li class='{% active_page request "unlockables" %}'><a href="{% url 'huntserver:unlockables' %}"> Unlockables </a></li>
+                <li class='{% active_page request "chat" %}'><a href="{% url 'huntserver:chat' %}"> Chat </a></li>
+              {% else %}
                 <li><a href="/registration/">Register</a></li>
               {% endif %}
             {% endblock %}
