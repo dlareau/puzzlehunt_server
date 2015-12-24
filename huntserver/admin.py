@@ -16,13 +16,13 @@ class PuzzleAdmin(admin.ModelAdmin):
     list_filter = ('hunt',)
     inlines = (UnlockableInline, )
     
-class PersonInline(admin.TabularInline):
-    model = Person
-    extra = 5
-    max_num = 5 
+# class PersonInline(admin.TabularInline):
+#     model = Person
+#     extra = 5
+#     max_num = 5 
 
 class TeamAdmin(admin.ModelAdmin):
-    inlines = (PersonInline, )
+    # inlines = (PersonInline, )
     list_filter = ('hunt',)
     
 admin.site.register(Hunt)

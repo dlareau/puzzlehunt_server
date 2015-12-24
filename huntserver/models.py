@@ -35,6 +35,7 @@ class Puzzle(models.Model):
     num_required_to_unlock = models.IntegerField(default=1)
     unlocks = models.ManyToManyField("self", blank=True, symmetrical=False)
     hunt = models.ForeignKey(Hunt)
+    num_pages = models.IntegerField()
     #Reward upon completion? 
     
     def __unicode__(self):
@@ -45,7 +46,6 @@ class Team(models.Model):
     solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
     unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
     unlockables = models.ManyToManyField("Unlockable", blank=True)
-    login_info = models.OneToOneField(User)
     hunt = models.ForeignKey(Hunt)
     location = models.CharField(max_length=80, blank=True)
 
@@ -55,10 +55,11 @@ class Team(models.Model):
 class Person(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
+    login_info = models.OneToOneField(User)
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True)
     comments = models.CharField(max_length=400, blank=True)
-    team = models.ForeignKey(Team, blank=True)
+    teams = models.ManyToManyField(Team, blank=True)
     year = models.IntegerField(blank=True, null=True)
     
     def __unicode__(self):

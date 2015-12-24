@@ -82,6 +82,8 @@ def download_puzzles(hunt):
         call(["wget", puzzle.link, "-O", file_str])
         # get file info
         pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
+        puzzle.num_pages = pages
+        puzzle.save()
         # convert file page by page
         for i in range(pages):
             call(["convert", "-density", "200", "-scale", "x1000", file_str + "[" + str(i) + "]", directory + "/" + puzzle.puzzle_id + "-" + str(i) + ".png"])
