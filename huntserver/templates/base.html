@@ -41,7 +41,9 @@
             {% block right-header %}
               {% if user.is_authenticated %}
                 <p class="navbar-text">
-                  Team: {{user.team.team_name}}
+                  {% if team %}
+                    Team: {{team.team_name}}
+                  {% endif %}
                 </p>
                 <a class="btn btn-default navbar-btn" href="/accounts/logout/">Log out</a>
               {% else %}

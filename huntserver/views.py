@@ -306,7 +306,7 @@ def unlockables(request):
     if(team == None):
         return render(request, 'not_released.html', {'reason': "team"})
     unlockables = Unlockable.objects.filter(puzzle__in=team.solved.all())
-    return render(request, 'unlockables.html', {'unlockables': unlockables})
+    return render(request, 'unlockables.html', {'unlockables': unlockables, 'team':team})
 
 @staff_member_required
 def admin_chat(request):
