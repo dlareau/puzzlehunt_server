@@ -67,7 +67,7 @@ def unlock_puzzles(team):
 # and convert it to PNGs. It first clears the old PNGs and PDFs.
 # Has to also get number of pages so that the whole pdf doesn't become one image
 def download_puzzles(hunt):
-    directory = "/home/hunt/puzzlehunt_server/huntserver/static/huntserver/puzzles"
+    directory = settings.MEDIA_ROOT + "puzzles"
     # TODO: maybe move folder, see if success, then delete.
     # maybe overwrite files with wget?
 
@@ -86,7 +86,7 @@ def download_puzzles(hunt):
         for i in range(pages):
             call(["convert", "-density", "200", "-scale", "x1000", file_str + "[" + str(i) + "]", directory + "/" + puzzle.puzzle_id + "-" + str(i) + ".png"])
 
-    call(["python", "/home/hunt/puzzlehunt_server/manage.py", "collectstatic"])
+    call(["python", "kmanage.py", "collectstatic"])
     #get document: wget {{URL}} -O {{FILENAME}}
     #get pages: pdfinfo {{FILENAME}} | grep Pages | awk '{print $2}'
     #convert: convert -density 200 -scale x1000 {{FILENAME}}[i] {{OUTFILE}}

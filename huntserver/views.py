@@ -8,6 +8,7 @@ from django.utils import timezone
 from subprocess import check_output
 from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth import authenticate
+from django.contrib.admin.views.decorators import staff_member_required
 import json
 
 from .models import *
@@ -15,34 +16,25 @@ from .forms import *
 from .puzzle import *
 from .redis import *
 
-def is_admin(request):
-    if request.user.is_authenticated():
-        if request.user.username in settings.ADMIN_ACCTS:
-            return True
-    return False
-
-# All static file requests are routed through here with file_path resembling:
-# huntserver/puzzles/001.pdf or admin/js/somefile.js etc...
+@login_required
 def protected_static(request, file_path):
     allowed = False
     levels = file_path.split("/")
-    # The only files we really have to protect are in huntserver/puzzles/*
-    if(len(levels) > 2 and levels[0] == "huntserver" and levels[1] == "puzzles"):
-        if request.user.is_authenticated():
-            puzzle_id = levels[2][0:3]
-            puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
-            team = Team.objects.get(login_info=request.user);
-            # Only allowed access to the image if the puzzle is unlocked
-            # TODO: add condition for hunt is over.
-            if puzzle in team.unlocked.all():
-                allowed = True
-    # At the moment, if it's not a puzzle file, it's allowed
+    if(levels[0] == "puzzles"):
+        puzzle_id = levels[1][0:3]
+        puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
+        team = Team.objects.get(login_info=request.user);
+        # Only allowed access to the image if the puzzle is unlocked
+        if (puzzle in team.unlocked.all() or puzzle.hunt.is_public or request.user.is_staff):
+            allowed = True
     else:
         allowed = True
 
     if allowed:
+        if(settings.DEBUG):
+            return redirect(settings.MEDIA_URL + file_path)
         response = HttpResponse()
-        url = '/static/' + file_path
+        url = settings.MEDIA_URL + file_path
         # let nginx determine the correct content type 
         response['Content-Type']=""
         # This is what lets django access the normally restricted /static/
@@ -134,7 +126,7 @@ def hunt(request, hunt_num):
     
     # Admins get all access, wrong teams/early lookers get an error page
     # real teams get appropriate puzzles, and puzzles from past hunts are public
-    if(is_admin(request)):
+    if(request.user.is_staff):
         puzzle_list = hunt.puzzle_set.all()
     # Hunt has not yet started
     elif(hunt.is_locked):
@@ -191,22 +183,20 @@ def puzzle(request, puzzle_id):
             form = AnswerForm()
             # Directory for puzzle PNGs
             # TODO: what do we do if this doesn't exist
-            directory = "/home/hunt/puzzlehunt_server/static/huntserver/puzzles"
+            directory = settings.MEDIA_ROOT + "puzzles"
             file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
             # Ideally this should be done some other way to reduce command calls
             print("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'")
             pages = int(check_output("pdfinfo " + file_str + " | grep Pages | awk '{print $2}'", shell=True))
             context = {'form': form, 'pages': range(pages), 'puzzle': puzzle, 
-                       'submission_list': submissions}
+                       'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL}
             return render(request, 'puzzle.html', context)
         else:
             return render(request, 'access_error.html')
 
 
-@login_required
+@staff_member_required
 def queue(request):
-    if(not is_admin(request)):
-        return render(request, 'access_error.html')
 
     # Process admin responses to submissions
     if request.method == 'POST':
@@ -229,11 +219,9 @@ def queue(request):
         return render(request, 'queue.html', context)
 
 
-@login_required
-def progress(request):
-    if(not is_admin(request)):
-        return render(request, 'access_error.html')
 
+@staff_member_required
+def progress(request):
     # Admin unlocking a puzzle
     if request.method == 'POST':
         form = UnlockForm(request.POST)
@@ -272,11 +260,8 @@ def progress(request):
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}
         return render(request, 'progress.html', context)
 
-@login_required
+@staff_member_required
 def charts(request):
-    if(not is_admin(request)):
-        return render(request, 'access_error.html')
-
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
     #submissions = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by('submission_time')
@@ -325,11 +310,8 @@ def unlockables(request):
     unlockables = Unlockable.objects.filter(puzzle__in=team.solved.all())
     return render(request, 'unlockables.html', {'unlockables': unlockables})
 
-@login_required
+@staff_member_required
 def admin_chat(request):
-    if(not is_admin(request)):
-        return render(request, 'access_error.html')
-
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time')
     message_list = []
@@ -340,11 +322,8 @@ def admin_chat(request):
     return render(request, 'staff_chat.html', {'messages': message_list})
 
 # Not actually a page, just various control functions
-@login_required
+@staff_member_required
 def control(request):
-    if(not is_admin(request)):
-        return render(request, 'access_error.html')
-    
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     teams = curr_hunt.team_set.all().order_by('team_name')
     if request.GET.get('initial'):
@@ -371,10 +350,8 @@ def public_stats(request):
     newest_hunt = 1
     return hunt(request, newest_hunt)
 
+@staff_member_required
 def emails(request):
-    if(not is_admin(request)):
-        return render(request, 'access_error.html')
-    
     people = Person.objects.filter(team__hunt__hunt_number=settings.CURRENT_HUNT_NUM)
     emails = []
     for person in people:

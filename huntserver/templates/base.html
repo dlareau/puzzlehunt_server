@@ -1,30 +1,57 @@
+{% load bootstrap_tags %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>{% block title %} Puzzlehunt! {% endblock title %}</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/base.css">
+    <script src="{{ STATIC_URL }}jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
     {% block includes %} {% endblock includes %}
   </head>
   <body>
-    <header>
-      <div id='left-header'>
-        {% block left-header %}
-          {% if user.is_authenticated %}
-            Team: {{user.team.team_name}}
-            </br>
-            <a href="/accounts/logout/">[Click here to logout]</a>
-          {% else %}
-            <p>Welcome Guest, Please <a href="/accounts/login/">log in</a> or <a href="/registration/">register.</a></p>
-          {% endif %}
-        {% endblock %}
-      </div>
-      <div id='right-header'> 
-        {% block right-header %}
-        {% endblock %}
-      </div> 
-    </header>
-    {% block content %} 
-    
-    {% endblock content %}
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">PuzzlehuntCMU</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            {% block left-header %}
+              <li class='{% active_page request "index" %}'><a href="{% url 'huntserver:index' %}"> Puzzles </a></li>
+              {% if user.is_authenticated %}
+                <li class='{% active_page request "unlockables" %}'><a href="{% url 'huntserver:unlockables' %}"> Unlockables </a></li>
+                <li class='{% active_page request "chat" %}'><a href="{% url 'huntserver:chat' %}"> Chat </a></li>
+              {% else %}
+                <li><a href="/registration/">Register</a></li>
+              {% endif %}
+            {% endblock %}
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            {% block right-header %}
+              {% if user.is_authenticated %}
+                <p class="navbar-text">
+                  Team: {{user.team.team_name}}
+                </p>
+                <a class="btn btn-default navbar-btn" href="/accounts/logout/">Log out</a>
+              {% else %}
+                <a class="btn btn-default navbar-btn" href="/accounts/login/">Log in</a>
+              {% endif %}
+            {% endblock %}
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    {% block content %} {% endblock content %}
   </body>
 </html>

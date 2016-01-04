@@ -3,14 +3,11 @@
 
 {% block right-header %}  <a href='/'>Go back to all puzzles</a>{% endblock %}
 
-{% block includes %}
-<link rel="stylesheet" type="text/css" media='screen and (max-width: 1200px)' href="/static/huntserver/low-width.css">
-{% endblock %}
-
 {% block content %}
-  <div id='container'>
-    <h1 class="title">Unlocked Objects</h1>
-    <div id="puzzles">
+<div class="container">
+  <div class="row">
+    <div id="puzzles" class="content">
+      <h1 class="title">Unlocked Objects</h1>
       <table>
         <thead>
           <tr>
@@ -37,4 +34,5 @@
     </div>
     <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
   </div>
+</div>
 {% endblock content %}

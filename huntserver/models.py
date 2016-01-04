@@ -13,19 +13,15 @@ class Hunt(models.Model):
     
     @property
     def is_locked(self):
-        if timezone.now() < self.start_date:
-            return True
-        return False
+        return timezone.now() < self.start_date
+
     @property
     def is_open(self):
-        if timezone.now() > self.start_date and timezone.now() < self.end_date:
-            return True
-        return False
+        return timezone.now() > self.start_date and timezone.now() < self.end_date
+
     @property
     def is_public(self):
-        if timezone.now() > self.end_date:
-            return True
-        return False
+        return timezone.now() > self.end_date
 
     def __unicode__(self):
         return self.hunt_name

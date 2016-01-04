@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from secret_settings import *
 
 """ PLEASE UPDATE BEFORE STARTING HUNT DEVELOPMENT """
-CURRENT_HUNT_NUM = 2
+CURRENT_HUNT_NUM = 1
 
 """ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! """
 
@@ -31,7 +31,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Key now in file not tracked by git
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -74,16 +74,15 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ws4redis.context_processors.default',
+                'django.core.context_processors.media',
             ],
         },
     },
 ]
 
 TEMPLATE_LOADERS = (
-
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-
 )
 
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
@@ -121,4 +120,9 @@ WS4REDIS_EXPIRE = 0
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
-STATIC_URL = '/protected/'
+STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_URL = '/media/'
+
+PROTECTED_URL = '/protected/'
