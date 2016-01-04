@@ -38,7 +38,7 @@
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}></td>
           {% else %}
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='solved' > 
-              {{ cell.0.submission.submission_time|time:"h:i a" }} 
+              {{ cell.0|time:"h:i a" }} 
             </td>
           {% endif %}
           {% endfor %}

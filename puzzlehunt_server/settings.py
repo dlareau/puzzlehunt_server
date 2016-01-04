@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from secret_settings import *
 
 """ PLEASE UPDATE BEFORE STARTING HUNT DEVELOPMENT """
-CURRENT_HUNT_NUM = 1
+CURRENT_HUNT_NUM = 2
 
 """ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! """
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'huntserver',
     'ws4redis',
+    'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (

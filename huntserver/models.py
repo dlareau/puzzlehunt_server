@@ -78,12 +78,21 @@ class Solve(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     team = models.ForeignKey(Team)
     submission = models.ForeignKey(Submission, blank=True)
+
+    class Meta:
+        unique_together = ('puzzle', 'team',)
+    
+    def __unicode__(self):
+        return self.team.team_name + " => " + self.puzzle.puzzle_name
     
 class Unlock(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     team = models.ForeignKey(Team)
     time = models.DateTimeField()
 
+    class Meta:
+        unique_together = ('puzzle', 'team',)
+    
     def __unicode__(self):
         return self.team.team_name + ": " + self.puzzle.puzzle_name
 

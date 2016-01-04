@@ -147,7 +147,7 @@ def hunt(request, hunt_num):
         
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
 
-    context = {'puzzles': puzzles, 'team': team}
+    context = {'puzzles': puzzles, 'team': team, 'solved': team.solved.all()}
     
     # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
     return render(request, 'hunt' + str(hunt_num) + '.html', context)
@@ -213,7 +213,7 @@ def queue(request):
     
     else:   
         hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-        submissions = Submission.objects.filter(puzzle__hunt=hunt).order_by('pk')
+        submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('pk')
         form = SubmissionForm()
         context = {'form': form, 'submission_list': submissions}
         return render(request, 'queue.html', context)
@@ -242,17 +242,24 @@ def progress(request):
         # The structure is messy, it was built part by part as features were added
         sol_array = []
         for team in teams:
+            # These are defined to reduce DB queries
+            solved = team.solved.all()
+            unlocked = team.unlocked.all()
+            solves = team.solve_set.select_related('submission')
+            unlocks = team.unlock_set.all()
+            
             # Basic team information for row headers
             # The last element ('cells') is an array of the row's data
-            sol_array.append({'team':team, 'num':len(team.solved.all()), 'cells':[]})
+            sol_array.append({'team':team, 'num':len(solved), 'cells':[]})
             # What goes in each cell (item in "cells") is based on puzzle status
             for puzzle in puzzles:
                 # Solved => solve object and puzzle id
-                if(puzzle in team.solved.all()):
-                    sol_array[-1]['cells'].append([team.solve_set.filter(puzzle=puzzle)[0], puzzle.puzzle_id])
+                if(puzzle in solved):
+                    sol_array[-1]['cells'].append([solves.get(puzzle=puzzle).submission.submission_time,
+                                                   puzzle.puzzle_id])
                 # Unlocked => Identify as unlocked, puzzle id, and unlock time
-                elif(puzzle in team.unlocked.all()):                
-                    unlock_time = team.unlock_set.filter(puzzle=puzzle)[0].time
+                elif(puzzle in unlocked):                
+                    unlock_time = unlocks.get(puzzle=puzzle).time
                     sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id, unlock_time])
                 # Locked => Identify as locked and puzzle id
                 else:
@@ -271,7 +278,7 @@ def charts(request):
     for puzzle in puzzles:
         puzzle_info_dicts.append({
             "name": puzzle.puzzle_name,
-            "locked": curr_hunt.team_set.count()-puzzle.unlocked_for.count(),
+            "locked": curr_hunt.team_set.count()-puzzle.unlocked_for.filter(unlock__puzzle__hunt=curr_hunt).count(),
             "unlocked": puzzle.unlocked_for.count() - puzzle.solved_for.count(),
             "solved": puzzle.solved_for.count()
             })
