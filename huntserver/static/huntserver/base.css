@@ -53,3 +53,8 @@ th {
     max-width: 900px;
     border: 1px solid black;
 }
+
+.helptext {
+    font-size: 10px;
+    color: gray;
+}

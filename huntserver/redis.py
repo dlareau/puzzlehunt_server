@@ -15,7 +15,7 @@ time_zone = tz.gettz(settings.TIME_ZONE)
 def send_submission_update(submission):
     people = submission.team.person_set.all()
     staff = User.objects.filter(is_staff=True).all()
-    users = [person.login_info.username for person in people] + [person.username for person in staff]
+    users = [person.user.username for person in people] + [person.username for person in staff]
     users = list(set(users))
     redis_publisher = RedisPublisher(facility='puzzle_submissions', users=users)
 
@@ -38,7 +38,7 @@ def send_status_update(puzzle, team, status_type):
     # status_type should be either "solve" or "unlock"
     people = team.person_set.all()
     staff = User.objects.filter(is_staff=True).all()
-    users = [person.login_info.username for person in people] + [person.username for person in staff]
+    users = [person.user.username for person in people] + [person.username for person in staff]
     users = list(set(users))        
     redis_publisher = RedisPublisher(facility='puzzle_status', users=users)
 
@@ -59,7 +59,7 @@ def send_status_update(puzzle, team, status_type):
 def send_chat_message(message):
     people = message.team.person_set.all()
     staff = User.objects.filter(is_staff=True).all()
-    users = [person.login_info.username for person in people] + [person.username for person in staff]
+    users = [person.user.username for person in people] + [person.username for person in staff]
     users = list(set(users))
     redis_publisher = RedisPublisher(facility='chat_message', users=users)
     

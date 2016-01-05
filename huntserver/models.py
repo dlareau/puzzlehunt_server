@@ -53,14 +53,12 @@ class Team(models.Model):
         return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    login_info = models.OneToOneField(User)
-    email = models.EmailField()
+    user = models.OneToOneField(User)
     phone = models.CharField(max_length=20, blank=True)
+    allergies = models.CharField(max_length=400, blank=True)
     comments = models.CharField(max_length=400, blank=True)
     teams = models.ManyToManyField(Team, blank=True)
-    year = models.IntegerField(blank=True, null=True)
+    is_andrew_acct = models.BooleanField()
     
     def __unicode__(self):
         return self.first_name + " " + self.last_name

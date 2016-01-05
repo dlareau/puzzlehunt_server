@@ -17,7 +17,7 @@ from .puzzle import *
 from .redis import *
 
 def team_from_user_hunt(user, hunt):
-    teams = get_object_or_404(Person, login_info=user).teams.filter(hunt=hunt)
+    teams = get_object_or_404(Person, user=user).teams.filter(hunt=hunt)
     if(len(teams) > 0):
         return teams[0]
     else:
@@ -52,80 +52,23 @@ def protected_static(request, file_path):
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
 def registration(request):
-    # curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    # if(request.method == 'POST'):
-    #     # Check for correct password when doing existing registration
-    #     if(request.POST.get("validate")):
-    #         team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
-    #         # Check that the team is not full
-    #         if(len(team.person_set.all()) >= team.hunt.team_size):
-    #             return HttpResponse('fail-full')
-    #         # Check that the password is correct
-    #         user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
-    #         if user is not None:
-    #             return HttpResponse('success')
-    #         else:
-    #             return HttpResponse('fail-password')
-
-    #     # Check for correct password when doing existing registration
-    #     if(request.POST.get("data")):
-    #         team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
-    #         # Check that the password is correct
-    #         user = authenticate(username=team.login_info.username, password=request.POST.get("password"))
-    #         if user is not None:
-    #             a = Person.objects.filter(team=team).all().values('first_name', 'last_name', 'email')
-    #             print(a)
-    #             return HttpResponse(json.dumps(list(a)))
-    #         else:
-    #             return HttpResponse('fail-password')
-
-    #     # Check if team already exists when doing new registration
-    #     elif(request.POST.get("check")):
-    #         if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
-    #             return HttpResponse('fail')
-    #         else:
-    #             return HttpResponse('success')
-
-    #     # Create new user, team, and person
-    #     elif(request.POST.get("new")):
-    #         form = RegistrationForm(request.POST)
-    #         if (form.is_valid()):
-    #             # Make sure their passwords matched
-    #             if(form.cleaned_data['password'] == form.cleaned_data['confirm_password']):
-    #                 loc = ["NAR", "Has a room", "offcampus"][int(form.cleaned_data['location'])-1]
-    #                 u = User.objects.create_user(form.cleaned_data['username'], 
-    #                     password=form.cleaned_data['password'])
-    #                 t = Team.objects.create(team_name = form.cleaned_data['team_name'], 
-    #                     login_info = u, hunt = curr_hunt, location=loc)
-    #                 p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
-    #                     last_name = form.cleaned_data['last_name'], 
-    #                     email = form.cleaned_data['email'], 
-    #                     phone = form.cleaned_data['phone'], 
-    #                     comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = t)
-    #                 if(not curr_hunt.is_locked):
-    #                     unlock_puzzles(t)
-    #         return HttpResponse('success')
-
-    #     # Find existing team and add person. 
-    #     elif(request.POST.get("existing")):
-    #         form = RegistrationForm(request.POST)
-    #         if form.is_valid():
-    #             team = curr_hunt.team_set.get(team_name=form.cleaned_data["team_name"])
-    #             # Make sure there is room on the team
-    #             if(len(team.person_set.all()) < team.hunt.team_size):
-    #                 p = Person.objects.create(first_name = form.cleaned_data['first_name'], 
-    #                     last_name = form.cleaned_data['last_name'], 
-    #                     email = form.cleaned_data['email'], 
-    #                     phone = form.cleaned_data['phone'], 
-    #                     comments = "Dietary Restrictions: " + form.cleaned_data['dietary_issues'], team = team)
-             return HttpResponse('success')
-    #     else:
-    #         return HttpResponse('fail')
-    # else:
-    #     # Standard rendering of registration page
-    #     form = RegistrationForm()
-    #     teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
-    #     return render(request, "registration.html", {'form': form, 'teams': teams})
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
+    if request.method == 'POST':
+        uf = UserForm(request.POST, prefix='user')
+        pf = PersonForm(request.POST, prefix='person')
+        if uf.is_valid() and pf.is_valid():
+            user = uf.save()
+            person = pf.save(commit=False)
+            person.user = user
+            person.save()
+            return index()
+        else:
+            return render(request, "registration.html", {'uf': uf, 'pf': pf, 'teams': teams})
+    else:
+        uf = UserForm(prefix='user')
+        pf = PersonForm(prefix='person')
+        return render(request, "registration.html", {'uf': uf, 'pf': pf, 'teams': teams})
 
 @login_required
 def hunt(request, hunt_num):
@@ -198,7 +141,6 @@ def puzzle(request, puzzle_id):
 
 @staff_member_required
 def queue(request):
-
     # Process admin responses to submissions
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -356,5 +298,5 @@ def emails(request):
         people = people.append(team.person_set.all())
     emails = []
     for person in people:
-        emails.append(person.email)
+        emails.append(person.user.email)
     return HttpResponse(", ".join(emails))
