@@ -4,14 +4,19 @@
   <head>
     <title>{% block title %} Puzzlehunt! {% endblock title %}</title>
     <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/base.css">
+    {% block base_includes %} {% endblock base_includes %}
     <script src="{{ STATIC_URL }}jquery.min.js"></script>
     <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
     {% block includes %} {% endblock includes %}
+    <!-- Done for compatability with the fixed navbar, move into base.css eventually -->
+    <style>
+      body { padding-top: 70px; }
+      nav { padding-right: 10px; }
+    </style>
   </head>
   <body>
 
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -28,27 +33,10 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             {% block left-header %}
-              <li class='{% active_page request "index" %}'><a href="{% url 'huntserver:index' %}"> Puzzles </a></li>
-              {% if user.is_authenticated %}
-                <li class='{% active_page request "unlockables" %}'><a href="{% url 'huntserver:unlockables' %}"> Unlockables </a></li>
-                <li class='{% active_page request "chat" %}'><a href="{% url 'huntserver:chat' %}"> Chat </a></li>
-              {% else %}
-                <li><a href="/registration/">Register</a></li>
-              {% endif %}
             {% endblock %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% block right-header %}
-              {% if user.is_authenticated %}
-                <p class="navbar-text">
-                  {% if team %}
-                    Team: {{team.team_name}}
-                  {% endif %}
-                </p>
-                <a class="btn btn-default navbar-btn" href="/accounts/logout/">Log out</a>
-              {% else %}
-                <a class="btn btn-default navbar-btn" href="/accounts/login/">Log in</a>
-              {% endif %}
             {% endblock %}
           </ul>
         </div><!-- /.navbar-collapse -->

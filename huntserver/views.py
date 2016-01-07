@@ -103,10 +103,13 @@ def hunt(request, hunt_num):
     # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
     return render(request, 'hunt' + str(hunt_num) + '.html', context)
 
-
 @login_required
-def index(request):
+def current_hunt(request):
     return hunt(request, settings.CURRENT_HUNT_NUM)
+
+def index(request):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    return render(request, "index.html", {'hunts':Hunt.objects.all(), 'curr_hunt': curr_hunt})
 
 
 @login_required

@@ -1,0 +1,103 @@
+{% extends "info_base.html" %}
+{% block title %}Puzzlehunt CMU{% endblock title %}
+
+{% block includes %}
+  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+
+<div class="container">
+  <div id='logos'>
+    <p align="center">
+        <a href="{% url 'huntserver:registration' %}"> <img src='/static/huntserver/phcmulogo.png' height="300"/></a>
+    </p>
+    <p align="center"><strong>
+      Our next hunt: <br>
+    </strong></p>
+    <p align="center"><strong>
+      {{curr_hunt.hunt_name}}<br>
+      {{ curr_hunt.start_date|date:" m/d/y " }} {{ curr_hunt.start_date|time:"h:iA" }} - {{ curr_hunt.end_date|time:"h:iA" }}<br>
+      Starts in Porter Hall 100
+    </strong></p>
+    <p align="center">
+    <a href="{% url 'huntserver:registration' %}"><strong>Register Now!</strong></a>
+    </p>
+  </div>
+
+  <div id='qa'>
+    <h2>Who are we?</h2>
+    <p>
+      We are PuzzlehuntCMU, a group of puzzle enthusiasts from Carnegie Mellon University. We work together to solve Puzzle Hunts such as the MIT mystery hunt (link to http://www.mit.edu/puzzle/), or whenever any tech company decides to host their own on campus (examples of such companies include Microsoft, APT and Palantir). We also write and host CMU's very own Puzzle Hunt once a semester, with the goal of providing a fun-filled experience to as many members of the community as possible.
+    </p>
+    <h2>What is a puzzlehunt?</h2>
+    <p>
+      Very simply put, it's a full-day event where people get together to solve carefully designed puzzles which somehow link together on a larger scale.
+      <br>
+      A Puzzle Hunt is typically characterized by its structure. In addition to several normal puzzles, each round has a meta-puzzle, which requires teams to have solved most of the normal puzzles to even unlock, and often requires solvers to incorporate answers from that round's normal puzzles to make sense of.
+      <br>
+      Our Puzzle Hunt's structure changes from semester to semester so as to provide new challenges for solvers.
+    </p>
+    <h2>Sounds fun! How does my team win?</h2>
+    <p>
+      Each puzzle yields a solution (like a word or a phrase). You'll be combining answers to
+      puzzles with a mechanic that will be explained more on the day of the hunt.
+      Eventually players reach the endgame, a bonus round for those who
+      complete the puzzles the fastest.
+    </p>
+    <h2>What are the puzzles like?</h2>
+    <p>For examples of the kinds of puzzles we'll give you, check out our past hunts:</p>
+    <ul>
+      {% for hunt in hunts %}
+        <li><a href="{% url 'huntserver:hunt' hunt.hunt_number %}">{{hunt.hunt_name}}</a></li>
+      {% endfor %}
+    </ul>
+    <p>Or these similar hunts:</p>
+    <ul>
+      <li><a href="http://www.collegepuzzlechallenge.com/">Microsoft College Puzzle Challenge</a></li>
+      <li><a href="http://www.mit.edu/~puzzle/">The MIT Mystery Hunt</a></li>
+    </ul>
+    </p>
+
+    <h2>How do I register?</h2>
+    <p>Register your team of five (or fewer if you want) <a href="{% url 'huntserver:registration' %}">here!</a>
+    </p>
+
+    <h2>What should I bring?</h2>
+    <p>
+    <ul>
+        <li>A team of no more than five people. Humans only, please. Robots are discouraged; they mess up the sensors.</li>
+        <li>Laptops. All of our puzzles will be online. </li>
+    <li>Scissors. These will be helpful. </li> 
+        
+    </ul>
+    </p>
+
+    <h2>How long will it last?</h2>
+    <p>The hunt is expected to run 8 hours. If there isn't a winner by 8 hours in (rare), we'll inform all teams to keep playing and continue until there's a winner.</p>
+
+    <h2>Will there be food?</h2>
+    <p>
+       Yes, there will be food, usually pizza. If you have dietary restrictions, please list them in the appropriate box when registering. 
+    </p>
+
+    <h2>Is there anything else I should know?</h2>
+    <p>
+    <ul>
+        <li>There may be some running around campus required.</li>
+        <li>You CAN register a partial team and we'll do our best to try to match all of the partial teams on the day of.</li>
+        <li>Nothing on this and the registration page is a puzzle crucial for completing the hunt. No, really, this is not a puzzle.</li>
+    </ul>
+    </p>
+
+    <h2>Wait, I have more questions!</h2>
+    <p>Email the <a href="mailto:paxia@andrew.cmu.edu?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> (paxia@andrew) with "Puzzle Hunt" somewhere in the subject line.</p>
+    
+
+    <div id='footer'>
+      The Spring 2015 Puzzle Hunt is brought to you by <a href="https://www.facebook.com/groups/puzzlehuntCMU">PuzzlehuntCMU</a>.
+      You can also find us on <a href="https://thebridge.cmu.edu/organization/puzzlehuntcmu">The Bridge</a>. 
+    </div>
+  </div>
+</div>
+{% endblock content %}

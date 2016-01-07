@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load bootstrap_tags %}
+
+{% block base_includes %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/info_base.css">
+{% endblock base_includes %}
+
+{% block left-header %}
+    <li class='{% active_page request "current_hunt_info" %}'><a href="{% url 'huntserver:current_hunt_info' %}"> Current Hunt </a></li>
+    <li class='{% active_page request "previous_hunts" %}'><a href="{% url 'huntserver:previous_hunts' %}"> Previous Hunts </a></li>
+    <li class='{% active_page request "resources" %}'><a href="{% url 'huntserver:resources' %}"> Puzzle Resources </a></li>
+    <li class='{% active_page request "contact_us" %}'><a href="{% url 'huntserver:contact_us' %}"> Contact Us </a></li>
+{% endblock %}
+
+{% block right-header %}
+  {% if user.is_authenticated %}
+    <p class="navbar-text">
+      {% if team %}
+        Team: {{team.team_name}}
+      {% endif %}
+    </p>
+    <a class="btn btn-default navbar-btn" href="/accounts/logout/">Log out</a>
+  {% else %}
+    <a class="btn btn-default navbar-btn" href="/accounts/login/">Log in</a>
+  {% endif %}
+{% endblock %}
