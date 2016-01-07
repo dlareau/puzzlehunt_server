@@ -1,8 +1,23 @@
+* { font-family: Helvetica, Verdana, Arial, sans-serif; }
+
 body {
-    background: url(/static/huntserver/background.jpg);
+    background: url(/static/huntserver/background1.jpg);
+    background-size: 2000px 2000px;
 }
 
-* { font-family: Helvetica, Verdana, Arial, sans-serif; }
+#phlogo {
+    width: 50%;
+}
+
+.title {
+    text-align: center;
+}
+
+h1.title {
+    font-size: 60px;
+}
+
+
 #qa h2 {
     font-size: 16px;
     border-top: 2px dashed #ccc;
@@ -17,60 +32,16 @@ body {
 }
 #footer {
     text-align: center;
-    padding-top: 30px;
+    padding-top: 10px;
+    margin-bottom: 10px;
     font-size: 90%;
 }
 
-.content {
-    font-family: verdana;
-    font-size: 14px;
-    padding: 10px;
-    padding-top: 0px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    background: white;
-    border: 3px solid black; 
-}
-
-th {
-    text-align: left;
-}
-
-#plot {
-    margin-top: 10px;
-}
-
-.puzzle td img{
-    margin-left: 15px;
-    width: 30px;
-    height: 30px;
-}
-
-/*for puzzle page*/
-.puzzle, .info {
-    overflow: auto;
-}
-
-.puzzle .info h1 {
-    float: left;
-}
-
-.puzzle .info a {
-    float: right;
-}
-
-.puzzle fieldset {
-    margin: 20px;
-}
-
-.puzzle fieldset td,th {
-    padding-right: 10px;
-}
-
-.puzzle #puzzleimg {
-    width: 100%;
-    max-width: 900px;
-    border: 1px solid black;
+#footer p {
+    width: 40%;
+    background-color: white;
+    border: 2px solid black;
+    margin: auto;
 }
 
 .helptext {

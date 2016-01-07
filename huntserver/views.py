@@ -107,6 +107,10 @@ def hunt(request, hunt_num):
 def current_hunt(request):
     return hunt(request, settings.CURRENT_HUNT_NUM)
 
+def current_hunt_info(request):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    return render(request, "hunt_info.html", {'curr_hunt': curr_hunt})
+
 def index(request):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     return render(request, "index.html", {'hunts':Hunt.objects.all(), 'curr_hunt': curr_hunt})

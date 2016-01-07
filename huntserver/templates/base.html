@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ STATIC_URL }}huntserver/favicon.ico" />
     <title>{% block title %} Puzzlehunt! {% endblock title %}</title>
     <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
     {% block base_includes %} {% endblock base_includes %}
@@ -43,5 +45,13 @@
       </div><!-- /.container-fluid -->
     </nav>
     {% block content %} {% endblock content %}
+    {% block footer %}
+      <div id='footer'>
+        <p> 
+          Brought to you by <a href="https://www.facebook.com/groups/puzzlehuntCMU">PuzzlehuntCMU</a>.
+          You can also find us on <a href="https://thebridge.cmu.edu/organization/puzzlehuntcmu">The Bridge</a>. 
+        </p>
+      </div>
+    {% endblock footer %}
   </body>
 </html>

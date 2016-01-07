@@ -10,6 +10,7 @@ class Hunt(models.Model):
     #Very bad things could happen if end date is before start date
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    location = models.CharField(max_length=100)
     
     @property
     def is_locked(self):

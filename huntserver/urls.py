@@ -22,7 +22,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     # Info Pages
     url(r'^$', views.index, name='index'),
-    url(r'^hunt/info/$', TemplateView.as_view(template_name="hunt_info.html"), name='current_hunt_info'),
+    url(r'^hunt/info/$', views.current_hunt_info, name='current_hunt_info'),
     url(r'^previous-hunts/$', TemplateView.as_view(template_name="previous_hunts.html"), name='previous_hunts'),
     url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
     url(r'^contactus/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
