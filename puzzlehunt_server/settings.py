@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from secret_settings import *
 
 """ PLEASE UPDATE BEFORE STARTING HUNT DEVELOPMENT """
-CURRENT_HUNT_NUM = 1
+CURRENT_HUNT_NUM = 2
 
 """ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! """
 
@@ -126,3 +126,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = '/media/'
 
 PROTECTED_URL = '/protected/'
+LOGIN_URL = '/login-selection/'

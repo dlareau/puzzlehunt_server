@@ -26,13 +26,14 @@
       Now head over to our <a href="{% url 'huntserver:login_selection' %}?next=/registration/">sign in page.</a> 
       Once you sign in you'll be redirected back here to join or make a team. 
     </p>
-  {% endif %}
+  {% else %}
   {% for team in teams %}
     In the future, you will be able to sign up for one of these fabulous teams (or make your own):
     <ul>
       <li>{{team.team_name}}</li>
     </ul>
   {% endfor %}
+  {% endif %}
 </div>
 {% endblock content %}
 {% block footer %}{% endblock %}
