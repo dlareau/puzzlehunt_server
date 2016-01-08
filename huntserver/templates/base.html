@@ -39,6 +39,16 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% block right-header %}
+              {% if user.is_authenticated %}
+                <p class="navbar-text">
+                  {% if team %}
+                    Team: {{team.team_name}}
+                  {% endif %}
+                </p>
+                <a class="btn btn-default navbar-btn" href="/accounts/logout/">Log out</a>
+              {% else %}
+                <a class="btn btn-default navbar-btn" href="{% url 'huntserver:login_selection' %}">Log in</a>
+              {% endif %}
             {% endblock %}
           </ul>
         </div><!-- /.navbar-collapse -->

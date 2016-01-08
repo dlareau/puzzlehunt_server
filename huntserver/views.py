@@ -51,7 +51,7 @@ def protected_static(request, file_path):
     
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
-def registration(request):
+def create_account(request):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
     if request.method == 'POST':
@@ -64,11 +64,23 @@ def registration(request):
             person.save()
             return index()
         else:
-            return render(request, "registration.html", {'uf': uf, 'pf': pf, 'teams': teams})
+            return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
     else:
         uf = UserForm(prefix='user')
         pf = PersonForm(prefix='person')
-        return render(request, "registration.html", {'uf': uf, 'pf': pf, 'teams': teams})
+        return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
+
+def registration(request):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = Team.objects.filter(hunt=curr_hunt)
+    return render(request, "registration.html", {'teams': teams})
+
+def login_selection(request):
+    if 'next' in request.GET:
+        context = {'next': request.GET['next']}
+    else:
+        context = {'next': "/"}
+    return render(request, "login_selection.html", context)
 
 @login_required
 def hunt(request, hunt_num):
@@ -113,8 +125,11 @@ def current_hunt_info(request):
 
 def index(request):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    return render(request, "index.html", {'hunts':Hunt.objects.all(), 'curr_hunt': curr_hunt})
+    return render(request, "index.html", {'curr_hunt': curr_hunt})
 
+def previous_hunts(request):
+    old_hunts = Hunt.objects.all().exclude(hunt_number=settings.CURRENT_HUNT_NUM).order_by('hunt_number')
+    return render(request, "previous_hunts.html", {'hunts': old_hunts})
 
 @login_required
 def puzzle(request, puzzle_id):

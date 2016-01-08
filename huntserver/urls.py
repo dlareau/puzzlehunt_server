@@ -23,9 +23,12 @@ urlpatterns = [
     # Info Pages
     url(r'^$', views.index, name='index'),
     url(r'^hunt/info/$', views.current_hunt_info, name='current_hunt_info'),
-    url(r'^previous-hunts/$', TemplateView.as_view(template_name="previous_hunts.html"), name='previous_hunts'),
+    url(r'^previous-hunts/$', views.previous_hunts, name='previous_hunts'),
     url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
-    url(r'^contactus/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
+    url(r'^contact-us/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
+    url(r'^login-selection/$', views.login_selection, name='login_selection'),
+    url(r'^accounts/create$', views.create_account, name='create_account'),
+    url(r'^registration/$', views.registration, name='registration'),
 
     # Hunt Pages
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', views.puzzle, name='puzzle'),
@@ -34,7 +37,6 @@ urlpatterns = [
     url(r'^stats/$', views.public_stats, name='public_stats'),
     url(r'^chat/$',  views.chat, name='chat'),
     url(r'^objects/$', views.unlockables, name='unlockables'),
-    url(r'^registration/$', views.registration, name='registration'),
     url(r'^protected/(?P<file_path>.+)$', views.protected_static, name='protected_static'),
 
     # Staff pages

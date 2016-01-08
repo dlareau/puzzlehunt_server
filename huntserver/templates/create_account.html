@@ -1,0 +1,20 @@
+{% extends "info_base.html" %}
+{% block title %}Registration{% endblock title %}
+
+{% block includes %}
+  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+  <div class="container">
+    <h1>Registration</h1>
+    <form method="POST" action="">
+      <table>
+      {% csrf_token %}
+      {{uf.as_table}}
+      {{pf.as_table}}
+      <tr><td><input type="submit"></td></tr>
+      </table>
+    </form>
+  </div>
+{% endblock content %}
