@@ -1,0 +1,21 @@
+{% extends "info_base.html" %}
+{% block title %}Puzzlehunt CMU{% endblock title %}
+
+{% block includes %}
+  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+
+<div class="container">
+  <p>
+    In the future this page will hold more information about each previous hunt. For now here are just links to the puzzles from each hunt.   
+  </p>
+  <ul>
+      {% for hunt in hunts %}
+        <li><a href="{% url 'huntserver:hunt' hunt.hunt_number %}">{{hunt.hunt_name}}</a></li>
+      {% endfor %}
+  </ul>
+
+</div>
+{% endblock content %}

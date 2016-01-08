@@ -17,21 +17,29 @@ from django.conf.urls import include, url
 from . import views
 from django.contrib import admin
 from django.views.generic.base import RedirectView
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    # ex: /
+    # Info Pages
     url(r'^$', views.index, name='index'),
-    # ex: /puzzle/53f/
+    url(r'^hunt/info/$', views.current_hunt_info, name='current_hunt_info'),
+    url(r'^previous-hunts/$', views.previous_hunts, name='previous_hunts'),
+    url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
+    url(r'^contact-us/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
+    url(r'^login-selection/$', views.login_selection, name='login_selection'),
+    url(r'^accounts/create$', views.create_account, name='create_account'),
+    url(r'^registration/$', views.registration, name='registration'),
+
+    # Hunt Pages
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', views.puzzle, name='puzzle'),
-    # ex: /hunt/3/
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', views.hunt, name='hunt'),
+    url(r'^hunt/current/$', views.current_hunt, name='current_hunt'),
     url(r'^stats/$', views.public_stats, name='public_stats'),
     url(r'^chat/$',  views.chat, name='chat'),
     url(r'^objects/$', views.unlockables, name='unlockables'),
-    url(r'^registration/$', views.registration, name='registration'),
     url(r'^protected/(?P<file_path>.+)$', views.protected_static, name='protected_static'),
 
-    #Staff pages
+    # Staff pages
     url(r'^staff/queue/$', views.queue, name='queue'),
     url(r'^staff/progress/$', views.progress, name='progress'),
     url(r'^staff/charts/$', views.charts, name='charts'),

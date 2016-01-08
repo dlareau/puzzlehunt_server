@@ -7,19 +7,18 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('huntserver', '0023_auto_20150717_1025'),
+        ('huntserver', '0005_remove_person_email'),
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.RemoveField(
             model_name='person',
-            name='year',
-            field=models.IntegerField(null=True, blank=True),
+            name='andrewid',
         ),
         migrations.AddField(
-            model_name='team',
-            name='passphrase',
-            field=models.CharField(default='wrongbaa', max_length=40),
+            model_name='person',
+            name='is_andrew_acct',
+            field=models.BooleanField(default=False),
             preserve_default=False,
         ),
     ]

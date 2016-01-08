@@ -10,6 +10,7 @@ class Hunt(models.Model):
     #Very bad things could happen if end date is before start date
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    location = models.CharField(max_length=100)
     
     @property
     def is_locked(self):
@@ -35,6 +36,7 @@ class Puzzle(models.Model):
     num_required_to_unlock = models.IntegerField(default=1)
     unlocks = models.ManyToManyField("self", blank=True, symmetrical=False)
     hunt = models.ForeignKey(Hunt)
+    num_pages = models.IntegerField()
     #Reward upon completion? 
     
     def __unicode__(self):
@@ -45,7 +47,6 @@ class Team(models.Model):
     solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
     unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
     unlockables = models.ManyToManyField("Unlockable", blank=True)
-    login_info = models.OneToOneField(User)
     hunt = models.ForeignKey(Hunt)
     location = models.CharField(max_length=80, blank=True)
 
@@ -53,13 +54,12 @@ class Team(models.Model):
         return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    email = models.EmailField()
+    user = models.OneToOneField(User)
     phone = models.CharField(max_length=20, blank=True)
+    allergies = models.CharField(max_length=400, blank=True)
     comments = models.CharField(max_length=400, blank=True)
-    team = models.ForeignKey(Team, blank=True)
-    year = models.IntegerField(blank=True, null=True)
+    teams = models.ManyToManyField(Team, blank=True)
+    is_andrew_acct = models.BooleanField()
     
     def __unicode__(self):
         return self.first_name + " " + self.last_name

@@ -1,0 +1,50 @@
+* { font-family: Helvetica, Verdana, Arial, sans-serif; }
+
+body {
+    background: url(/static/huntserver/background1.jpg);
+    background-size: 2000px 2000px;
+}
+
+#phlogo {
+    width: 50%;
+}
+
+.title {
+    text-align: center;
+}
+
+h1.title {
+    font-size: 60px;
+}
+
+
+#qa h2 {
+    font-size: 16px;
+    border-top: 2px dashed #ccc;
+    padding-top: 10px;
+}
+.container{
+    background: white;
+    padding: 20px 40px;
+    margin: 10px auto;
+    border: 5px solid black;
+    border-radius: 10px;
+}
+#footer {
+    text-align: center;
+    padding-top: 10px;
+    margin-bottom: 10px;
+    font-size: 90%;
+}
+
+#footer p {
+    width: 40%;
+    background-color: white;
+    border: 2px solid black;
+    margin: auto;
+}
+
+.helptext {
+    font-size: 10px;
+    color: gray;
+}

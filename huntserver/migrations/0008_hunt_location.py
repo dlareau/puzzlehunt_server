@@ -7,14 +7,14 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('huntserver', '0028_hunt_team_size'),
+        ('huntserver', '0007_person_allergies'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='team',
+            model_name='hunt',
             name='location',
-            field=models.CharField(default='N/A', max_length=80),
+            field=models.CharField(default='Porter Hall 100', max_length=100),
             preserve_default=False,
         ),
     ]

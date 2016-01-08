@@ -127,3 +127,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = '/media/'
 
 PROTECTED_URL = '/protected/'
+LOGIN_URL = '/login-selection/'

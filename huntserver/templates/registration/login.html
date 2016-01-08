@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "info_base.html" %}
 {% load i18n %}
 
 {% block content %}
 <div class="container">
   <div class="row content">
     <br>
-    Please enter your team's username and password:
+    Please enter your puzzlehuntCMU username and password:
 
     <form method="post" action=".">
       {% csrf_token %}

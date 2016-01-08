@@ -7,12 +7,13 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('huntserver', '0024_auto_20150809_2104'),
+        ('huntserver', '0006_auto_20160102_1418'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='team',
-            name='passphrase',
+        migrations.AddField(
+            model_name='person',
+            name='allergies',
+            field=models.CharField(max_length=400, blank=True),
         ),
     ]

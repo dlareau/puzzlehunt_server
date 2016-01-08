@@ -14,15 +14,15 @@ class PuzzleAdmin(admin.ModelAdmin):
             kwargs["queryset"] = Puzzle.objects.filter(hunt=Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)).order_by('puzzle_id')
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
-    inlines = (UnlockableInline, )
+    filter_horizontal = ('unlocks',)
     
-class PersonInline(admin.TabularInline):
-    model = Person
-    extra = 5
-    max_num = 5 
+# class PersonInline(admin.TabularInline):
+#     model = Person
+#     extra = 5
+#     max_num = 5 
 
 class TeamAdmin(admin.ModelAdmin):
-    inlines = (PersonInline, )
+    # inlines = (PersonInline, )
     list_filter = ('hunt',)
     
 admin.site.register(Hunt)

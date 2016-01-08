@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "hunt_base.html" %}
 {% block title %} Chat with Staff{% endblock title %}
 
 {% block includes %}
@@ -56,7 +56,7 @@
         message.team_name = "Admin";
       }
       if(message.team_name.length > 10){
-        message.team_name.length = message.team_name.slice(0,10);
+        message.team_name = message.team_name.slice(0,10);
       }
       if(message.team_name.length < 10){
         message.team_name += Array(11-message.team_name.length).join(" ");

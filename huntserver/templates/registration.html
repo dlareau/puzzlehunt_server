@@ -1,176 +1,39 @@
-{% extends "base.html" %}
-{% block title %}Registration{% endblock title %}
+{% extends "info_base.html" %}
+{% block title %}Puzzlehunt CMU{% endblock title %}
 
 {% block includes %}
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
-  <style>
-    .reg_choice {
-      border: 1px solid black;
-      padding: 10px;
-      margin-bottom: 20px;
-      width: 400px;
-      border-radius: 5px;
-    }
-  </style>
-  <script src="{{ STATIC_URL }}huntserver/registration.js"></script>
 {% endblock includes %}
 
-  {% block right-header %}
-  This is a new system. If something goes wrong, </br> please email <a href="mailto:dlareau@cmu.edu?Subject=Puzzlehunt%20server%20error" target="_blank">DLareau@cmu.edu</a>. Thanks!
-  {% endblock %}
-  
 {% block content %}
-    <h1 class="title">Registration</h1>
-    <div id="stage1">
-    Each person on the team should register once using this page.
-    </br>
-    The first person should make a new team using the first option and the rest of your team should join using the second option.
-    </br>
-    </br>
-      <div class="reg_choice" data-id="1">
-        Register a new team.
-      </div>
-      <div class="reg_choice" data-id="2">
-        Join an existing team.
-      </div>
-      <div class="reg_choice" data-id="3">
-        Check on an existing team registration.
-      </div>
-    </div>
-    <div style="display:none;" id="stage2">
-      <div id="stage2-1" style="display:none;">
-        <form id="newTeamForm">
-          {% csrf_token %}
-          <table>
-            <tr>
-              <td>{{ form.team_name.label_tag }}</td>
-              <td>{{ form.team_name }}</td>
-            </tr>
-            </br>
-            <tr>
-              <td  colspan="2"></br>Please select the username and password your whole team will use to log in during the hunt</td>
-            </tr>
-            <tr>
-              <td>{{ form.username.label_tag }}</td>
-              <td>{{ form.username }}</td>
-            </tr>
-            <tr>
-              <td>{{ form.password.label_tag }}</td>
-              <td>{{ form.password }}</td>
-            </tr>
-            <tr>
-              <td>{{ form.confirm_password.label_tag }}</td>
-              <td>{{ form.confirm_password }}</td>
-            </tr>
-	    <tr>
-	      <td>{{ form.location.label_tag }}</td>
-	      <td>{{ form.location }}</td>
-	    </tr>
-          </table>
-          <input type="button" class="back2to1" value="Back" />
-          <input type="submit" id="next2to3New" value="Next" /> 
-        </form>
-        </br>  
-      </div>
-      <div id="stage2-2" style="display:none;">
-        <form id="existingTeamForm">
-          {% csrf_token %}
-          <table>
-            <tr>
-              <td>Team name: </td>
-              <td>
-                <select name="team_name">
-                  <option value=""></option>
-                  {% for team in teams %}
-                    <option value="{{team.team_name}}">{{team.team_name}}</option>
-                  {% endfor %}
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td>{{ form.password.label_tag }}</td>
-              <td>{{ form.password }}</td>
-            </tr>
-          </table>
-          </br>
-          <input type="button" class="back2to1" value="Back" />
-          <input type="submit" id="next2to3Existing" value="Next" />    
-        </form>
-      </div>
-      <div id="stage2-3" style="display:none;">
-	<form action="/registration/" id="teamInfoForm">
-	  {% csrf_token %}
-          <table>
-            <tr>
-              <td>Team name: </td>
-              <td>
-                <select name="team_name">
-                  <option value=""></option>
-                  {% for team in teams %}
-                    <option value="{{team.team_name}}">{{team.team_name}}</option>
-                  {% endfor %}
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td>{{ form.password.label_tag }}</td>
-              <td>{{ form.password }}</td>
-            </tr>
-          </table>
-          </br>
-          <input type="button" class="back2to1" value="Back" />
-          <input type="submit" id="getTeamInfo" value="Check" />    
-	</form>
-	<h2><u> Results </u></h2>
-	<h3> Members: </h3>
-	<table rules="cols">
-	  <thead>
-	    <tr>
-	      <th>First Name</th>
-	      <th>Last Name</th>
-	      <th>Email</th>
-	    </tr>
-	  </thead>
-	  <tbody id="member-table">
-	  </tbody>
-	</table>
-      </div>
-    </div>
-    <div style="display:none;" id="stage3">
-      <form action="/registration/" id="individualForm">
-        {% csrf_token %}
-        <table>
-          <tr>
-            <td>{{ form.first_name.label_tag }}</td>
-            <td>{{ form.first_name }}</td>
-          </tr>
-          <tr>
-            <td>{{ form.last_name.label_tag }}</td>
-            <td>{{ form.last_name }}</td>
-          </tr>
-          <tr>
-            <td>{{ form.phone.label_tag }}</td>
-            <td>{{ form.phone }} (Optional)</td>
-          </tr>
-          <tr>
-            <td>{{ form.email.label_tag }}</td>
-            <td>{{ form.email }}</td>
-          </tr>
-          <tr>
-            <td>{{ form.dietary_issues.label_tag }}</td>
-            <td>{{ form.dietary_issues }}</td>
-          </tr>
-          <tr>
-            <td>{{ form.year.label_tag }}</td>
-            <td>{{ form.year }}</td>
-            </tr>
-        </table>
-        </br>
-        <input type="submit" value="Submit" />
-      </form>
-    </div>
-    <div style="display:none;" id="stage4">
-      <h2>Thank you for registering!</h2>
-      You will be redirected to the main page shortly
-    </div>
+
+<div class="container">
+  <h1>Registration</h1>
+  <hr style="border-width:2px; border-color: black;">
+  {% if not user.is_authenticated %}
+    <h2>You aren't signed in! (Please read)</h2>
+    <p>
+      In our continuing efforts to bring you the best possible puzzlehunt experience,
+      <b>the way registration works this semester is different</b> than last semester.
+      From now on, each hunter will have <b>their own account</b>
+      and <b>once logged in, simply join or make a team</b> to register for the hunt. 
+      This has all sorts of cool added benefits such as 
+      being able to keep a history of completed hunts,
+      only having to enter your dietary preferences once (don't worry, you can update them),
+      and college integration so you can sign on with your CMU account! (yet again, no worries, a cmu account is not required)
+    </p>
+    <p>
+      Now head over to our <a href="{% url 'huntserver:login_selection' %}?next=/registration/">sign in page.</a> 
+      Once you sign in you'll be redirected back here to join or make a team. 
+    </p>
+  {% else %}
+  {% for team in teams %}
+    In the future, you will be able to sign up for one of these fabulous teams (or make your own):
+    <ul>
+      <li>{{team.team_name}}</li>
+    </ul>
+  {% endfor %}
+  {% endif %}
+</div>
 {% endblock content %}
+{% block footer %}{% endblock %}

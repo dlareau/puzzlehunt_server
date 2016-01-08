@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('huntserver', '0032_auto_20151221_1242'),
+        ('huntserver', '0008_hunt_location'),
     ]
 
     operations = [

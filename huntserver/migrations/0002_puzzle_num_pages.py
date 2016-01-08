@@ -11,9 +11,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='puzzle',
-            name='unlocks',
-            field=models.ManyToManyField(related_name='unlocks_rel_+', to='huntserver.Puzzle', blank=True),
+            name='num_pages',
+            field=models.IntegerField(default=0),
+            preserve_default=False,
         ),
     ]

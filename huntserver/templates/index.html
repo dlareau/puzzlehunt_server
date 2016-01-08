@@ -1,0 +1,48 @@
+{% extends "info_base.html" %}
+{% block title %}Puzzlehunt CMU{% endblock title %}
+
+{% block includes %}
+  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+
+<div class="container">
+  <div id='logos'>
+    <p align="center">
+        <a href="{% url 'huntserver:registration' %}"> <img id="phlogo" src='/static/huntserver/phcmulogo.png'/></a>
+    </p>
+    <p align="center"><strong>
+      Our next hunt: <br>
+    </strong></p>
+    <p align="center"><strong>
+      {{curr_hunt.hunt_name}}<br>
+      {{ curr_hunt.start_date|date:" m/d/y " }} {{ curr_hunt.start_date|time:"h:iA" }} - {{ curr_hunt.end_date|time:"h:iA" }}<br>
+      Starts in {{ curr_hunt.location }}
+    </strong></p>
+    <p align="center">
+    <a href="{% url 'huntserver:registration' %}"><strong>Register Now!</strong></a>
+    </p>
+  </div>
+
+  <div id='qa'>
+    <h2>Who are we?</h2>
+    <p>
+      We are PuzzlehuntCMU, a group of puzzle enthusiasts from Carnegie Mellon University. We work together to solve Puzzle Hunts such as the <a href="http://www.mit.edu/puzzle/">MIT mystery hunt</a>, or any of the many tech company puzzlehunts (examples of such companies include Microsoft, APT and Palantir). We also write and host CMU's very own Puzzle Hunt once a semester, with the goal of providing a fun-filled experience to as many members of the community as possible.
+    </p>
+    <h2>What is a puzzlehunt?</h2>
+    <p>
+      Very simply put, it's a full-day event where people get together to solve carefully designed puzzles which somehow link together on a larger scale.
+      <br>
+      A Puzzle Hunt is typically characterized by its structure. In addition to several normal puzzles, each round has a meta-puzzle, which requires teams to have solved most of the normal puzzles to even unlock, and often requires solvers to incorporate answers from that round's normal puzzles to make sense of.
+      <br>
+      Our Puzzle Hunt's structure changes from semester to semester so as to provide new challenges for solvers.
+    </p>
+    <h2>Wait that sounds cool, can I participate?</h2>
+    <p>Yeah, check out our <a href="{% url 'huntserver:current_hunt_info' %}">current hunt page</a>!</p>
+    <h2>Wait, I have more questions!</h2>
+    <p>Email the <a href="mailto:paxia@andrew.cmu.edu?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> (paxia@andrew) with "Puzzle Hunt" somewhere in the subject line.</p>
+  </div>
+</div>
+{% endblock content %}
+{% block footer %}{% endblock %}

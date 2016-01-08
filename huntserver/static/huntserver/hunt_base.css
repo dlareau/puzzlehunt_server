@@ -2,6 +2,13 @@ body {
     background: url(/static/huntserver/background.jpg);
 }
 
+#footer {
+    text-align: center;
+    padding-top: 10px;
+    margin-bottom: 10px;
+    font-size: 90%;
+}
+
 .content {
     font-family: verdana;
     font-size: 14px;
@@ -52,4 +59,9 @@ th {
     width: 100%;
     max-width: 900px;
     border: 1px solid black;
+}
+
+.helptext {
+    font-size: 10px;
+    color: gray;
 }
