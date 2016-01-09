@@ -46,7 +46,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'huntserver',
     'ws4redis',
-    'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (

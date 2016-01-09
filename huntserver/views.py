@@ -86,7 +86,7 @@ def login_selection(request):
 def hunt(request, hunt_num):
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
     team = team_from_user_hunt(request.user, hunt)
-    
+
     # Admins get all access, wrong teams/early lookers get an error page
     # real teams get appropriate puzzles, and puzzles from past hunts are public
     if(request.user.is_staff):
@@ -109,8 +109,11 @@ def hunt(request, hunt_num):
         return render(request, 'access_error.html')
         
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
-
-    context = {'puzzles': puzzles, 'team': team, 'solved': team.solved.all()}
+    if(team == None):
+        solved = []
+    else:
+        solved = team.solved.all()
+    context = {'puzzles': puzzles, 'team': team, 'solved': solved}
     
     # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
     return render(request, 'hunt' + str(hunt_num) + '.html', context)

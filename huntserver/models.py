@@ -62,7 +62,7 @@ class Person(models.Model):
     is_andrew_acct = models.BooleanField()
     
     def __unicode__(self):
-        return self.first_name + " " + self.last_name
+        return self.user.first_name + " " + self.user.last_name
     
 class Submission(models.Model):
     team = models.ForeignKey(Team)
