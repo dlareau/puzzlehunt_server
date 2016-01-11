@@ -1,0 +1,22 @@
+{% extends "info_base.html" %}
+
+{% block content %}
+<div class="container">
+<h2>Register for PuzzlehuntCMU</h2>
+<form method="post" action=".">
+  {% csrf_token %}
+  <div>
+    <p>By continuing, you agree to release the following attributes to PuzzlehuntCMU:</p>
+    <ul>
+      {% for name, value in shib_attrs.items %}
+        <li>{{ name }}:     <b>{{ value }}</b></li>
+      {% endfor %}
+    </ul>
+  </div>
+  <input type="hidden" name="next" value="{{ next }}" />
+  <div class="submit-row">
+    <input type="submit" value="Continue >>" class="default" />
+  </div>
+</form>
+</div>
+{% endblock %}

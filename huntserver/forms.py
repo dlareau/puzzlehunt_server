@@ -1,5 +1,6 @@
 from django import forms
 from .models import Person
+from django.conf import settings
 from django.contrib.auth.models import User
 
 class AnswerForm(forms.Form):
@@ -31,6 +32,11 @@ class UserForm(forms.ModelForm):
         model = User 
         fields = ['first_name', 'last_name', 'email', 'username', 'password']
 
+class BaseRegisterForm(forms.Form):
+    def save(self, attr):
+        user = User.objects.create_user(attr[settings.SHIB_USERNAME], attr[settings.SHIB_EMAIL], '')
+        return user
+        
 # class RegistrationForm(forms.Form):
 #     team_name = forms.CharField(label='Team Name')
 #     username = forms.CharField(label='Team Username', required=False)

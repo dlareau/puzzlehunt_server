@@ -14,20 +14,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
-from . import views
+from . import views, shib_views
 from django.contrib import admin
 from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
 
 urlpatterns = [
+    # Auth and Accounts
+    url(r'^accounts/create/$', views.create_account, name='create_account'),
+    url(r'^login-selection/$', views.login_selection, name='login_selection'),
+    url(r'^shib/login$', shib_views.shib_login, name='new_shib_account'),
+    url(r'^logout/$', views.account_logout, name='accout_logout'),
+    
     # Info Pages
     url(r'^$', views.index, name='index'),
     url(r'^hunt/info/$', views.current_hunt_info, name='current_hunt_info'),
     url(r'^previous-hunts/$', views.previous_hunts, name='previous_hunts'),
     url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
     url(r'^contact-us/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
-    url(r'^login-selection/$', views.login_selection, name='login_selection'),
-    url(r'^accounts/create$', views.create_account, name='create_account'),
     url(r'^registration/$', views.registration, name='registration'),
 
     # Hunt Pages

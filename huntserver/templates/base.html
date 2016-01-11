@@ -43,9 +43,11 @@
                 <p class="navbar-text">
                   {% if team %}
                     Team: {{team.team_name}}
-                  {% endif %}
+		  {% else %}
+		    Logged in as {{request.user.username}}
+		  {% endif %}
                 </p>
-                <a class="btn btn-default navbar-btn" href="/accounts/logout/">Log out</a>
+                <a class="btn btn-default navbar-btn" href="/logout/">Log out</a>
               {% else %}
                 <a class="btn btn-default navbar-btn" href="{% url 'huntserver:login_selection' %}">Log in</a>
               {% endif %}

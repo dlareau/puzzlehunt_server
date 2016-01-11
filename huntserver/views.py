@@ -1,5 +1,6 @@
 # Create your views here.
 from django.conf import settings
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
@@ -133,6 +134,13 @@ def index(request):
 def previous_hunts(request):
     old_hunts = Hunt.objects.all().exclude(hunt_number=settings.CURRENT_HUNT_NUM).order_by('hunt_number')
     return render(request, "previous_hunts.html", {'hunts': old_hunts})
+
+def account_logout(request):
+    logout(request)
+    if 'next' in request.GET:
+        return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + request.GET['next'])
+    else:
+        return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu")
 
 @login_required
 def puzzle(request, puzzle_id):

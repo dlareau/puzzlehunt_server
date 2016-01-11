@@ -127,3 +127,10 @@ MEDIA_URL = '/media/'
 
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
+
+SHIB_ATTRIBUTE_MAP = {
+    "Shib-Identity-Provider": (True, "idp"), "eppn": (True, "eppn"),
+}
+
+SHIB_USERNAME = "eppn"
+SHIB_EMAIL = "eppn"
