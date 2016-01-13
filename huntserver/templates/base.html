@@ -40,12 +40,12 @@
           <ul class="nav navbar-nav navbar-right">
             {% block right-header %}
               {% if user.is_authenticated %}
-                <p class="navbar-text">
+                <p class="navbar-text visible-md visible-lg">
                   {% if team %}
                     Team: {{team.team_name}}
-		  {% else %}
-		    Logged in as {{request.user.username}}
-		  {% endif %}
+                  {% else %}
+                    Logged in as {{request.user.username}}
+                  {% endif %}
                 </p>
                 <a class="btn btn-default navbar-btn" href="/logout/">Log out</a>
               {% else %}
