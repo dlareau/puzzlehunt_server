@@ -1,6 +1,6 @@
 # Create your views here.
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
@@ -11,6 +11,8 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth import authenticate
 from django.contrib.admin.views.decorators import staff_member_required
 import json
+import random
+import string
 
 from .models import *
 from .forms import *
@@ -18,7 +20,10 @@ from .puzzle import *
 from .redis import *
 
 def team_from_user_hunt(user, hunt):
-    teams = get_object_or_404(Person, user=user).teams.filter(hunt=hunt)
+    if(user.is_anonymous()):
+        return None
+    teams1 = get_object_or_404(Person, user=user)
+    teams = teams1.teams.filter(hunt=hunt)
     if(len(teams) > 0):
         return teams[0]
     else:
@@ -60,21 +65,19 @@ def create_account(request):
         pf = PersonForm(request.POST, prefix='person')
         if uf.is_valid() and pf.is_valid():
             user = uf.save()
+            user.is_shib_acct = False;
+            user.save()
             person = pf.save(commit=False)
             person.user = user
             person.save()
-            return index()
+            login(request, user)
+            return index(request)
         else:
             return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
     else:
         uf = UserForm(prefix='user')
         pf = PersonForm(prefix='person')
         return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
-
-def registration(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    teams = Team.objects.filter(hunt=curr_hunt)
-    return render(request, "registration.html", {'teams': teams})
 
 def login_selection(request):
     if 'next' in request.GET:
@@ -141,6 +144,34 @@ def account_logout(request):
         return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + request.GET['next'])
     else:
         return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu")
+
+def registration(request):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    team = team_from_user_hunt(request.user, curr_hunt)
+    if(request.method == 'POST' and "form_type" in request.POST):
+        if(request.POST["form_type"] == "new_team"):
+            if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
+                return HttpResponse('fail-exists')
+            if(request.POST.get("team_name") != ""):
+                join_code = ''.join(random.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(5))
+                team = Team.objects.create(team_name=request.POST.get("team_name"), hunt=curr_hunt, 
+                                           location=request.POST.get("need_room"), join_code=join_code)
+                request.user.person.teams.add(team)
+                redirect('huntserver:registration')
+        elif(request.POST["form_type"] == "join_team"):
+            team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
+            if(len(team.person_set.all()) >= team.hunt.team_size):
+                return HttpResponse('fail-full')
+            if(team.join_code.lower() != request.POST.get("join_code").lower()):
+                return HttpResponse('fail-password')
+            request.user.person.teams.add(team)
+            redirect('huntserver:registration')
+
+    if(team != None):
+        return render(request, "registration.html", {'registered_team': team})
+    else:
+        teams = Team.objects.filter(hunt=curr_hunt).all()
+        return render(request, "registration.html", {'teams': teams})
 
 @login_required
 def puzzle(request, puzzle_id):

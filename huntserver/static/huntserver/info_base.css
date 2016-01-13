@@ -23,7 +23,7 @@ h1.title {
     border-top: 2px dashed #ccc;
     padding-top: 10px;
 }
-.container{
+.container:not(.no_outline){
     background: white;
     padding: 20px 40px;
     margin: 10px auto;
@@ -47,4 +47,17 @@ h1.title {
 .helptext {
     font-size: 10px;
     color: gray;
+}
+
+input[type="text"] {
+    width:200px;
+}
+
+input[type="email"] {
+    width:200px;
+}
+
+input[readonly] {
+    background: #dddddd;
+    opacity: 0.8;
 }

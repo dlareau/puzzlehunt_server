@@ -6,34 +6,95 @@
 {% endblock includes %}
 
 {% block content %}
-
-<div class="container">
-  <h1>Registration</h1>
-  <hr style="border-width:2px; border-color: black;">
+  <div class="container">
+    <h1> Team Registration</h1>
   {% if not user.is_authenticated %}
-    <h2>You aren't signed in! (Please read)</h2>
+      <hr style="border-width:2px; border-color: black;">
+      <h2>You aren't signed in! (Please read)</h2>
+      <p>
+        In our continuing efforts to bring you the best possible puzzlehunt experience,
+        <b>the way registration works this semester is different</b> than last semester.
+        From now on, each hunter will have <b>their own account</b>
+        and <b>once logged in, simply join or make a team</b> to register for the hunt. 
+        This has all sorts of cool added benefits such as 
+        being able to keep a history of completed hunts,
+        only having to enter your dietary preferences once (don't worry, you can update them),
+        and college integration so you can sign on with your CMU account! (yet again, no worries, a cmu account is not required)
+      </p>
+      <p>
+        Now head over to our <a href="{% url 'huntserver:login_selection' %}?next=/registration/">sign in page.</a> 
+        Once you sign in you'll be redirected back here to join or make a team. 
+      </p>
+    </div>
+  {% elif registered_team %}
     <p>
-      In our continuing efforts to bring you the best possible puzzlehunt experience,
-      <b>the way registration works this semester is different</b> than last semester.
-      From now on, each hunter will have <b>their own account</b>
-      and <b>once logged in, simply join or make a team</b> to register for the hunt. 
-      This has all sorts of cool added benefits such as 
-      being able to keep a history of completed hunts,
-      only having to enter your dietary preferences once (don't worry, you can update them),
-      and college integration so you can sign on with your CMU account! (yet again, no worries, a cmu account is not required)
+      You seem to already be registered for a team.
+      We will be adding the ability to remove yourself from this team shortly.
+      For now we just have some info about your team.
     </p>
+    <h3>The code to join this team is <b>{{registered_team.join_code}}</b></h3>
     <p>
-      Now head over to our <a href="{% url 'huntserver:login_selection' %}?next=/registration/">sign in page.</a> 
-      Once you sign in you'll be redirected back here to join or make a team. 
+      <b> Team Name: </b> {{ registered_team.team_name }}
+      <br>
+      <b> Team Members: </b>
+      <ul>
+        {% for person in registered_team.person_set.all %}
+          <li>{{ person.user.first_name }} {{ person.user.last_name }}</li>
+        {% endfor %}
+      </ul>
     </p>
   {% else %}
-  {% for team in teams %}
-    In the future, you will be able to sign up for one of these fabulous teams (or make your own):
-    <ul>
-      <li>{{team.team_name}}</li>
-    </ul>
-  {% endfor %}
+    </div>
+    <div class="container no_outline">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="container col-md-12" style="height:300px">
+            <h2>Create New Team</h2>
+            <hr style="border-width:2px; border-color: black;">
+            <form method="Post" action="#">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="new_team">
+              Please enter a new team name:
+              <input name="team_name" type="text">
+              <br>
+              <br>
+              Does your team need a room for the hunt?
+              <select name="need_room">
+                <option value="need_a_room">Yes</option>
+                <option value="has_a_room">The team has a room</option>
+                <option value="off_campus">The team is off-campus</option>
+              </select>
+              <br>
+              <br>
+              <input type="submit" value="Create and Join Team">
+            </form>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="container col-md-12" style="height:300px">
+            <h2>Join Existing Team</h2>
+            <hr style="border-width:2px; border-color: black;">
+            <form method="Post" action="#">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="join_team">
+              Select a team to join:
+              <select name="team_name" style="width: 200px;">
+                {% for team in teams %}
+                  <option value="{{team.team_name}}">{{team.team_name}}</option>
+                {% endfor %}
+              </select>
+              <br>
+              <br>
+              Enter the team join code:
+              <input name="join_code" type="text" style="width:100px;" maxlength="5">
+              <br>
+              <br>
+              <input type="submit" value="Join Team">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   {% endif %}
-</div>
 {% endblock content %}
 {% block footer %}{% endblock %}

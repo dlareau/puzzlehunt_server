@@ -1,71 +1,70 @@
-from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.template import loader, RequestContext
-from django.shortcuts import render_to_response
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.conf import settings
 
 from utils import parse_attributes
-from forms import BaseRegisterForm
+from forms import ShibUserForm, PersonForm
 
-
-def render_forbidden(*args, **kwargs):
-    return HttpResponseForbidden(loader.render_to_string(*args, **kwargs))
-
-
-def shib_login(request, RegisterForm=BaseRegisterForm,
-                  register_template_name='shib_register.html'):
-
+def shib_login(request):
+  
+    # Get attributes from REMOTE_USER/META
     attr, error = parse_attributes(request.META)
     
-    was_redirected = False
-    if "next" in request.GET:
-        was_redirected = True
     redirect_url = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
-    context = {'shib_attrs': attr,
-               'was_redirected': was_redirected}
+    context = {'shib_attrs': attr}
     if error:
-        return render_forbidden('attribute_error.html',
-                                  context,
-                                  context_instance=RequestContext(request))
-    try:
-        username = attr[settings.SHIB_USERNAME]
-        # TODO this should log a misconfiguration.
-    except:
-        return render_forbidden('attribute_error.html',
-                                  context,
-                                  context_instance=RequestContext(request))
+        return render(request, 'attribute_error.html', context)
 
-    if not attr[settings.SHIB_USERNAME] or attr[settings.SHIB_USERNAME] == '':
-        return render_forbidden('attribute_error.html',
-                                  context,
-                                  context_instance=RequestContext(request))
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(attr)
+    # Attempt to get username out of attr
     try:
-        user = User.objects.get(username=attr[settings.SHIB_USERNAME])
-    except User.DoesNotExist:
-        form = RegisterForm()
-        context = {'form': form,
-                   'next': redirect_url,
-                   'shib_attrs': attr,
-                   'was_redirected': was_redirected}
-        return render_to_response(register_template_name,
-                                  context,
-                                  context_instance=RequestContext(request))
-    user.set_unusable_password()
-    try:
-        user.first_name = attr[settings.SHIB_FIRST_NAME]
-        user.last_name = attr[settings.SHIB_LAST_NAME]
-        user.email = attr[settings.SHIB_EMAIL]
+        eppn = attr[settings.SHIB_USERNAME]
     except:
-        pass
-    user.save()
+        return render(request, 'attribute_error.html', context)
+
+    # Make sure username exists
+    if not attr[settings.SHIB_USERNAME] or attr[settings.SHIB_USERNAME] == '':
+        return render(request, 'attribute_error.html', context)
+
+    # For form submission
+    if request.method == 'POST':
+        print(request.POST)
+        uf = ShibUserForm(request.POST)
+        pf = PersonForm(request.POST)
+        print("uf: " + str(uf.is_valid()))
+        print("pf: " + str(pf.is_valid()))
+        if uf.is_valid() and pf.is_valid():
+            user = uf.save()
+            user.is_shib_acct = True;
+            user.set_unusable_password()
+            user.save()
+            person = pf.save(commit=False)
+            person.user = user
+            person.save()
+        else:
+            context = {'user_form': uf, 'person_form': pf, 'next': redirect_url, 'shib_attrs': attr}
+            return render(request, "shib_register.html", context)
+    # Attempt to look up user in DB, if not found, present the registration form.
+    try:
+        user = User.objects.get(username=eppn)
+    except User.DoesNotExist:
+        existing_context = {"username":eppn, "email":eppn}
+        try:
+            existing_context['first_name'] = attr[settings.SHIB_FIRST_NAME]
+            existing_context['last_name'] = attr[settings.SHIB_LAST_NAME]
+        except:
+            pass
+        user_form = ShibUserForm(initial=existing_context)
+        person_form = PersonForm()
+        context = {'user_form': user_form, 'person_form': person_form, 'next': redirect_url, 'shib_attrs': attr}
+        return render(request, "shib_register.html", context)
+
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
+
+    # Redirect if nessecary 
     if not redirect_url or '//' in redirect_url or ' ' in redirect_url:
         redirect_url = settings.LOGIN_REDIRECT_URL
-
+    print(redirect_url)
     return HttpResponseRedirect(redirect_url)

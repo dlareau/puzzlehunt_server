@@ -129,8 +129,10 @@ PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
 
 SHIB_ATTRIBUTE_MAP = {
-    "Shib-Identity-Provider": (True, "idp"), "eppn": (True, "eppn"),
+    "Shib-Identity-Provider": (True, "idp"), "eppn": (True, "eppn"), "givenName": (False, "givenName"), "sn": (False, "sn"), 
 }
 
 SHIB_USERNAME = "eppn"
 SHIB_EMAIL = "eppn"
+SHIB_FIRST_NAME = "givenName"
+SHIB_LAST_NAME = "sn"

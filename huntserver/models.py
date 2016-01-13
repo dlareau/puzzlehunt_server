@@ -49,6 +49,7 @@ class Team(models.Model):
     unlockables = models.ManyToManyField("Unlockable", blank=True)
     hunt = models.ForeignKey(Hunt)
     location = models.CharField(max_length=80, blank=True)
+    join_code = models.CharField(max_length=5)
 
     def __unicode__(self):
         return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name
@@ -59,10 +60,14 @@ class Person(models.Model):
     allergies = models.CharField(max_length=400, blank=True)
     comments = models.CharField(max_length=400, blank=True)
     teams = models.ManyToManyField(Team, blank=True)
-    is_andrew_acct = models.BooleanField()
+    is_shib_acct = models.BooleanField()
     
     def __unicode__(self):
-        return self.user.first_name + " " + self.user.last_name
+        name = self.user.first_name + " " + self.user.last_name
+        if(name == " "):
+            return "Anonymous User"
+        else:
+            return self.user.first_name + " " + self.user.last_name
     
 class Submission(models.Model):
     team = models.ForeignKey(Team)
