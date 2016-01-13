@@ -1,11 +1,47 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.contrib.auth import login
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth import logout, login
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from huntserver.utils import parse_attributes
 
-from utils import parse_attributes
-from forms import ShibUserForm, PersonForm
+from .models import *
+from .forms import *
+
+def login_selection(request):
+    if 'next' in request.GET:
+        context = {'next': request.GET['next']}
+    else:
+        context = {'next': "/"}
+    return render(request, "login_selection.html", context)
+
+def create_account(request):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
+    if request.method == 'POST':
+        uf = UserForm(request.POST, prefix='user')
+        pf = PersonForm(request.POST, prefix='person')
+        if uf.is_valid() and pf.is_valid():
+            user = uf.save()
+            user.is_shib_acct = False
+            user.save()
+            person = pf.save(commit=False)
+            person.user = user
+            person.save()
+            login(request, user)
+            return index(request)
+        else:
+            return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
+    else:
+        uf = UserForm(prefix='user')
+        pf = PersonForm(prefix='person')
+        return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
+
+def account_logout(request):
+    logout(request)
+    if 'next' in request.GET:
+        return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + request.GET['next'])
+    else:
+        return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu")
 
 def shib_login(request):
   
@@ -36,7 +72,7 @@ def shib_login(request):
         print("pf: " + str(pf.is_valid()))
         if uf.is_valid() and pf.is_valid():
             user = uf.save()
-            user.is_shib_acct = True;
+            user.is_shib_acct = True
             user.set_unusable_password()
             user.save()
             person = pf.save(commit=False)
@@ -66,5 +102,4 @@ def shib_login(request):
     # Redirect if nessecary 
     if not redirect_url or '//' in redirect_url or ' ' in redirect_url:
         redirect_url = settings.LOGIN_REDIRECT_URL
-    print(redirect_url)
-    return HttpResponseRedirect(redirect_url)
+    return redirect(redirect_url)

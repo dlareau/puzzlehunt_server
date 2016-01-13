@@ -1,24 +1,6 @@
-# Copyright 2010 VPAC
-#
-# This file is part of django_shibboleth.
-#
-# django_shibboleth is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# django_shibboleth is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with django_shibboleth  If not, see <http://www.gnu.org/licenses/>.
-
 from django.conf import settings
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from .models import *
 
 def parse_attributes(META):
     shib_attrs = {}
@@ -52,3 +34,12 @@ def build_shib_url(request, target, entityid=None):
         url += '&entityID=%s' % entityid
     return url    
 
+def team_from_user_hunt(user, hunt):
+    if(user.is_anonymous()):
+        return None
+    teams1 = get_object_or_404(Person, user=user)
+    teams = teams1.teams.filter(hunt=hunt)
+    if(len(teams) > 0):
+        return teams[0]
+    else:
+        return None

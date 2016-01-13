@@ -13,43 +13,41 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import include, url
-from . import views, shib_views
-from django.contrib import admin
+from django.conf.urls import url
+from . import hunt_views, auth_views, info_views, staff_views
 from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
 
 urlpatterns = [
     # Auth and Accounts
-    url(r'^accounts/create/$', views.create_account, name='create_account'),
-    url(r'^login-selection/$', views.login_selection, name='login_selection'),
-    url(r'^shib/login$', shib_views.shib_login, name='new_shib_account'),
-    url(r'^logout/$', views.account_logout, name='accout_logout'),
+    url(r'^accounts/create/$', auth_views.create_account, name='create_account'),
+    url(r'^login-selection/$', auth_views.login_selection, name='login_selection'),
+    url(r'^shib/login$', auth_views.shib_login, name='new_shib_account'),
+    url(r'^logout/$', auth_views.account_logout, name='accout_logout'),
     
     # Info Pages
-    url(r'^$', views.index, name='index'),
-    url(r'^hunt/info/$', views.current_hunt_info, name='current_hunt_info'),
-    url(r'^previous-hunts/$', views.previous_hunts, name='previous_hunts'),
+    url(r'^$', info_views.index, name='index'),
+    url(r'^hunt/info/$', info_views.current_hunt_info, name='current_hunt_info'),
+    url(r'^previous-hunts/$', info_views.previous_hunts, name='previous_hunts'),
     url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
     url(r'^contact-us/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
-    url(r'^registration/$', views.registration, name='registration'),
+    url(r'^registration/$', info_views.registration, name='registration'),
 
     # Hunt Pages
-    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', views.puzzle, name='puzzle'),
-    url(r'^hunt/(?P<hunt_num>[0-9]+)/$', views.hunt, name='hunt'),
-    url(r'^hunt/current/$', views.current_hunt, name='current_hunt'),
-    url(r'^stats/$', views.public_stats, name='public_stats'),
-    url(r'^chat/$',  views.chat, name='chat'),
-    url(r'^objects/$', views.unlockables, name='unlockables'),
-    url(r'^protected/(?P<file_path>.+)$', views.protected_static, name='protected_static'),
+    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', hunt_views.puzzle, name='puzzle'),
+    url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
+    url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
+    url(r'^chat/$',  hunt_views.chat, name='chat'),
+    url(r'^objects/$', hunt_views.unlockables, name='unlockables'),
+    url(r'^protected/(?P<file_path>.+)$', hunt_views.protected_static, name='protected_static'),
 
     # Staff pages
-    url(r'^staff/queue/$', views.queue, name='queue'),
-    url(r'^staff/progress/$', views.progress, name='progress'),
-    url(r'^staff/charts/$', views.charts, name='charts'),
-    url(r'^staff/chat/$',  views.admin_chat, name='admin_chat'),
-    url(r'^staff/control/$',  views.control, name='control'),
+    url(r'^staff/queue/$', staff_views.queue, name='queue'),
+    url(r'^staff/progress/$', staff_views.progress, name='progress'),
+    url(r'^staff/charts/$', staff_views.charts, name='charts'),
+    url(r'^staff/chat/$',  staff_views.admin_chat, name='admin_chat'),
+    url(r'^staff/control/$',  staff_views.control, name='control'),
     url(r'^staff/teams/$', RedirectView.as_view(url='/admin/huntserver/team/', permanent=False)),
     url(r'^staff/puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
-    url(r'^staff/emails/$', views.emails, name='emails'),
+    url(r'^staff/emails/$', staff_views.emails, name='emails'),
 ]

@@ -3,7 +3,6 @@ from .redis import *
 from django.conf import settings
 from django.utils import timezone
 from subprocess import call, check_output
-from time import sleep
 
 # Automatic submission response system
 # Takes a submission object and should return a string
