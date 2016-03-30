@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseNotFound
+from django.utils.encoding import smart_str
+import os
 
 from utils import team_from_user_hunt
 from .models import *
@@ -26,14 +28,14 @@ def protected_static(request, file_path):
         allowed = True
 
     if allowed:
-        if(settings.DEBUG):
-            return redirect(settings.MEDIA_URL + file_path)
+        #if(settings.DEBUG):
+        #    return redirect(settings.MEDIA_URL + file_path)
         response = HttpResponse()
         url = settings.MEDIA_URL + file_path
-        # let nginx determine the correct content type 
+        # let apache determine the correct content type 
         response['Content-Type']=""
         # This is what lets django access the normally restricted /static/
-        response['X-Accel-Redirect'] = url
+        response['X-Sendfile'] = smart_str(os.path.join(settings.MEDIA_ROOT, file_path))
         return response
     
     return HttpResponseNotFound('<h1>Page not found</h1>')

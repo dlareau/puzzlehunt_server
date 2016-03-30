@@ -11,6 +11,8 @@
 .chatselect {
   float:left !important;
   padding: 10px !important;
+  height: 34px !important;
+  background-color: white;
 }
 
 .chatwindow {

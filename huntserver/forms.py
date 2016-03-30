@@ -31,9 +31,10 @@ class UserForm(forms.ModelForm):
         self.fields['email'].required = True
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
+        self.fields['password'].widget=forms.PasswordInput()
 
     required_css_class = 'required'
-    confirm_password = forms.CharField(label='Confirm Password')
+    confirm_password = forms.CharField(label='Confirm Password', widget=forms.PasswordInput())
     class Meta:
         model = User 
         fields = ['first_name', 'last_name', 'email', 'username', 'password']

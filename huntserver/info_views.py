@@ -16,7 +16,12 @@ def current_hunt_info(request):
     return render(request, "hunt_info.html", {'curr_hunt': curr_hunt})
 
 def previous_hunts(request):
-    old_hunts = Hunt.objects.all().exclude(hunt_number=settings.CURRENT_HUNT_NUM).order_by('hunt_number')
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    if(curr_hunt.is_public):
+        old_hunts = Hunt.objects.all().order_by('hunt_number')
+    else:
+        old_hunts = Hunt.objects.all().exclude(hunt_number=settings.CURRENT_HUNT_NUM).order_by('hunt_number')
+
     return render(request, "previous_hunts.html", {'hunts': old_hunts})
 
 def registration(request):
@@ -40,7 +45,9 @@ def registration(request):
                 return HttpResponse('fail-password')
             request.user.person.teams.add(team)
             redirect('huntserver:registration')
-
+    if("leave_team" in request.GET and request.GET["leave_team"] == "1"):
+        request.user.person.teams.remove(team)
+        team = None
     if(team != None):
         return render(request, "registration.html", {'registered_team': team})
     else:

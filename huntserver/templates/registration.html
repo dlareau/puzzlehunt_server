@@ -29,12 +29,12 @@
   {% elif registered_team %}
     <p>
       You seem to already be registered for a team.
-      We will be adding the ability to remove yourself from this team shortly.
-      For now we just have some info about your team.
     </p>
     <h3>The code to join this team is <b>{{registered_team.join_code}}</b></h3>
     <p>
       <b> Team Name: </b> {{ registered_team.team_name }}
+      <br>
+      <b> Team Location: </b> {{ registered_team.location }}
       <br>
       <b> Team Members: </b>
       <ul>
@@ -42,6 +42,11 @@
           <li>{{ person.user.first_name }} {{ person.user.last_name }}</li>
         {% endfor %}
       </ul>
+      <br>
+      <br>
+      <a href="/registration/?leave_team=1" onclick="return confirm('Are you sure?')">
+        Remove me from this team
+      </a>
     </p>
   {% else %}
     </div>

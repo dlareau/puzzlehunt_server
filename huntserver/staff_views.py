@@ -130,12 +130,12 @@ def control(request):
 
 @staff_member_required
 def emails(request):
-    teams = Team.filter(hunt__hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = Team.objects.filter(hunt__hunt_number=settings.CURRENT_HUNT_NUM)
     people = []
     for team in teams:
-        people = people.append(team.person_set.all())
-    emails = []
+         people = people + list(team.person_set.all())
+    email_list = []
     for person in people:
-        emails.append(person.user.email)
-    return HttpResponse(", ".join(emails))
+        email_list.append(person.user.email)
+    return HttpResponse(", ".join(email_list))
 

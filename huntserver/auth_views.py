@@ -3,6 +3,7 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from huntserver.utils import parse_attributes
+from huntserver.info_views import index
 
 from .models import *
 from .forms import *
@@ -22,9 +23,11 @@ def create_account(request):
         pf = PersonForm(request.POST, prefix='person')
         if uf.is_valid() and pf.is_valid():
             user = uf.save()
-            user.is_shib_acct = False
+            user.set_password(user.password)
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
             user.save()
             person = pf.save(commit=False)
+            person.is_shib_acct = False
             person.user = user
             person.save()
             login(request, user)
@@ -72,10 +75,10 @@ def shib_login(request):
         print("pf: " + str(pf.is_valid()))
         if uf.is_valid() and pf.is_valid():
             user = uf.save()
-            user.is_shib_acct = True
             user.set_unusable_password()
             user.save()
             person = pf.save(commit=False)
+            person.is_shib_acct = True
             person.user = user
             person.save()
         else:

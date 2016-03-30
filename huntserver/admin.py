@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django import forms
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 # Register your models here.
 from .models import *
@@ -16,13 +19,40 @@ class PuzzleAdmin(admin.ModelAdmin):
     list_filter = ('hunt',)
     filter_horizontal = ('unlocks',)
     
-# class PersonInline(admin.TabularInline):
-#     model = Person
-#     extra = 5
-#     max_num = 5 
+class TeamAdminForm(forms.ModelForm):
+    persons = forms.ModelMultipleChoiceField(
+        queryset=Person.objects.all(), 
+        required=False,
+        widget=FilteredSelectMultiple(
+            verbose_name=_('People'),
+            is_stacked=False
+        )
+    )
+
+    class Meta:
+        model = Team
+        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location', 'join_code']
+
+    def __init__(self, *args, **kwargs):
+        super(TeamAdminForm, self).__init__(*args, **kwargs)
+
+        if self.instance and self.instance.pk:
+            self.fields['persons'].initial = self.instance.person_set.all()
+
+    def save(self, commit=True):
+        team = super(TeamAdminForm, self).save(commit=False)
+
+        if commit:
+            team.save()
+
+        if team.pk:
+            team.person_set = self.cleaned_data['persons']
+            self.save_m2m()
+
+        return team
 
 class TeamAdmin(admin.ModelAdmin):
-    # inlines = (PersonInline, )
+    form = TeamAdminForm
     list_filter = ('hunt',)
     
 admin.site.register(Hunt)

@@ -1,0 +1,240 @@
+************* Module huntserver
+************* Module huntserver.puzzle
+W:  1, 0: Wildcard import models (wildcard-import)
+W:  2, 0: Wildcard import redis (wildcard-import)
+W: 54,21: Unused variable 'i' (unused-variable)
+W:  2, 0: Unused import tz from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import RedisPublisher from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import Submission from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import DateFormat from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import models from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import RedisMessage from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import Person from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import Unlockable from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import escape from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import Team from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import serializers from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import send_chat_message from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import Puzzle from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import time_zone from wildcard import (unused-wildcard-import)
+W:  2, 0: Unused import json from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import User from wildcard import (unused-wildcard-import)
+W:  1, 0: Unused import Message from wildcard import (unused-wildcard-import)
+************* Module huntserver.staff_views
+W:  7, 0: Wildcard import models (wildcard-import)
+W:  8, 0: Wildcard import forms (wildcard-import)
+W:  9, 0: Wildcard import puzzle (wildcard-import)
+W: 10, 0: Wildcard import redis (wildcard-import)
+W:  7, 0: Unused import Unlockable from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import escape from wildcard import (unused-wildcard-import)
+W:  8, 0: Unused import UserForm from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import serializers from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import send_chat_message from wildcard import (unused-wildcard-import)
+W:  8, 0: Unused import AnswerForm from wildcard import (unused-wildcard-import)
+W:  8, 0: Unused import forms from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import json from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import call from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import User from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import respond_to_submission from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import RedisPublisher from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import DateFormat from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import models from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import RedisMessage from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Person from wildcard import (unused-wildcard-import)
+W:  8, 0: Unused import ShibUserForm from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Solve from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import tz from wildcard import (unused-wildcard-import)
+W:  8, 0: Unused import PersonForm from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import time_zone from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import check_output from wildcard import (unused-wildcard-import)
+W:  8, 0: Unused import BaseRegisterForm from wildcard import (unused-wildcard-import)
+W:  9, 0: Unused import sleep from wildcard import (unused-wildcard-import)
+************* Module huntserver.redis
+W:  7, 0: Wildcard import models (wildcard-import)
+W:  7, 0: Unused import Submission from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import models from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Hunt from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Person from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Solve from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Unlockable from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import timezone from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Team from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Puzzle from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Unlock from wildcard import (unused-wildcard-import)
+W:  7, 0: Unused import Message from wildcard import (unused-wildcard-import)
+************* Module huntserver.auth_views
+W: 18, 0: Wildcard import models (wildcard-import)
+W: 19, 0: Wildcard import forms (wildcard-import)
+W: 20, 0: Unused import unlock_puzzles from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Unlockable from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import tz from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import send_chat_message from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Unlock from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import AnswerForm from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import forms from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import call from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import respond_to_submission from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import send_submission_update from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import RedisPublisher from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Submission from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import DateFormat from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import models from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Solve from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import RedisMessage from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Person from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import UnlockForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Team from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import SubmissionForm from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import serializers from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import send_status_update from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import download_puzzles from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import sleep from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Puzzle from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import escape from wildcard import (unused-wildcard-import)
+W: 20, 0: Unused import time_zone from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import BaseRegisterForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import Message from wildcard import (unused-wildcard-import)
+************* Module huntserver.hunt_views
+W: 16, 0: Relative import 'utils', should be 'huntserver.utils' (relative-import)
+W: 17, 0: Wildcard import models (wildcard-import)
+W: 18, 0: Wildcard import forms (wildcard-import)
+W: 19, 0: Wildcard import puzzle (wildcard-import)
+W: 20, 0: Wildcard import redis (wildcard-import)
+W: 19, 0: Unused import unlock_puzzles from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import tz from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Unlock from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import forms from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import call from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import send_submission_update from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import RedisPublisher from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import DateFormat from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import models from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Solve from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import RedisMessage from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Person from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import UserForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import UnlockForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import SubmissionForm from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import serializers from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import send_status_update from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import download_puzzles from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import sleep from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import PersonForm from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import escape from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import time_zone from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import BaseRegisterForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import ShibUserForm from wildcard import (unused-wildcard-import)
+************* Module huntserver.admin
+W:  4, 0: Wildcard import models (wildcard-import)
+W:  4, 0: Unused import models from wildcard import (unused-wildcard-import)
+W:  4, 0: Unused import timezone from wildcard import (unused-wildcard-import)
+W:  4, 0: Unused import User from wildcard import (unused-wildcard-import)
+************* Module huntserver.info_views
+W: 16, 0: Relative import 'utils', should be 'huntserver.utils' (relative-import)
+W: 17, 0: Wildcard import models (wildcard-import)
+W: 18, 0: Wildcard import forms (wildcard-import)
+
+W: 19, 0: Unused import unlock_puzzles from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Unlockable from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import tz from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import send_chat_message from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Unlock from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import AnswerForm from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import call from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import respond_to_submission from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import send_submission_update from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import RedisPublisher from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Submission from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import DateFormat from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import models from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Solve from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import RedisMessage from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Person from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import UserForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import UnlockForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import SubmissionForm from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import serializers from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import send_status_update from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import download_puzzles from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import sleep from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Puzzle from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import PersonForm from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import escape from wildcard import (unused-wildcard-import)
+W: 19, 0: Unused import time_zone from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import BaseRegisterForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import ShibUserForm from wildcard import (unused-wildcard-import)
+W: 18, 0: Unused import forms from wildcard import (unused-wildcard-import)
+W: 17, 0: Unused import Message from wildcard import (unused-wildcard-import)
+************* Module huntserver.utils
+E: 42,31: Undefined variable 'Person' (undefined-variable)
+W:  4, 0: Unused import HttpResponseRedirect (unused-import)
+W:  3, 0: Unused import RequestContext (unused-import)
+W:  2, 0: Unused import render_to_response (unused-import)
+
+
+Messages
+--------
+
++------------------------+------------+
+|message id              |occurrences |
++========================+============+
+|unused-wildcard-import  |139         |
++------------------------+------------+
++------------------------+------------+
++------------------------+------------+
+|no-value-for-parameter  |53          |
++------------------------+------------+
+|unused-import           |51          |
++------------------------+------------+
+|no-member               |43          |
++------------------------+------------+
++------------------------+------------+
++------------------------+------------+
+|invalid-name            |30          |
++------------------------+------------+
++------------------------+------------+
+|undefined-variable      |23          |
++------------------------+------------+
+|wildcard-import         |20          |
++------------------------+------------+
+|unexpected-keyword-arg  |18          |
++------------------------+------------+
+|too-few-public-methods  |12          |
++------------------------+------------+
+|bad-whitespace          |10          |
++------------------------+------------+
+|no-init                 |9           |
++------------------------+------------+
+|bad-continuation        |8           |
++------------------------+------------+
+|old-style-class         |5           |
++------------------------+------------+
+|super-on-old-class      |4           |
++------------------------+------------+
+|redefined-outer-name    |4           |
++------------------------+------------+
+|too-many-public-methods |3           |
++------------------------+------------+
+|relative-import         |3           |
++------------------------+------------+
+|bare-except             |3           |
++------------------------+------------+
+|unused-variable         |2           |
++------------------------+------------+
+|unnecessary-semicolon   |2           |
++------------------------+------------+
+|no-name-in-module       |2           |
++------------------------+------------+
+|missing-final-newline   |2           |
++------------------------+------------+
+|duplicate-code          |2           |
++------------------------+------------+
+|unused-argument         |1           |
++------------------------+------------+
+|too-many-locals         |1           |
++------------------------+------------+
+|no-self-use             |1           |
++------------------------+------------+
+|fixme                   |1           |
++------------------------+------------+
+
