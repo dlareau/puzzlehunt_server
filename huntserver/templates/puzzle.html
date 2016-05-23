@@ -59,11 +59,28 @@
 </div>
 <script>
 jQuery(document).ready(function($) {
-  var ws4redis = WS4Redis({
-    uri: '{{ WEBSOCKET_URI }}puzzle_submissions?subscribe-user',
-    receive_message: receiveMessage,
-    heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-  });
+  last_date = new Date().toISOString().slice(0, 19) + 'Z';
+  var get_posts = function() {
+    $.ajax({
+      type: 'get',
+      url: "/ajax/submission",
+      data: {last_date: last_date, csrfmiddlewaretoken: '{{ csrf_token }}' },
+      success: function (response) {
+        var messages = JSON.parse(response);
+        if(messages.length > 0){
+          for (var i = 0; i < messages.length-1; i++) {
+            receiveMessage(messages[i]);
+          };
+          last_date = new Date().toISOString().slice(0, 19) + 'Z';
+        }
+      },
+      error: function (html) {
+        console.log(html);
+      }
+    });
+  }
+  setInterval(get_posts, 3000);
+
 
   $('#sub_form').on('submit', function(e) {
     e.preventDefault();
@@ -83,8 +100,7 @@ console.log(jXHR);
   }); 
 
   // receive a message though the websocket from the server
-  function receiveMessage(msg) {
-    submission = JSON.parse(msg);
+  function receiveMessage(submission) {
     if(submission.puzzle == "{{ puzzle.puzzle_id }}"){
       row = $("<tr data-id='" + submission['pk'] + "'> </tr>");
       col1 = $("<td> " + submission['time_str'] + " </td>");

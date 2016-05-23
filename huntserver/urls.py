@@ -34,12 +34,13 @@ urlpatterns = [
     url(r'^registration/$', info_views.registration, name='registration'),
 
     # Hunt Pages
-    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', hunt_views.puzzle, name='puzzle'),
+    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', hunt_views.puzzle_view, name='puzzle'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
     url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
     url(r'^chat/$',  hunt_views.chat, name='chat'),
     url(r'^objects/$', hunt_views.unlockables, name='unlockables'),
     url(r'^protected/(?P<file_path>.+)$', hunt_views.protected_static, name='protected_static'),
+    url(r'^ajax/(?P<ajax_type>.+)$', hunt_views.ajax, name='ajax'),
 
     # Staff pages
     url(r'^staff/queue/$', staff_views.queue, name='queue'),

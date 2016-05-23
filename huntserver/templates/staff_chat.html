@@ -39,11 +39,28 @@
   $(document).ready(function() {
     curr_team = "";
 
-    var ws4redis = WS4Redis({
-      uri: '{{ WEBSOCKET_URI }}chat_message?subscribe-user',
-      receive_message: receiveMessage,
-      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-    });
+    last_pk = {{last_pk}};
+    var get_posts = function() {
+      $.ajax({
+        type: 'get',
+        url: "/ajax/message",
+        data: {last_pk: last_pk, csrfmiddlewaretoken: '{{ csrf_token }}' },
+        success: function (response) {
+          var messages = JSON.parse(response);
+          if(messages.length > 0){
+            for (var i = 0; i < messages.length-1; i++) {
+              receiveMessage(messages[i]);
+            };
+            last_pk = messages[messages.length-1];
+          }
+        },
+        error: function (html) {
+          console.log(html);
+        }
+      });
+    }
+    setInterval(get_posts, 3000);
+
 
     $('#sendbutton').click(function() {
       data = {team_pk: curr_team, message: $('#messagebox').val(), 
@@ -73,8 +90,7 @@
     map_buttons();
 
 
-    function receiveMessage(msg) {
-      var message = JSON.parse(msg);
+    function receiveMessage(message) {
       if(message.is_response){
         message.team_name = "Admin";
       }

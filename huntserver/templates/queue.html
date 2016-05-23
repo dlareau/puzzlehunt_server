@@ -86,11 +86,29 @@
       }
     }, 1000);
 
-    var ws4redis = WS4Redis({
-      uri: '{{ WEBSOCKET_URI }}puzzle_submissions?subscribe-user',
-      receive_message: receiveMessage,
-      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-    });
+    last_date = new Date().toISOString().slice(0, 19) + 'Z';
+    var get_posts = function() {
+      $.ajax({
+        type: 'get',
+        url: "/ajax/submission",
+        data: {last_date: last_date, all: true, csrfmiddlewaretoken: '{{ csrf_token }}' },
+        success: function (response) {
+          console.log(response);
+          var messages = JSON.parse(response);
+          if(messages.length > 0){
+            for (var i = 0; i < messages.length-1; i++) {
+              receiveMessage(messages[i]);
+            };
+            last_date = new Date().toISOString().slice(0, 19) + 'Z';
+          }
+        },
+        error: function (html) {
+          console.log(html);
+        }
+      });
+    }
+    setInterval(get_posts, 3000);
+
 
     function rowFromSubmission(submission){
       var row_class, response;
@@ -143,8 +161,7 @@
       });
     }
 
-    function receiveMessage(msg) {
-      var submission = JSON.parse(msg);
+    function receiveMessage(submission) {
       var row = rowFromSubmission(submission);
       if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
         if(submission['response_text'] != 'Correct!') {

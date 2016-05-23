@@ -75,6 +75,11 @@ class Submission(models.Model):
     submission_text = models.CharField(max_length=100)
     response_text = models.CharField(blank=True, max_length=400)
     puzzle = models.ForeignKey(Puzzle)
+    modified_date = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        self.modified_date = timezone.now()
+        super(Submission,self).save(*args, **kwargs)
     
     def __unicode__(self):
         return self.submission_text

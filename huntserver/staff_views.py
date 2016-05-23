@@ -18,9 +18,8 @@ def queue(request):
             response = form.cleaned_data['response']
             s = Submission.objects.get(pk=form.cleaned_data['sub_id'])
             s.response_text = response
+            s.modified_date = timezone.now()
             s.save()
-            # Update relevant parties
-            send_submission_update(s)
 
         return HttpResponse('success')
 
@@ -40,7 +39,6 @@ def progress(request):
             t = Team.objects.get(pk=form.cleaned_data['team_id'])
             p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
             Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
-            send_status_update(p, t, "unlock")
             t.save()
         return HttpResponse('success')
 
@@ -75,7 +73,10 @@ def progress(request):
                 # Locked => Identify as locked and puzzle id
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
-        context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array}
+        last_solve_pk = Solve.objects.latest('id').id
+        last_unlock_pk = Unlock.objects.latest('id').id
+        context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array, 
+                   'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk}
         return render(request, 'progress.html', context)
 
 @staff_member_required
@@ -103,7 +104,8 @@ def admin_chat(request):
         message_list.append({'time': message.time, 'text':message.text,
             'team':{'pk': message.team.pk, 'name': message.team.team_name},
             'is_response': message.is_response})
-    return render(request, 'staff_chat.html', {'messages': message_list})
+    last_pk = Message.objects.latest('id').id
+    return render(request, 'staff_chat.html', {'messages': message_list, 'last_pk':last_pk})
 
 # Not actually a page, just various control functions
 @staff_member_required

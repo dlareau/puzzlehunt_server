@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseNotFound
 from django.utils.encoding import smart_str
+from datetime import datetime
+from dateutil import tz
 import os
 
 from utils import team_from_user_hunt
@@ -81,7 +83,7 @@ def current_hunt(request):
     return hunt(request, settings.CURRENT_HUNT_NUM)
 
 @login_required
-def puzzle(request, puzzle_id):
+def puzzle_view(request, puzzle_id):
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
 
@@ -95,9 +97,9 @@ def puzzle(request, puzzle_id):
             user_answer = form.cleaned_data['answer']
             s = Submission.objects.create(submission_text = user_answer, 
                 puzzle = puzzle, submission_time = timezone.now(), team = team)
-            respond_to_submission(s)
+            response = respond_to_submission(s)
 
-        return HttpResponse('success')
+        return HttpResponse(response)
 
     else:
         # Only allowed access if the hunt is public or if unlocked by team
@@ -117,7 +119,6 @@ def chat(request):
             m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
                 is_response=(request.POST.get('is_response')=="true"),
                 team=Team.objects.get(pk=request.POST.get('team_pk')))
-            send_chat_message(m)
         return HttpResponse('success')
     else:
         curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
@@ -129,7 +130,98 @@ def chat(request):
         for message in messages:
             message_list.append({'time': message.time, 'text':message.text,
                 'team':message.team, 'is_response': message.is_response})
-        return render(request, 'chat.html', {'messages': message_list, 'team':team})
+        last_pk = Message.objects.latest('id').id
+        return render(request, 'chat.html', {'messages': message_list, 'team':team, 'last_pk':last_pk})
+
+
+@login_required
+def ajax(request, ajax_type):
+    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    team = team_from_user_hunt(request.user, curr_hunt)
+    if(team == None):
+        return HttpResponseNotFound('access denied')
+    if(ajax_type == "message" and "last_pk" in request.GET):
+        last_pk = request.GET.get("last_pk")
+        results = Message.objects.filter(pk__gt = last_pk)
+        if(not request.user.is_staff):
+            results = results.filter(team=team)
+        results = list(results.all())
+        if(len(results) > 0):
+            for i in range(len(results)):
+                message = dict()
+                message['team_pk'] = results[i].team.pk
+                message['team_name'] = results[i].team.team_name
+                message['text'] = escape(results[i].text)
+                message['is_response'] = results[i].is_response
+                df = DateFormat(results[i].time.astimezone(time_zone))
+                message['time'] = df.format("h:i a")
+                results[i] = message
+            results.append(Message.objects.latest('id').id)
+    elif(ajax_type == "submission"):
+        results1 = Submission.objects.none()
+        results2 = Submission.objects.none()
+        if("last_pk" in request.GET):
+            last_pk = request.GET.get("last_pk")
+            results1 = Submission.objects.filter(pk__gt = last_pk)
+        if("last_date" in request.GET):
+            last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%SZ')
+            last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
+            results2 = Submission.objects.filter(modified_date__gt = last_date)
+        results = results1 | results2
+        if(not (request.user.is_staff and "all" in request.GET)):
+            results = results.filter(team=team)
+        results = list(results.all())
+        if(len(results) > 0):
+            for i in range(len(results)):
+                modelJSON = json.loads(serializers.serialize("json", [results[i]]))[0]
+                message = modelJSON['fields']
+                message['response_text'] = escape(message['response_text'])
+                message['puzzle'] = results[i].puzzle.puzzle_id
+                message['puzzle_name'] = results[i].puzzle.puzzle_name
+                message['team'] = results[i].team.team_name
+                message['pk'] = modelJSON['pk']
+                df = DateFormat(results[i].submission_time.astimezone(time_zone))
+                message['time_str'] = df.format("h:i a")
+                results[i] = message
+            results.append(Submission.objects.latest('id').id)
+    elif(ajax_type == "progress" and "last_solve_pk" in request.GET and 
+          "last_unlock_pk" in request.GET):
+        results = []
+        if(not request.user.is_staff):
+            return HttpResponseNotFound('access denied')
+        last_solve_pk = request.GET.get("last_solve_pk")
+        last_unlock_pk = request.GET.get("last_unlock_pk")
+        solves = list(Solve.objects.filter(pk__gt = last_solve_pk))
+        unlocks = list(Unlock.objects.filter(pk__gt = last_unlock_pk))
+        for i in range(len(unlocks)):
+            message = dict()
+            message['puzzle_id'] = unlocks[i].puzzle.puzzle_id
+            message['puzzle_num'] = unlocks[i].puzzle.puzzle_number
+            message['puzzle_name'] = unlocks[i].puzzle.puzzle_name
+            message['team_pk'] = unlocks[i].team.pk
+            message['status_type'] = "unlock"
+            results.append(message)
+        for i in range(len(solves)):
+            message = dict()
+            message['puzzle_id'] = solves[i].puzzle.puzzle_id
+            message['puzzle_num'] = solves[i].puzzle.puzzle_number
+            message['puzzle_name'] = solves[i].puzzle.puzzle_name
+            message['team_pk'] = solves[i].team.pk
+            message['status_type'] = "solve"
+            try:
+                time = solves[i].team.solve_set.filter(puzzle=solves[i].puzzle)[0].submission.submission_time
+                df = DateFormat(time.astimezone(time_zone))
+                message['time_str'] = df.format("h:i a")
+            except:
+                message['time_str'] = "0:00 am"
+            results.append(message)
+        if(len(results) > 0):
+            results.append(Solve.objects.latest('id').id)
+            results.append(Unlock.objects.latest('id').id)
+    else:
+        results = []
+    response = json.dumps(results)
+    return HttpResponse(response)
 
 @login_required
 def unlockables(request):

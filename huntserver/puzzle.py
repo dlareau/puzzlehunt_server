@@ -15,7 +15,6 @@ def respond_to_submission(submission):
         if((submission.puzzle not in submission.team.solved.all()) and (not submission.puzzle.hunt.is_public)):
             Solve.objects.create(puzzle=submission.puzzle, 
                 team=submission.team, submission=submission)
-            send_status_update(submission.puzzle, submission.team, "solve")
             unlock_puzzles(submission.team)
         response = "Correct!"
     # Answers should not contain spaces
@@ -36,7 +35,6 @@ def respond_to_submission(submission):
 
     submission.response_text = response
     submission.save()
-    send_submission_update(submission)
     return response
 
 # Looks through each puzzle and sees if a team has enough solves to unlock it
@@ -60,7 +58,6 @@ def unlock_puzzles(team):
         if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
             if(puzzle not in team.unlocked.all()):
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
-                send_status_update(puzzle, team, "unlock")
     
 # Runs the commands listed at the bottom for each puzzle to download the pdf 
 # and convert it to PNGs. It first clears the old PNGs and PDFs.

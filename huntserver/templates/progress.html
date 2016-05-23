@@ -60,11 +60,31 @@
     recolor();
     setInterval(recolor, 5000);
 
-    var ws4redis = WS4Redis({
-      uri: '{{ WEBSOCKET_URI }}puzzle_status?subscribe-user',
-      receive_message: receiveMessage,
-      heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-    });
+    last_solve_pk = {{last_solve_pk}};
+    last_unlock_pk = {{last_unlock_pk}};
+    var get_posts = function() {
+      $.ajax({
+        type: 'get',
+        url: "/ajax/progress",
+        data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk, csrfmiddlewaretoken: '{{ csrf_token }}' },
+        success: function (response) {
+          var messages = JSON.parse(response);
+          console.log(messages);
+          if(messages.length > 0){
+            for (var i = 0; i < messages.length-2; i++) {
+              receiveMessage(messages[i]);
+            };
+            last_solve_pk = messages[messages.length-2];
+            last_unlock_pk = messages[messages.length-1];
+          }
+        },
+        error: function (html) {
+          console.log(html);
+        }
+      });
+    }
+    setInterval(get_posts, 3000);
+
 
     $('.unlock_form').on('submit', function(e) {
       e.preventDefault();
@@ -74,12 +94,12 @@
         data: $(this).serialize(),
         error: function (jXHR, textStatus, errorThrown) {
           alert(errorThrown);
+          console.log(jXHR);
         }
       });
     });
 
-    function receiveMessage(msg) {
-      var update = JSON.parse(msg);
+    function receiveMessage(update) {
       $td = $("#p" + update.puzzle_id + "t" + update.team_pk);
       if(update.status_type == "solve"){
         $td.removeClass();
