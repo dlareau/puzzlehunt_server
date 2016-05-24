@@ -1,4 +1,7 @@
 from django.conf import settings
+from django.core import serializers
+from django.utils.html import escape
+from django.utils.dateformat import DateFormat
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
@@ -6,13 +9,14 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.utils.encoding import smart_str
 from datetime import datetime
 from dateutil import tz
+import json
 import os
+time_zone = tz.gettz(settings.TIME_ZONE)
 
 from utils import team_from_user_hunt
 from .models import *
 from .forms import *
 from .puzzle import *
-from .redis import *
 
 @login_required
 def protected_static(request, file_path):

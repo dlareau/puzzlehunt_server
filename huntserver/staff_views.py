@@ -7,7 +7,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from .models import *
 from .forms import *
 from .puzzle import *
-from .redis import *
 
 @staff_member_required
 def queue(request):

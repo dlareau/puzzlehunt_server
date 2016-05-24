@@ -1,5 +1,4 @@
 from .models import *
-from .redis import *
 from django.conf import settings
 from django.utils import timezone
 from subprocess import call, check_output
