@@ -7,3 +7,4 @@
 /puzzlehunt_server/secret_settings.py
 /docs/_build/
 db.sqlite3
+/env/
