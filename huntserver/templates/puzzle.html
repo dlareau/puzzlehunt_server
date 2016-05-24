@@ -64,7 +64,7 @@ jQuery(document).ready(function($) {
     $.ajax({
       type: 'get',
       url: "/ajax/submission",
-      data: {last_date: last_date, csrfmiddlewaretoken: '{{ csrf_token }}' },
+      data: {last_date: last_date},
       success: function (response) {
         var messages = JSON.parse(response);
         if(messages.length > 0){

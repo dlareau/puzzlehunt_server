@@ -66,7 +66,7 @@
       $.ajax({
         type: 'get',
         url: "/ajax/progress",
-        data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk, csrfmiddlewaretoken: '{{ csrf_token }}' },
+        data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk},
         success: function (response) {
           var messages = JSON.parse(response);
           console.log(messages);

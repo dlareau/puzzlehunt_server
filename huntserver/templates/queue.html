@@ -91,7 +91,7 @@
       $.ajax({
         type: 'get',
         url: "/ajax/submission",
-        data: {last_date: last_date, all: true, csrfmiddlewaretoken: '{{ csrf_token }}' },
+        data: {last_date: last_date, all: true},
         success: function (response) {
           console.log(response);
           var messages = JSON.parse(response);

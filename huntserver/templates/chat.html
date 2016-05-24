@@ -35,7 +35,7 @@
       $.ajax({
         type: 'get',
         url: "/ajax/message",
-        data: {last_pk: last_pk, csrfmiddlewaretoken: '{{ csrf_token }}' },
+        data: {last_pk: last_pk},
         success: function (response) {
           var messages = JSON.parse(response);
           if(messages.length > 0){
