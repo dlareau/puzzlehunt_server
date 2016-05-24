@@ -6,17 +6,14 @@ System packages:
 * mysql-client
 * mysql-server
 * python-mysqldb
-* redis-server
 * python-dev
 * imagemagick
 * libmysqlclient-dev
 
 Python packages (pip)
 * django
-* django-websocket-redis
 * MySQL-python
 * python-dateutil
-* django-redis-sessions
 
 (Working on getting a virtualenv solution set up)
 
