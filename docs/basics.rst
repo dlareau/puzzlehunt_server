@@ -43,14 +43,6 @@ is done through the template command ``{STATIC_URL}``.
 You should protect your static URL by only allowing access to /static/ from internal sources as 
 described in the "Setup: Nginx" portion of these docs. 
 
-Websockets
-----------
-This project accomplishes live page content with the use of websockets powered by ws4redis.
-These websockets are controlled by a redis message passing server running alongside the django server.
-This allows asynchronous communication to the clients webpage,
-however communication from the webpage is synchronous with respect to the Django server.
-This limitation is overcome by using POST requests as an asynchronous method of communication with the server from the client. 
-
 Database
 --------
 As noted in setup, the default database for this project is a MySQL database.

@@ -12,7 +12,6 @@ Install the following packages:
 - mysql-client
 - mysql-server
 - python-mysqldb
-- redis-server
 - python-dev
 - imagemagick
 - libmysqlclient-dev
@@ -20,10 +19,8 @@ Install the following packages:
 Install the following python packages using pip:
 
 - django
-- django-websocket-redis
 - MySQL-python
 - python-dateutil
-- django-redis-sessions
 
 Code Setup
 ----------
@@ -52,13 +49,6 @@ To do so, log into the mysql client as a superuser and enter the following comma
 - ``CREATE DATABASE puzzlehunt_db;``
 - ``CREATE USER 'nottherealusername'@'localhost' IDENTIFIED BY 'nottherealpassword';``
 - ``GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'nottherealusername'@'localhost' WITH GRANT OPTION;``
-
-
-Redis setup
------------
-
-Start up the redis server using ``sudo service redis-server start``.
-You can check if worked by running ``redis-cli ping`` and getting the response ``PONG``.
 
 Django setup
 ------------
