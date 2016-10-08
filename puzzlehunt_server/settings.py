@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from secret_settings import *
 
 """ PLEASE UPDATE BEFORE STARTING HUNT DEVELOPMENT """
-CURRENT_HUNT_NUM = 3
+CURRENT_HUNT_NUM = 4
 
 """ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! """
 
