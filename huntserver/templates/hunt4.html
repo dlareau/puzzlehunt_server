@@ -4,7 +4,7 @@
 {% block base_includes %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/hunt_base.css">
 <style>body {
-  background-image: url(http://www.musicaltheatresw.com/style/images/bg/1.jpg); 
+  background-image: url(http://typeset-beta.imgix.net/rehost/2016/9/13/eacfaec1-1ac8-489d-aea2-1ca116fa377d.jpg); 
   background-color: #000000; 
   background-repeat: no-repeat; 
   background-size: cover
@@ -13,6 +13,7 @@
 @font-face {
   font-family: musicalFont;
   src: url(/static/huntserver/black_jack.ttf);
+  src: url(/static/huntserver/MagicSchoolOne.ttf);
 }
 
 .playbill {
@@ -66,10 +67,8 @@
 	  <col width="180px">
 	{% endif %}
               <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
-
                 <td>
   		<p class="puzzle-name"><a href='/puzzle/{{ puzzle.puzzle_id }}/'>{{puzzle.puzzle_name}}</a></p>
-
                 </td>
                 <td>
                   {% if puzzle in solved %}
