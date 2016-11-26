@@ -5,8 +5,8 @@ from django.shortcuts import render, redirect
 from huntserver.utils import parse_attributes
 from huntserver.info_views import index
 
-from .models import *
-from .forms import *
+from .models import Hunt
+from .forms import UserForm, PersonForm, ShibUserForm
 
 def login_selection(request):
     if 'next' in request.GET:
@@ -42,15 +42,16 @@ def create_account(request):
 def account_logout(request):
     logout(request)
     if 'next' in request.GET:
-        return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + request.GET['next'])
+        additional_url = request.GET['next']
     else:
-        return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu")
+        additional_url = ""
+    return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + additional_url)
 
 def shib_login(request):
-  
+
     # Get attributes from REMOTE_USER/META
     attr, error = parse_attributes(request.META)
-    
+
     redirect_url = request.GET.get('next', settings.LOGIN_REDIRECT_URL)
     context = {'shib_attrs': attr}
     if error:
@@ -68,11 +69,8 @@ def shib_login(request):
 
     # For form submission
     if request.method == 'POST':
-        print(request.POST)
         uf = ShibUserForm(request.POST)
         pf = PersonForm(request.POST)
-        print("uf: " + str(uf.is_valid()))
-        print("pf: " + str(pf.is_valid()))
         if uf.is_valid() and pf.is_valid():
             user = uf.save()
             user.set_unusable_password()
@@ -102,7 +100,7 @@ def shib_login(request):
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
 
-    # Redirect if nessecary 
+    # Redirect if nessecary
     if not redirect_url or '//' in redirect_url or ' ' in redirect_url:
         redirect_url = settings.LOGIN_REDIRECT_URL
     return redirect(redirect_url)

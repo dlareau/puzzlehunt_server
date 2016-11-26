@@ -7,7 +7,7 @@
     <br>
     Please enter your puzzlehuntCMU username and password:
 
-    <form method="post" action=".">
+    <form method="post" action="/accounts/login/">
       {% csrf_token %}
       {{ form.as_p }}
 

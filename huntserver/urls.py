@@ -14,9 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import url
-from . import hunt_views, auth_views, info_views, staff_views
+from huntserver import hunt_views, auth_views, info_views, staff_views
+from django.contrib.auth import views
 from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
+from django.conf import settings
 
 urlpatterns = [
     # Auth and Accounts
@@ -24,7 +26,7 @@ urlpatterns = [
     url(r'^login-selection/$', auth_views.login_selection, name='login_selection'),
     url(r'^shib/login$', auth_views.shib_login, name='new_shib_account'),
     url(r'^logout/$', auth_views.account_logout, name='accout_logout'),
-    
+
     # Info Pages
     url(r'^$', info_views.index, name='index'),
     url(r'^hunt/info/$', info_views.current_hunt_info, name='current_hunt_info'),
@@ -52,3 +54,7 @@ urlpatterns = [
     url(r'^staff/puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
     url(r'^staff/emails/$', staff_views.emails, name='emails'),
 ]
+
+if(not settings.SHIB_ENABLED):
+    urlpatterns.append(url(r'^Shibboleth.sso/Logout', views.logout, name='logout', kwargs={'next_page': '/'}))
+    urlpatterns.append(url(r'^Shibboleth.sso/Login', views.login))
