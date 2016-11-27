@@ -4,9 +4,9 @@ from django.utils import timezone
 from django.http import HttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
 
-from .models import *
-from .forms import *
-from .puzzle import *
+from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
+from .forms import SubmissionForm, UnlockForm
+from .puzzle import unlock_puzzles, download_puzzles
 
 @staff_member_required
 def queue(request):
@@ -72,8 +72,14 @@ def progress(request):
                 # Locked => Identify as locked and puzzle id
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
-        last_solve_pk = Solve.objects.latest('id').id
-        last_unlock_pk = Unlock.objects.latest('id').id
+        try:
+            last_solve_pk = Solve.objects.latest('id').id
+        except Solve.DoesNotExist:
+            last_solve_pk = 0
+        try:
+            last_unlock_pk = Unlock.objects.latest('id').id
+        except Unlock.DoesNotExist:
+            last_unlock_pk = 0
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array, 
                    'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk}
         return render(request, 'progress.html', context)
@@ -103,7 +109,10 @@ def admin_chat(request):
         message_list.append({'time': message.time, 'text':message.text,
             'team':{'pk': message.team.pk, 'name': message.team.team_name},
             'is_response': message.is_response})
-    last_pk = Message.objects.latest('id').id
+    try:
+        last_pk = Message.objects.latest('id').id
+    except Message.DoesNotExist:
+        last_pk = 0
     return render(request, 'staff_chat.html', {'messages': message_list, 'last_pk':last_pk})
 
 # Not actually a page, just various control functions

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
 # Register your models here.
-from .models import *
+from .models import Hunt, Person, Team, Submission, Solve, Unlock, Puzzle, Message, Unlockable
 from django.conf import settings
 
 class UnlockableInline(admin.TabularInline):
@@ -18,10 +18,10 @@ class PuzzleAdmin(admin.ModelAdmin):
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
     filter_horizontal = ('unlocks',)
-    
+
 class TeamAdminForm(forms.ModelForm):
     persons = forms.ModelMultipleChoiceField(
-        queryset=Person.objects.all(), 
+        queryset=Person.objects.all(),
         required=False,
         widget=FilteredSelectMultiple(
             verbose_name=_('People'),
@@ -54,7 +54,7 @@ class TeamAdminForm(forms.ModelForm):
 class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
     list_filter = ('hunt',)
-    
+
 admin.site.register(Hunt)
 admin.site.register(Puzzle, PuzzleAdmin)
 admin.site.register(Person)

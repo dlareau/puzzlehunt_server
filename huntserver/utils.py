@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from .models import *
+from .models import Person
 
 def parse_attributes(META):
     shib_attrs = {}
@@ -15,7 +15,7 @@ def parse_attributes(META):
                 value = values.split(';')[0]
             except:
                 value = values
-                
+
         shib_attrs[name] = value
         if not value or value == '':
             if required:
@@ -32,7 +32,7 @@ def build_shib_url(request, target, entityid=None):
     url = '%s?target=%s' % (shib_url, target)
     if entityid:
         url += '&entityID=%s' % entityid
-    return url    
+    return url
 
 def team_from_user_hunt(user, hunt):
     if(user.is_anonymous()):
