@@ -109,6 +109,7 @@ $(document).ready(function() {
         $('audio')[0].play();
       }
       row.prependTo("#sub_table");
+      $('#sub_table tr:last').remove();
     } else {
       $('tr[data-id=' + submission['pk'] + ']').replaceWith(row);
     }

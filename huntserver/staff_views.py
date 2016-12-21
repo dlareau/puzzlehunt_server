@@ -3,13 +3,14 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.http import HttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
 from .forms import SubmissionForm, UnlockForm
 from .puzzle import unlock_puzzles, download_puzzles
 
 @staff_member_required
-def queue(request):
+def queue(request, page_num=1):
     # Process admin responses to submissions
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -24,7 +25,14 @@ def queue(request):
 
     else:
         hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-        submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('pk')
+        submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('-pk')
+        paginator = Paginator(submissions, 30)
+        try:
+            submissions = paginator.page(page_num)
+        except PageNotAnInteger:
+            submissions = paginator.page(1)
+        except EmptyPage:
+            submissions = paginator.page(paginator.num_pages)
         form = SubmissionForm()
         context = {'form': form, 'submission_list': submissions}
         return render(request, 'queue.html', context)

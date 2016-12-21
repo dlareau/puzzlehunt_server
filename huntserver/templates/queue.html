@@ -22,7 +22,7 @@
   </thead>
 
   <tbody id='sub_table'>
-    {% for submission in submission_list reversed %}
+    {% for submission in submission_list %}
     <tr class="
     {% if submission.response_text == '' %}
       incorrect-unreplied 
@@ -56,6 +56,24 @@
     {% endfor %}
   </tbody>
 </table>
+
+<br>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if submission_list.has_previous %}
+            <a href="/staff/queue/{{ submission_list.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ submission_list.number }} of {{ submission_list.paginator.num_pages }}.
+        </span>
+
+        {% if submission_list.has_next %}
+            <a href="/staff/queue/{{ submission_list.next_page_number }}">Next</a>
+        {% endif %}
+    </span>
+</div>
 
 <audio>
   <source src="http://cmu.io/~jlareau/goat.mp3"  type="audio/mp3"/>
