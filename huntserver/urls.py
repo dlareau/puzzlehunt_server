@@ -56,8 +56,7 @@ urlpatterns = [
         url(r'^puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
         url(r'^emails/$', staff_views.emails, name='emails'),
     ])),
-]
 
-if(not settings.SHIB_ENABLED):
-    urlpatterns.append(url(r'^Shibboleth.sso/Logout', views.logout, name='logout', kwargs={'next_page': '/'}))
-    urlpatterns.append(url(r'^Shibboleth.sso/Login', views.login))
+    url(r'^Shibboleth.sso/Logout', views.logout, name='logout', kwargs={'next_page': '/'}),
+    url(r'^Shibboleth.sso/Login', views.login)
+]
