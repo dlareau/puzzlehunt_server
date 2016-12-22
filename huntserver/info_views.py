@@ -3,9 +3,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import random
 
-from utils import team_from_user_hunt
-from .models import *
-from .forms import *
+from .utils import team_from_user_hunt
+from .models import Hunt, Team
 
 def index(request):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)

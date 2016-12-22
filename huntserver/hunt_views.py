@@ -3,7 +3,7 @@ from django.core import serializers
 from django.utils.html import escape
 from django.utils.dateformat import DateFormat
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseNotFound
 from django.utils.encoding import smart_str
@@ -13,10 +13,9 @@ import json
 import os
 time_zone = tz.gettz(settings.TIME_ZONE)
 
-from utils import team_from_user_hunt
-from .models import *
-from .forms import *
-from .puzzle import *
+from .models import Puzzle, Hunt, Submission, Message, Team, Solve, Unlock, Unlockable
+from .forms import AnswerForm
+from .utils import respond_to_submission, team_from_user_hunt
 
 @login_required
 def protected_static(request, file_path):
@@ -27,7 +26,7 @@ def protected_static(request, file_path):
         puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
         team = team_from_user_hunt(request.user, puzzle.hunt)
         # Only allowed access to the image if the puzzle is unlocked
-        if (puzzle.hunt.is_public or request.user.is_staff or 
+        if (puzzle.hunt.is_public or request.user.is_staff or
            (team != None and puzzle in team.unlocked.all())):
             allowed = True
     else:
@@ -37,13 +36,12 @@ def protected_static(request, file_path):
         #if(settings.DEBUG):
         #    return redirect(settings.MEDIA_URL + file_path)
         response = HttpResponse()
-        url = settings.MEDIA_URL + file_path
-        # let apache determine the correct content type 
+        # let apache determine the correct content type
         response['Content-Type']=""
         # This is what lets django access the normally restricted /static/
         response['X-Sendfile'] = smart_str(os.path.join(settings.MEDIA_ROOT, file_path))
         return response
-    
+
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
 @login_required
@@ -71,14 +69,14 @@ def hunt(request, hunt_num):
     # How did you get here?
     else:
         return render(request, 'access_error.html')
-        
+
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
     if(team == None):
         solved = []
     else:
         solved = team.solved.all()
     context = {'puzzles': puzzles, 'team': team, 'solved': solved}
-    
+
     # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
     return render(request, 'hunt' + str(hunt_num) + '.html', context)
 
@@ -99,7 +97,7 @@ def puzzle_view(request, puzzle_id):
         form = AnswerForm(request.POST)
         if form.is_valid():
             user_answer = form.cleaned_data['answer']
-            s = Submission.objects.create(submission_text = user_answer, 
+            s = Submission.objects.create(submission_text = user_answer,
                 puzzle = puzzle, submission_time = timezone.now(), team = team)
             response = respond_to_submission(s)
 
@@ -110,7 +108,7 @@ def puzzle_view(request, puzzle_id):
         if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all())):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
-            context = {'form': form, 'pages': range(puzzle.num_pages), 'puzzle': puzzle, 
+            context = {'form': form, 'pages': range(puzzle.num_pages), 'puzzle': puzzle,
                        'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL}
             return render(request, 'puzzle.html', context)
         else:
@@ -120,7 +118,7 @@ def puzzle_view(request, puzzle_id):
 def chat(request):
     if request.method == 'POST':
         if(request.POST.get('team_pk') != ""):
-            m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
+            Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
                 is_response=(request.POST.get('is_response')=="true"),
                 team=Team.objects.get(pk=request.POST.get('team_pk')))
         return HttpResponse('success')
@@ -188,7 +186,7 @@ def ajax(request, ajax_type):
                 message['time_str'] = df.format("h:i a")
                 results[i] = message
             results.append(Submission.objects.latest('id').id)
-    elif(ajax_type == "progress" and "last_solve_pk" in request.GET and 
+    elif(ajax_type == "progress" and "last_solve_pk" in request.GET and
           "last_unlock_pk" in request.GET):
         results = []
         if(not request.user.is_staff):
