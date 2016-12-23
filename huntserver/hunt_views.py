@@ -140,7 +140,7 @@ def chat(request):
 def ajax(request, ajax_type):
     curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
     team = team_from_user_hunt(request.user, curr_hunt)
-    if(team == None):
+    if(not request.user.is_staff and team == None):
         return HttpResponseNotFound('access denied')
     if(ajax_type == "message" and "last_pk" in request.GET):
         last_pk = request.GET.get("last_pk")
