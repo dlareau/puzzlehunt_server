@@ -1,5 +1,5 @@
 jQuery(document).ready(function($) {
-  last_date = new Date().toISOString().slice(0, 19) + 'Z';
+  last_date = '{{last_date}}';
   var get_posts = function() {
     $.ajax({
       type: 'get',
@@ -7,12 +7,12 @@ jQuery(document).ready(function($) {
       data: {last_date: last_date},
       success: function (response) {
         var messages = JSON.parse(response);
-        console.log(messages);
         if(messages.length > 0){
           for (var i = 0; i < messages.length-1; i++) {
             receiveMessage(messages[i]);
           };
-          last_date = new Date().toISOString().slice(0, 19) + 'Z';
+          console.log(messages[messages.length-1]);
+          last_date = messages[messages.length-1];
         }
       },
       error: function (html) {
@@ -48,7 +48,6 @@ jQuery(document).ready(function($) {
       col2 = $("<td> " + submission['submission_text'] + " </td>");
       col3 = $("<td> " + submission['response_text'] + " </td>");
       row.append(col1,col2,col3);
-      console.log(row);
       if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
         row.prependTo("#sub_table");
       } else {

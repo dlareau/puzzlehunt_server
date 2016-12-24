@@ -26,7 +26,7 @@ $(document).ready(function() {
     }
   }, 1000);
 
-  last_date = new Date().toISOString().slice(0, 19) + 'Z';
+  last_date = '{{last_date}}';
   var get_posts = function() {
     $.ajax({
       type: 'get',
@@ -39,7 +39,7 @@ $(document).ready(function() {
           for (var i = 0; i < messages.length-1; i++) {
             receiveMessage(messages[i]);
           };
-          last_date = new Date().toISOString().slice(0, 19) + 'Z';
+          last_date = messages[messages.length-1];
         }
       },
       error: function (html) {

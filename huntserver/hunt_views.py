@@ -109,7 +109,8 @@ def puzzle_view(request, puzzle_id):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
             context = {'form': form, 'pages': range(puzzle.num_pages), 'puzzle': puzzle,
-                       'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL}
+                       'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
+                       'last_date': Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%SZ')}
             return render(request, 'puzzle.html', context)
         else:
             return render(request, 'access_error.html')
@@ -189,7 +190,7 @@ def ajax(request, ajax_type):
                 df = DateFormat(results[i].submission_time.astimezone(time_zone))
                 message['time_str'] = df.format("h:i a")
                 results[i] = message
-            results.append(Submission.objects.latest('id').id)
+            results.append(Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
     elif(ajax_type == "progress" and "last_solve_pk" in request.GET and
