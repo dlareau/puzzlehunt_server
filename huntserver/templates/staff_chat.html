@@ -3,7 +3,7 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
-<script src="{{ STATIC_URL }}huntserver/staff_chat.js"></script>
+<script> {% include "js/staff_chat.js" %} </script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
 {% endblock includes %}
 

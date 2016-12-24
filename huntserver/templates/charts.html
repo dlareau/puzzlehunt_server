@@ -4,7 +4,7 @@
 {% block includes %}
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script src="{{ STATIC_URL }}huntserver/charts.js"></script>
+  <script> {% include "js/charts.js" %} </script>
 {% endblock includes %}
 
 {% block content %}

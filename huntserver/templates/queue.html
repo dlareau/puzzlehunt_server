@@ -4,7 +4,7 @@
 {% block includes %} 
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
   <script src="{{ STATIC_URL }}js.cookie.js"></script>
-  <script src="{{ STATIC_URL }}huntserver/queue.js"></script>
+  <script> {% include "js/queue.js" %} </script>
 {% endblock includes %}
 
 {% block content %}
