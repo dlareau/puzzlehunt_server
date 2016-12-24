@@ -142,6 +142,8 @@ def ajax(request, ajax_type):
     team = team_from_user_hunt(request.user, curr_hunt)
     if(not request.user.is_staff and team == None):
         return HttpResponseNotFound('access denied')
+
+
     if(ajax_type == "message" and "last_pk" in request.GET):
         last_pk = request.GET.get("last_pk")
         results = Message.objects.filter(pk__gt = last_pk)
@@ -159,6 +161,8 @@ def ajax(request, ajax_type):
                 message['time'] = df.format("h:i a")
                 results[i] = message
             results.append(Message.objects.latest('id').id)
+
+
     elif(ajax_type == "submission"):
         results1 = Submission.objects.none()
         results2 = Submission.objects.none()
@@ -186,6 +190,8 @@ def ajax(request, ajax_type):
                 message['time_str'] = df.format("h:i a")
                 results[i] = message
             results.append(Submission.objects.latest('id').id)
+
+
     elif(ajax_type == "progress" and "last_solve_pk" in request.GET and
           "last_unlock_pk" in request.GET):
         results = []
@@ -220,6 +226,8 @@ def ajax(request, ajax_type):
         if(len(results) > 0):
             results.append(Solve.objects.latest('id').id)
             results.append(Unlock.objects.latest('id').id)
+
+
     else:
         results = []
     response = json.dumps(results)

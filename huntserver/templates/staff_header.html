@@ -1,5 +1,5 @@
-<header>
-  <h1>Puzzlehunt Admin</h1>
+<header {% if debug %} style="background-color: darkred;"{% endif %} >
+  <h1>{% if debug %} DEVELOPMENT SERVER {% else %} Puzzlehunt Admin {% endif %}</h1>
   <ul>
     <li><a href="/admin/huntserver/team">Teams</a></li>
     <li><a href="/admin/huntserver/puzzle">Puzzles</a></li>

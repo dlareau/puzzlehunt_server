@@ -7,6 +7,7 @@ jQuery(document).ready(function($) {
       data: {last_date: last_date},
       success: function (response) {
         var messages = JSON.parse(response);
+        console.log(messages);
         if(messages.length > 0){
           for (var i = 0; i < messages.length-1; i++) {
             receiveMessage(messages[i]);
@@ -32,9 +33,9 @@ jQuery(document).ready(function($) {
         console.log(jXHR.responseText);
         alert(errorThrown);
       },
-success: function (jXHR, textStatus, errorThrown) {
-console.log(jXHR);
-}
+      success: function (jXHR, textStatus, errorThrown) {
+        console.log(jXHR);
+      }
     });
     $('#id_answer').val('');
   }); 
@@ -47,6 +48,7 @@ console.log(jXHR);
       col2 = $("<td> " + submission['submission_text'] + " </td>");
       col3 = $("<td> " + submission['response_text'] + " </td>");
       row.append(col1,col2,col3);
+      console.log(row);
       if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
         row.prependTo("#sub_table");
       } else {
