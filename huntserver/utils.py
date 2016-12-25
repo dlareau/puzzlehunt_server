@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from .models import Solve, Unlock, Hunt, Person
 from django.utils import timezone
 from subprocess import call, check_output
+import re
 
 # Automatic submission response system
 # Takes a submission object and should return a string
@@ -23,9 +24,19 @@ def respond_to_submission(submission):
     # Answers should not contain underscores
     elif("_" in submission.submission_text):
         response = "Invalid answer (underscores)"
-    # Let staff respond to everything else
+    # Check against all expected answers and respond appropriately
     else:
-        response = ""
+        for resp in submission.puzzle.response_set.all():
+            res = re.match(resp.regex, submission.submission_text.lower())
+            print resp.regex
+            print submission.puzzle.answer.lower()
+            print res
+            if(res):
+                response = resp.text
+                break
+        # Let staff respond to everything else
+        else:
+            response = ""
 
     # After the hunt is over, if it's not right it's wrong.
     if(submission.puzzle.hunt.is_public):

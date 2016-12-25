@@ -126,3 +126,10 @@ class Unlockable(models.Model):
     content_type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='TXT')
     content = models.CharField(max_length=500)
     
+class Response(models.Model):
+    puzzle = models.ForeignKey(Puzzle)
+    regex = models.CharField(max_length=400)
+    text = models.CharField(max_length=400)
+
+    def __unicode__(self):
+        return self.regex + "=>" + self.text
