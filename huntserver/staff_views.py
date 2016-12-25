@@ -35,7 +35,7 @@ def queue(request, page_num=1):
             submissions = pages.page(pages.num_pages)
         form = SubmissionForm()
         context = {'form': form, 'submission_list': submissions, 'last_date':
-                   Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%SZ')}
+                   Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
         return render(request, 'queue.html', context)
 
 @staff_member_required

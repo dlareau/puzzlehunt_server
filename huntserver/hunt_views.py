@@ -110,7 +110,7 @@ def puzzle_view(request, puzzle_id):
             form = AnswerForm()
             context = {'form': form, 'pages': range(puzzle.num_pages), 'puzzle': puzzle,
                        'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
-                       'last_date': Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%SZ')}
+                       'last_date': Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
             return render(request, 'puzzle.html', context)
         else:
             return render(request, 'access_error.html')
@@ -171,7 +171,7 @@ def ajax(request, ajax_type):
             last_pk = request.GET.get("last_pk")
             results1 = Submission.objects.filter(pk__gt = last_pk)
         if("last_date" in request.GET):
-            last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%SZ')
+            last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
             last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
             results2 = Submission.objects.filter(modified_date__gt = last_date)
         results = results1 | results2
@@ -190,7 +190,7 @@ def ajax(request, ajax_type):
                 df = DateFormat(results[i].submission_time.astimezone(time_zone))
                 message['time_str'] = df.format("h:i a")
                 results[i] = message
-            results.append(Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%SZ'))
+            results.append(Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
 
 
     elif(ajax_type == "progress" and "last_solve_pk" in request.GET and
