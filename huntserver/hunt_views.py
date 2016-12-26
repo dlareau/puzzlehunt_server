@@ -82,7 +82,7 @@ def hunt(request, hunt_num):
 
 @login_required
 def current_hunt(request):
-    return hunt(request, settings.CURRENT_HUNT_NUM)
+    return hunt(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 @login_required
 def puzzle_view(request, puzzle_id):
@@ -124,7 +124,7 @@ def chat(request):
                 team=Team.objects.get(pk=request.POST.get('team_pk')))
         return HttpResponse('success')
     else:
-        curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+        curr_hunt = Hunt.objects.get(is_current_hunt=True)
         team = team_from_user_hunt(request.user, curr_hunt)
         if(team == None):
             return render(request, 'not_released.html', {'reason': "team"})
@@ -139,7 +139,7 @@ def chat(request):
 
 @login_required
 def ajax(request, ajax_type):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
     if(not request.user.is_staff and team == None):
         return HttpResponseNotFound('access denied')
@@ -236,7 +236,7 @@ def ajax(request, ajax_type):
 
 @login_required
 def unlockables(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
     if(team == None):
         return render(request, 'not_released.html', {'reason': "team"})

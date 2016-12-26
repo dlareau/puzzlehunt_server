@@ -7,24 +7,24 @@ from .utils import team_from_user_hunt
 from .models import Hunt, Team
 
 def index(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     return render(request, "index.html", {'curr_hunt': curr_hunt})
 
 def current_hunt_info(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     return render(request, "hunt_info.html", {'curr_hunt': curr_hunt})
 
 def previous_hunts(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if(curr_hunt.is_public):
         old_hunts = Hunt.objects.all().order_by('hunt_number')
     else:
-        old_hunts = Hunt.objects.all().exclude(hunt_number=settings.CURRENT_HUNT_NUM).order_by('hunt_number')
+        old_hunts = Hunt.objects.all().exclude(is_current_hunt=True).order_by('hunt_number')
 
     return render(request, "previous_hunts.html", {'hunts': old_hunts})
 
 def registration(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
     if(request.method == 'POST' and "form_type" in request.POST):
         if(request.POST["form_type"] == "new_team"):

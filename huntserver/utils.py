@@ -82,7 +82,7 @@ def download_puzzles(hunt):
     call(["rm", "-r", directory])
     call(["mkdir", directory])
 
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     for puzzle in curr_hunt.puzzle_set.all():
         # Get the file
         file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"

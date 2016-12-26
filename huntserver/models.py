@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db import transaction
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 # Create your models here.
 class Hunt(models.Model):
@@ -11,7 +13,28 @@ class Hunt(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     location = models.CharField(max_length=100)
+    is_current_hunt = models.BooleanField(default=False)
     
+    # A bit of custom logic in clean and save to ensure exactly one hunt's
+    # is_current_hunt is true at any time. Basically, you can never un-set that
+    # value, and setting it anywhere else unsets all others.
+    def clean(self, *args, **kwargs):
+        if(not self.is_current_hunt):
+            try:
+                old_instance = Hunt.objects.get(pk=self.pk)
+                if(old_instance.is_current_hunt):
+                    raise ValidationError({'is_current_hunt': ["There must always be one current hunt",]})
+            except ObjectDoesNotExist:
+                pass
+        super(Hunt, self).clean(*args, **kwargs)
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.is_current_hunt:
+            Hunt.objects.filter(is_current_hunt=True).update(is_current_hunt=False)
+        super(Hunt, self).save(*args, **kwargs)
+
     @property
     def is_locked(self):
         return timezone.now() < self.start_date
@@ -25,7 +48,10 @@ class Hunt(models.Model):
         return timezone.now() > self.end_date
 
     def __unicode__(self):
-        return self.hunt_name
+        if(self.is_current_hunt):
+            return self.hunt_name + " (c)"
+        else:
+            return self.hunt_name
 
 class Puzzle(models.Model):
     puzzle_number = models.IntegerField()

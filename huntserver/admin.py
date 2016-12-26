@@ -14,7 +14,7 @@ class UnlockableInline(admin.TabularInline):
 class PuzzleAdmin(admin.ModelAdmin):
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "unlocks":
-            kwargs["queryset"] = models.Puzzle.objects.filter(hunt=models.Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)).order_by('puzzle_id')
+            kwargs["queryset"] = models.Puzzle.objects.filter(hunt=models.Hunt.objects.get(is_current_hunt=True)).order_by('puzzle_id')
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
     filter_horizontal = ('unlocks',)

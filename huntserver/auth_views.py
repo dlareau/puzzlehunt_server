@@ -16,7 +16,7 @@ def login_selection(request):
     return render(request, "login_selection.html", context)
 
 def create_account(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
     if request.method == 'POST':
         uf = UserForm(request.POST, prefix='user')

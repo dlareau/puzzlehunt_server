@@ -1,0 +1,33 @@
+{% extends "staff_base.html" %}
+{% block title %}Puzzle Progress{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script> {% include "js/progress.js" %} </script>
+{% endblock includes %}
+
+{% block content %}
+  <h1>Hunt Management</h1>
+  <h3> Set Current Hunt: </h3>
+  <table>
+    {% for hunt in hunts %}
+      <tr>
+        <td>{{hunt.hunt_name}}</td>
+        <td>{% if hunt.is_current_hunt%} <= Current {% endif %} </td>
+        <td><a href="/staff/control/?new_current_hunt={{hunt.hunt_number}}">Make Current Hunt</a></td>
+      </tr>
+    {% endfor %}
+  </table>
+  </br>
+  <a href="/staff/control/?reset=1" onclick="return confirm('Are you sure?')">
+    Reset All Progress
+  </a>
+  </br>
+  <a href="/staff/control/?getpuzzles=1" onclick="return confirm('Are you sure?')">
+    Fetch puzzles from URLs
+  </a>
+  </br>
+  <a href="/staff/control/?initial=1" onclick="return confirm('Are you sure?')">
+    Release Initial Puzzles
+  </a>
+{% endblock content %}

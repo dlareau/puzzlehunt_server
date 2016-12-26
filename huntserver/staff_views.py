@@ -24,7 +24,7 @@ def queue(request, page_num=1):
         return HttpResponse('success')
 
     else:
-        hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+        hunt = Hunt.objects.get(is_current_hunt=True)
         submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('-pk')
         pages = Paginator(submissions, 30)
         try:
@@ -51,7 +51,7 @@ def progress(request):
         return HttpResponse('success')
 
     else:
-        curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+        curr_hunt = Hunt.objects.get(is_current_hunt=True)
         teams = curr_hunt.team_set.all().order_by('team_name')
         puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
         # An array of solves, organized by team then by puzzle
@@ -95,7 +95,7 @@ def progress(request):
 
 @staff_member_required
 def charts(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
     puzzle_info_dicts = []
     for puzzle in puzzles:
@@ -111,7 +111,7 @@ def charts(request):
 
 @staff_member_required
 def admin_chat(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time')
     message_list = []
     for message in messages:
@@ -124,32 +124,42 @@ def admin_chat(request):
         last_pk = 0
     return render(request, 'staff_chat.html', {'messages': message_list, 'last_pk':last_pk})
 
+@staff_member_required
+def hunt_management(request):
+    hunts = Hunt.objects.all()
+    return render(request, 'hunt_management.html', {'hunts': hunts})
+
 # Not actually a page, just various control functions
 @staff_member_required
 def control(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     teams = curr_hunt.team_set.all().order_by('team_name')
-    if request.GET.get('initial'):
+    if request.GET.get('initial', None):
         for team in teams:
             unlock_puzzles(team)
-        return redirect('huntserver:progress')
-    elif request.GET.get('reset'):
+        return redirect('huntserver:hunt_management')
+    elif request.GET.get('reset', None):
         for team in teams:
             team.unlocked.clear()
             team.unlock_set.all().delete()
             team.solved.clear()
             team.solve_set.all().delete()
             team.submission_set.all().delete()
-        return redirect('huntserver:progress')
-    elif request.GET.get('getpuzzles'):
-        download_puzzles(Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM))
-        return redirect('huntserver:progress')
+        return redirect('huntserver:hunt_management')
+    elif request.GET.get('getpuzzles', None):
+        download_puzzles(Hunt.objects.get(is_current_hunt=True))
+        return redirect('huntserver:hunt_management')
+    elif request.GET.get('new_current_hunt', None):
+        new_curr = Hunt.objects.get(hunt_number=int(request.GET.get('new_current_hunt')))
+        new_curr.is_current_hunt = True;
+        new_curr.save()
+        return redirect('huntserver:hunt_management')
     else:
         return render(request, 'access_error.html')
 
 @staff_member_required
 def emails(request):
-    teams = Team.objects.filter(hunt__hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = Team.objects.filter(hunt__is_current_hunt=True)
     people = []
     for team in teams:
          people = people + list(team.person_set.all())
