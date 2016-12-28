@@ -5,7 +5,6 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 
 # Register your models here.
 import models
-from django.conf import settings
 
 class UnlockableInline(admin.TabularInline):
     model = models.Unlockable
@@ -64,3 +63,4 @@ admin.site.register(models.Solve)
 admin.site.register(models.Unlock)
 admin.site.register(models.Message)
 admin.site.register(models.Response)
+admin.site.register(models.Unlockable)
