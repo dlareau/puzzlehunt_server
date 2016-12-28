@@ -2,7 +2,8 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from .models import Solve, Unlock, Hunt, Person
 from django.utils import timezone
-from subprocess import call, check_output
+from subprocess import call
+from PyPDF2 import PdfFileReader
 import re
 
 # Automatic submission response system
@@ -87,6 +88,9 @@ def download_puzzles(hunt):
         # Get the file
         file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
         call(["wget", puzzle.link, "-O", file_str])
+        with open(file_str, "rb") as f:
+            puzzle.num_pages = PdfFileReader(f).getNumPages()
+            puzzle.save()
         call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
 
     #get document: wget {{URL}} -O {{FILENAME}}

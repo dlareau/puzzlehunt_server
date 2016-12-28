@@ -51,9 +51,13 @@
       </fieldset>
     </div>
     <div class="col-md-10 col-md-offset-1">
-      {% for i in pages %}
-      <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="No image here">
-      {% endfor %}
+      {% if pages|length == 1 %}
+        <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.png"  alt="Could not load image">
+      {% else %}
+        {% for i in pages %}
+        <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="Could not load image">
+        {% endfor %}
+      (% endif %)
     </div>
   </div>
 </div>
