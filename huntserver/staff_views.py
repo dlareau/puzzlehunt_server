@@ -34,8 +34,11 @@ def queue(request, page_num=1):
         except EmptyPage:
             submissions = pages.page(pages.num_pages)
         form = SubmissionForm()
-        context = {'form': form, 'submission_list': submissions, 'last_date':
-                   Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+        try:
+            last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except:
+            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        context = {'form': form, 'submission_list': submissions, 'last_date': last_date}
         return render(request, 'queue.html', context)
 
 @staff_member_required

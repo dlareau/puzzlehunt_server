@@ -108,9 +108,13 @@ def puzzle_view(request, puzzle_id):
         if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all())):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
+            try:
+                last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            except:
+                last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
             context = {'form': form, 'pages': range(puzzle.num_pages), 'puzzle': puzzle,
                        'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
-                       'last_date': Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}
+                       'last_date': last_date}
             return render(request, 'puzzle.html', context)
         else:
             return render(request, 'access_error.html')
