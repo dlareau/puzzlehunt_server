@@ -76,6 +76,15 @@ class Team(models.Model):
     hunt = models.ForeignKey(Hunt)
     location = models.CharField(max_length=80, blank=True)
     join_code = models.CharField(max_length=5)
+    playtester = models.BooleanField(default=False)
+
+    @property
+    def is_playtester_team(self):
+        return self.playtester
+
+    @property
+    def is_normal_team(self):
+        return (not self.playtester)
 
     def __unicode__(self):
         return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name

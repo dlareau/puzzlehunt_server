@@ -136,7 +136,10 @@ def hunt_management(request):
 @staff_member_required
 def control(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    teams = curr_hunt.team_set.all().order_by('team_name')
+    if(curr_hunt.is_open):
+        teams = curr_hunt.team_set.all().order_by('team_name')
+    else:
+        teams = currhunt.team_set.filter(playtester=True).orderby('team_name')
     if request.GET.get('initial', None):
         for team in teams:
             unlock_puzzles(team)

@@ -59,7 +59,7 @@ def hunt(request, hunt_num):
     # Hunt has started
     elif(hunt.is_open):
         # see if the team does not belong to the hunt being accessed
-        if(team == None or team.hunt != hunt):
+        if(team.is_normal_team and (team == None or team.hunt != hunt)):
             return render(request, 'not_released.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
