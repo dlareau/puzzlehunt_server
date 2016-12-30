@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import random
@@ -44,6 +43,8 @@ def registration(request):
                 return HttpResponse('fail-password')
             request.user.person.teams.add(team)
             redirect('huntserver:registration')
+
+    # TODO: move to POST as it is not idempotent
     if("leave_team" in request.GET and request.GET["leave_team"] == "1"):
         request.user.person.teams.remove(team)
         team = None

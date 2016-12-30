@@ -154,7 +154,7 @@ def chat(request):
         last_pk = Message.objects.latest('id').id
         return render(request, 'chat.html', {'messages': message_list, 'team':team, 'last_pk':last_pk})
 
-
+# TODO change to post
 @login_required
 def ajax(request, ajax_type):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)

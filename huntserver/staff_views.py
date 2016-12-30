@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.http import HttpResponse
@@ -133,13 +132,14 @@ def hunt_management(request):
     return render(request, 'hunt_management.html', {'hunts': hunts})
 
 # Not actually a page, just various control functions
+# TODO: Move to POST because definitely not idempotent.
 @staff_member_required
 def control(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if(curr_hunt.is_open):
         teams = curr_hunt.team_set.all().order_by('team_name')
     else:
-        teams = currhunt.team_set.filter(playtester=True).orderby('team_name')
+        teams = curr_hunt.team_set.filter(playtester=True).orderby('team_name')
     if request.GET.get('initial', None):
         for team in teams:
             unlock_puzzles(team)
