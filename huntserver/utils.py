@@ -71,15 +71,13 @@ def unlock_puzzles(team):
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
 
 # Runs the commands listed at the bottom for each puzzle to download the pdf
-# and convert it to PNGs. It first clears the old PNGs and PDFs.
-# Has to also get number of pages so that the whole pdf doesn't become one image
+# and convert it to PNGs. Does not provide any roll-back safety if the new PDFs
+# are bad. Has to also get number of pages for the template rendering
 def download_puzzles(hunt):
     directory = settings.MEDIA_ROOT + "puzzles"
-    # TODO: maybe move folder, see if success, then delete.
-    # maybe overwrite files with wget?
 
-    # Remove old folder
-    call(["rm", "-r", directory])
+    # TODO: check whether directory exists first and switch to using os
+    # fine for now as this is called really rarely.
     call(["mkdir", directory])
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
