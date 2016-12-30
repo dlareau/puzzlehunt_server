@@ -15,7 +15,7 @@ time_zone = tz.gettz(settings.TIME_ZONE)
 
 from .models import Puzzle, Hunt, Submission, Message, Team, Solve, Unlock, Unlockable
 from .forms import AnswerForm
-from .utils import respond_to_submission, team_from_user_hunt
+from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 
 @login_required
 def protected_static(request, file_path):
@@ -89,9 +89,23 @@ def puzzle_view(request, puzzle_id):
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
 
-    # Create submission object and then rely on puzzle.py->respond_to_submission
+    # Create submission object and then rely on utils.respond_to_submission
     # for automatic responses.
     if request.method == 'POST':
+        if(puzzle.hunt.is_public):
+            form = AnswerForm(request.POST)
+            team = dummy_team_from_hunt(puzzle.hunt)
+            if form.is_valid():
+                user_answer = form.cleaned_data['answer']
+                s = Submission.objects.create(submission_text = user_answer,
+                    puzzle = puzzle, submission_time = timezone.now(), team = team)
+                response = respond_to_submission(s)
+            else:
+                response = "Invalid Submission"
+            context = {'form': form, 'pages': range(puzzle.num_pages),
+                      'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
+                      'response': response}
+            return render(request, 'puzzle.html', context)
         if(team == None):
             return HttpResponse('fail')
         form = AnswerForm(request.POST)

@@ -3,7 +3,9 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
-<script> {% include "js/puzzle.js" %} </script>
+{% if not puzzle.hunt.is_public %}
+  <script> {% include "js/puzzle.js" %} </script>
+{% endif %}
 {% endblock includes %}
 
 {% block content %}
@@ -28,6 +30,21 @@
       </fieldset>
     </div>
     <div class="col-md-6">
+      <br>
+    {% if puzzle.hunt.is_public %}
+      <p style="width: 80%; margin: auto;"> We are sorry, previous guess viewing is not available in old puzzlehunts </p>
+      <br>
+      <div style='width: 80%; height: 40px; line-height: 40px;
+                  text-align: center; margin: auto;
+                  {% if response == "Correct!" %}
+                    background-color: lightgreen;'>
+                  {% else %}
+                    background-color: indianred;'>
+                  {% endif %}
+        {{response}}
+      </div>
+      <br>
+    {% else %}
       <fieldset id='answers'>
         <legend>Past answers (automatically updated)</legend>
         <table>
@@ -49,6 +66,7 @@
          </tbody>
        </table>
       </fieldset>
+    {% endif %}
     </div>
     <div class="col-md-10 col-md-offset-1">
       {% if pages|length == 1 %}

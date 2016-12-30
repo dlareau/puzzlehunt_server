@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from .models import Solve, Unlock, Hunt, Person
+from .models import Solve, Unlock, Hunt, Person, Team
 from django.utils import timezone
 from subprocess import call
 from PyPDF2 import PdfFileReader
@@ -13,11 +13,12 @@ import re
 def respond_to_submission(submission):
     # Compare against correct answer
     if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
-        # Make sure we don't have duplicate or after hunt submission objects
-        if((submission.puzzle not in submission.team.solved.all()) and (not submission.puzzle.hunt.is_public)):
-            Solve.objects.create(puzzle=submission.puzzle,
-                team=submission.team, submission=submission)
-            unlock_puzzles(submission.team)
+        if(not submission.puzzle.hunt.is_public):
+            # Make sure we don't have duplicate or after hunt submission objects
+            if(submission.puzzle not in submission.team.solved.all()):
+                Solve.objects.create(puzzle=submission.puzzle,
+                    team=submission.team, submission=submission)
+                unlock_puzzles(submission.team)
         response = "Correct!"
     # Answers should not contain spaces
     elif(" " in submission.submission_text):
@@ -29,9 +30,6 @@ def respond_to_submission(submission):
     else:
         for resp in submission.puzzle.response_set.all():
             res = re.match(resp.regex, submission.submission_text.lower())
-            print resp.regex
-            print submission.puzzle.answer.lower()
-            print res
             if(res):
                 response = resp.text
                 break
@@ -42,8 +40,9 @@ def respond_to_submission(submission):
     # After the hunt is over, if it's not right it's wrong.
     if(submission.puzzle.hunt.is_public):
         if(response == ""):
-            response = "wrong answer."
-        response = "Hunt is over, but " + response
+            response = "Wrong Answer."
+        # Taken out for now due to previous hunt implementation
+        #response = "Hunt is over, but " + response
 
     submission.response_text = response
     submission.save()
@@ -128,6 +127,14 @@ def build_shib_url(request, target, entityid=None):
     if entityid:
         url += '&entityID=%s' % entityid
     return url
+
+def dummy_team_from_hunt(hunt):
+    try:
+        team = Team.objects.get(hunt=hunt, location="DUMMY")
+    except:
+        team = Team.objects.create(team_name=hunt.hunt_name+"_DUMMY", hunt=hunt,
+                    location="DUMMY", join_code="WRONG")
+    return team
 
 def team_from_user_hunt(user, hunt):
     if(user.is_anonymous()):
