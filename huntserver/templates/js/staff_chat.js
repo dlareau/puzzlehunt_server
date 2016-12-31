@@ -51,7 +51,7 @@
       if($("#chat_"+ message.team_pk).length == 0){
         $("#chatcontainer").append("<div id='chat_" + message.team_pk + "'  class='chatwindow'>");
         var b = "<button data-id='" + message.team_pk + "'class='chatselect'>";
-        $("#chatcontainer").prepend(b + message.team_name + "</button>");
+        $("#button_container").append(b + message.team_name + "</button>");
         map_buttons();
       }
       var message_window = $("#chat_" + message.team_pk);

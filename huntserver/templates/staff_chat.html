@@ -14,7 +14,7 @@
   {% regroup messages|dictsort:"team.name.lower" by team as team_messages %}
   <div class="container">
     <div class="row">
-      <div class="content col-sm-3 col-md-2">
+      <div id="button_container" class="content col-sm-3 col-md-2">
         {% for group in team_messages %}
           <button data-id='{{ group.grouper.pk }}' class="chatselect">
             {{ group.grouper.name|truncatechars:20 }}
