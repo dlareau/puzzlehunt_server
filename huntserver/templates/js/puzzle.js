@@ -1,24 +1,41 @@
 jQuery(document).ready(function($) {
   last_date = '{{last_date}}';
-  var get_posts = function() {
-    $.ajax({
-      type: 'get',
-      url: "/ajax/submission",
-      data: {last_date: last_date},
-      success: function (response) {
-        var messages = JSON.parse(response);
-        if(messages.length > 0){
-          for (var i = 0; i < messages.length-1; i++) {
-            receiveMessage(messages[i]);
-          };
-          console.log(messages[messages.length-1]);
-          last_date = messages[messages.length-1];
-        }
-      },
-      error: function (html) {
-        console.log(html);
+  function is_visible(){
+    var stateKey, keys = {
+      hidden: "visibilitychange",
+      webkitHidden: "webkitvisibilitychange",
+      mozHidden: "mozvisibilitychange",
+      msHidden: "msvisibilitychange"
+    };
+    for (stateKey in keys) {
+      if (stateKey in document) {
+        return !document[stateKey];
       }
-    });
+    }
+    return true;
+  }
+
+  var get_posts = function() {
+    if(is_visible()){
+      $.ajax({
+        type: 'get',
+        url: "/ajax/submission",
+        data: {last_date: last_date},
+        success: function (response) {
+          var messages = JSON.parse(response);
+          if(messages.length > 0){
+            for (var i = 0; i < messages.length-1; i++) {
+              receiveMessage(messages[i]);
+            };
+            console.log(messages[messages.length-1]);
+            last_date = messages[messages.length-1];
+          }
+        },
+        error: function (html) {
+          console.log(html);
+        }
+      });
+    }
   }
   setInterval(get_posts, 3000);
 

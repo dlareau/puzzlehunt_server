@@ -10,28 +10,45 @@ $(document).ready(function() {
   recolor();
   setInterval(recolor, 5000);
 
+  function is_visible(){
+    var stateKey, keys = {
+      hidden: "visibilitychange",
+      webkitHidden: "webkitvisibilitychange",
+      mozHidden: "mozvisibilitychange",
+      msHidden: "msvisibilitychange"
+    };
+    for (stateKey in keys) {
+      if (stateKey in document) {
+        return !document[stateKey];
+      }
+    }
+    return true;
+  }
+
   last_solve_pk = {{last_solve_pk}};
   last_unlock_pk = {{last_unlock_pk}};
   var get_posts = function() {
-    $.ajax({
-      type: 'get',
-      url: "/ajax/progress",
-      data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk},
-      success: function (response) {
-        var messages = JSON.parse(response);
-        console.log(messages);
-        if(messages.length > 0){
-          for (var i = 0; i < messages.length-2; i++) {
-            receiveMessage(messages[i]);
-          };
-          last_solve_pk = messages[messages.length-2];
-          last_unlock_pk = messages[messages.length-1];
+    if(is_visible()){
+      $.ajax({
+        type: 'get',
+        url: "/ajax/progress",
+        data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk},
+        success: function (response) {
+          var messages = JSON.parse(response);
+          console.log(messages);
+          if(messages.length > 0){
+            for (var i = 0; i < messages.length-2; i++) {
+              receiveMessage(messages[i]);
+            };
+            last_solve_pk = messages[messages.length-2];
+            last_unlock_pk = messages[messages.length-1];
+          }
+        },
+        error: function (html) {
+          console.log(html);
         }
-      },
-      error: function (html) {
-        console.log(html);
-      }
-    });
+      });
+    }
   }
   setInterval(get_posts, 3000);
 

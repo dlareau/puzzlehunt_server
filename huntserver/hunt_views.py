@@ -75,7 +75,7 @@ def hunt(request, hunt_num):
         solved = []
     else:
         solved = team.solved.all()
-    context = {'puzzles': puzzles, 'team': team, 'solved': solved}
+    context = {'hunt': hunt, 'puzzles': puzzles, 'team': team, 'solved': solved}
 
     # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
     return render(request, 'hunt' + str(hunt_num) + '.html', context)
@@ -158,6 +158,7 @@ def chat(request):
         return render(request, 'chat.html', {'messages': message_list, 'team':team, 'last_pk':last_pk})
 
 
+# AJAX locations: staff chat, chat, puzzle page, queue page, progress page
 @login_required
 def ajax(request, ajax_type):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)

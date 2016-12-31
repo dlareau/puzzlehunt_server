@@ -30,7 +30,7 @@ class TeamAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Team
-        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location', 'join_code']
+        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location', 'join_code', 'playtester']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)
