@@ -151,7 +151,10 @@ def chat(request):
         for message in messages:
             message_list.append({'time': message.time, 'text':message.text,
                 'team':message.team, 'is_response': message.is_response})
-        last_pk = Message.objects.latest('id').id
+        try:
+            last_pk = Message.objects.latest('id').id
+        except Message.DoesNotExist:
+            last_pk = 0
         return render(request, 'chat.html', {'messages': message_list, 'team':team, 'last_pk':last_pk})
 
 
