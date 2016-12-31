@@ -131,37 +131,36 @@ def hunt_management(request):
     hunts = Hunt.objects.all()
     return render(request, 'hunt_management.html', {'hunts': hunts})
 
-# Not actually a page, just various control functions
-# TODO: Move to POST because definitely not idempotent.
 @staff_member_required
 def control(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if(curr_hunt.is_open):
         teams = curr_hunt.team_set.all().order_by('team_name')
     else:
-        teams = curr_hunt.team_set.filter(playtester=True).orderby('team_name')
-    if request.GET.get('initial', None):
-        for team in teams:
-            unlock_puzzles(team)
-        return redirect('huntserver:hunt_management')
-    elif request.GET.get('reset', None):
-        for team in teams:
-            team.unlocked.clear()
-            team.unlock_set.all().delete()
-            team.solved.clear()
-            team.solve_set.all().delete()
-            team.submission_set.all().delete()
-        return redirect('huntserver:hunt_management')
-    elif request.GET.get('getpuzzles', None):
-        download_puzzles(Hunt.objects.get(is_current_hunt=True))
-        return redirect('huntserver:hunt_management')
-    elif request.GET.get('new_current_hunt', None):
-        new_curr = Hunt.objects.get(hunt_number=int(request.GET.get('new_current_hunt')))
-        new_curr.is_current_hunt = True;
-        new_curr.save()
-        return redirect('huntserver:hunt_management')
-    else:
-        return render(request, 'access_error.html')
+        teams = curr_hunt.team_set.filter(playtester=True).order_by('team_name')
+    if(request.method == 'POST' and "action" in request.POST):
+        if(request.POST["action"] == "initial"):
+            for team in teams:
+                unlock_puzzles(team)
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "reset"):
+            for team in teams:
+                team.unlocked.clear()
+                team.unlock_set.all().delete()
+                team.solved.clear()
+                team.solve_set.all().delete()
+                team.submission_set.all().delete()
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "getpuzzles"):
+            download_puzzles(Hunt.objects.get(is_current_hunt=True))
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "new_current_hunt"):
+            new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
+            new_curr.is_current_hunt = True;
+            new_curr.save()
+            return redirect('huntserver:hunt_management')
+        else:
+            return render(request, 'access_error.html')
 
 @staff_member_required
 def emails(request):

@@ -14,20 +14,36 @@
       <tr>
         <td>{{hunt.hunt_name}}</td>
         <td>{% if hunt.is_current_hunt%} <= Current {% endif %} </td>
-        <td><a href="/staff/control/?new_current_hunt={{hunt.hunt_number}}">Make Current Hunt</a></td>
+        <td>
+          <form method="Post" action="/staff/control/">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="new_current_hunt">
+            <input type="hidden" name="hunt_num" value="{{hunt.hunt_number}}">
+            <input type="submit" value="Set as Current">
+          </form>
+        </td>
       </tr>
     {% endfor %}
   </table>
   </br>
-  <a href="/staff/control/?reset=1" onclick="return confirm('Are you sure?')">
-    Reset All Progress
-  </a>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="reset">
+    <input type="submit" value="Reset All Progress"
+           onclick="return confirm('Are you sure?')">
+  </form>
   </br>
-  <a href="/staff/control/?getpuzzles=1" onclick="return confirm('Are you sure?')">
-    Fetch puzzles from URLs
-  </a>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="getpuzzles">
+    <input type="submit" value="Fetch puzzles from URLs"
+           onclick="return confirm('Are you sure?')">
+  </form>
   </br>
-  <a href="/staff/control/?initial=1" onclick="return confirm('Are you sure?')">
-    Release Initial Puzzles
-  </a>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="initial">
+    <input type="submit" value="Release Initial Puzzles"
+           onclick="return confirm('Are you sure?')">
+  </form>
 {% endblock content %}

@@ -44,9 +44,11 @@
       </ul>
       <br>
       <br>
-      <a href="/registration/?leave_team=1" onclick="return confirm('Are you sure?')">
-        Remove me from this team
-      </a>
+      <form method="Post" action="#">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="leave_team">
+        <input type="submit" value="Remove me from this team" onclick="return confirm('Are you sure?')">
+      </form>
     </p>
   {% else %}
     </div>
