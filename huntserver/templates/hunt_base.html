@@ -12,6 +12,17 @@
     <li class='{% active_page request "index" %}'><a href="{% url 'huntserver:index' %}"> Main Site </a></li>
 {% endblock %}
 
+{% block content_wrapper %}
+<div class="container" >
+  <div class="row" >
+    <div class="content col-md-12" style="padding: 10px;">
+   	  <p>This is an archived Puzzlehunt. All parts may not work properly. We apologize for any issues you encounter.</p>
+    </div>
+  </div>
+</div>
+{% block content %} {% endblock content %}
+{% endblock content_wrapper %}
+
 {% block footer %}
 <div id='footer'>
   Brought to you by <a href="https://www.facebook.com/groups/puzzlehuntCMU">PuzzlehuntCMU</a>.

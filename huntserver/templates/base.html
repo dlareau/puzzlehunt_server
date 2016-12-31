@@ -56,7 +56,9 @@
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
+    {% block content_wrapper %}
     {% block content %} {% endblock content %}
+    {% endblock content_wrapper %}
     {% block footer %}
       <div id='footer'>
         <p> 
