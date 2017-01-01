@@ -13,19 +13,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 from secret_settings import *
 
-""" PLEASE UPDATE BEFORE STARTING HUNT DEVELOPMENT """
-CURRENT_HUNT_NUM = 4
-
-""" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! """
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Key now in file not tracked by git
@@ -34,8 +25,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # Application definition
 
@@ -82,19 +71,23 @@ TEMPLATES = [
     },
 ]
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
+if DEBUG:
+    TEMPLATE_LOADERS = (
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    )
+else:
+    TEMPLATE_LOADERS = (
+        ('django.template.loaders.cached.Loader', (
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        )),
+    )  
 
 WSGI_APPLICATION = 'puzzlehunt_server.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
 # Database information now in file not tracked by git
-
 
 # Login redirect override from /accounts/profile/ to /
 
@@ -122,6 +115,8 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = '/media/'
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
