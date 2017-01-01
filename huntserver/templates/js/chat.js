@@ -1,25 +1,41 @@
 $(document).ready(function() {
 
+  function is_visible(){
+    var stateKey, keys = {
+      hidden: "visibilitychange",
+      webkitHidden: "webkitvisibilitychange",
+      mozHidden: "mozvisibilitychange",
+      msHidden: "msvisibilitychange"
+    };
+    for (stateKey in keys) {
+      if (stateKey in document) {
+        return !document[stateKey];
+      }
+    }
+    return true;
+  }
 
   last_pk = {{last_pk}};
   var get_posts = function() {
-    $.ajax({
-      type: 'get',
-      url: "/ajax/message",
-      data: {last_pk: last_pk},
-      success: function (response) {
-        var messages = JSON.parse(response);
-        if(messages.length > 0){
-          for (var i = 0; i < messages.length-1; i++) {
-            receiveMessage(messages[i]);
-          };
-          last_pk = messages[messages.length-1];
+    if(is_visible()){
+      $.ajax({
+        type: 'get',
+        url: "/ajax/message",
+        data: {last_pk: last_pk},
+        success: function (response) {
+          var messages = JSON.parse(response);
+          if(messages.length > 0){
+            for (var i = 0; i < messages.length-1; i++) {
+              receiveMessage(messages[i]);
+            };
+            last_pk = messages[messages.length-1];
+          }
+        },
+        error: function (html) {
+          console.log(html);
         }
-      },
-      error: function (html) {
-        console.log(html);
-      }
-    });
+      });
+    }
   }
   setInterval(get_posts, 3000);
 

@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block content_wrapper %}
+{% if hunt.is_public or puzzle.hunt.is_public %}
 <div class="container" >
   <div class="row" >
     <div class="content col-md-12" style="padding: 10px;">
@@ -20,6 +21,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% block content %} {% endblock content %}
 {% endblock content_wrapper %}
 
