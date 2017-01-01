@@ -35,6 +35,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -45,9 +47,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'huntserver',
+    'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
