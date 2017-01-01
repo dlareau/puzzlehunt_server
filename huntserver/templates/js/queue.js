@@ -70,7 +70,7 @@ $(document).ready(function() {
       response = "<a href='#' class='needs-response'>[manual response]</a>\n" +
             "<a href='#' class='canned-response'>[canned response]</a>\n" + form;
     } else {
-      if(submission['response_text'] == 'Correct!') {
+      if(submission['is_correct']) {
         row_class = "correct";
       } else {
         row_class = "incorrect-replied";
@@ -104,7 +104,7 @@ $(document).ready(function() {
   function receiveMessage(submission) {
     var row = rowFromSubmission(submission);
     if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
-      if(submission['response_text'] != 'Correct!') {
+      if(!submission['is_correct']) {
         flashing = !focused;
         $('audio')[0].play();
       }

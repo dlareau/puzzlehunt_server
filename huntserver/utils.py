@@ -11,6 +11,12 @@ import re
 # Returning an empty string means that huntstaff should respond via the queue
 # Currently only stops spaces and underscores.
 def respond_to_submission(submission):
+    # Check against regexes
+    regex_response = ""
+    for resp in submission.puzzle.response_set.all():
+        if(re.match(resp.regex, submission.submission_text.lower())):
+            regex_response = resp.text
+            break
     # Compare against correct answer
     if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
         if(not submission.puzzle.hunt.is_public):
@@ -19,7 +25,10 @@ def respond_to_submission(submission):
                 Solve.objects.create(puzzle=submission.puzzle,
                     team=submission.team, submission=submission)
                 unlock_puzzles(submission.team)
-        response = "Correct!"
+        if(regex_response != ""):
+            response = regex_response
+        else:
+            response = "Correct!"
     # Answers should not contain spaces
     elif(" " in submission.submission_text):
         response = "Invalid answer (spaces)"
@@ -28,12 +37,8 @@ def respond_to_submission(submission):
         response = "Invalid answer (underscores)"
     # Check against all expected answers and respond appropriately
     else:
-        for resp in submission.puzzle.response_set.all():
-            res = re.match(resp.regex, submission.submission_text.lower())
-            if(res):
-                response = resp.text
-                break
-        # Let staff respond to everything else
+        if(regex_response != ""):
+            response = regex_response
         else:
             response = ""
 

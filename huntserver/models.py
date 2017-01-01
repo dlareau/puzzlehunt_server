@@ -112,6 +112,10 @@ class Submission(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     modified_date = models.DateTimeField()
 
+    @property
+    def is_correct(self):
+        return self.submission_text.lower() == self.puzzle.answer.lower()
+
     def save(self, *args, **kwargs):
         self.modified_date = timezone.now()
         super(Submission,self).save(*args, **kwargs)
@@ -160,6 +164,9 @@ class Unlockable(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     content_type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='TXT')
     content = models.CharField(max_length=500)
+
+    def __unicode__(self):
+        return "%s (%s)" % (self.puzzle.puzzle_name, self.content_type)
     
 class Response(models.Model):
     puzzle = models.ForeignKey(Puzzle)

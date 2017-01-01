@@ -26,7 +26,7 @@
     <tr class="
     {% if submission.response_text == '' %}
       incorrect-unreplied 
-    {% elif submission.response_text == 'Correct!' %} 
+    {% elif submission.is_correct %}
       correct 
     {% else %}
       incorrect-replied 

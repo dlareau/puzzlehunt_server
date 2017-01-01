@@ -205,6 +205,7 @@ def ajax(request, ajax_type):
                 modelJSON = json.loads(serializers.serialize("json", [results[i]]))[0]
                 message = modelJSON['fields']
                 message['response_text'] = escape(message['response_text'])
+                message['is_correct'] = results[i].is_correct
                 message['puzzle'] = results[i].puzzle.puzzle_id
                 message['puzzle_name'] = results[i].puzzle.puzzle_name
                 message['team'] = results[i].team.team_name
