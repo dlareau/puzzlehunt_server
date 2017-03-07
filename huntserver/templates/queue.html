@@ -4,7 +4,10 @@
 {% block includes %} 
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
   <script src="{{ STATIC_URL }}js.cookie.js"></script>
-  <script> {% include "js/queue.js" %} </script>
+  <script>
+    last_date = '{{last_date}}';
+  </script>
+  <script src="{{ STATIC_URL }}huntserver/queue.js"></script>
 {% endblock includes %}
 
 {% block content %}
@@ -23,36 +26,7 @@
 
   <tbody id='sub_table'>
     {% for submission in submission_list %}
-    <tr class="
-    {% if submission.response_text == '' %}
-      incorrect-unreplied 
-    {% elif submission.is_correct %}
-      correct 
-    {% else %}
-      incorrect-replied 
-    {% endif %} submission" data-id='{{ submission.pk }}'>
-      <td>{{ submission.team.team_name }}</td>
-      <td>{{ submission.puzzle.puzzle_name }}</td>
-      <td>{{ submission.submission_text }}</td>
-      <td>{{ submission.submission_time|time:"h:i a" }}</td>
-      <td>
-        {% if submission.response_text == '' %}
-          <a href='#' class='needs-response'>[manual response]</a>
-          <a href='#' class='canned-response'>[canned response]</a>
-        {% else%}
-          Response: {{submission.response_text}} <a href='#' class='needs-response'>Fix</a>
-        {% endif  %}
-        <form class='sub_form' action="/staff/queue/" method="post" style="display:none">
-          {% csrf_token %}
-          <p>
-            <input id='id_response' maxlength='400' name='response' type='text' 
-              value='{% if submission.response_text == '' %}Wrong answer{% else %}{{submission.response_text}}{% endif %}'>
-            <input type="hidden" name="sub_id" value="{{ submission.pk }}">
-            <input type="Submit" value="Send Response"/>
-          </p>
-        </form>
-      </td>
-    </tr>
+      {{ submission }}
     {% endfor %}
   </tbody>
 </table>
@@ -61,16 +35,16 @@
 
 <div class="pagination">
     <span class="step-links">
-        {% if submission_list.has_previous %}
-            <a href="/staff/queue/{{ submission_list.previous_page_number }}">Previous</a>
+        {% if page_info.has_previous %}
+            <a href="/staff/queue/{{ page_info.previous_page_number }}">Previous</a>
         {% endif %}
 
         <span class="current">
-            Page {{ submission_list.number }} of {{ submission_list.paginator.num_pages }}.
+            Page {{ page_info.number }} of {{ page_info.paginator.num_pages }}.
         </span>
 
-        {% if submission_list.has_next %}
-            <a href="/staff/queue/{{ submission_list.next_page_number }}">Next</a>
+        {% if page_info.has_next %}
+            <a href="/staff/queue/{{ page_info.next_page_number }}">Next</a>
         {% endif %}
     </span>
 </div>

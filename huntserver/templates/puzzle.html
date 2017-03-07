@@ -4,7 +4,11 @@
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
 {% if not puzzle.hunt.is_public %}
-  <script> {% include "js/puzzle.js" %} </script>
+<script type="text/javascript">
+    last_date = '{{last_date}}';
+    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}'
+</script>
+<script src="{{ STATIC_URL }}huntserver/puzzle.js"></script>
 {% endif %}
 {% endblock includes %}
 
@@ -59,11 +63,7 @@
           </thead>
           <tbody id='sub_table'>
             {% for submission in submission_list reversed%}
-            <tr data-id='{{submission.pk}}'>
-             <td>{{ submission.submission_time|time:"h:i a" }}</td>
-             <td>{{ submission.submission_text }} </td>
-             <td>{{ submission.response_text }}</td>
-           </tr>
+            {% include "puzzle_sub_row.html" %}
            {% endfor %}
          </tbody>
        </table>

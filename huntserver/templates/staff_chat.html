@@ -3,40 +3,41 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
-<script> {% include "js/staff_chat.js" %} </script>
+<script type="text/javascript">
+  csrf_token = '{{csrf_token}}';
+  last_pk = {{last_pk}};
+  curr_team = "";
+  is_response = true;
+  ajax_url = "/staff/chat/"
+</script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
 <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
 <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
+<script src="{{ STATIC_URL }}huntserver/staff_chat.js"></script>
+<script src="{{ STATIC_URL }}huntserver/chat.js"></script>
 <style> body{ font-family: verdana; } h1 { font-size: 2em; font-weight: bold}</style>
 {% endblock includes %}
 
 {% block content %}
   <h1> Staff Chat </h1>
-  {% regroup messages|dictsort:"team.name.lower" by team as team_messages %}
   <div class="container">
     <div class="row">
       <div id="button_container" class="content col-sm-3 col-md-2">
-        {% for group in team_messages %}
-          <button data-id='{{ group.grouper.pk }}' class="chatselect">
-            {{ group.grouper.name|truncatechars:20 }}
+        {% for team, dict in message_dict.items %}
+          <button data-id='{{ dict.pk }}' class="chatselect">
+            {{ team|truncatechars:20 }}
           </button>
           <br>
         {% endfor %}
       </div>
       <div class="content col-sm-9 col-md-10">
         <div id="chatcontainer">
-          {% for group in team_messages %}
-            <div id='chat_{{ group.grouper.pk }}' class="chatwindow">
-              {% for message in group.list %}
-                {% if message.is_response %}
-                  <div style='white-space:pre-wrap; color:red;'>Admin     : {{ message.text }}</div>
-                {% else %}
-                  <div style='white-space:pre-wrap;'>{{ group.grouper.name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
-                {% endif %}
-              {% endfor %}
+          {% for team, dict in message_dict.items %}
+            <div id='chat_{{ dict.pk }}' class="chatwindow">
+              {{dict.messages}}
             </div>
           {% endfor %}
-        </div>
+          </div>
         <div style="margin-top: 10px">
           <input id="messagebox" typpe='text'> </input>
           <button id="sendbutton">Send</button>

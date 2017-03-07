@@ -42,7 +42,6 @@ urlpatterns = [
     url(r'^chat/$',  hunt_views.chat, name='chat'),
     url(r'^objects/$', hunt_views.unlockables, name='unlockables'),
     url(r'^protected/(?P<file_path>.+)$', hunt_views.protected_static, name='protected_static'),
-    url(r'^ajax/(?P<ajax_type>.+)$', hunt_views.ajax, name='ajax'),
 
     # Staff pages
     url(r'^staff/', include([

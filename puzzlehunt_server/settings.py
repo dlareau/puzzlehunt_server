@@ -26,6 +26,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+from fnmatch import fnmatch
+class globlist(list):
+    def __contains__(self, key):
+        for pat in self:
+            if fnmatch(key, pat): return True
+        return False
+# Put the whole internal range as internal ips
+INTERNAL_IPS = globlist(['128.237.*.*', '128.2.*.*'])
+
 # Application definition
 
 INSTALLED_APPS = (

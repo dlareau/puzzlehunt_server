@@ -3,6 +3,11 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import transaction
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.utils.html import escape
+from django.utils.dateformat import DateFormat
+from dateutil import tz
+from django.conf import settings
+time_zone = tz.gettz(settings.TIME_ZONE)
 
 # Create your models here.
 class Hunt(models.Model):
@@ -63,8 +68,14 @@ class Puzzle(models.Model):
     unlocks = models.ManyToManyField("self", blank=True, symmetrical=False)
     hunt = models.ForeignKey(Hunt)
     num_pages = models.IntegerField()
-    #Reward upon completion? 
     
+    def serialize_for_ajax(self):
+        message = dict()
+        message['id'] = self.puzzle_id
+        message['number'] = self.puzzle_number
+        message['name'] = self.puzzle_name
+        return message
+
     def __unicode__(self):
         return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
     
@@ -112,6 +123,18 @@ class Submission(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     modified_date = models.DateTimeField()
 
+    def serialize_for_ajax(self):
+        message = dict()
+        df = DateFormat(self.submission_time.astimezone(time_zone))
+        message['time_str'] = df.format("h:i a")
+        message['submission_text'] = escape(self.submission_text)
+        message['response_text'] = escape(self.response_text)
+        message['is_correct'] = self.is_correct
+        message['puzzle'] = self.puzzle.serialize_for_ajax()
+        message['team'] = self.team.team_name
+        message['pk'] = self.pk
+        return message
+
     @property
     def is_correct(self):
         return self.submission_text.lower() == self.puzzle.answer.lower()
@@ -130,6 +153,21 @@ class Solve(models.Model):
 
     class Meta:
         unique_together = ('puzzle', 'team',)
+
+    def serialize_for_ajax(self):
+        message = dict()
+        message['puzzle'] = self.puzzle.serialize_for_ajax()
+        message['team_pk'] = self.team.pk
+        try:
+            # Will fail if there is more than one solve per team/puzzle pair
+            # That should be impossible, but lets not crash because of it
+            time = self.submission.submission_time
+            df = DateFormat(time.astimezone(time_zone))
+            message['time_str'] = df.format("h:i a")
+        except:
+            message['time_str'] = "0:00 am"
+        message['status_type'] = "solve"
+        return message
     
     def __unicode__(self):
         return self.team.team_name + " => " + self.puzzle.puzzle_name
@@ -142,6 +180,13 @@ class Unlock(models.Model):
     class Meta:
         unique_together = ('puzzle', 'team',)
     
+    def serialize_for_ajax(self):
+        message = dict()
+        message['puzzle'] = self.puzzle.serialize_for_ajax()
+        message['team_pk'] = self.team.pk
+        message['status_type'] = "unlock"
+        return message
+
     def __unicode__(self):
         return self.team.team_name + ": " + self.puzzle.puzzle_name
 
@@ -152,7 +197,7 @@ class Message(models.Model):
     time = models.DateTimeField()
 
     def __unicode__(self):
-        return self.team.team_name + ": " + self.text
+        return unicode(self.team.team_name + ": " + self.text)
 
 class Unlockable(models.Model):
     TYPE_CHOICES = (

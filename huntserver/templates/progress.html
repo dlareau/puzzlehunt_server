@@ -3,7 +3,11 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
-<script> {% include "js/progress.js" %} </script>
+<script type="text/javascript">
+  last_solve_pk = {{last_solve_pk}};
+  last_unlock_pk = {{last_unlock_pk}};
+</script>
+<script src="{{ STATIC_URL }}huntserver/progress.js"></script>
 {% endblock includes %}
 
 {% block content %}

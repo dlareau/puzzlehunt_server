@@ -3,7 +3,14 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
-<script> {% include "js/chat.js" %} </script>
+<script type="text/javascript">
+  csrf_token = '{{csrf_token}}';
+  last_pk = {{last_pk}};
+  curr_team = {% for team, dict in message_dict.items %} {{dict.pk}} {% endfor %};
+  is_response = false;
+  ajax_url = "/chat/"
+</script>
+<script src="{{ STATIC_URL }}huntserver/chat.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
 {% endblock includes %}
 
@@ -13,12 +20,10 @@
     <div class="col-md-12 content">
       <h1> Chat with staff </h1>
       <div id="chatcontainer">
-        {% for message in messages %}
-          {% if message.is_response %}
-            <div style='white-space:pre-wrap; color:red;'>Admin     : {{ message.text }}</div>
-          {% else %}
-            <div style='white-space:pre-wrap;'>{{ team.team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
-          {% endif %}
+        {% for team, dict in message_dict.items %}
+          <div id='chat_{{dict.pk}}' data-id='{{dict.pk}}'>
+            {{dict.messages}}
+          </div>
         {% endfor %}
       </div>
       <div style="margin-top: 10px">
