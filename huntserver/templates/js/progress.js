@@ -25,23 +25,22 @@ $(document).ready(function() {
     return true;
   }
 
-  last_solve_pk = {{last_solve_pk}};
-  last_unlock_pk = {{last_unlock_pk}};
   var get_posts = function() {
     if(is_visible()){
       $.ajax({
         type: 'get',
-        url: "/ajax/progress",
+        url: "/staff/progress",
         data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk},
         success: function (response) {
-          var messages = JSON.parse(response);
-          console.log(messages);
+          var response = JSON.parse(response);
+          messages = response.messages
           if(messages.length > 0){
-            for (var i = 0; i < messages.length-2; i++) {
+            for (var i = 0; i < messages.length; i++) {
               receiveMessage(messages[i]);
+              console.log(messages[i]);
             };
-            last_solve_pk = messages[messages.length-2];
-            last_unlock_pk = messages[messages.length-1];
+            last_solve_pk = response.update_info[0];
+            last_unlock_pk = response.update_info[1];
           }
         },
         error: function (html) {
@@ -67,7 +66,7 @@ $(document).ready(function() {
   });
 
   function receiveMessage(update) {
-    $td = $("#p" + update.puzzle_id + "t" + update.team_pk);
+    $td = $("#p" + update.puzzle.id + "t" + update.team_pk);
     if(update.status_type == "solve"){
       $td.removeClass();
       $td.addClass('solved');

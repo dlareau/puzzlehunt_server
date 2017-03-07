@@ -26,20 +26,19 @@ $(document).ready(function() {
     }
   }, 1000);
 
-  last_date = '{{last_date}}';
   var get_posts = function() {
     $.ajax({
       type: 'get',
-      url: "/ajax/submission",
+      url: "/staff/queue",
       data: {last_date: last_date, all: true},
       success: function (response) {
-        console.log(response);
-        var messages = JSON.parse(response);
+        var response = JSON.parse(response);
+        messages = response.submission_list;
         if(messages.length > 0){
-          for (var i = 0; i < messages.length-1; i++) {
+          for (var i = 0; i < messages.length; i++) {
             receiveMessage(messages[i]);
           };
-          last_date = messages[messages.length-1];
+          last_date = response.last_date;
         }
       },
       error: function (html) {
@@ -49,69 +48,36 @@ $(document).ready(function() {
   }
   setInterval(get_posts, 3000);
 
-
-  function rowFromSubmission(submission){
-    var row_class, response;
-    if(submission['response_text'] == '') {
-      form_text = "Wrong Answer";
-    } else {
-      form_text = submission['response_text'];
-    }
-    form = "<form class='sub_form' action='/staff/queue/' method='post' style='display:none'>\n" +
-              "<input type='hidden' name='csrfmiddlewaretoken' value='" + Cookies.get('csrftoken') + "'>\n" +
-              "<p>\n" +
-                "<input id='id_response' maxlength='400' name='response' type='text' value='" + form_text + "'>\n" +
-                "<input type='hidden' name='sub_id' value='" + submission['pk'] + "'>\n" +
-                "<input type='Submit' value='Send Response'/>\n" +
-              "</p>\n" +
-            "</form>";
-    if(submission['response_text'] == '') {
-      row_class = "incorrect-unreplied";
-      response = "<a href='#' class='needs-response'>[manual response]</a>\n" +
-            "<a href='#' class='canned-response'>[canned response]</a>\n" + form;
-    } else {
-      if(submission['is_correct']) {
-        row_class = "correct";
-      } else {
-        row_class = "incorrect-replied";
-      }
-      response = "Response: " + submission['response_text'];
-    }
-
-    var row = $("<tr data-id='" + submission['pk'] + "' class='" +
-          row_class +  "'> </tr>");
-    var col1 = $("<td> " + submission['team'] + " </td>");
-    var col2 = $("<td> " + submission['puzzle_name'] + " </td>");
-    var col3 = $("<td> " + submission['submission_text'] + " </td>");
-    var col4 = $("<td> " + submission['time_str'] + " </td>");
-    var col5 = $("<td> " + response + " <a href='#' class='needs-response'>Fix</a>" + form + " </td>");
-    row.append(col1,col2,col3,col4,col5);
-    return row;
-  }
-
   function formListener(e) {
     e.preventDefault();
+    old_row = $(this).parent().parent();
     $.ajax({
       url : $(this).attr('action') || window.location.pathname,
       type: "POST",
       data: $(this).serialize(),
+      success: function (response) {
+        response = JSON.parse(response);
+        old_row.replaceWith($(response.submission_list[0]));
+        $('.sub_form').on('submit', formListener);
+      },
       error: function (jXHR, textStatus, errorThrown) {
-        alert(errorThrown);
+        console.log(jXHR);
       }
     });
   }
 
   function receiveMessage(submission) {
-    var row = rowFromSubmission(submission);
-    if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
-      if(!submission['is_correct']) {
+    submission = $(submission);
+    pk = submission.data('id');
+    if ($('tr[data-id=' + pk + ']').length == 0) {
+      if(!submission.hasClass('correct')) {
         flashing = !focused;
         $('audio')[0].play();
       }
-      row.prependTo("#sub_table");
+      submission.prependTo("#sub_table");
       $('#sub_table tr:last').remove();
     } else {
-      $('tr[data-id=' + submission['pk'] + ']').replaceWith(row);
+      $('tr[data-id=' + pk + ']').replaceWith(submission);
     }
     $('.sub_form').on('submit', formListener);
   }
