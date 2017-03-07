@@ -3,6 +3,14 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript">
+  csrf_token = '{{csrf_token}}';
+  last_pk = {{last_pk}};
+  curr_team = {% for team, dict in message_dict.items %} {{dict.pk}} {% endfor %};
+  is_response = false;
+  ajax_url = "/chat/"
+</script>
+<script src="{{ STATIC_URL }}huntserver/chat.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
 {% endblock includes %}
 
@@ -12,12 +20,10 @@
     <div class="col-md-12 content">
       <h1> Chat with staff </h1>
       <div id="chatcontainer">
-        {% for message in messages %}
-          {% if message.is_response %}
-            <div style='white-space:pre-wrap; color:red;'>Admin     : {{ message.text }}</div>
-          {% else %}
-            <div style='white-space:pre-wrap;'>{{ team.team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
-          {% endif %}
+        {% for team, dict in message_dict.items %}
+          <div id='chat_{{dict.pk}}' data-id='{{dict.pk}}'>
+            {{dict.messages}}
+          </div>
         {% endfor %}
       </div>
       <div style="margin-top: 10px">
@@ -27,62 +33,4 @@
     </div>
   </div>
 </div>
-  <script type='text/javascript'>
-  $(document).ready(function() {
-    last_pk = {{last_pk}};
-    var get_posts = function() {
-      $.ajax({
-        type: 'get',
-        url: "/ajax/message",
-        data: {last_pk: last_pk},
-        success: function (response) {
-          var messages = JSON.parse(response);
-          if(messages.length > 0){
-            for (var i = 0; i < messages.length-1; i++) {
-              receiveMessage(messages[i]);
-            };
-            last_pk = messages[messages.length-1];
-          }
-        },
-        error: function (html) {
-          console.log(html);
-        }
-      });
-    }
-    setInterval(get_posts, 3000);
-
-    $('#sendbutton').click(function() {
-      data = {team_pk: {{ team.pk }}, message: $('#messagebox').val(), 
-              is_response: false, csrfmiddlewaretoken: '{{ csrf_token }}'};
-      jQuery.post("/chat/", data);
-      $('#messagebox').val('');
-    });
-    $(document).on("keypress", "#messagebox", function(e) {
-      if (e.which == 13) {
-        data = {team_pk: {{ team.pk }}, message: $('#messagebox').val(),
-                is_response: false, csrfmiddlewaretoken: '{{ csrf_token }}'};
-        jQuery.post("/chat/", data);
-        $('#messagebox').val('');
-      }                                                                                
-    });   
-    function receiveMessage(message) {
-      if(message.is_response){
-        message.team_name = "Admin";
-      }
-      if(message.team_name.length > 10){
-        message.team_name = message.team_name.slice(0,10);
-      }
-      if(message.team_name.length < 10){
-        message.team_name += Array(11-message.team_name.length).join(" ");
-      }
-      var message_window = $("#chatcontainer");
-      var div = "<div style='white-space:pre-wrap;";
-      if(message.is_response){
-        div += " color:red;";
-      }
-      div += "'>" + message.team_name + ": " + message.text + "</div>";
-      message_window.append(div);
-    }
-  });
-  </script>
 {% endblock content %}

@@ -3,6 +3,13 @@
 
 {% block includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% if not puzzle.hunt.is_public %}
+<script type="text/javascript">
+    last_date = '{{last_date}}';
+    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}'
+</script>
+<script src="{{ STATIC_URL }}huntserver/puzzle.js"></script>
+{% endif %}
 {% endblock includes %}
 
 {% block content %}
@@ -27,6 +34,23 @@
       </fieldset>
     </div>
     <div class="col-md-6">
+      <br>
+    {% if puzzle.hunt.is_public %}
+      <p style="width: 80%; margin: auto;"> We are sorry, previous guess viewing is not available in old puzzlehunts </p>
+      <br>
+      {% if response %}
+      <div style='width: 80%; height: 40px; line-height: 40px;
+                  text-align: center; margin: auto;
+                  {% if response.is_correct %}
+                    background-color: lightgreen;'>
+                  {% else %}
+                    background-color: indianred;'>
+                  {% endif %}
+        {{response}}
+      </div>
+      {% endif %}
+      <br>
+    {% else %}
       <fieldset id='answers'>
         <legend>Past answers (automatically updated)</legend>
         <table>
@@ -39,80 +63,22 @@
           </thead>
           <tbody id='sub_table'>
             {% for submission in submission_list reversed%}
-            <tr data-id='{{submission.pk}}'>
-             <td>{{ submission.submission_time|time:"h:i a" }}</td>
-             <td>{{ submission.submission_text }} </td>
-             <td>{{ submission.response_text }}</td>
-           </tr>
+            {% include "puzzle_sub_row.html" %}
            {% endfor %}
          </tbody>
        </table>
       </fieldset>
+    {% endif %}
     </div>
     <div class="col-md-10 col-md-offset-1">
-      {% for i in pages %}
-      <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="No image here">
-      {% endfor %}
+      {% if pages|length == 1 %}
+        <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.png"  alt="Could not load image">
+      {% else %}
+        {% for i in pages %}
+        <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="Could not load image">
+        {% endfor %}
+      {% endif %}
     </div>
   </div>
 </div>
-<script>
-jQuery(document).ready(function($) {
-  last_date = new Date().toISOString().slice(0, 19) + 'Z';
-  var get_posts = function() {
-    $.ajax({
-      type: 'get',
-      url: "/ajax/submission",
-      data: {last_date: last_date},
-      success: function (response) {
-        var messages = JSON.parse(response);
-        if(messages.length > 0){
-          for (var i = 0; i < messages.length-1; i++) {
-            receiveMessage(messages[i]);
-          };
-          last_date = new Date().toISOString().slice(0, 19) + 'Z';
-        }
-      },
-      error: function (html) {
-        console.log(html);
-      }
-    });
-  }
-  setInterval(get_posts, 3000);
-
-
-  $('#sub_form').on('submit', function(e) {
-    e.preventDefault();
-    $.ajax({
-      url : $(this).attr('action') || window.location.pathname,
-      type: "POST",
-      data: $(this).serialize(),
-      error: function (jXHR, textStatus, errorThrown) {
-        console.log(jXHR.responseText);
-        alert(errorThrown);
-      },
-success: function (jXHR, textStatus, errorThrown) {
-console.log(jXHR);
-}
-    });
-    $('#id_answer').val('');
-  }); 
-
-  // receive a message though the websocket from the server
-  function receiveMessage(submission) {
-    if(submission.puzzle == "{{ puzzle.puzzle_id }}"){
-      row = $("<tr data-id='" + submission['pk'] + "'> </tr>");
-      col1 = $("<td> " + submission['time_str'] + " </td>");
-      col2 = $("<td> " + submission['submission_text'] + " </td>");
-      col3 = $("<td> " + submission['response_text'] + " </td>");
-      row.append(col1,col2,col3);
-      if ($('tr[data-id=' + submission['pk'] + ']').length == 0) {
-        row.prependTo("#sub_table");
-      } else {
-        $('tr[data-id=' + submission['pk'] + ']').replaceWith(row);
-      }
-    }
-  }
-});
-</script>
 {% endblock content %}

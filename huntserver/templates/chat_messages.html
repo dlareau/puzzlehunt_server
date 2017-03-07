@@ -1,0 +1,7 @@
+{% for message in messages %}
+  {% if message.is_response %}
+    <div style='white-space:pre-wrap; color:red;'>Admin     : {{ message.text }}</div>
+  {% else %}
+    <div style='white-space:pre-wrap;'>{{ message.team.team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
+  {% endif %}
+{% endfor %}

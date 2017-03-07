@@ -1,32 +1,60 @@
-from django.conf import settings
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.loader import render_to_string
+import json
+from datetime import datetime
+from dateutil import tz
 
-from .models import *
-from .forms import *
-from .puzzle import *
+from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
+from .forms import SubmissionForm, UnlockForm
+from .utils import unlock_puzzles, download_puzzles
 
 @staff_member_required
-def queue(request):
+def queue(request, page_num=1):
     # Process admin responses to submissions
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
-        if form.is_valid():
-            response = form.cleaned_data['response']
-            s = Submission.objects.get(pk=form.cleaned_data['sub_id'])
-            s.response_text = response
-            s.modified_date = timezone.now()
-            s.save()
+        if not form.is_valid():
+            return HttpResponse(status=400)
+        response = form.cleaned_data['response']
+        s = Submission.objects.get(pk=form.cleaned_data['sub_id'])
+        s.response_text = response
+        s.modified_date = timezone.now()
+        s.save()
+        submissions = [s]
 
-        return HttpResponse('success')
+    elif request.is_ajax():
+        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
+        submissions = Submission.objects.filter(modified_date__gt = last_date)
 
     else:
-        hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-        submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('pk')
-        form = SubmissionForm()
-        context = {'form': form, 'submission_list': submissions}
+        hunt = Hunt.objects.get(is_current_hunt=True)
+        submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('-pk')
+        pages = Paginator(submissions, 30)
+        try:
+            submissions = pages.page(page_num)
+        except PageNotAnInteger:
+            submissions = pages.page(1)
+        except EmptyPage:
+            submissions = pages.page(pages.num_pages)
+
+    form = SubmissionForm()
+    try:
+        last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    except:
+        last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    submission_list = [render_to_string('queue_row.html', {'submission': submission}, request=request) for submission in submissions]
+
+    if request.is_ajax() or request.method == 'POST':
+        context = {'submission_list': submission_list, 'last_date': last_date}
+        return HttpResponse(json.dumps(context))
+    else:
+        context = {'form': form, 'page_info': submissions,
+        'submission_list': submission_list, 'last_date': last_date}
         return render(request, 'queue.html', context)
 
 @staff_member_required
@@ -37,12 +65,37 @@ def progress(request):
         if form.is_valid():
             t = Team.objects.get(pk=form.cleaned_data['team_id'])
             p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
-            Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
-            t.save()
-        return HttpResponse('success')
+            u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
+            return HttpResponse(json.dumps(u.serialize_for_ajax()))
+        return HttpResponse(status=400)
+
+    elif request.is_ajax():
+        update_info = []
+        if not ("last_solve_pk" in request.GET and
+                "last_unlock_pk" in request.GET):
+            return HttpResponse(status=404)
+        results = []
+        if(not request.user.is_staff):
+            return HttpResponseNotFound('access denied')
+
+        last_solve_pk = request.GET.get("last_solve_pk")
+        solves = list(Solve.objects.filter(pk__gt = last_solve_pk))
+        for i in range(len(solves)):
+            results.append(solves[i].serialize_for_ajax())
+
+        last_unlock_pk = request.GET.get("last_unlock_pk")
+        unlocks = list(Unlock.objects.filter(pk__gt = last_unlock_pk))
+        for i in range(len(unlocks)):
+            results.append(unlocks[i].serialize_for_ajax())
+
+        if(len(results) > 0):
+            update_info = [Solve.objects.latest('id').id]
+            update_info.append(Unlock.objects.latest('id').id)
+        response = json.dumps({'messages': results, 'update_info': update_info})
+        return HttpResponse(response)
 
     else:
-        curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+        curr_hunt = Hunt.objects.get(is_current_hunt=True)
         teams = curr_hunt.team_set.all().order_by('team_name')
         puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
         # An array of solves, organized by team then by puzzle
@@ -72,15 +125,21 @@ def progress(request):
                 # Locked => Identify as locked and puzzle id
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
-        last_solve_pk = Solve.objects.latest('id').id
-        last_unlock_pk = Unlock.objects.latest('id').id
+        try:
+            last_solve_pk = Solve.objects.latest('id').id
+        except Solve.DoesNotExist:
+            last_solve_pk = 0
+        try:
+            last_unlock_pk = Unlock.objects.latest('id').id
+        except Unlock.DoesNotExist:
+            last_unlock_pk = 0
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array, 
                    'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk}
         return render(request, 'progress.html', context)
 
 @staff_member_required
 def charts(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
     puzzle_info_dicts = []
     for puzzle in puzzles:
@@ -96,42 +155,73 @@ def charts(request):
 
 @staff_member_required
 def admin_chat(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time')
-    message_list = []
-    for message in messages:
-        message_list.append({'time': message.time, 'text':message.text,
-            'team':{'pk': message.team.pk, 'name': message.team.team_name},
-            'is_response': message.is_response})
-    last_pk = Message.objects.latest('id').id
-    return render(request, 'staff_chat.html', {'messages': message_list, 'last_pk':last_pk})
+    if request.is_ajax():
+        last_pk = request.GET.get("last_pk")
+        messages = Message.objects.filter(pk__gt = last_pk)
+    else:
+        curr_hunt = Hunt.objects.get(is_current_hunt=True)
+        messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time').select_related('team')
 
-# Not actually a page, just various control functions
+    team_name = ""
+    message_dict = {}
+    for message in messages:
+        if message.team.team_name != team_name:
+            team_name = message.team.team_name
+            message_dict[team_name] = {'pk': message.team.pk, 'messages': []}
+        message_dict[team_name]['messages'].append(message)
+    for team in message_dict:
+        message_dict[team]['messages'] = render_to_string('chat_messages.html', {'messages': message_dict[team]['messages']})
+    try:
+        last_pk = Message.objects.latest('id').id
+    except Message.DoesNotExist:
+        last_pk = 0
+
+
+    context = {'message_dict': message_dict, 'last_pk':last_pk}
+    if request.is_ajax():
+        return HttpResponse(json.dumps(context))
+    else:
+        return render(request, 'staff_chat.html', context)
+
+@staff_member_required
+def hunt_management(request):
+    hunts = Hunt.objects.all()
+    return render(request, 'hunt_management.html', {'hunts': hunts})
+
 @staff_member_required
 def control(request):
-    curr_hunt = Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)
-    teams = curr_hunt.team_set.all().order_by('team_name')
-    if request.GET.get('initial'):
-        for team in teams:
-            unlock_puzzles(team)
-        return redirect('huntserver:progress')
-    elif request.GET.get('reset'):
-        for team in teams:
-            team.unlocked.clear()
-            team.unlock_set.all().delete()
-            team.solved.clear()
-            team.solve_set.all().delete()
-            team.submission_set.all().delete()
-        return redirect('huntserver:progress')
-    elif request.GET.get('getpuzzles'):
-        download_puzzles(Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM))
-        return redirect('huntserver:progress')
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    if(curr_hunt.is_open):
+        teams = curr_hunt.team_set.all().order_by('team_name')
     else:
-        return render(request, 'access_error.html')
+        teams = curr_hunt.team_set.filter(playtester=True).order_by('team_name')
+    if(request.method == 'POST' and "action" in request.POST):
+        if(request.POST["action"] == "initial"):
+            for team in teams:
+                unlock_puzzles(team)
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "reset"):
+            for team in teams:
+                team.unlocked.clear()
+                team.unlock_set.all().delete()
+                team.solved.clear()
+                team.solve_set.all().delete()
+                team.submission_set.all().delete()
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "getpuzzles"):
+            download_puzzles(Hunt.objects.get(is_current_hunt=True))
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "new_current_hunt"):
+            new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
+            new_curr.is_current_hunt = True;
+            new_curr.save()
+            return redirect('huntserver:hunt_management')
+        else:
+            return render(request, 'access_error.html')
 
 @staff_member_required
 def emails(request):
-    teams = Team.objects.filter(hunt__hunt_number=settings.CURRENT_HUNT_NUM)
+    teams = Team.objects.filter(hunt__is_current_hunt=True)
     people = []
     for team in teams:
          people = people + list(team.person_set.all())

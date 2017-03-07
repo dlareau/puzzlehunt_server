@@ -4,24 +4,23 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
 # Register your models here.
-from .models import *
-from django.conf import settings
+import models
 
 class UnlockableInline(admin.TabularInline):
-    model = Unlockable
+    model = models.Unlockable
     extra = 1
 
 class PuzzleAdmin(admin.ModelAdmin):
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "unlocks":
-            kwargs["queryset"] = Puzzle.objects.filter(hunt=Hunt.objects.get(hunt_number=settings.CURRENT_HUNT_NUM)).order_by('puzzle_id')
+            kwargs["queryset"] = models.Puzzle.objects.filter(hunt=models.Hunt.objects.get(is_current_hunt=True)).order_by('puzzle_id')
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
     filter_horizontal = ('unlocks',)
-    
+
 class TeamAdminForm(forms.ModelForm):
     persons = forms.ModelMultipleChoiceField(
-        queryset=Person.objects.all(), 
+        queryset=models.Person.objects.all(),
         required=False,
         widget=FilteredSelectMultiple(
             verbose_name=_('People'),
@@ -30,8 +29,8 @@ class TeamAdminForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Team
-        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location', 'join_code']
+        model = models.Team
+        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location', 'join_code', 'playtester']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)
@@ -54,12 +53,14 @@ class TeamAdminForm(forms.ModelForm):
 class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
     list_filter = ('hunt',)
-    
-admin.site.register(Hunt)
-admin.site.register(Puzzle, PuzzleAdmin)
-admin.site.register(Person)
-admin.site.register(Team, TeamAdmin)
-admin.site.register(Submission)
-admin.site.register(Solve)
-admin.site.register(Unlock)
-admin.site.register(Message)
+
+admin.site.register(models.Hunt)
+admin.site.register(models.Puzzle, PuzzleAdmin)
+admin.site.register(models.Person)
+admin.site.register(models.Team, TeamAdmin)
+admin.site.register(models.Submission)
+admin.site.register(models.Solve)
+admin.site.register(models.Unlock)
+admin.site.register(models.Message)
+admin.site.register(models.Response)
+admin.site.register(models.Unlockable)

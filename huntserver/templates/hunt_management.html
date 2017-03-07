@@ -1,0 +1,48 @@
+{% extends "staff_base.html" %}
+{% block title %}Puzzle Progress{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+  <h1>Hunt Management</h1>
+  <h3> Set Current Hunt: </h3>
+  <table>
+    {% for hunt in hunts %}
+      <tr>
+        <td>{{hunt.hunt_name}}</td>
+        <td>{% if hunt.is_current_hunt%} <= Current {% endif %} </td>
+        <td>
+          <form method="Post" action="/staff/control/">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="new_current_hunt">
+            <input type="hidden" name="hunt_num" value="{{hunt.hunt_number}}">
+            <input type="submit" value="Set as Current">
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  </br>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="reset">
+    <input type="submit" value="Reset All Progress"
+           onclick="return confirm('Are you sure?')">
+  </form>
+  </br>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="getpuzzles">
+    <input type="submit" value="Fetch puzzles from URLs"
+           onclick="return confirm('Are you sure?')">
+  </form>
+  </br>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="initial">
+    <input type="submit" value="Release Initial Puzzles"
+           onclick="return confirm('Are you sure?')">
+  </form>
+{% endblock content %}
