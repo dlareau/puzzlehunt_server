@@ -61,7 +61,6 @@ jQuery(document).ready(function($) {
     pk = submission.data('id');
     if ($('tr[data-id=' + pk + ']').length == 0) {
       submission.prependTo("#sub_table");
-      $('#sub_table tr:last').remove();
     } else {
       $('tr[data-id=' + pk + ']').replaceWith(submission);
     }

@@ -7,13 +7,13 @@ System packages:
 * mysql-server
 * python-mysqldb
 * python-dev
-* imagemagick
 * libmysqlclient-dev
 
 Python packages (pip)
 * django
 * MySQL-python
 * python-dateutil
+* PyPDF2
 
 (Working on getting a virtualenv solution set up)
 
