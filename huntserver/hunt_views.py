@@ -100,11 +100,13 @@ def puzzle_view(request, puzzle_id):
                 s = Submission.objects.create(submission_text = user_answer,
                     puzzle = puzzle, submission_time = timezone.now(), team = team)
                 response = respond_to_submission(s)
+                is_correct = s.is_correct
             else:
                 response = "Invalid Submission"
+                is_correct = None
             context = {'form': form, 'pages': range(puzzle.num_pages),
                       'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
-                      'response': response}
+                      'response': response, 'is_correct': is_correct}
             return render(request, 'puzzle.html', context)
         if(team == None):
             return HttpResponse('fail')
