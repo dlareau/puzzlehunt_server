@@ -51,8 +51,11 @@ def hunt(request, hunt_num):
     if(request.user.is_staff):
         puzzle_list = hunt.puzzle_set.all()
     # Hunt has not yet started
-    elif(hunt.is_locked):
-        return render(request, 'not_released.html', {'reason': "locked"})
+    elif(hunt.is_locked or team.is_playtester_team):
+        if(team.is_playtester_team):
+            puzzle_list = team.unlocked.filter(hunt=hunt)
+        else:
+            return render(request, 'not_released.html', {'reason': "locked"})
     # Hunt has started
     elif(hunt.is_open):
         # see if the team does not belong to the hunt being accessed
@@ -131,7 +134,7 @@ def puzzle_view(request, puzzle_id):
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         submissions = Submission.objects.filter(modified_date__gt = last_date)
-        submissions = submissions.filter(team=team)
+        submissions = submissions.filter(team=team, puzzle=puzzle)
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': submission}) for submission in submissions]
 
         try:
