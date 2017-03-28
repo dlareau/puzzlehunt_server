@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 import json
 from datetime import datetime
 from dateutil import tz
+import networkx as nx    
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
 from .forms import SubmissionForm, UnlockForm
@@ -230,3 +231,13 @@ def emails(request):
         email_list.append(person.user.email)
     return HttpResponse(", ".join(email_list))
 
+@staff_member_required
+def depgraph(request):
+    hunt = Hunt.objects.get(is_current_hunt=True)
+    G=nx.DiGraph()
+    for puzzle in hunt.puzzle_set.all():
+        for unlock in puzzle.unlocks.all():
+            G.add_edge(unlock.puzzle_number, puzzle.puzzle_number)
+    edges = [line.split(' ') for line in nx.generate_edgelist(G, data=False)]
+    context = {'puzzles': hunt.puzzle_set.all(), 'edges': edges}
+    return render(request, 'depgraph.html', context)

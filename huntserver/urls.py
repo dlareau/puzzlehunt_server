@@ -55,6 +55,7 @@ urlpatterns = [
         url(r'^puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
         url(r'^emails/$', staff_views.emails, name='emails'),
         url(r'^management/$', staff_views.hunt_management, name='hunt_management'),
+        url(r'^depgraph/$', staff_views.depgraph, name='depgraph'),
     ])),
 
     url(r'^Shibboleth.sso/Logout', views.logout, name='logout', kwargs={'next_page': '/'}),

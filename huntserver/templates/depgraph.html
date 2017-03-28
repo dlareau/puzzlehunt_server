@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <script type="text/javascript" src="{{ STATIC_URL }}/vis.min.js"></script>
+    <link href="{{STATIC_URL}}/vis.min.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+      #mynetwork {
+      width: 600px;
+      height: 400px;
+      border: 1px solid lightgray;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mynetwork"></div>
+
+    <script type="text/javascript">
+      // create an array with nodes
+      var nodes = new vis.DataSet([
+      {% for puzzle in puzzles %}
+      {id: {{puzzle.puzzle_number}}, label: 'P{{puzzle.puzzle_number}}-({{puzzle.num_required_to_unlock}})', physics: false}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+      ]);
+
+      // create an array with edges
+      var edges = new vis.DataSet([
+      {% for edge in edges %}
+        {to: {{edge.0}}, from: {{edge.1}}, arrows: 'to', smooth: {type: 'continuous', roundness: 0.0}, physics: false}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+      ]);
+
+      // create a network
+      var container = document.getElementById('mynetwork');
+
+      // provide the data in the vis format
+      var data = {
+      nodes: nodes,
+      edges: edges
+      };
+      options = {};
+
+      // initialize your network!
+      var network = new vis.Network(container, data, options);
+    </script>
+  </body>
+</html>
