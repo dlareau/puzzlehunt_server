@@ -2,14 +2,18 @@
 {% block title %}Not Available{% endblock title %}
 
 {% block content %}
-  <h1 class="title">Not Available</h1>
-  {% if reason == "locked" %}
+<div class="containter"
+     {% comment "Optional note" %}  TODO: MAKE NEATER   {% endcomment %}
+     style="background: white; padding: 20px 40px; margin: 10px auto; border: 5px solid black; border-radius: 10px;">
+    <h1 class="title">Not Available</h1>
+    {% if reason == "locked" %}
     <p>This hunt is not yet open for playing.</p>
-  {% endif %}
-  {% if reason == "team" %}
+    {% endif %}
+    {% if reason == "team" %}
     <p>This hunt is currently happening, however this team is not associated with this hunt.</p>
     <p>Please either sign out and sign back in with a registered team, or contact the staff.</p>
-  {% endif %}
-  </br>
-  <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
+    {% endif %}
+    </br>
+    <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
+  </div>
 {% endblock content %}
