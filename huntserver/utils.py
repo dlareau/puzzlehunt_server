@@ -14,7 +14,7 @@ def respond_to_submission(submission):
     # Check against regexes
     regex_response = ""
     for resp in submission.puzzle.response_set.all():
-        if(re.match(resp.regex, submission.submission_text.lower())):
+        if(re.match(resp.regex, submission.submission_text, re.IGNORECASE)):
             regex_response = resp.text
             break
     # Compare against correct answer
