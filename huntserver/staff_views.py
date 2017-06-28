@@ -243,7 +243,7 @@ def emails(request):
             return HttpResponseRedirect('')
     else:
         email_form = EmailForm()
-    context = {'email_list': email_list, 'email_form': email_form}
+    context = {'email_list': (', ').join(email_list), 'email_form': email_form}
     return render(request, 'email.html', context)
 
 @staff_member_required

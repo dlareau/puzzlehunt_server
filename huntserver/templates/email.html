@@ -2,7 +2,6 @@
 {% block title %}Puzzle Progress{% endblock title %}
 
 {% block includes %}
-<script src="{{ STATIC_URL }}jquery.min.js"></script>
 <style type="text/css">
   td {
     border: none;
@@ -29,4 +28,13 @@
       <input type="submit" value="Send Email" onclick="return confirm('Are you sure?')">
     </div>
   </form>
+
+  <br>
+  <br>
+
+  <button data-toggle="collapse" data-target="#demo">Click to show all Emails</button>
+
+  <div id="demo" class="collapse">
+    {{email_list}}
+  </div>
 {% endblock content %}

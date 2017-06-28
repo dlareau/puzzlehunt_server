@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>{% block title %} Puzzlehunt Admin {% endblock title %}</title>
+    <script src="{{ STATIC_URL }}jquery.min.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
+    <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
     {% block includes %} {% endblock includes %}
   </head>
   <body>

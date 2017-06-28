@@ -2,7 +2,6 @@
 {% block title %}Hunt Control{% endblock title %}
 
 {% block includes %}
-<script src="{{ STATIC_URL }}jquery.min.js"></script>
 <script type="text/javascript">
   csrf_token = '{{csrf_token}}';
   last_pk = {{last_pk}};
@@ -11,8 +10,6 @@
   ajax_url = "/staff/chat/"
 </script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
-<link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
-<script src="{{ STATIC_URL }}bootstrap.min.js"></script>
 <script src="{{ STATIC_URL }}huntserver/staff_chat.js"></script>
 <script src="{{ STATIC_URL }}huntserver/chat.js"></script>
 <style> body{ font-family: verdana; } h1 { font-size: 2em; font-weight: bold}</style>
