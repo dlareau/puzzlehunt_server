@@ -138,3 +138,12 @@ SHIB_USERNAME = "eppn"
 SHIB_EMAIL = "eppn"
 SHIB_FIRST_NAME = "givenName"
 SHIB_LAST_NAME = "sn"
+
+#Comment out for production.
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = '/tmp/test_folder'
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587

@@ -18,7 +18,7 @@
       // create an array with nodes
       var nodes = new vis.DataSet([
       {% for puzzle in puzzles %}
-      {id: {{puzzle.puzzle_number}}, label: 'P{{puzzle.puzzle_number}}-({{puzzle.num_required_to_unlock}})', physics: false}{% if not forloop.last %},{% endif %}
+      {id: {{puzzle.puzzle_number}}, label: 'P{{puzzle.puzzle_number}} ({{puzzle.num_required_to_unlock}})', physics: false}{% if not forloop.last %},{% endif %}
       {% endfor %}
       ]);
 

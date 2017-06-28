@@ -1,16 +1,17 @@
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.loader import render_to_string
 import json
 from datetime import datetime
 from dateutil import tz
-import networkx as nx    
+import networkx as nx
+from django.core.mail import send_mail, EmailMessage
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
-from .forms import SubmissionForm, UnlockForm
+from .forms import SubmissionForm, UnlockForm, EmailForm
 from .utils import unlock_puzzles, download_puzzles
 
 @staff_member_required
@@ -220,16 +221,30 @@ def control(request):
         else:
             return render(request, 'access_error.html')
 
+        
 @staff_member_required
 def emails(request):
     teams = Team.objects.filter(hunt__is_current_hunt=True)
     people = []
     for team in teams:
          people = people + list(team.person_set.all())
-    email_list = []
-    for person in people:
-        email_list.append(person.user.email)
-    return HttpResponse(", ".join(email_list))
+    email_list = [person.user.email for person in people]
+
+    if request.method == 'POST':
+        email_form = EmailForm(request.POST)
+        if email_form.is_valid():
+            subject = email_form.cleaned_data['subject']
+            message = email_form.cleaned_data['message']
+            email_to_chunks = [email_list[x:x+20] for x in xrange(0, len(email_list), 20)]
+            for to_chunk in email_to_chunks:
+                email = EmailMessage(subject, message,'puzzlehuntcmu@gmail.com',
+                     to_chunk, [])
+                email.send()
+            return HttpResponseRedirect('')
+    else:
+        email_form = EmailForm()
+    context = {'email_list': email_list, 'email_form': email_form}
+    return render(request, 'email.html', context)
 
 @staff_member_required
 def depgraph(request):

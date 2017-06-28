@@ -1,0 +1,32 @@
+{% extends "staff_base.html" %}
+{% block title %}Puzzle Progress{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<style type="text/css">
+  td {
+    border: none;
+  }
+  #id_subject {
+    width: 400px;
+  }
+  #id_message {
+    width: 400px;
+    height: 200px;
+  }
+</style>
+{% endblock includes %}
+
+{% block content %}
+  <h1>Hunt Management</h1>
+  <h3> Send email to all contestants: </h3>
+  <form method="POST" action="/staff/emails/">
+    {% csrf_token %}
+    <table>
+      {{ email_form.as_table }}
+    </table>
+    <div class="submit-row">
+      <input type="submit" value="Send Email" onclick="return confirm('Are you sure?')">
+    </div>
+  </form>
+{% endblock content %}

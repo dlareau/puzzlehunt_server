@@ -55,3 +55,6 @@ class BaseRegisterForm(forms.Form):
         user = User.objects.create_user(attr[settings.SHIB_USERNAME], attr[settings.SHIB_EMAIL], '')
         return user
         
+class EmailForm(forms.Form):
+    subject = forms.CharField(label='Subject')
+    message = forms.CharField(label='Message', widget = forms.Textarea)
