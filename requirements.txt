@@ -2,3 +2,7 @@ Django==1.9.6
 MySQL-python==1.2.5
 python-dateutil==2.5.3
 six==1.10.0
+django-admin-bootstrapped==2.5.7
+django-debug-toolbar==1.4
+django-shibboleth==1.2
+django-shibboleth-remoteuser==0.5
