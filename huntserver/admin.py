@@ -54,9 +54,13 @@ class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
     list_filter = ('hunt',)
 
+class PersonAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'is_shib_acct',)
+    search_fields = ['user__email', 'user__username', 'user__first_name', 'user__last_name']
+
 admin.site.register(models.Hunt)
 admin.site.register(models.Puzzle, PuzzleAdmin)
-admin.site.register(models.Person)
+admin.site.register(models.Person, PersonAdmin)
 admin.site.register(models.Team, TeamAdmin)
 admin.site.register(models.Submission)
 admin.site.register(models.Solve)

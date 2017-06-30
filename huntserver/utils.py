@@ -9,7 +9,9 @@ import re
 # Automatic submission response system
 # Takes a submission object and should return a string
 # Returning an empty string means that huntstaff should respond via the queue
-# Currently only stops spaces and underscores.
+# Currently only invalid characters are spaces and underscores.
+# Order of response importance: Correct regex, Correct default,
+# Invalid characters, Incorrect regex, Incorrect (archived), Staff response.
 def respond_to_submission(submission):
     # Check against regexes
     regex_response = ""
@@ -19,8 +21,8 @@ def respond_to_submission(submission):
             break
     # Compare against correct answer
     if(submission.puzzle.answer.lower() == submission.submission_text.lower()):
+        # Make sure we don't have duplicate or after hunt submission objects
         if(not submission.puzzle.hunt.is_public):
-            # Make sure we don't have duplicate or after hunt submission objects
             if(submission.puzzle not in submission.team.solved.all()):
                 Solve.objects.create(puzzle=submission.puzzle,
                     team=submission.team, submission=submission)
@@ -46,8 +48,6 @@ def respond_to_submission(submission):
     if(submission.puzzle.hunt.is_public):
         if(response == ""):
             response = "Wrong Answer."
-        # Taken out for now due to previous hunt implementation
-        #response = "Hunt is over, but " + response
 
     submission.response_text = response
     submission.save()

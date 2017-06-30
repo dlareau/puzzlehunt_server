@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 from dateutil import tz
 import networkx as nx
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMessage
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
 from .forms import SubmissionForm, UnlockForm, EmailForm

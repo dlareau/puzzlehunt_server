@@ -109,11 +109,11 @@ class Person(models.Model):
     is_shib_acct = models.BooleanField()
     
     def __unicode__(self):
-        name = self.user.first_name + " " + self.user.last_name + " (" + self.user.email + ")"
-        if(name == " "):
+        name = self.user.first_name + " " + self.user.last_name + " (" + self.user.email + ")" + " (" + self.user.username + ")"
+        if(name == "  ()"):
             return "Anonymous User"
         else:
-            return self.user.first_name + " " + self.user.last_name + " (" + self.user.email + ")"
+            return name
     
 class Submission(models.Model):
     team = models.ForeignKey(Team)
