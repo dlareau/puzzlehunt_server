@@ -49,6 +49,10 @@ def respond_to_submission(submission):
         if(response == ""):
             response = "Wrong Answer."
 
+    # This turns on "auto-canned-response"
+    if(response == ""):
+        response = "Wrong Answer."
+
     submission.response_text = response
     submission.save()
     return response
