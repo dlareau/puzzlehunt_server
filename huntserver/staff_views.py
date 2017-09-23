@@ -12,7 +12,7 @@ from django.core.mail import EmailMessage
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
 from .forms import SubmissionForm, UnlockForm, EmailForm
-from .utils import unlock_puzzles, download_puzzles
+from .utils import unlock_puzzles, download_puzzle
 
 @staff_member_required
 def queue(request, page_num=1):
@@ -211,7 +211,13 @@ def control(request):
                 team.submission_set.all().delete()
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "getpuzzles"):
-            download_puzzles(Hunt.objects.get(is_current_hunt=True))
+            if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
+                puzzles = curr_hunt.puzzle_set.filter(puzzle_number=int(request.POST["puzzle_number"]))
+                for puzzle in puzzles:
+                    download_puzzle(puzzle)
+            else:
+                for puzzle in curr_hunt.puzzle_set.all():
+                    download_puzzle(puzzle)
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))

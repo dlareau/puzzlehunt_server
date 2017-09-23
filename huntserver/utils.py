@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from .models import Solve, Unlock, Hunt, Person, Team
 from django.utils import timezone
 from subprocess import call
+import os
 from PyPDF2 import PdfFileReader
 import re
 
@@ -79,29 +80,24 @@ def unlock_puzzles(team):
             if(puzzle not in team.unlocked.all()):
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
 
-# Runs the commands listed at the bottom for each puzzle to download the pdf
-# and convert it to PNGs. Does not provide any roll-back safety if the new PDFs
-# are bad. Has to also get number of pages for the template rendering
-def download_puzzles(hunt):
+# Runs the commands listed at the bottom for the puzzle to download the pdf
+# and convert it to PNGs. Does not provide any roll-back safety if the new PDF
+# is bad. Has to also get number of pages for the template rendering
+def download_puzzle(puzzle):
     directory = settings.MEDIA_ROOT + "puzzles"
 
-    # TODO: check whether directory exists first and switch to using os
-    # fine for now as this is called really rarely.
-    call(["mkdir", directory])
+    if(not os.path.isdir(directory)):
+        call(["mkdir", directory])
 
-    curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    for puzzle in curr_hunt.puzzle_set.all():
-        # Get the file
-        file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
-        call(["wget", puzzle.link, "-O", file_str])
-        with open(file_str, "rb") as f:
-            puzzle.num_pages = PdfFileReader(f).getNumPages()
-            puzzle.save()
-        call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
-
+    # Get the file
+    file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
+    call(["wget", puzzle.link, "-O", file_str])
+    with open(file_str, "rb") as f:
+        puzzle.num_pages = PdfFileReader(f).getNumPages()
+        puzzle.save()
+    call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
     #get document: wget {{URL}} -O {{FILENAME}}
     #convert: convert -density 200 {{FILENAME}} {{OUTFILE}}
-    return
 
 def parse_attributes(META):
     shib_attrs = {}
@@ -122,7 +118,6 @@ def parse_attributes(META):
             if required:
                 error = True
     return shib_attrs, error
-
 
 def build_shib_url(request, target, entityid=None):
     url_base = 'https://%s' % request.get_host()
