@@ -7,7 +7,8 @@
 
 {% block left-header %}
     <li class='{% active_page request "index" %} visible-xs'><a href="{% url 'huntserver:index' %}"> Homepage </a></li>
-    <li class='{% active_page request "current_hunt_info" %}'><a href="{% url 'huntserver:current_hunt_info' %}"> Current Hunt </a></li>
+    <li class='{% active_page request "current_hunt_info" %}'><a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Info</a></li>
+    <li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:current_hunt' %}"> Current Hunt </a></li>
     <li class='{% active_page request "previous_hunts" %}'><a href="{% url 'huntserver:previous_hunts' %}"> Previous Hunts </a></li>
     <li class='{% active_page request "resources" %}'><a href="{% url 'huntserver:resources' %}"> Puzzle Resources </a></li>
     <li class='{% active_page request "contact_us" %}'><a href="{% url 'huntserver:contact_us' %}"> Contact Us </a></li>
