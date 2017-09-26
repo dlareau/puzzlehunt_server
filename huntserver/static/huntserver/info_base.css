@@ -17,6 +17,9 @@ h1.title {
     font-size: 60px;
 }
 
+.field_errors {
+    margin-bottom: 10px;
+}
 
 #qa h2 {
     font-size: 16px;

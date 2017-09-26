@@ -4,34 +4,14 @@ body {
   padding: 0;
   margin: 0; }
 
+table{
+  border-collapse: separate;
+  border-spacing: 2px;
+}
 
-header {
-  margin: 0;
-  background: #414141;
-  color: white;
-  overflow: auto; }
-
-  header h1 {
-    padding: 20px;
-    margin: 0;
-    float: left; }
-
-  header ul {
-    float: left;
-    list-style: none; }
-
-  header li {
-    width: 100px;
-    float: left;
-    text-align: center; }
-
-    header li a {
-      color: white;
-      text-decoration: none; }
-
-      header li a:hover {
-        color: #DBDBDB; }
-
+#login_logout_button {
+  margin-right: 8px;
+}
 
 #content {
   margin: 20px; }

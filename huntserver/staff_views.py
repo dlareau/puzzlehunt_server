@@ -1,16 +1,18 @@
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.loader import render_to_string
 import json
 from datetime import datetime
 from dateutil import tz
+import networkx as nx
+from django.core.mail import EmailMessage
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
-from .forms import SubmissionForm, UnlockForm
-from .utils import unlock_puzzles, download_puzzles
+from .forms import SubmissionForm, UnlockForm, EmailForm
+from .utils import unlock_puzzles, download_puzzle
 
 @staff_member_required
 def queue(request, page_num=1):
@@ -209,7 +211,13 @@ def control(request):
                 team.submission_set.all().delete()
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "getpuzzles"):
-            download_puzzles(Hunt.objects.get(is_current_hunt=True))
+            if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
+                puzzles = curr_hunt.puzzle_set.filter(puzzle_number=int(request.POST["puzzle_number"]))
+                for puzzle in puzzles:
+                    download_puzzle(puzzle)
+            else:
+                for puzzle in curr_hunt.puzzle_set.all():
+                    download_puzzle(puzzle)
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
@@ -219,14 +227,38 @@ def control(request):
         else:
             return render(request, 'access_error.html')
 
+        
 @staff_member_required
 def emails(request):
     teams = Team.objects.filter(hunt__is_current_hunt=True)
     people = []
     for team in teams:
          people = people + list(team.person_set.all())
-    email_list = []
-    for person in people:
-        email_list.append(person.user.email)
-    return HttpResponse(", ".join(email_list))
+    email_list = [person.user.email for person in people]
 
+    if request.method == 'POST':
+        email_form = EmailForm(request.POST)
+        if email_form.is_valid():
+            subject = email_form.cleaned_data['subject']
+            message = email_form.cleaned_data['message']
+            email_to_chunks = [email_list[x:x+80] for x in xrange(0, len(email_list), 80)]
+            for to_chunk in email_to_chunks:
+                email = EmailMessage(subject, message,'puzzlehuntcmu@gmail.com',
+                     [], to_chunk)
+                email.send()
+            return HttpResponseRedirect('')
+    else:
+        email_form = EmailForm()
+    context = {'email_list': (', ').join(email_list), 'email_form': email_form}
+    return render(request, 'email.html', context)
+
+@staff_member_required
+def depgraph(request):
+    hunt = Hunt.objects.get(is_current_hunt=True)
+    G=nx.DiGraph()
+    for puzzle in hunt.puzzle_set.all():
+        for unlock in puzzle.unlocks.all():
+            G.add_edge(unlock.puzzle_number, puzzle.puzzle_number)
+    edges = [line.split(' ') for line in nx.generate_edgelist(G, data=False)]
+    context = {'puzzles': hunt.puzzle_set.all(), 'edges': edges}
+    return render(request, 'depgraph.html', context)
