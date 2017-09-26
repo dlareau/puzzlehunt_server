@@ -10,19 +10,8 @@
     <h1> Team Registration</h1>
   {% if not user.is_authenticated %}
       <hr style="border-width:2px; border-color: black;">
-      <h2>You aren't signed in! (Please read)</h2>
-      <p>
-        In our continuing efforts to bring you the best possible puzzlehunt experience,
-        <b>the way registration works this semester is different</b> than last semester.
-        From now on, each hunter will have <b>their own account</b>
-        and <b>once logged in, simply join or make a team</b> to register for the hunt. 
-        This has all sorts of cool added benefits such as 
-        being able to keep a history of completed hunts,
-        only having to enter your dietary preferences once (don't worry, you can update them),
-        and college integration so you can sign on with your CMU account! (yet again, no worries, a cmu account is not required)
-      </p>
-      <p>
-        Now head over to our <a href="{% url 'huntserver:login_selection' %}?next=/registration/">sign in page.</a> 
+      <h2>You aren't signed in!</h2>
+        Head over to our <a href="{% url 'huntserver:login_selection' %}?next=/registration/">sign in page.</a>
         Once you sign in you'll be redirected back here to join or make a team. 
       </p>
     </div>

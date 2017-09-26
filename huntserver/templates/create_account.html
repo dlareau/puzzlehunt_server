@@ -11,7 +11,20 @@
     <form method="POST" action="">
       <table>
       {% csrf_token %}
-      {{uf.as_table}}
+      {% for field in uf %}
+        <tr class="required">
+          <th>
+            {{ field.label_tag }}
+          </th>
+          <td>
+            {{ field }}
+            <br>
+            <div class="help_text">{{ field.help_text }}</div>
+            <div class="field_errors">{{ field.errors }}</div>
+          </td>
+        </tr>
+      {% endfor %}
+      <tr><th></th><td><br></td></tr>
       {{pf.as_table}}
       <tr><td><input type="submit"></td></tr>
       </table>

@@ -15,15 +15,20 @@ Including another URLconf
 """
 from django.conf.urls import include, url, patterns
 from django.contrib import admin
-from django.contrib.auth import views
+from django.contrib.auth import views as base_auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^accounts/logout/$', views.logout, name='logout', kwargs={'next_page': '/'}),
-    url(r'^accounts/login/$', views.login),
+    url(r'^accounts/logout/$', base_auth_views.logout, name='logout', kwargs={'next_page': '/'}),
+    url(r'^accounts/login/$', base_auth_views.login),
     url(r'^', include('huntserver.urls', namespace="huntserver")),
+    url(r'^password_reset/$', base_auth_views.password_reset, name='password_reset'),
+    url(r'^password_reset/done/$', base_auth_views.password_reset_done, name='password_reset_done'),
+    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        base_auth_views.password_reset_confirm, name='password_reset_confirm'),
+    url(r'^reset/done/$', base_auth_views.password_reset_complete, name='password_reset_complete'),
 ]
 
 # Hack for using development server

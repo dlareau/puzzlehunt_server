@@ -89,9 +89,10 @@ def puzzle_view(request, puzzle_id):
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
 
-    # Create submission object and then rely on utils.respond_to_submission
-    # for automatic responses.
+    # Dealing with answer submissions, proper procedure is to create a submission
+    # object and then rely on utils.respond_to_submission for automatic responses.
     if request.method == 'POST':
+        # Deal with answers from archived hunts
         if(puzzle.hunt.is_public):
             form = AnswerForm(request.POST)
             team = dummy_team_from_hunt(puzzle.hunt)
@@ -108,16 +109,20 @@ def puzzle_view(request, puzzle_id):
                       'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
                       'response': response, 'is_correct': is_correct}
             return render(request, 'puzzle.html', context)
+
+        # If the hunt isn't public and you aren't signed in, please stop...
         if(team == None):
             return HttpResponse('fail')
+
+        # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
         if form.is_valid():
             user_answer = form.cleaned_data['answer']
             s = Submission.objects.create(submission_text = user_answer,
                 puzzle = puzzle, submission_time = timezone.now(), team = team)
-            # TODO: might be fine with just respond_to_submission
             response = respond_to_submission(s)
 
+        # Render response to HTML
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': s})]
 
         try:
@@ -125,14 +130,16 @@ def puzzle_view(request, puzzle_id):
         except:
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-
+        # Send back rendered response for display
         context = {'submission_list': submission_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))
 
+    # Will return HTML rows for all submissions the user does not yet have
     elif request.is_ajax():
         if(team == None):
             return HttpResponseNotFound('access denied')
 
+        # Find which objects the user hasn't seen yet and render them to HTML
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         submissions = Submission.objects.filter(modified_date__gt = last_date)
@@ -143,7 +150,6 @@ def puzzle_view(request, puzzle_id):
             last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         except:
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-
 
         context = {'submission_list': submission_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))

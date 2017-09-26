@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from huntserver import hunt_views, auth_views, info_views, staff_views
-from django.contrib.auth import views
+from django.contrib.auth import views as base_auth_views
 from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
 from django.conf import settings
@@ -55,8 +55,9 @@ urlpatterns = [
         url(r'^puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
         url(r'^emails/$', staff_views.emails, name='emails'),
         url(r'^management/$', staff_views.hunt_management, name='hunt_management'),
+        url(r'^depgraph/$', staff_views.depgraph, name='depgraph'),
     ])),
 
-    url(r'^Shibboleth.sso/Logout', views.logout, name='logout', kwargs={'next_page': '/'}),
-    url(r'^Shibboleth.sso/Login', views.login)
+    url(r'^Shibboleth.sso/Logout', base_auth_views.logout, name='logout', kwargs={'next_page': '/'}),
+    url(r'^Shibboleth.sso/Login', base_auth_views.login),
 ]
