@@ -10,12 +10,18 @@ class UnlockableInline(admin.TabularInline):
     model = models.Unlockable
     extra = 1
 
+class ResponseInline(admin.TabularInline):
+    model = models.Response
+    extra = 1
+    template = "admin/tabular_custom.html"
+
 class UnlockInline(admin.TabularInline):
     model = models.Puzzle.unlocks.through
     extra = 2
     fk_name = 'to_puzzle'
     verbose_name = "Puzzle that counts towards unlocking this puzzle"
     verbose_name_plural = "Puzzles that count towards this puzzle"
+    template = "admin/tabular_custom.html"
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "from_puzzle":
@@ -40,7 +46,7 @@ class PuzzleAdmin(admin.ModelAdmin):
     list_filter = ('hunt',)
     fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer',
               'link', 'num_pages', 'num_required_to_unlock')
-    inlines = (UnlockInline,)
+    inlines = (UnlockInline, ResponseInline)
 
 class TeamAdminForm(forms.ModelForm):
     persons = forms.ModelMultipleChoiceField(
