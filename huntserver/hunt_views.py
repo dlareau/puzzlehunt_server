@@ -50,16 +50,18 @@ def hunt(request, hunt_num):
     # real teams get appropriate puzzles, and puzzles from past hunts are public
     if(request.user.is_staff):
         puzzle_list = hunt.puzzle_set.all()
+
+    elif(team and team.is_playtester_team):
+        puzzle_list = team.unlocked.filter(hunt=hunt)
+        
     # Hunt has not yet started
-    elif(hunt.is_locked or team.is_playtester_team):
-        if(team.is_playtester_team):
-            puzzle_list = team.unlocked.filter(hunt=hunt)
-        else:
-            return render(request, 'not_released.html', {'reason': "locked"})
+    elif(hunt.is_locked):
+        return render(request, 'not_released.html', {'reason': "locked"})
+            
     # Hunt has started
     elif(hunt.is_open):
         # see if the team does not belong to the hunt being accessed
-        if(team.is_normal_team and (team == None or team.hunt != hunt)):
+        if(team == None or (team.hunt != hunt)):
             return render(request, 'not_released.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
