@@ -1,0 +1,309 @@
+{% extends "hunt_base.html" %}
+{% block title %}Puzzles!{% endblock title %}
+
+{% block base_includes %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/hunt_base.css">
+<style>
+html {
+	min-height: 100%;
+}
+
+body {
+	min-height: 100%
+	background: #000;
+	background: -webkit-radial-gradient(circle, #392406, black); /* Safari */
+  background: -o-radial-gradient(circle, #392406, black); /* Opera 11.6 to 12.0 */
+  background: -moz-radial-gradient(circle, #392406, black); /* Firefox 3.6 to 15 */
+  background: radial-gradient(circle, #392406, black); /* Standard syntax */
+}
+
+#container {
+	color: #FFA31C;
+	font-family: 'PT Mono', monospace;
+	
+	/*position: relative;*/
+	width: 100%;
+	height: 100%;
+}
+
+.puzzdiv {
+	border-style:solid;
+	border-color:#FFA31C;
+	background: #000;
+	padding: 20px;
+	z-index: 10;
+	width: 90%;
+	
+	margin-left: auto;
+	margin-right: auto;
+	
+	/*position: absolute;
+	width: 400px;
+	height: auto;
+	left: 0;
+	right: 0;
+	top: 100px;
+	margin-left: auto;
+	margin-right: auto;*/
+}
+
+@media (min-width: 768px) {
+	.puzzdiv {
+		width: 700px;
+	}
+}
+
+@media (min-width: 992px) {
+	.puzzdiv {
+		width: 450px;
+	}
+}
+
+@media (min-width: 1200px) {
+	.puzzdiv {
+		width: 600px;
+	}
+}
+
+@media (max-width: 768px) {
+	#terminal {
+		display: none;
+	}
+}
+
+.puzzdiv h1 {
+	margin-top:0px;
+	font-size: 25px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.puzzdiv hr {
+	border:none;
+  border-top:1px dashed #FFA31C;
+  color:#000;
+  background-color:#000;
+  height:1px;
+}
+
+tbody:before {
+	content: "-";
+	display: block;
+	line-height: 0.3em;
+	color: transparent;
+}
+
+th {
+	text-align: left;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+h3 {
+	text-align: left;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+a {
+	color: #FFA31C;
+}
+
+a:hover {
+	color: #FFA31C;
+}
+
+#aperturelogo {
+	position: absolute;
+	left: -40px;
+	top: 90px;
+	z-index: -7;
+}
+
+#scanlines {
+	background-image: url("/static/huntserver/f17/scanline.png");
+  background-repeat: repeat-xy;
+	
+	position: absolute;
+	height: 100%;
+	min-height: 160.38988mm;
+	width: 100%;
+	left: 0;
+	right: 0;
+	top: 90px;
+	bottom: 0;
+	z-index: -5;
+}
+
+#terminal {
+	color: #8D5400;
+	
+	position: absolute;
+	width: 300px;
+	right: 40px;
+	top: 140px;
+	z-index: -10;
+}
+
+#footer {
+	display: none;
+}
+
+#logodiv {
+	position: absolute;
+	right: 0px;
+	left: 0px;
+	bottom: 0px;
+	text-align: center;
+	line-height: 100px;
+	overflow: hidden;
+	height: 100px;
+}
+
+.logoimg	{
+	height: 40px;
+}
+
+#wrapper {
+	position: relative;
+	padding-top: 100px;
+	padding-bottom: 100px;
+	min-height: 180mm;
+}
+
+.divider {
+	border-left:2px #fff solid; 
+	height: 40px;
+	display: inline;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+</style>
+{% endblock base_includes %}
+
+{% block content %}
+<div id="container">
+	<div id="terminal">
+		Connected to Enrichment Center...
+		<br />
+		<br />
+		All operations normal.
+	</div>
+	<svg id="aperturelogo" 
+		xmlns:xlink="http://www.w3.org/2000/xlink" 
+		width="160.38988mm" height="160.38988mm">
+		<path
+			style="fill:#5c3700;fill-opacity:1;fill-rule:evenodd;stroke:#8d5400;stroke-width:8.80000019;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+			d="m 257.52659,472.31641 271.9152,25.38461 -15.11084,16.62993 c -40.53544,40.53543 -92.66384,69.47789 -151.02847,81.43064 l -3.03816,0.43974 z m -106.29558,-81.79043 174.25439,210.15263 -22.38643,1.11933 c -51.52878,0 -100.01939,-13.03211 -142.35373,-36.01818 l -24.46517,-14.87098 z m 449.4476,-109.77347 1.11933,22.34646 c 0,51.56874 -13.03211,100.05935 -36.01818,142.3937 L 550.90878,469.95784 390.52598,455.0069 Z M 133.9215,257.52659 108.53688,529.44179 91.906965,514.33095 C 51.371533,473.79551 22.429073,421.66711 10.476317,363.30248 l -0.439733,-3.03816 z M 55.329134,136.28007 215.71193,151.23101 5.5592981,325.4854 4.4000001,303.09897 c 0,-51.52878 13.0720779,-100.01939 36.0581469,-142.35373 z M 497.70102,76.796125 514.33095,91.90696 c 40.53543,40.53543 69.47789,92.66384 81.43064,151.02847 l 0.43974,3.03816 -123.88492,102.73773 z M 245.97359,10.036584 348.71132,133.9215 76.796125,108.53688 91.906965,91.90696 C 132.44239,51.371533 184.5708,22.429073 242.93543,10.476317 Z m 57.12538,-5.6365839 c 51.56874,0 100.05935,13.0720779 142.3937,36.0581469 L 469.95784,55.329134 455.0069,215.71193 280.75251,5.5592981 Z"
+			id="path3735" />
+	</svg>
+	<div id="scanlines"></div>
+	
+	<div id="wrapper">
+		<div class="puzzdiv">
+			<h1>APERTURE SCIENCE STUDENT TESTING INITIATIVE</h1>
+			<hr />
+			<div id="puzzles">
+				<table>
+					<thead>
+						<tr>
+							<th style='width: 320px'>Test Name</th>
+							<th style='width: 180px'>Solution?</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for puzzle in puzzles %}
+						
+							{% if puzzle.puzzle_number == 10 %}
+									</tbody>
+								</table>
+								<h3>Round 2</h3>
+								<table>
+									<tbody>
+									<col width="320px">
+									<col width="180px">
+							{% endif %}
+						
+							<tr>
+								<td><a href="/puzzle/{{ puzzle.puzzle_id }}/">{{puzzle.puzzle_name}}</a></td>
+								<td>{% if puzzle in solved %}{{ puzzle.answer|upper }}{% endif %}</td>
+							</tr>
+						{% endfor %}
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						<tr>
+							<td><a href="">Test2</a></td>
+							<td>Solution2</td>
+						</tr>
+						<tr>
+							<td><a href="">Test1</a></td>
+							<td>Solution1</td>
+						</tr>
+						
+						
+						
+					</tbody>
+				</table>
+			</div>
+			<div id="logodiv">
+				<img src="/static/huntserver/f17/logoaperture.png" class="logoimg"></img>
+				<img class="divider"></img>
+				<img src="/static/huntserver/f17/logojanestreet.png" class="logoimg"></img>
+				<img class="divider"></img>
+				<img src="/static/huntserver/f17/logopuzzlehunt.png" class="logoimg"></img>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}

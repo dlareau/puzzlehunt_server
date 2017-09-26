@@ -1,0 +1,36 @@
+body {
+	/*font-family: 'OCR-A', 'OCR A', 'OCR A Extended';*/
+	font-family: 'PT Mono', monospace;
+	color: #FFA31C;
+	background-color: #000;
+	font-size: 2em;
+	padding: 15px;
+	-webkit-text-size-adjust: none;
+	-moz-text-size-adjust: none;
+	-ms-text-size-adjust: none;
+}
+a {
+	color: #FFC877;
+}
+.logo {
+	height:80px;
+	position: absolute; 
+	right: 15px; 
+	top: 15px;
+}
+button {
+	background-color: #018BFE; /* Green */
+	border: none;
+	color: white;
+	padding: 5px 10px;
+	height: 25px;
+	text-align: center;
+  border-radius: 5px;
+	font-family: 'PT Mono', monospace;
+}
+input {
+	height: 25px;
+}
+.whitelink {
+	color: #fff;
+}
