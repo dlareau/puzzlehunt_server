@@ -175,15 +175,23 @@ def puzzle_view(request, puzzle_id):
 @login_required
 def chat(request):
     # Generate messages depending on what we are doing.
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if request.method == 'POST':
         if(request.POST.get('team_pk') == ""):
             return HttpResponse(status=400)
-        team = Team.objects.get(pk=request.POST.get('team_pk'))
-        m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
-            is_response=(request.POST.get('is_response')=="true"), team=team)
-        messages = [m]
+        if(request.POST.get("is_announcement") == "true" and request.user.is_staff):
+            messages = []
+            for team in curr_hunt.team_set.all():
+                m = Message.objects.create(time=timezone.now(),
+                    text="[Anouncement] " + request.POST.get('message'),
+                    is_response=(request.POST.get('is_response')=="true"), team=team)
+                messages.append(m)
+        else:
+            team = Team.objects.get(pk=request.POST.get('team_pk'))
+            m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
+                is_response=(request.POST.get('is_response')=="true"), team=team)
+            messages = [m]
     else:
-        curr_hunt = Hunt.objects.get(is_current_hunt=True)
         team = team_from_user_hunt(request.user, curr_hunt)
         if(team == None):
             #TODO maybe handle more nicely because hunt may just not be released
@@ -196,8 +204,14 @@ def chat(request):
         messages = messages.filter(team=team).order_by('time')
 
     message_dict = {}
-    message_dict[team.team_name] = {'pk': team.pk, 'messages': list(messages)}
-    message_dict[team.team_name]['messages'] = render_to_string('chat_messages.html', {'messages': message_dict[team.team_name]['messages']})
+    for message in messages:
+        if message.team.team_name not in message_dict:
+            message_dict[message.team.team_name] = {'pk': message.team.pk, 'messages': [message]}
+        else:
+            message_dict[message.team.team_name]['messages'].append(message)
+    for team_name in message_dict:
+        message_dict[team_name]['messages'] = render_to_string(
+            'chat_messages.html', {'messages': message_dict[team_name]['messages']})
     try:
         last_pk = Message.objects.latest('id').id
     except Message.DoesNotExist:

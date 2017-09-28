@@ -16,8 +16,14 @@ $(document).ready(function() {
   }
 
   function send_message(){
+    if($("#announce_checkbox:checked").length > 0){
+      is_announcement = $("#announce_checkbox:checked")[0].checked
+    } else {
+      is_announcement = false
+    }
     data = {team_pk: curr_team, message: $('#messagebox').val(),
-            is_response: is_response, csrfmiddlewaretoken: csrf_token};
+            is_response: is_response, csrfmiddlewaretoken: csrf_token,
+            is_announcement: is_announcement};
     $.post('/chat/', data, 'json')
       .fail( function(xhr, textStatus, errorThrown) {
         console.log(xhr);
@@ -34,7 +40,6 @@ $(document).ready(function() {
     if(is_visible()){
       $.getJSON(ajax_url, {last_pk: last_pk})
         .done(function(result){
-          console.log(result)
           receiveMessages(result['message_dict']);
           last_pk = result['last_pk'];
         })
