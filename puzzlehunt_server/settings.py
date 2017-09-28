@@ -32,8 +32,9 @@ class globlist(list):
         for pat in self:
             if fnmatch(key, pat): return True
         return False
-# Put the whole internal range as internal ips
-INTERNAL_IPS = globlist(['128.237.*.*', '128.2.*.*'])
+
+if(not INTERNAL_IPS):
+    INTERNAL_IPS = globlist(['128.237.*.*', '128.2.*.*'])
 
 # Application definition
 

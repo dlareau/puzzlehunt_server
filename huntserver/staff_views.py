@@ -74,7 +74,8 @@ def progress(request):
     elif request.is_ajax():
         update_info = []
         if not ("last_solve_pk" in request.GET and
-                "last_unlock_pk" in request.GET):
+                "last_unlock_pk" in request.GET and
+                "last_submission_pk" in request.GET):
             return HttpResponse(status=404)
         results = []
         if(not request.user.is_staff):
@@ -90,9 +91,15 @@ def progress(request):
         for i in range(len(unlocks)):
             results.append(unlocks[i].serialize_for_ajax())
 
+        last_submission_pk = request.GET.get("last_submission_pk")
+        submissions = list(Submission.objects.filter(pk__gt = last_submission_pk))
+        for i in range(len(submissions)):
+            results.append(submissions[i].serialize_for_ajax())
+
         if(len(results) > 0):
             update_info = [Solve.objects.latest('id').id]
             update_info.append(Unlock.objects.latest('id').id)
+            update_info.append(Submission.objects.latest('id').id)
         response = json.dumps({'messages': results, 'update_info': update_info})
         return HttpResponse(response)
 
@@ -106,10 +113,11 @@ def progress(request):
         sol_array = []
         for team in teams:
             # These are defined to reduce DB queries
-            solved = team.solved.all()
-            unlocked = team.unlocked.all()
-            solves = team.solve_set.select_related('submission')
-            unlocks = team.unlock_set.all()
+            solved = team.solved.all()                           # puzzles
+            unlocked = team.unlocked.all()                       # puzzles
+            solves = team.solve_set.select_related('submission') # solves
+            unlocks = team.unlock_set.all()                      # unlocks
+            submissions = team.submission_set.all()              # submissions
 
             # Basic team information for row headers
             # The last element ('cells') is an array of the row's data
@@ -123,7 +131,12 @@ def progress(request):
                 # Unlocked => Identify as unlocked, puzzle id, and unlock time
                 elif puzzle in unlocked:
                     unlock_time = unlocks.get(puzzle=puzzle).time
-                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id, unlock_time])
+                    puzzle_submissions = submissions.filter(puzzle=puzzle)
+                    if(puzzle_submissions.exists()):
+                        last_sub_time = puzzle_submissions.latest('id').submission_time
+                    else:
+                        last_sub_time = None
+                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id, unlock_time, last_sub_time])
                 # Locked => Identify as locked and puzzle id
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
@@ -135,8 +148,13 @@ def progress(request):
             last_unlock_pk = Unlock.objects.latest('id').id
         except Unlock.DoesNotExist:
             last_unlock_pk = 0
+        try:
+            last_submission_pk = Submission.objects.latest('id').id
+        except Submission.DoesNotExist:
+            last_submission_pk = 0
         context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array, 
-                   'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk}
+                   'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk,
+                   'last_submission_pk': last_submission_pk}
         return render(request, 'progress.html', context)
 
 @staff_member_required

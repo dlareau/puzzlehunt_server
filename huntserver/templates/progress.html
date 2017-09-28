@@ -6,6 +6,7 @@
 <script type="text/javascript">
   last_solve_pk = {{last_solve_pk}};
   last_unlock_pk = {{last_unlock_pk}};
+  last_submission_pk = {{last_submission_pk}}
 </script>
 <script src="{{ STATIC_URL }}huntserver/progress.js"></script>
 {% endblock includes %}
@@ -39,7 +40,9 @@
               </form>
             </td>
           {% elif cell.0 == "unlocked" %}
-            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}></td>
+            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}>
+              <b>{{ cell.3|time:"h:i a" }}</b>
+            </td>
           {% else %}
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='solved' > 
               {{ cell.0|time:"h:i a" }} 

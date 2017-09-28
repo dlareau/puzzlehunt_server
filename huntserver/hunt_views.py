@@ -10,7 +10,7 @@ from dateutil import tz
 import json
 import os
 
-from .models import Puzzle, Hunt, Submission, Message, Team, Solve, Unlock, Unlockable
+from .models import Puzzle, Hunt, Submission, Message, Team, Unlockable
 from .forms import AnswerForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 

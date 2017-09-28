@@ -29,8 +29,9 @@ $(document).ready(function() {
     if(is_visible()){
       $.ajax({
         type: 'get',
-        url: "/staff/progress",
-        data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk},
+        url: "/staff/progress/",
+        data: {last_solve_pk: last_solve_pk, last_unlock_pk: last_unlock_pk,
+               last_submission_pk: last_submission_pk},
         success: function (response) {
           var response = JSON.parse(response);
           messages = response.messages
@@ -41,6 +42,7 @@ $(document).ready(function() {
             };
             last_solve_pk = response.update_info[0];
             last_unlock_pk = response.update_info[1];
+            last_submission_pk = response.update_info[2];
           }
         },
         error: function (html) {
@@ -78,6 +80,9 @@ $(document).ready(function() {
       $td.addClass('available');
       $td.data("date", (Date.now()/1000));
       $td.html(" ");
+    }
+    else if(update.status_type == "submission"){
+      $td.html("<b>" + update.time_str + "</b>");
     }
   }
 });

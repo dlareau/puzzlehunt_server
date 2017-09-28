@@ -127,12 +127,9 @@ class Submission(models.Model):
         message = dict()
         df = DateFormat(self.submission_time.astimezone(time_zone))
         message['time_str'] = df.format("h:i a")
-        message['submission_text'] = escape(self.submission_text)
-        message['response_text'] = escape(self.response_text)
-        message['is_correct'] = self.is_correct
         message['puzzle'] = self.puzzle.serialize_for_ajax()
-        message['team'] = self.team.team_name
-        message['pk'] = self.pk
+        message['team_pk'] = self.team.pk
+        message['status_type'] = "submission"
         return message
 
     @property
