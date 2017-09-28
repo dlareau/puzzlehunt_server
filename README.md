@@ -1,6 +1,6 @@
 # puzzlehunt_server
-Server for Puzzlehunt CMU's bi-annual puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, team logins, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a chat with the staff feature, and automatic file fetching and hosting. 
-
+Server for Puzzlehunt CMU's bi-annual puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting. 
+	
 System packages:
 * python 2.7
 * mysql-client
@@ -9,13 +9,7 @@ System packages:
 * python-dev
 * libmysqlclient-dev
 
-Python packages (pip)
-* django
-* MySQL-python
-* python-dateutil
-* PyPDF2
-
-(Working on getting a virtualenv solution set up)
+See requirements.txt for Python requirements
 
 Database setup details:
 * expects a pre-existing empty database named puzzlehunt_db
@@ -25,16 +19,12 @@ Database setup details:
    * ```CREATE DATABASE puzzlehunt_db;```
    * ```CREATE USER 'hunt'@'localhost' IDENTIFIED BY 'wrongbaa';```
    * ```GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'hunt'@'localhost' WITH GRANT OPTION;```
-* run ```python manage.py migrate``` to have django configure the database
-* then run ```python manage.py runserver 8080``` to start a server at http://127.0.0.1:8080/ (this will be replaced with nginx in the production version)
- 
+* run ```python manage.py migrate``` to have django configure the database 
 
 Project Details:
-* Check out file_map.txt for new developers.
 * The django project is named ```puzzlehunt_server``` amd the app is named ```huntserver```
-* Instructions to start the server can be found in notes.txt
+* Documentation (a work in progress) can be found at docs.puzzlehunt.club
 
-Desired Features
-- [ ] Ability to set interactive unlocks and give notifications
-- [ ] Hints
-- [ ] Public facing charts and leaderboard (disableable)
+While there is fairly large amount of configuration making this specific to Puzzlehunt CMU, if you are interested in getting this running elsewhere, let me know. I'd be happy to help anyone who wants to get this up and running for their needs. 
+	
+Please submit issues for any bugs reports or feature requests.
