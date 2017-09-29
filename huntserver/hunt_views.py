@@ -35,7 +35,7 @@ def protected_static(request, file_path):
         response = HttpResponse()
         # let apache determine the correct content type
         response['Content-Type']=""
-        # This is what lets django access the normally restricted /static/
+        # This is what lets django access the normally restricted /media/
         response['X-Sendfile'] = smart_str(os.path.join(settings.MEDIA_ROOT, file_path))
         return response
 

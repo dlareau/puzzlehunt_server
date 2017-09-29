@@ -51,4 +51,4 @@ Email dlareau@cmu.edu
 License
 -------
 
-The project is licensed under the BSD license.
+The project is licensed under the MIT license.
