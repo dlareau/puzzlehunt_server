@@ -37,7 +37,7 @@ and are named using the "puzzle id" field of the puzzle which is enforced to be 
 To protect users from being able to just go to ``/media/puzzles/{Puzzle_id}.pdf`` and get puzzles,
 the server comes included with a protected routing path.
 The /protected/ URL will only allow a user to access puzzle files if they have unlocked the puzzle.
-To avoid hard-coding that path, you can use the variable settings.PROTECTED_URL after importing the project settings.
+To avoid hard-coding that path, you can use the variable "settings.PROTECTED_URL"  after importing the project settings.
 
 It is a bit simplistic, but anything in the puzzles directory is permission guarded by the first 3 characters of the filename.
 If the requesting user has access to the puzzle object with the corresponding 3 character puzzle_id, then they will have access to that file.
