@@ -163,11 +163,14 @@ def charts(request):
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
     puzzle_info_dicts = []
     for puzzle in puzzles:
+        team_count = curr_hunt.team_set.exclude(location="off_campus").count()
+        unlocked_count = puzzle.unlocked_for.exclude(location="off_campus").filter(hunt=curr_hunt).count()
+        solved_count = puzzle.solved_for.exclude(location="off_campus").filter(hunt=curr_hunt).count()
         puzzle_info_dicts.append({
             "name": puzzle.puzzle_name,
-            "locked": curr_hunt.team_set.count()-puzzle.unlocked_for.filter(unlock__puzzle__hunt=curr_hunt).count(),
-            "unlocked": puzzle.unlocked_for.count() - puzzle.solved_for.count(),
-            "solved": puzzle.solved_for.count()
+            "locked": team_count - unlocked_count,
+            "unlocked": unlocked_count - solved_count,
+            "solved": solved_count
             })
 
     context = {'data1_list':puzzle_info_dicts}
