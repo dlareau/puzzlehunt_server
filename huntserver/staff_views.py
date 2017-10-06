@@ -4,11 +4,13 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template.loader import render_to_string
+from django.conf import settings
 import json
 from datetime import datetime
 from dateutil import tz
 import networkx as nx
 from django.core.mail import EmailMessage
+import itertools
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
 from .forms import SubmissionForm, UnlockForm, EmailForm
@@ -161,19 +163,49 @@ def progress(request):
 def charts(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
-    puzzle_info_dicts = []
+    puzzle_info_dict1 = []
+    puzzle_info_dict2 = []
     for puzzle in puzzles:
         team_count = curr_hunt.team_set.exclude(location="off_campus").count()
         unlocked_count = puzzle.unlocked_for.exclude(location="off_campus").filter(hunt=curr_hunt).count()
         solved_count = puzzle.solved_for.exclude(location="off_campus").filter(hunt=curr_hunt).count()
-        puzzle_info_dicts.append({
+        submission_count = puzzle.submission_set.exclude(team__location="off_campus").filter(puzzle__hunt=curr_hunt).count()
+        puzzle_info_dict1.append({
             "name": puzzle.puzzle_name,
             "locked": team_count - unlocked_count,
             "unlocked": unlocked_count - solved_count,
             "solved": solved_count
             })
 
-    context = {'data1_list':puzzle_info_dicts}
+        puzzle_info_dict2.append({
+            "name": puzzle.puzzle_name,
+            "incorrect": submission_count - solved_count,
+            "correct": solved_count
+            })
+
+    time_zone = tz.gettz(settings.TIME_ZONE)
+    subs = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission_time")
+    grouped = itertools.groupby(subs, lambda x:x.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
+    submission_hours = []
+    for group, matches in grouped:
+        matches = list(matches)
+        amount = len(matches)
+        # TODO: change this to be based on hunt date
+        if(matches[0].puzzle.hunt.start_date < matches[0].submission_time < matches[0].puzzle.hunt.end_date):
+            submission_hours.append({"hour": group, "amount":amount})
+
+    solves = Solve.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission__submission_time")
+    grouped = itertools.groupby(solves, lambda x:x.submission.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
+    solve_hours = []
+    for group, matches in grouped:
+        matches = list(matches)
+        amount = len(matches)
+        if(matches[0].puzzle.hunt.start_date < matches[0].submission.submission_time < matches[0].puzzle.hunt.end_date):
+            solve_hours.append({"hour": group, "amount":amount})
+
+            
+    context = {'data1_list':puzzle_info_dict1, 'data2_list':puzzle_info_dict2,
+               'data3_list': submission_hours, 'data4_list': solve_hours }
     return render(request, 'charts.html', context)
 
 @staff_member_required

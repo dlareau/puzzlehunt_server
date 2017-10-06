@@ -98,7 +98,7 @@ class Team(models.Model):
         return (not self.playtester)
 
     def __unicode__(self):
-        return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name
+        return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name
 
 class Person(models.Model):
     user = models.OneToOneField(User)
@@ -109,7 +109,7 @@ class Person(models.Model):
     is_shib_acct = models.BooleanField()
     
     def __unicode__(self):
-        name = self.user.first_name + " " + self.user.last_name + " (" + self.user.email + ")" + " (" + self.user.username + ")"
+        name = self.user.first_name + " " + self.user.last_name + " (" + self.user.username + ")"
         if(name == "  ()"):
             return "Anonymous User"
         else:
