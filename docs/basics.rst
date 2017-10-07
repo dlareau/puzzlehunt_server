@@ -43,7 +43,7 @@ It is a bit simplistic, but anything in the puzzles directory is permission guar
 If the requesting user has access to the puzzle object with the corresponding 3 character puzzle_id, then they will have access to that file.
 You can use this to protect files other than just the puzzle PDFs and PNGs.
 
-You should protect your media URL by only allowing access to /media/ from internal sources.
+You should protect your /media/puzzles URL by only allowing access to /media/puzzles/ from internal sources.
 The Apache configuration for this project includes protection like this already.
 
 Database
