@@ -2,6 +2,7 @@ from django.contrib import admin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from huntserver.widgets import HtmlEditor
 
 # Register your models here.
 import models
@@ -88,7 +89,25 @@ class PersonAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'is_shib_acct',)
     search_fields = ['user__email', 'user__username', 'user__first_name', 'user__last_name']
 
-admin.site.register(models.Hunt)
+class HuntAdminForm(forms.ModelForm):
+    model = models.Hunt
+    class Meta:
+        fields = '__all__'
+        widgets = {
+            'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
+        }
+
+class HuntAdmin(admin.ModelAdmin):
+    form = HuntAdminForm
+
+class HuntAssetFileAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'url')
+    readonly_fields = ('url',)
+
+    def url(self, obj):
+        return obj.file.url
+
+admin.site.register(models.Hunt, HuntAdmin)
 admin.site.register(models.Puzzle, PuzzleAdmin)
 admin.site.register(models.Person, PersonAdmin)
 admin.site.register(models.Team, TeamAdmin)
@@ -98,3 +117,4 @@ admin.site.register(models.Unlock)
 admin.site.register(models.Message)
 admin.site.register(models.Response)
 admin.site.register(models.Unlockable)
+admin.site.register(models.HuntAssetFile, HuntAssetFileAdmin)

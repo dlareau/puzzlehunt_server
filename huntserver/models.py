@@ -7,6 +7,8 @@ from django.utils.html import escape
 from django.utils.dateformat import DateFormat
 from dateutil import tz
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+import os
 time_zone = tz.gettz(settings.TIME_ZONE)
 
 # Create your models here.
@@ -19,6 +21,7 @@ class Hunt(models.Model):
     end_date = models.DateTimeField()
     location = models.CharField(max_length=100)
     is_current_hunt = models.BooleanField(default=False)
+    template = models.TextField(default="")
     
     # A bit of custom logic in clean and save to ensure exactly one hunt's
     # is_current_hunt is true at any time. Basically, you can never un-set that
@@ -217,3 +220,16 @@ class Response(models.Model):
 
     def __unicode__(self):
         return self.regex + "=>" + self.text
+
+class OverwriteStorage(FileSystemStorage):
+    def get_available_name(self, name):
+        # If the filename already exists, remove it as if it was a true file system
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+class HuntAssetFile(models.Model):
+    file = models.FileField(upload_to='hunt/assets/', storage=OverwriteStorage())
+
+    def __unicode__(self):
+        return os.path.basename(self.file.name)

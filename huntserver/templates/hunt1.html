@@ -19,17 +19,17 @@
             </tr>
           </thead>
           <tbody>
-          {% for puzzle in puzzles %}
+            {% for puzzle in puzzles %}
               <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
                 <td>
-                  {% if puzzle in team.solved.all %}
+                  {% if puzzle in solved %}
                   <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
                   {% else %}
                   <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
                   {% endif %}
                 </td>
                 <td>
-                  {% if puzzle in team.solved.all %}
+                  {% if puzzle in solved %}
                     {{ puzzle.answer|upper }}
                   {% endif %}
                 </td>
@@ -39,7 +39,7 @@
                 </a>
                 </td>
               </tr>
-          {% endfor %}
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -50,14 +50,13 @@
         Hello Space Cadet(s)!
         </br>
         <p>
-        You are part of the emergency response team that has been woken out of cryostasis to help
-        get the ship back on course.
+        You are part of the emergency response team that has been woken out of cryostasis to help get the ship back on course.
         </p>
         <p>
-  	It would seem an engineer had woken up unexpectedly from cryostasis causing him to go crazy. Before he was subdued he had managed to deactivate the engines and change all of the door passwords. He did leave some clues behind in the form of puzzles. 
+  	      It would seem an engineer had woken up unexpectedly from cryostasis causing him to go crazy. Before he was subdued he had managed to deactivate the engines and change all of the door passwords. He did leave some clues behind in the form of puzzles.
         </p>
         <p>
-  	Please look over the puzzles he left, use the answers to unlock futher rooms (which we suspect will contain further puzzles), make your way to the engine room and reactivate the engine.
+  	      Please look over the puzzles he left, use the answers to unlock futher rooms (which we suspect will contain further puzzles), make your way to the engine room and reactivate the engine.
         </p>
         </br>
         Thanks,</br>
