@@ -158,7 +158,7 @@ def puzzle_view(request, puzzle_id):
 
     else:
         # Only allowed access if the hunt is public or if unlocked by team
-        if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all())):
+        if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all()) or request.user.is_staff):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
             try:
