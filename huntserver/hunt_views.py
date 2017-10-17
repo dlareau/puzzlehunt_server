@@ -222,6 +222,7 @@ def chat(request):
     if request.is_ajax() or request.method == 'POST':
         return HttpResponse(json.dumps(context))
     else:
+        context['team'] = team.pk
         return render(request, 'chat.html', context)
 
 @login_required
