@@ -1,5 +1,3 @@
-$(document).ready(function() {
-
   function map_buttons() {
     $('.chatselect').click(function() {
       $('.chatselect').each(function() {
@@ -10,5 +8,6 @@ $(document).ready(function() {
       $("button[data-id=" + curr_team + "]").css("background-color", "white");
     });
   }
+$(document).ready(function() {
   map_buttons();
 });
