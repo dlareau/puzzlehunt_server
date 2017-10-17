@@ -103,6 +103,7 @@ h3 {
 	text-align: left;
 	font-weight: bold;
 	font-size: 1.2em;
+	margin-bottom: 0px;
 }
 
 a {
@@ -214,6 +215,13 @@ a:hover {
 		<div class="puzzdiv">
 			<h1>APERTURE SCIENCE STUDENT TESTING INITIATIVE</h1>
 			<hr />
+			{% for puzzle in puzzles %}
+				{% if puzzle.puzzle_number == 1 %}
+					<div style="text-align:center; maring-bottom:0.5em">
+						<a href="https://youtu.be/tEY7hzkjPTs">Intro Video</a>
+					</div>
+				{% endif %}
+			{% endfor %}
 			<div id="puzzles">
 				<table>
 					<thead>
@@ -225,7 +233,17 @@ a:hover {
 					<tbody>
 						{% for puzzle in puzzles %}
 						
-							{% if puzzle.puzzle_number == 10 %}
+							{% if puzzle.puzzle_number == 9 %}
+									</tbody>
+								</table>
+								<h3>Meta 1</h3>
+								<table>
+									<tbody>
+									<col width="320px">
+									<col width="180px">
+							{% endif %}
+							
+							{% if puzzle.puzzle_number == 11 %}
 									</tbody>
 								</table>
 								<h3>Round 2</h3>
@@ -234,12 +252,50 @@ a:hover {
 									<col width="320px">
 									<col width="180px">
 							{% endif %}
+                            
+                            {% if puzzle.puzzle_number == 10 %}
+									</tbody>
+								</table>
+								<h3>Interactive</h3>
+								<table>
+									<tbody>
+									<col width="320px">
+									<col width="180px">
+							{% endif %}
+							
+							{% if puzzle.puzzle_number == 19 %}
+									</tbody>
+								</table>
+								<h3>Meta 2</h3>
+								<table>
+									<tbody>
+									<col width="320px">
+									<col width="180px">
+							{% endif %}
 						
-							<tr>
-								<td><a href="/puzzle/{{ puzzle.puzzle_id }}/">{{puzzle.puzzle_name}}</a></td>
-								<td>{% if puzzle in solved %}{{ puzzle.answer|upper }}{% endif %}</td>
-							</tr>
+                            {% if puzzle.puzzle_number != 50 %}
+                                <tr>
+                                    <td><a href="/puzzle/{{ puzzle.puzzle_id }}/">{{puzzle.puzzle_name}}</a></td>
+                                    <td>{% if puzzle in solved %}{{ puzzle.answer|upper }}{% endif %}</td>
+                                </tr>
+                            {% endif %}
+                            
 						{% endfor %}
+                        {% for puzzle in puzzles %}
+                            {% if puzzle.puzzle_number == 50 %}
+                                </tbody>
+								</table>
+								<h3>Run around</h3>
+								<table>
+									<tbody>
+									<col width="320px">
+									<col width="180px">
+                                <tr>
+                                    <td><a href="/puzzle/{{ puzzle.puzzle_id }}/">{{puzzle.puzzle_name}}</a></td>
+                                    <td>{% if puzzle in solved %}{{ puzzle.answer|upper }}{% endif %}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
 					</tbody>
 				</table>
 			</div>
