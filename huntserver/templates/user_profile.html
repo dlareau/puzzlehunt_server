@@ -1,0 +1,31 @@
+{% extends "info_base.html" %}
+
+{% block content %}
+<div class="container">
+<h2>Change User Details</h2>
+{% if user_form.subject.errors %}
+    <ol>
+    {% for error in user_form.subject.errors %}
+        <li><strong>{{ error|escape }}</strong></li>
+    {% endfor %}
+    </ol>
+{% endif %}
+{% if person_form.subject.errors %}
+    <ol>
+    {% for error in person_form.subject.errors %}
+        <li><strong>{{ error|escape }}</strong></li>
+    {% endfor %}
+    </ol>
+{% endif %}
+<form method="POST">
+  {% csrf_token %}
+  <div>
+    {{ user_form.as_p }}
+    {{ person_form.as_p }}
+  </div>
+  <div class="submit-row">
+    <input type="submit" value="Update Info" class="default" />
+  </div>
+</form>
+</div>
+{% endblock %}

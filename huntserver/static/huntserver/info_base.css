@@ -53,11 +53,11 @@ h1.title {
 }
 
 input[type="text"] {
-    width:200px;
+    width:300px;
 }
 
 input[type="email"] {
-    width:200px;
+    width:300px;
 }
 
 input[readonly] {

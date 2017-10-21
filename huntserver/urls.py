@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
     url(r'^contact-us/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
     url(r'^registration/$', info_views.registration, name='registration'),
+    url(r'^user-profile/$', info_views.user_profile, name='user_profile'),
 
     # Hunt Pages
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', hunt_views.puzzle_view, name='puzzle'),

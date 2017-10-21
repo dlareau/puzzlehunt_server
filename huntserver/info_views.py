@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import random
 
 from .utils import team_from_user_hunt
 from .models import Hunt, Team
+from .forms import UserForm, PersonForm, ShibUserForm
 
 def index(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
@@ -51,3 +53,19 @@ def registration(request):
         teams = Team.objects.filter(hunt=curr_hunt).all()
         return render(request, "registration.html", {'teams': teams})
 
+@login_required
+def user_profile(request):
+    # For form submission
+    if request.method == 'POST':
+        uf = ShibUserForm(request.POST, instance=request.user)
+        pf = PersonForm(request.POST, instance=request.user.person)
+        if uf.is_valid() and pf.is_valid():
+            uf.save()
+            pf.save()
+        else:
+            context = {'user_form': uf, 'person_form': pf}
+            return render(request, "user_profile.html", context)
+    user_form = ShibUserForm(instance=request.user)
+    person_form = PersonForm(instance=request.user.person)
+    context = {'user_form': user_form, 'person_form': person_form}
+    return render(request, "user_profile.html", context)

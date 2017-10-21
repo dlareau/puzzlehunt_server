@@ -19,12 +19,12 @@ class PersonForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
         self.fields['phone'].help_text = "Optional"
+        self.fields['allergies'].help_text = "Optional"
+        self.fields['allergies'].label = "Food Preferences"
 
-    allergies = forms.CharField(widget = forms.Textarea, label="Allergies", 
-                                required=False, help_text="Optional")
     class Meta:
         model = Person
-        fields = ['phone']
+        fields = ['phone', 'allergies']
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -81,7 +81,7 @@ class ShibUserForm(forms.ModelForm):
 
     class Meta:
         model = User 
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'username', 'email']
         
 class EmailForm(forms.Form):
     subject = forms.CharField(label='Subject')

@@ -40,14 +40,14 @@
           <ul class="nav navbar-nav navbar-right">
             {% block right-header %}
               {% if user.is_authenticated %}
-                <p class="navbar-text visible-md visible-lg">
-                  {% if team %}
-                    Team: {{team.team_name}}
-                  {% else %}
-                    Logged in as {{request.user.username}}
-                  {% endif %}
-                </p>
-                <a class="btn btn-default navbar-btn" href="/logout/">Log out</a>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">User: {{request.user.username}} <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="{% url 'huntserver:user_profile' %}">Edit Profile</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout/">Log Out</a></li>
+                  </ul>
+                </li>
               {% else %}
                 <a class="btn btn-default navbar-btn" href="{% url 'huntserver:login_selection' %}">Log in</a>
               {% endif %}
