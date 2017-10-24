@@ -33,7 +33,7 @@
       </ul>
       <br>
       <br>
-      <form method="Post" action="#">
+      <form method="Post">
         {% csrf_token %}
         <input type="hidden" name="form_type" value="leave_team">
         <input type="submit" value="Remove me from this team" onclick="return confirm('Are you sure?')">
@@ -42,12 +42,19 @@
   {% else %}
     </div>
     <div class="container no_outline">
+      {% if error %}
+        <div class="row">
+          <div class="container col-md-12">
+            Error: {{error}}
+          </div>
+        </div>
+      {% endif %}
       <div class="row">
         <div class="col-md-6">
           <div class="container col-md-12" style="height:300px">
             <h2>Create New Team</h2>
             <hr style="border-width:2px; border-color: black;">
-            <form method="Post" action="#">
+            <form method="Post">
               {% csrf_token %}
               <input type="hidden" name="form_type" value="new_team">
               Please enter a new team name:
@@ -70,7 +77,7 @@
           <div class="container col-md-12" style="height:300px">
             <h2>Join Existing Team</h2>
             <hr style="border-width:2px; border-color: black;">
-            <form method="Post" action="#">
+            <form method="Post">
               {% csrf_token %}
               <input type="hidden" name="form_type" value="join_team">
               Select a team to join:
