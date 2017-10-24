@@ -55,6 +55,10 @@ class Hunt(models.Model):
     def is_public(self):
         return timezone.now() > self.end_date
 
+    @property
+    def real_teams(self):
+        return self.team_set.exclude(location="DUMMY").all()
+
     def __unicode__(self):
         if(self.is_current_hunt):
             return self.hunt_name + " (c)"

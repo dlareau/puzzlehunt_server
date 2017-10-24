@@ -55,7 +55,7 @@ def registration(request):
     if(team != None):
         return render(request, "registration.html", {'registered_team': team})
     else:
-        teams = Team.objects.filter(hunt=curr_hunt).all()
+        teams = curr_hunt.real_teams
         return render(request, "registration.html", {'teams': teams, 'error': error})
 
 @login_required

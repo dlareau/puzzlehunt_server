@@ -17,7 +17,7 @@ def login_selection(request):
 
 def create_account(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    teams = curr_hunt.team_set.all().exclude(team_name="Admin").order_by('pk')
+    teams = curr_hunt.real_teams.all().exclude(team_name="Admin").order_by('pk')
     if request.method == 'POST':
         uf = UserForm(request.POST, prefix='user')
         pf = PersonForm(request.POST, prefix='person')

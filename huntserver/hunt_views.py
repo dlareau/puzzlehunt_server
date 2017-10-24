@@ -181,7 +181,7 @@ def chat(request):
             return HttpResponse(status=400)
         if(request.POST.get("is_announcement") == "true" and request.user.is_staff):
             messages = []
-            for team in curr_hunt.team_set.all():
+            for team in curr_hunt.real_teams.all():
                 m = Message.objects.create(time=timezone.now(),
                     text="[Anouncement] " + request.POST.get('message'),
                     is_response=(request.POST.get('is_response')=="true"), team=team)

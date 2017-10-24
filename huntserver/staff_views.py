@@ -33,11 +33,11 @@ def queue(request, page_num=1):
     elif request.is_ajax():
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
-        submissions = Submission.objects.filter(modified_date__gt = last_date)
+        submissions = Submission.objects.filter(modified_date__gt = last_date).exclude(team__location="DUMMY")
 
     else:
         hunt = Hunt.objects.get(is_current_hunt=True)
-        submissions = Submission.objects.filter(puzzle__hunt=hunt).select_related('team', 'puzzle').order_by('-pk')
+        submissions = Submission.objects.filter(puzzle__hunt=hunt).exclude(team__location="DUMMY").select_related('team', 'puzzle').order_by('-pk')
         pages = Paginator(submissions, 30)
         try:
             submissions = pages.page(page_num)
@@ -107,7 +107,7 @@ def progress(request):
 
     else:
         curr_hunt = Hunt.objects.get(is_current_hunt=True)
-        teams = curr_hunt.team_set.all().order_by('team_name')
+        teams = curr_hunt.real_teams.all().order_by('team_name')
         puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
         # An array of solves, organized by team then by puzzle
         # This array is essentially the grid on the progress page
@@ -166,10 +166,10 @@ def charts(request):
     puzzle_info_dict1 = []
     puzzle_info_dict2 = []
     for puzzle in puzzles:
-        team_count = curr_hunt.team_set.exclude(location="off_campus").count()
-        unlocked_count = puzzle.unlocked_for.exclude(location="off_campus").filter(hunt=curr_hunt).count()
-        solved_count = puzzle.solved_for.exclude(location="off_campus").filter(hunt=curr_hunt).count()
-        submission_count = puzzle.submission_set.exclude(team__location="off_campus").filter(puzzle__hunt=curr_hunt).count()
+        team_count = curr_hunt.team_set.exclude(location="DUMMY").exclude(location="off_campus").count()
+        unlocked_count = puzzle.unlocked_for.exclude(location="DUMMY").exclude(location="off_campus").filter(hunt=curr_hunt).count()
+        solved_count = puzzle.solved_for.exclude(location="DUMMY").exclude(location="off_campus").filter(hunt=curr_hunt).count()
+        submission_count = puzzle.submission_set.exclude(team__location="DUMMY").exclude(team__location="off_campus").filter(puzzle__hunt=curr_hunt).count()
         puzzle_info_dict1.append({
             "name": puzzle.puzzle_name,
             "locked": team_count - unlocked_count,
@@ -283,7 +283,7 @@ def control(request):
         
 @staff_member_required
 def emails(request):
-    teams = Team.objects.filter(hunt__is_current_hunt=True)
+    teams = Hunt.objects.get(is_current_hunt=True).real_teams
     people = []
     for team in teams:
          people = people + list(team.person_set.all())
