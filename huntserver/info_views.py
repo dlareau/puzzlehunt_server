@@ -51,6 +51,10 @@ def registration(request):
         elif(request.POST["form_type"] == "leave_team"):
             request.user.person.teams.remove(team)
             team = None
+        elif(request.POST["form_type"] == "new_location"):
+            # TODO: add success message
+            team.location = request.POST.get("team_location")
+            team.save()
 
     if(team != None):
         return render(request, "registration.html", {'registered_team': team})
@@ -73,4 +77,5 @@ def user_profile(request):
     user_form = ShibUserForm(instance=request.user)
     person_form = PersonForm(instance=request.user.person)
     context = {'user_form': user_form, 'person_form': person_form}
+    # TODO: add success message
     return render(request, "user_profile.html", context)

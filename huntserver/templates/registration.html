@@ -23,7 +23,13 @@
     <p>
       <b> Team Name: </b> {{ registered_team.team_name }}
       <br>
-      <b> Team Location: </b> {{ registered_team.location }}
+      <form method="Post">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="new_location">
+        <b> Team Location: </b>
+        <input name="team_location" value="{{ registered_team.location }}" type="text">
+        <input type="submit" value="Change location">
+      </form>
       <br>
       <b> Team Members: </b>
       <ul>
