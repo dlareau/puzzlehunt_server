@@ -1,5 +1,5 @@
 <tr data-id='{{submission.pk}}'>
  <td>{{ submission.submission_time|time:"h:i a" }}</td>
  <td>{{ submission.submission_text }} </td>
- <td>{{ submission.response_text }}</td>
+ <td>{{ submission.convert_markdown_response|safe }}</td>
 </tr>

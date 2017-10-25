@@ -9,6 +9,8 @@ from dateutil import tz
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import os
+import re
+
 time_zone = tz.gettz(settings.TIME_ZONE)
 
 # Create your models here.
@@ -142,6 +144,10 @@ class Submission(models.Model):
     @property
     def is_correct(self):
         return self.submission_text.lower() == self.puzzle.answer.lower()
+
+    @property
+    def convert_markdown_response(self):
+        return re.sub(r'\[(.*?)\]\((.*?)\)', '<a href="\\2">\\1</a>', self.response_text)
 
     def save(self, *args, **kwargs):
         self.modified_date = timezone.now()
