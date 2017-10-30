@@ -1,13 +1,8 @@
-body {
+\body {
   font-family: verdana;
   font-size: 14px;
   padding: 0;
   margin: 0; }
-
-table{
-  border-collapse: separate;
-  border-spacing: 2px;
-}
 
 #login_logout_button {
   margin-right: 8px;
@@ -16,6 +11,21 @@ table{
 #content {
   margin: 20px; }
 
+button {
+	background-color: white;
+    border: 1px solid black;
+	margin: 1px;
+    text-align: center;
+    text-decoration: none;
+	border-radius: 4px;
+	white-space: nowrap;
+    display: inline-block;}
+
+button:hover {
+	background-color: lightgrey; }
+
+button:active {
+	background-color: grey; }
 
 #queue {
   width: 100%; }
@@ -38,9 +48,14 @@ table{
 
 
 td {
-  padding: 5px;
+  padding: 3px;
   border: 1px solid black; }
 
+th {
+	text-align: center;
+	padding-left: 3px;
+	padding-right: 3px;
+	border: 1px solid black; }
 
 #puzzles .meta {
   background: #DADAF8; }

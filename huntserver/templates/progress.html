@@ -16,6 +16,24 @@
   <table id='progress'>
     <thead>
       <tr>
+        <th>Action for all teams:</th>
+        <th></th>
+        {% for puzzle in puzzle_list %}
+          <th>
+            <form class='unlock_form' action="/staff/progress/" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="puzzle_id" value="{{ puzzle.pk }}">
+              <input type="hidden" name="action" value="unlock_all">
+              <button type="Submit" onclick="return confirm('Are you sure?')">
+                Unlock All
+              </button>
+            </form>
+      </form>
+
+          </th>
+        {% endfor %}
+      </tr>
+      <tr>
         <th>Team</th>
         <th>#</th>
         {% for puzzle in puzzle_list %}
@@ -36,8 +54,11 @@
                 {% csrf_token %}
                 <input type="hidden" name="team_id" value="{{ row.team.pk }}">
                 <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">
-                <input type="Submit" value="Unlock" />
-              </form>
+                <input type="hidden" name="action" value="unlock">
+                <button type="Submit">
+                  Unlock
+                </button>
+        </form>
             </td>
           {% elif cell.0 == "unlocked" %}
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}>

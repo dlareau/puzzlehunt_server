@@ -65,12 +65,22 @@ def queue(request, page_num=1):
 def progress(request):
     # Admin unlocking a puzzle
     if request.method == 'POST':
-        form = UnlockForm(request.POST)
-        if form.is_valid():
-            t = Team.objects.get(pk=form.cleaned_data['team_id'])
-            p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
-            u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
-            return HttpResponse(json.dumps(u.serialize_for_ajax()))
+        if "action" in request.POST:
+            if request.POST.get("action") == "unlock":
+                form = UnlockForm(request.POST)
+                if form.is_valid():
+                    t = Team.objects.get(pk=form.cleaned_data['team_id'])
+                    p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
+                    u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
+                    return HttpResponse(json.dumps(u.serialize_for_ajax()))
+            if request.POST.get("action") == "unlock_all":
+                    p = Puzzle.objects.get(pk=request.POST.get('puzzle_id'))
+                    response = []
+                    for team in p.hunt.team_set.all():
+                        if(p not in team.unlocked.all()):
+                            u = Unlock.objects.create(team=team, puzzle=p, time=timezone.now())
+                            response.append(u.serialize_for_ajax())
+                    return HttpResponse(json.dumps(response))
         return HttpResponse(status=400)
 
     elif request.is_ajax():
