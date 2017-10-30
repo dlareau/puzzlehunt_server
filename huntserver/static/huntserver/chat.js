@@ -70,7 +70,7 @@ $(document).ready(function() {
       }
       var message_window = $("#chat_" + team_data['pk']);
       message_window.append(team_data['messages']);
-      if(team_data['pk'] != curr_team){
+      if(team_data['pk'] != curr_team && $(team_data['messages']).hasClass('user-message')){
         $("button[data-id=" + team_data['pk'] + "]").css("background-color", "red");
       }
     });
