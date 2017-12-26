@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load humanize %}
 {% block title %}Puzzlehunt CMU{% endblock title %}
 
 {% block includes %}
@@ -27,13 +28,13 @@
       complete the puzzles the fastest.
     </p>
     <h2>How do I register?</h2>
-    <p>Register your team of six (or fewer if you want) <a href="{% url 'huntserver:registration' %}">here!</a>
+    <p>Register your team of {{curr_hunt.team_size|apnumber}} (or fewer if you want) <a href="{% url 'huntserver:registration' %}">here!</a>
     </p>
 
     <h2>What should I bring?</h2>
     <p>
     <ul>
-        <li>A team of no more than six people. Humans only, please. Robots are discouraged; they mess up the sensors.</li>
+        <li>A team of no more than {{curr_hunt.team_size|apnumber}} people. Humans only, please. Robots are discouraged; they mess up the sensors.</li>
         <li>Laptops. All of our puzzles will be online. </li>
     <li>Scissors. These will be helpful. </li> 
         
