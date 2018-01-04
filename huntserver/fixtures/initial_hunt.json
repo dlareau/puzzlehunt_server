@@ -1,0 +1,254 @@
+[
+{
+    "fields": {
+        "username": "jlareau",
+        "first_name": "",
+        "last_name": "",
+        "is_active": true,
+        "is_superuser": true,
+        "is_staff": true,
+        "last_login": "2017-12-29T16:25:54Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$GLdG9P4Fdk25$/MUEQESmazezJ8xe6A87Jm5sBl/JIhk3skYQD20Dnn8=",
+        "email": "flybye22@gmail.com",
+        "date_joined": "2017-12-27T18:39:26Z"
+    },
+    "model": "auth.user",
+    "pk": 1
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "",
+        "comments": "",
+        "teams": [],
+        "phone": "000-000-0000",
+        "user": 1
+    },
+    "model": "huntserver.person",
+    "pk": 1
+},
+{
+    "fields": {
+        "username": "user1",
+        "first_name": "First1",
+        "last_name": "Last1",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2017-12-30T13:20:12Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "user1@example.com",
+        "date_joined": "2017-12-30T13:20:12Z"
+    },
+    "model": "auth.user",
+    "pk": 2
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 1",
+        "comments": "This is user 1",
+        "teams": [],
+        "phone": "111-111-1111",
+        "user": 2
+    },
+    "model": "huntserver.person",
+    "pk": 2
+},
+{
+    "fields": {
+        "username": "user2",
+        "first_name": "First2",
+        "last_name": "Last2",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2017-12-30T13:20:12Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "user2@example.com",
+        "date_joined": "2017-12-30T13:20:12Z"
+    },
+    "model": "auth.user",
+    "pk": 3
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 2",
+        "comments": "This is user 2",
+        "teams": [],
+        "phone": "222-222-2222",
+        "user": 3
+    },
+    "model": "huntserver.person",
+    "pk": 3
+},
+{
+    "fields": {
+        "username": "user3",
+        "first_name": "First3",
+        "last_name": "Last3",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2017-12-30T13:20:12Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "user3@example.com",
+        "date_joined": "2017-12-30T13:20:12Z"
+    },
+    "model": "auth.user",
+    "pk": 4
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 3",
+        "comments": "This is user 3",
+        "teams": [],
+        "phone": "333-333-3333",
+        "user": 4
+    },
+    "model": "huntserver.person",
+    "pk": 4
+},
+{
+    "fields": {
+        "username": "user4",
+        "first_name": "First4",
+        "last_name": "Last4",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2017-12-30T13:20:12Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "user4@example.com",
+        "date_joined": "2017-12-30T13:20:12Z"
+    },
+    "model": "auth.user",
+    "pk": 5
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 4",
+        "comments": "This is user 4",
+        "teams": [],
+        "phone": "444-444-4444",
+        "user": 5
+    },
+    "model": "huntserver.person",
+    "pk": 5
+},
+{
+    "fields": {
+        "username": "user5",
+        "first_name": "First5",
+        "last_name": "Last5",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2017-12-30T13:20:12Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "user5@example.com",
+        "date_joined": "2017-12-30T13:20:12Z"
+    },
+    "model": "auth.user",
+    "pk": 6
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 5",
+        "comments": "This is user 5",
+        "teams": [],
+        "phone": "555-555-5555",
+        "user": 6
+    },
+    "model": "huntserver.person",
+    "pk": 6
+},
+{
+    "fields": {
+        "username": "user6",
+        "first_name": "First6",
+        "last_name": "Last6",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2017-12-30T13:20:12Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "user6@example.com",
+        "date_joined": "2017-12-30T13:20:12Z"
+    },
+    "model": "auth.user",
+    "pk": 7
+},
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 6",
+        "comments": "This is user 6",
+        "teams": [],
+        "phone": "666-666-6666",
+        "user": 7
+    },
+    "model": "huntserver.person",
+    "pk": 7
+},
+{
+    "fields": {
+        "team_size": 5,
+        "end_date": "2000-01-02T05:00:00Z",
+        "hunt_name": "Example Hunt 1",
+        "is_current_hunt": false,
+        "location": "Example Location 1",
+        "template": "{% extends \"hunt_base.html\" %}\r\n{% block title %}Puzzles 1{% endblock title %}\r\n\r\n{% block content %}\r\nExample Template 1\r\n{% endblock content %}",
+        "hunt_number": 1,
+        "start_date": "2000-01-01T05:00:00Z"
+    },
+    "model": "huntserver.hunt",
+    "pk": 1
+},
+{
+    "fields": {
+        "team_size": 6,
+        "end_date": "3000-01-01T05:00:00Z",
+        "hunt_name": "Example Hunt 2",
+        "is_current_hunt": true,
+        "location": "Location 2",
+        "template": "{% extends \"hunt_base.html\" %}\r\n{% block title %}Puzzles 2{% endblock title %}\r\n\r\n{% block content %}\r\nExample Template 2\r\n{% endblock content %}",
+        "hunt_number": 2,
+        "start_date": "2001-01-01T05:00:00Z"
+    },
+    "model": "huntserver.hunt",
+    "pk": 2
+},
+{
+    "fields": {
+        "team_size": 3,
+        "end_date": "3000-01-03T05:00:00Z",
+        "hunt_name": "Example Hunt 3",
+        "is_current_hunt": false,
+        "location": "Location 3",
+        "template": "{% extends \"hunt_base.html\" %}\r\n{% block title %}Puzzles 3{% endblock title %}\r\n\r\n{% block content %}\r\nExample Template 3\r\n{% endblock content %}",
+        "hunt_number": 3,
+        "start_date": "3000-01-02T05:00:00Z"
+    },
+    "model": "huntserver.hunt",
+    "pk": 3
+}
+]
