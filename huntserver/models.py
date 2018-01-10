@@ -27,7 +27,8 @@ class Hunt(models.Model):
     location = models.CharField(max_length=100,
         help_text="Starting location of the puzzlehunt")
     is_current_hunt = models.BooleanField(default=False)
-    template = models.TextField(default="")
+    template = models.TextField(default="",
+        help_text="The template string to be rendered to HTML on the hunt page")
 
     # A bit of custom logic in clean and save to ensure exactly one hunt's
     # is_current_hunt is true at any time. It makes sure you can never un-set the
@@ -316,6 +317,7 @@ class OverwriteStorage(FileSystemStorage):
         return name
 
 class HuntAssetFile(models.Model):
+    """ A class to represent an asset file for a puzzlehunt """
     file = models.FileField(upload_to='hunt/assets/', storage=OverwriteStorage())
 
     def __unicode__(self):
