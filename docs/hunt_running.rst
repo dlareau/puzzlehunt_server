@@ -1,4 +1,6 @@
 How to Run a Hunt
 *******************
 
-Instructions on how to run a hunt will go here.
+So you want to run a puzzlehunt...
+
+Below are all of the steps you should need to take to run an already created puzzlehunt.
