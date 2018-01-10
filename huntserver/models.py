@@ -9,26 +9,33 @@ from dateutil import tz
 from django.conf import settings
 time_zone = tz.gettz(settings.TIME_ZONE)
 
-# Create your models here.
+
 class Hunt(models.Model):
-    hunt_name = models.CharField(max_length=200)
-    hunt_number = models.IntegerField(unique=True)
+    """ Base class for a hunt. Contains basic details about a puzzlehunt. """
+
+    hunt_name = models.CharField(max_length=200,
+        help_text="The name of the hunt as the public will see it")
+    hunt_number = models.IntegerField(unique=True,
+        help_text="A number used internally for hunt sorting, must be unique")
     team_size = models.IntegerField()
-    #Very bad things could happen if end date is before start date
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    location = models.CharField(max_length=100)
+    start_date = models.DateTimeField(
+        help_text="The date/time at which a hunt will become visible to registered users")
+    end_date = models.DateTimeField(
+        help_text="The date/time at which a hunt will be archived and available to the public")
+    location = models.CharField(max_length=100,
+        help_text="Starting location of the puzzlehunt")
     is_current_hunt = models.BooleanField(default=False)
-    
+
     # A bit of custom logic in clean and save to ensure exactly one hunt's
-    # is_current_hunt is true at any time. Basically, you can never un-set that
+    # is_current_hunt is true at any time. It makes sure you can never un-set the
     # value, and setting it anywhere else unsets all others.
     def clean(self, *args, **kwargs):
         if(not self.is_current_hunt):
             try:
                 old_instance = Hunt.objects.get(pk=self.pk)
                 if(old_instance.is_current_hunt):
-                    raise ValidationError({'is_current_hunt': ["There must always be one current hunt",]})
+                    raise ValidationError({'is_current_hunt':
+                                           ["There must always be one current hunt", ]})
             except ObjectDoesNotExist:
                 pass
         super(Hunt, self).clean(*args, **kwargs)
@@ -42,14 +49,17 @@ class Hunt(models.Model):
 
     @property
     def is_locked(self):
+        """ A boolean indicating whether or not the hunt is locked """
         return timezone.now() < self.start_date
 
     @property
     def is_open(self):
+        """ A boolean indicating whether or not the hunt is open to registered participants """
         return timezone.now() > self.start_date and timezone.now() < self.end_date
 
     @property
     def is_public(self):
+        """ A boolean indicating whether or not the hunt is open to the public """
         return timezone.now() > self.end_date
 
     def __unicode__(self):
@@ -58,18 +68,31 @@ class Hunt(models.Model):
         else:
             return self.hunt_name
 
+
 class Puzzle(models.Model):
-    puzzle_number = models.IntegerField()
-    puzzle_name = models.CharField(max_length=200)
-    puzzle_id = models.CharField(max_length=8, unique=True) #hex only please
-    answer = models.CharField(max_length=100)
-    link = models.URLField(max_length=200)
-    num_required_to_unlock = models.IntegerField(default=1)
-    unlocks = models.ManyToManyField("self", blank=True, symmetrical=False)
-    hunt = models.ForeignKey(Hunt)
-    num_pages = models.IntegerField()
-    
+    """ A class representing a puzzle within a hunt """
+
+    puzzle_number = models.IntegerField(
+        help_text="The number of the puzzle within the hunt, for sorting purposes")
+    puzzle_name = models.CharField(max_length=200,
+        help_text="The name of the puzzle as it will be seen by hunt participants")
+    puzzle_id = models.CharField(max_length=8, unique=True,  # hex only please
+        help_text="A 3 character hex string that uniquely identifies the puzzle")
+    answer = models.CharField(max_length=100,
+        help_text="The answer to the puzzle, not case sensitive")
+    link = models.URLField(max_length=200,
+        help_text="The full link (needs http://) to a publicly accessible PDF of the puzzle")
+    num_required_to_unlock = models.IntegerField(default=1,
+        help_text="Number of prerequisite puzzles that need to be solved to unlock this puzzle")
+    unlocks = models.ManyToManyField("self", blank=True, symmetrical=False,
+        help_text="Puzzles that this puzzle is a possible prerequisite for")
+    hunt = models.ForeignKey(Hunt,
+        help_text="The hunt that this puzzle is a part of")
+    num_pages = models.IntegerField(
+        help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
+
     def serialize_for_ajax(self):
+        """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
         message = dict()
         message['id'] = self.puzzle_id
         message['number'] = self.puzzle_number
@@ -78,52 +101,82 @@ class Puzzle(models.Model):
 
     def __unicode__(self):
         return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
-    
+
+
 class Team(models.Model):
-    team_name = models.CharField(max_length=200)
-    solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve")
-    unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for', through="Unlock")
-    unlockables = models.ManyToManyField("Unlockable", blank=True)
-    hunt = models.ForeignKey(Hunt)
-    location = models.CharField(max_length=80, blank=True)
-    join_code = models.CharField(max_length=5)
-    playtester = models.BooleanField(default=False)
+    """ A class representing a team within a hunt """
+
+    team_name = models.CharField(max_length=200,
+        help_text="The team name as it will be shown to hunt participants")
+    solved = models.ManyToManyField(Puzzle, blank=True, related_name='solved_for', through="Solve",
+        help_text="The puzzles the team has solved")
+    unlocked = models.ManyToManyField(Puzzle, blank=True, related_name='unlocked_for',
+        through="Unlock", help_text="The puzzles the team has unlocked")
+    unlockables = models.ManyToManyField("Unlockable", blank=True,
+        help_text="The unlockables the team has earned")
+    hunt = models.ForeignKey(Hunt,
+        help_text="The hunt that the team is a part of")
+    location = models.CharField(max_length=80, blank=True,
+        help_text="The physical location that the team is solving at")
+    join_code = models.CharField(max_length=5,
+        help_text="The 5 character random alphanumeric password needed for a user to join a team")
+    playtester = models.BooleanField(default=False,
+        help_text="A boolean to indicate if the team is a playtest team and will get early access")
 
     @property
     def is_playtester_team(self):
+        """ A boolean indicating whether or not the team is a playtesting team """
         return self.playtester
 
     @property
     def is_normal_team(self):
+        """ A boolean indicating whether or not the team is a normal (non-playtester) team """
         return (not self.playtester)
 
     def __unicode__(self):
         return str(len(self.person_set.all())) + " (" + self.location + ") " + self.team_name
 
+
 class Person(models.Model):
-    user = models.OneToOneField(User)
-    phone = models.CharField(max_length=20, blank=True)
-    allergies = models.CharField(max_length=400, blank=True)
-    comments = models.CharField(max_length=400, blank=True)
-    teams = models.ManyToManyField(Team, blank=True)
-    is_shib_acct = models.BooleanField()
-    
+    """ A class to associate more personal information with the default django auth user class """
+
+    user = models.OneToOneField(User,
+        help_text="The corresponding user to this person")
+    phone = models.CharField(max_length=20, blank=True,
+        help_text="Person's phone number, no particular formatting")
+    allergies = models.CharField(max_length=400, blank=True,
+        help_text="Allergy information for the person")
+    comments = models.CharField(max_length=400, blank=True,
+        help_text="Comments or other notes about the person")
+    teams = models.ManyToManyField(Team, blank=True,
+        help_text="Teams that the person is on")
+    is_shib_acct = models.BooleanField(
+        help_text="A boolean to indicate if the person uses shibboleth authentication for login")
+
     def __unicode__(self):
         name = self.user.first_name + " " + self.user.last_name + " (" + self.user.email + ")" + " (" + self.user.username + ")"
         if(name == "  ()"):
             return "Anonymous User"
         else:
             return name
-    
+
+
 class Submission(models.Model):
-    team = models.ForeignKey(Team)
+    """ A class representing a submission to a given puzzle from a given team """
+
+    team = models.ForeignKey(Team,
+        help_text="The team that made the submission")
     submission_time = models.DateTimeField()
     submission_text = models.CharField(max_length=100)
-    response_text = models.CharField(blank=True, max_length=400)
-    puzzle = models.ForeignKey(Puzzle)
-    modified_date = models.DateTimeField()
+    response_text = models.CharField(blank=True, max_length=400,
+        help_text="Response to the given answer. Empty string indicates human response needed")
+    puzzle = models.ForeignKey(Puzzle,
+        help_text="The puzzle that this submission is in response to")
+    modified_date = models.DateTimeField(
+        help_text="Last date/time of response modification")
 
     def serialize_for_ajax(self):
+        """ Serializes the time, puzzle, team, and status fields for ajax transmission """
         message = dict()
         df = DateFormat(self.submission_time.astimezone(time_zone))
         message['time_str'] = df.format("h:i a")
@@ -134,24 +187,33 @@ class Submission(models.Model):
 
     @property
     def is_correct(self):
+        """ A boolean indicating if the submission given is exactly correct """
         return self.submission_text.lower() == self.puzzle.answer.lower()
 
+    # Custom save method to ensure modified date is accurate
     def save(self, *args, **kwargs):
         self.modified_date = timezone.now()
-        super(Submission,self).save(*args, **kwargs)
-    
+        super(Submission, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return self.submission_text
 
+
 class Solve(models.Model):
-    puzzle = models.ForeignKey(Puzzle)
-    team = models.ForeignKey(Team)
-    submission = models.ForeignKey(Submission, blank=True)
+    """ A class that links a team and a puzzle to indicate that the team has solved the puzzle """
+
+    puzzle = models.ForeignKey(Puzzle,
+        help_text="The puzzle that this is a solve for")
+    team = models.ForeignKey(Team,
+        help_text="The team that this solve is from")
+    submission = models.ForeignKey(Submission, blank=True,
+        help_text="The submission object that the team submitted to solve the puzzle")
 
     class Meta:
         unique_together = ('puzzle', 'team',)
 
     def serialize_for_ajax(self):
+        """ Serializes the puzzle, team, time, and status fields for ajax transmission """
         message = dict()
         message['puzzle'] = self.puzzle.serialize_for_ajax()
         message['team_pk'] = self.team.pk
@@ -165,18 +227,24 @@ class Solve(models.Model):
             message['time_str'] = "0:00 am"
         message['status_type'] = "solve"
         return message
-    
+
     def __unicode__(self):
         return self.team.team_name + " => " + self.puzzle.puzzle_name
-    
+
+
 class Unlock(models.Model):
-    puzzle = models.ForeignKey(Puzzle)
-    team = models.ForeignKey(Team)
-    time = models.DateTimeField()
+    """ A class that links a team and a puzzle to indicate that the team has unlocked the puzzle """
+
+    puzzle = models.ForeignKey(Puzzle,
+        help_text="The puzzle that this is an unlock for")
+    team = models.ForeignKey(Team,
+        help_text="The team that this unlocked puzzle is for")
+    time = models.DateTimeField(
+        help_text="The time this puzzle was unlocked for this team")
 
     class Meta:
         unique_together = ('puzzle', 'team',)
-    
+
     def serialize_for_ajax(self):
         message = dict()
         message['puzzle'] = self.puzzle.serialize_for_ajax()
@@ -187,33 +255,52 @@ class Unlock(models.Model):
     def __unicode__(self):
         return self.team.team_name + ": " + self.puzzle.puzzle_name
 
+
 class Message(models.Model):
-    team = models.ForeignKey(Team)
-    is_response = models.BooleanField()
-    text = models.CharField(max_length=400)
-    time = models.DateTimeField()
+    """ A class that represents a message sent using the chat functionality """
+
+    team = models.ForeignKey(Team,
+        help_text="The team that this message is being sent to/from")
+    is_response = models.BooleanField(
+        help_text="A boolean representing whether or not the message is from the staff")
+    text = models.CharField(max_length=400,
+        help_text="Message text")
+    time = models.DateTimeField(
+        help_text="Message send time")
 
     def __unicode__(self):
         return unicode(self.team.team_name + ": " + self.text)
 
+
 class Unlockable(models.Model):
+    """ A class that represents an object to be unlocked after solving a puzzle """
+
     TYPE_CHOICES = (
         ('IMG', 'Image'),
         ('PDF', 'PDF'),
         ('TXT', 'Text'),
         ('WEB', 'Link'),
     )
-    puzzle = models.ForeignKey(Puzzle)
-    content_type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='TXT')
-    content = models.CharField(max_length=500)
+    puzzle = models.ForeignKey(Puzzle,
+        help_text="The puzzle that needs to be solved to unlock this object")
+    content_type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='TXT',
+        help_text="The type of object that is to be unlocked, can be 'IMG', 'PDF', 'TXT', or 'WEB'")
+    content = models.CharField(max_length=500,
+        help_text="The link to the content, files must be externally hosted.")
 
     def __unicode__(self):
         return "%s (%s)" % (self.puzzle.puzzle_name, self.content_type)
-    
+
+
 class Response(models.Model):
-    puzzle = models.ForeignKey(Puzzle)
-    regex = models.CharField(max_length=400)
-    text = models.CharField(max_length=400)
+    """ A class to represent an automated response regex """
+
+    puzzle = models.ForeignKey(Puzzle,
+        help_text="The puzzle that this automated response is related to")
+    regex = models.CharField(max_length=400,
+        help_text="The python-style regex that will be checked against the user's response")
+    text = models.CharField(max_length=400,
+        help_text="The text to use in the submission response if the regex matched")
 
     def __unicode__(self):
         return self.regex + "=>" + self.text
