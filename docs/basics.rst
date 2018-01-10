@@ -8,9 +8,9 @@ You can find more on how to effectively create and run a hunt in other pages.
 Design
 ------
 The design of this project is somewhat divided into two parts,
-the staff experience and the hunter experience.
+the staff experience and the hunt participant experience.
 
-Staff is anyone that has the staff bit set in the admin page.
+Staff is anyone that has the staff attribute set in the admin page.
 These users have access to the /staff/ area of the site;
 however, in order to access all functions and access the /admin/ area of the site, the user must also be a superuser as designated by Django.
 
@@ -29,13 +29,13 @@ This main static directory is not tracked by git,
 and therefore you should not put any content directly into this folder. 
 
 Puzzles should not be checked into the Github repository.
-They should exist on some accessible online file source (we use Dropbox)
+They should exist on some accessible online file source (we have used Dropbox in the past)
 and will be downloaded and converted when the admin choses to do so.
 Once downloaded, the puzzle files live in ``{PROJECT FOLDER}/media/puzzles/``
 and are named using the "puzzle id" field of the puzzle which is enforced to be unique to each puzzle.
 
 To protect users from being able to just go to ``/media/puzzles/{Puzzle_id}.pdf`` and get puzzles,
-the server comes included with a protected routing path.
+the server comes included with a protected routing path utilizing X-Sendfile.
 The /protected/ URL will only allow a user to access puzzle files if they have unlocked the puzzle.
 To avoid hard-coding that path, you can use the variable "settings.PROTECTED_URL"  after importing the project settings.
 
@@ -49,7 +49,7 @@ The Apache configuration for this project includes protection like this already.
 Database
 --------
 As noted in setup, the default database for this project is a MySQL database.
-After setup the database should never need to be modified by hand,
+After setup, the database should never need to be modified by hand,
 additions or deletions should be done from the online admin GUI or if absolutely necessary, from the Django interactive shell.
 Modifications to the table structure should only be done by modifying models.py
 and using the automatically created migration files. 
