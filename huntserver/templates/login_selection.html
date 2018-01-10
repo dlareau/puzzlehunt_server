@@ -6,7 +6,7 @@
   <div class="row">
     <div class="col-md-6">
       <h2>Select Your Login Service</h2>
-      <h4>(Please use a university login in possible)</h4>
+      <h4>(Please use a university login if possible)</h4>
       <div class="row">
         <div class="col-xs-4">
           <!-- This is one really nasty URL -->
@@ -35,8 +35,8 @@
       <hr style="border-width:2px; border-color: black;">
       <p>
         If you don't have an account with either Carnegie Mellon University or 
-        University of Pittsburgh, you can make an account by going here: 
-        <a href="{% url 'huntserver:create_account' %}">Create Account</a>
+        the University of Pittsburgh, you can
+        <a href="{% url 'huntserver:create_account' %}">create a Puzzlehunt Local Login account</a>.
         <br>
         (Again, this does not need to be done for CMU or Pitt students)
       </p>
@@ -44,8 +44,8 @@
       <h3> Forgot your password? </h3>
       <hr style="border-width:2px; border-color: black;">
       <p>
-        Is you are using a university account please use their services to reset your password.
-	If you are using a PuzzlehuntCMU account, for now please email us to reset your password. We are hoping to have an automatic password reset system setup shortly.
+        If you are using a university account, please use their services to reset your password.
+	      If you are using a PuzzlehuntCMU account, you can <a href="{% url 'password_reset' %}">reset your password here.</a>
       </p>
     </div>
   </div>

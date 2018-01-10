@@ -6,7 +6,7 @@
 <script type="text/javascript">
   csrf_token = '{{csrf_token}}';
   last_pk = {{last_pk}};
-  curr_team = {% for team, dict in message_dict.items %} {{dict.pk}} {% endfor %};
+  curr_team = {{team}};
   is_response = false;
   ajax_url = "/chat/"
 </script>

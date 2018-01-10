@@ -11,7 +11,7 @@
 
 @font-face {
   font-family: musicalFont;
-  src: url(/static/huntserver/black_jack.ttf);
+  src: url({{ STATIC_URL }}huntserver/black_jack.ttf);
 }
 
 .playbill {
@@ -40,11 +40,6 @@
   <div class="row" >
     <div class="content col-md-6 col-md-offset-3" id='puzzle-frame'>
       <h1 class="title"><font class='playbill'>Puzzlehunt: The Musical</font></h1>
-<!--
-      <a href='/objects/' > 
-        <p style="margin-top: -5px;"> Click here for unlocked objects </p> 
-      </a>
--->
       <div id="puzzles">
         <table>
           <thead>
@@ -65,19 +60,8 @@
 	  <col width="180px">
 	{% endif %}
               <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
- <!--               <td>
-                  {% if puzzle in solved %}
-                  <img src="{{ STATIC_URL }}huntserver/checkmark.png" alt="Solved"></img>
-                  {% else %}
-                  <img src="{{ STATIC_URL }}huntserver/red_x.png" alt="Solved"></img>
-                  {% endif %}
-                </td>
--->
                 <td>
-  		<p class="puzzle-name"><a href='/puzzle/{{ puzzle.puzzle_id }}/'>{{puzzle.puzzle_name}}</a></p>
-<!--
-                    <p class="puzzle-name">P{{puzzle.puzzle_number}} - {{ puzzle.puzzle_name }}</p>
--->
+  		            <p class="puzzle-name"><a href='/puzzle/{{ puzzle.puzzle_id }}/'>{{puzzle.puzzle_name}}</a></p>
                 </td>
                 <td>
                   {% if puzzle in solved %}
@@ -89,28 +73,8 @@
           </tbody>
         </table>
       </div>
- <!--     <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a> or try our new <a href="/chat/"> Chat Feature</a>.</p>
--->
 	<p> Feeling stuck? <a href="/chat/">Chat</a> with us</p>
     </div>
-<!--
-    <div class="content col-md-5">
-      <div id='plot'>
-	{% if puzzles|length > 12 %}
-	Some helpful maps:
-	{% else %}
-	A helpful map:
-	{% endif %}
-	<img src="{{ STATIC_URL }}huntserver/plot1.png" alt="plot1.png" width="450px"></img>
-	{% if puzzles|length > 12 %}
-	<br>
-	<br>
-	This will help your journey to the second castle:
-	<img src="{{ STATIC_URL }}huntserver/plot2.png" alt="plot1.png" width="450px"></img>
-	{% endif %}
-      </div>
-    </div>
--->
   </div>
 </div>
 {% endblock content %}

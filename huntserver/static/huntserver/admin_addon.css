@@ -48,3 +48,8 @@ header ul li {
 #header #branding header li a:hover {
     color: #DBDBDB;
 }
+
+.CodeMirror.cm-s-default {
+    height: 600px;
+    border: 1px solid black;
+}

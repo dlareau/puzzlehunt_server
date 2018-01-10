@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template.loader import render_to_string
+from django.template import Template, RequestContext
 from django.utils.encoding import smart_str
 from datetime import datetime
 from dateutil import tz
@@ -79,8 +80,7 @@ def hunt(request, hunt_num):
         solved = team.solved.all()
     context = {'hunt': hunt, 'puzzles': puzzles, 'team': team, 'solved': solved}
 
-    # Each hunt should have a main template named hunt#.html (ex: hunt3.html)
-    return render(request, 'hunt' + str(hunt_num) + '.html', context)
+    return HttpResponse(Template(hunt.template).render(RequestContext(request, context)))
 
 @login_required
 def current_hunt(request):
@@ -158,7 +158,7 @@ def puzzle_view(request, puzzle_id):
 
     else:
         # Only allowed access if the hunt is public or if unlocked by team
-        if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all())):
+        if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all()) or request.user.is_staff):
             submissions = puzzle.submission_set.filter(team=team).order_by('pk')
             form = AnswerForm()
             try:
@@ -222,6 +222,7 @@ def chat(request):
     if request.is_ajax() or request.method == 'POST':
         return HttpResponse(json.dumps(context))
     else:
+        context['team'] = team.pk
         return render(request, 'chat.html', context)
 
 @login_required
