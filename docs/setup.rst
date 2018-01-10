@@ -1,7 +1,7 @@
 Setup
-*********
+*****
 
-Instructions on how to setup a machine to run this project.
+Instructions on how to setup a machine to run this project. 
 
 Environment setup
 -----------------
@@ -48,9 +48,7 @@ To do so, log into the mysql client as a superuser and enter the following comma
 
 	CREATE DATABASE puzzlehunt_db;
 
-	CREATE USER 'nottherealusername'@'localhost' IDENTIFIED BY 'nottherealpassword';
-
-	GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'nottherealusername'@'localhost' WITH GRANT OPTION;
+	GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'nottherealusername'@'localhost' IDENTIFIED BY 'nottherealpassword';
 
 Django setup
 ------------
@@ -62,14 +60,22 @@ Create a superuser for the project by running ``python manage.py createsuperuser
 Collect all of the static files by running ``python manage.py collectstatic``.
 
 At this point the server should be able to start up.
-	Developers note: There may be a few other steps before the server will function without error. For example I believe it expects at least one hunt object to exist. I hope to one day have those needs either be documented or not exist any more.
+
+.. Add note about fixtures after tests is merged
+
+Developers note: There may be a few other steps before the server will function without error. For example I believe it expects at least one hunt object to exist. I hope to one day have those needs either be documented or not exist any more.
 
 Apache setup
 ------------
 
-The full setup of an apache server is beyond this documentation, but an example configuration file that should be a good starting point is available in the /config directory of the repository.
+The full setup of an apache server is beyond this documentation, but an example configuration file that should be a good starting point is available in the /config directory of the repository. That particular configuration file requires:  
 
-Part of the server and the apache configuration is the integration with Shibboleth for secure authentication of users. Again, this documetation couldn't possibly go over all aspects of setup. If you are setting this up from scratch, I reccommend the following link:
+- libapache2-mod-xsendfile
+- libapache2-mod-proxy-html
+- libapache2-mod-wsgi
+- libapache2-mod-shib2
+
+Part of the server and the apache configuration is the integration with Shibboleth for secure authentication of users. Again, this documentation couldn't possibly go over all aspects of setup. If you are setting this up from scratch, I recommend the following link:
 
 `CMU Shibboleth Setup Instructions`_
 
