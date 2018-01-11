@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Puzzlehunt_server'
-copyright = u'2015, Dillon Lareau'
+copyright = u'2017, Dillon Lareau'
 author = u'Dillon Lareau'
 
 # The version info for the project you're documenting, acts as replacement for
