@@ -160,6 +160,7 @@ Some notes about the responses:
   - Regexes are in python syntax
   - You are allowed to regex upon the correct answer and override the default "Correct!" response, the puzzle will still be marked as solved
   - Regexes are currently applied in no guaranteed order, answer that satisfy more than one regex are considered undefined behavior
+  - Response texts are allowed to contain markdown style links: [foo](https://link.to.foo)
 
 Update Current Hunt Label
 =========================
