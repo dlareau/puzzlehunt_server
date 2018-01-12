@@ -26,6 +26,12 @@ Version 3
 ..    -  Fixed bug where parts of old hunt headers lead to the current hunt pages
 ..    -  Fixed bug where staff announcements triggered new message alert for other staff members.
 
+v3.0.3
+======
+
+New:
+   -  Documentation of models, configuration, and how to run the server.
+
 v3.0.2
 ======
 
