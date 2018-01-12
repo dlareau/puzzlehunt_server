@@ -30,7 +30,7 @@ v3.0.3
 ======
 
 New:
-   -  Documentation of models, views, configuration, and how to run the server.
+   -  Documentation of models, configuration, and how to run the server.
 
 v3.0.2
 ======
@@ -64,315 +64,325 @@ New:
       -  Hunt specific files should no longer be included in the repository
 
 
-Version 2
-*********
+.. only:: latex
 
-v2.7.2
-======
+   Older Versions
+   **************
 
-Updates:
-   -  Added password reset link to login page
+   You can find the changelog for older versions in the online documentation
+   at https://docs.puzzlehunt.club
 
-v2.7.1
-======
+.. only:: html
 
-Bugfixes:
-   -  Fixed issue with custom tabular template that prevented editing puzzle details
-   -  Various typo fixes on the login selection page
+   Version 2
+   *********
 
-v2.7.0
-======
+   v2.7.2
+   ======
 
-New:
-   -  Progress page now shows last submission time for unsolved team/puzzle squares
-   -  Staff chat now supports announcements to all teams
-   -  Added 3 new charts to the staff charts page
+   Updates:
+      -  Added password reset link to login page
 
-v2.6.4
-======
+   v2.7.1
+   ======
 
-Bugfixes:
-   -  Fixed bug where previous hunt page would also show future hunts
+   Bugfixes:
+      -  Fixed issue with custom tabular template that prevented editing puzzle details
+      -  Various typo fixes on the login selection page
 
-v2.6.3
-======
+   v2.7.0
+   ======
 
-Updates:
-   -  Offsite and dummy teams are no longer shown in charts
+   New:
+      -  Progress page now shows last submission time for unsolved team/puzzle squares
+      -  Staff chat now supports announcements to all teams
+      -  Added 3 new charts to the staff charts page
 
-v2.6.2
-======
+   v2.6.4
+   ======
 
-Bugfixes:
-   -  Fixed bug where looking at an open hunt while not on a team would cause an error
+   Bugfixes:
+      -  Fixed bug where previous hunt page would also show future hunts
 
-v2.6.1
-======
+   v2.6.3
+   ======
 
-Updates:
-   -  Changed staff header contents to be relevant to website content
+   Updates:
+      -  Offsite and dummy teams are no longer shown in charts
 
-v2.6.0
-======
+   v2.6.2
+   ======
 
-New:
-   -  Added simplistic rendering of unlocking structure graph
-   -  Added ability to reset password via email for local accounts
-   -  Added ability to send email to all hunt participants directly from the email page
-   -  Added ability to update local PDF of individual puzzles
-   -  Added ability to edit puzzle responses from the respective puzzle page
+   Bugfixes:
+      -  Fixed bug where looking at an open hunt while not on a team would cause an error
 
-Updates:
-   -  **Puzzle unlocking GUI has been reversed, now selects which puzzles unlock current puzzle**
-   -  Regex for responding to answers is now case-insensitive
-   -  New CSS style for staff pages using updated bootstrap theme
-   -  Default action for incorrect responses is now the "Canned Response" instead of nothing
+   v2.6.1
+   ======
 
-Bugfixes:
-   -  Current hunt link no longer changes destination depending on current page
-   -  Patched several security vulnerabilities related to account registration and Shibboleth
+   Updates:
+      -  Changed staff header contents to be relevant to website content
 
-v2.5.2
-======
+   v2.6.0
+   ======
 
-Bugfixes:
-   -  Removed bad staff footer
-   -  Fixed incorrect contact information
+   New:
+      -  Added simplistic rendering of unlocking structure graph
+      -  Added ability to reset password via email for local accounts
+      -  Added ability to send email to all hunt participants directly from the email page
+      -  Added ability to update local PDF of individual puzzles
+      -  Added ability to edit puzzle responses from the respective puzzle page
 
-v2.5.1
-======
+   Updates:
+      -  **Puzzle unlocking GUI has been reversed, now selects which puzzles unlock current puzzle**
+      -  Regex for responding to answers is now case-insensitive
+      -  New CSS style for staff pages using updated bootstrap theme
+      -  Default action for incorrect responses is now the "Canned Response" instead of nothing
 
-Updates:
-   -  Updated "Not Released" page style to match the rest of the pages
+   Bugfixes:
+      -  Current hunt link no longer changes destination depending on current page
+      -  Patched several security vulnerabilities related to account registration and Shibboleth
 
-Bugfixes:
-   -  Fixed bug where correct answers on old hunts were styled as wrong answers
-   -  Fixed bug where puzzle page would "lose" a submission response
+   v2.5.2
+   ======
 
-v2.5.0
-======
+   Bugfixes:
+      -  Removed bad staff footer
+      -  Fixed incorrect contact information
 
-New:
-   -  All pages now support google analytics tracking
+   v2.5.1
+   ======
 
-v2.4.1
-======
+   Updates:
+      -  Updated "Not Released" page style to match the rest of the pages
 
-Bugfixes:
-   -  Fixed URL for University of Pittsburgh IDP
+   Bugfixes:
+      -  Fixed bug where correct answers on old hunts were styled as wrong answers
+      -  Fixed bug where puzzle page would "lose" a submission response
 
-v2.4.0
-======
+   v2.5.0
+   ======
 
-New:
-   -  Staff queue now is paginated for faster load times
-   -  Submissions may now be computationally responded to using regexes
-   -  Old hunts are now preserved properly and playable
-   -  Server now supports "Playtesting" teams who get early access to puzzles
-   -  AJAX requests now only fire when the page is active to reduce web traffic
-   -  Correct answer submissions may now have response texts other than "Correct!"
-   -  Support for running simultaneous development server(s)
+   New:
+      -  All pages now support google analytics tracking
 
-      -  Identifying header when on development server
-      -  Django debug toolbar present when on development server
+   v2.4.1
+   ======
 
-Updates:
-   -  Setting the current hunt is now done on the control page instead of the settings file
-   -  Updated look of staff chat, switched to side tabs for usability
-   -  Server now uses PyPDF2 to get PDF length to lessen reliance on outside tools
-   -  AJAX code updated to support model based data generation
-   -  Moved all in-page javascript to separate files
-   -  Removed all Redis websocket code from codebase
-   -  All effectful web requests are now done in POST requests
+   Bugfixes:
+      -  Fixed URL for University of Pittsburgh IDP
 
-Bugfixes:
-   -  Fixed bug where staff members had to be on a team for the queue to update
-   -  Fixed bug where local clock skew would cause the queue to miss updates
-   -  Fixed bug where AJAX would fail if there weren't any submissions yet
-   -  Shibboleth will now default to local login when not configured
-   -  Removed unnessecary CSRF token from certain GET requests
+   v2.4.0
+   ======
 
-v2.3.0
-======
+   New:
+      -  Staff queue now is paginated for faster load times
+      -  Submissions may now be computationally responded to using regexes
+      -  Old hunts are now preserved properly and playable
+      -  Server now supports "Playtesting" teams who get early access to puzzles
+      -  AJAX requests now only fire when the page is active to reduce web traffic
+      -  Correct answer submissions may now have response texts other than "Correct!"
+      -  Support for running simultaneous development server(s)
 
-New:
-   -  Moved from websocket/subscription model to AJAX/polling model for efficiency and simplicity
+         -  Identifying header when on development server
+         -  Django debug toolbar present when on development server
 
-v2.2.0
-======
+   Updates:
+      -  Setting the current hunt is now done on the control page instead of the settings file
+      -  Updated look of staff chat, switched to side tabs for usability
+      -  Server now uses PyPDF2 to get PDF length to lessen reliance on outside tools
+      -  AJAX code updated to support model based data generation
+      -  Moved all in-page javascript to separate files
+      -  Removed all Redis websocket code from codebase
+      -  All effectful web requests are now done in POST requests
 
-New:
-   -  Resources page now contains helpful links
-   -  Users are now able to leave a team from the registration page
-   -  Users are now able to see their room assignment from the registration page
+   Bugfixes:
+      -  Fixed bug where staff members had to be on a team for the queue to update
+      -  Fixed bug where local clock skew would cause the queue to miss updates
+      -  Fixed bug where AJAX would fail if there weren't any submissions yet
+      -  Shibboleth will now default to local login when not configured
+      -  Removed unnessecary CSRF token from certain GET requests
 
-Updates:
-   -  Configuration files are now in a separate directory
-   -  Apache is now configured to use uWSGI emperor mode
-   -  Improved registration page
-   -  Static files are now served using Apache and X-Sendfile for efficiency
+   v2.3.0
+   ======
 
-Bugfixes:
-   -  Username is now hidden when the navbar is too small to display it properly
-   -  Various bug fixes related to properly creating Shibboleth accounts
+   New:
+      -  Moved from websocket/subscription model to AJAX/polling model for efficiency and simplicity
 
-v2.1.0
-======
+   v2.2.0
+   ======
 
-New:
-   -  Server now supports Shibboleth authentication for users
+   New:
+      -  Resources page now contains helpful links
+      -  Users are now able to leave a team from the registration page
+      -  Users are now able to see their room assignment from the registration page
 
-v2.0.1
-======
+   Updates:
+      -  Configuration files are now in a separate directory
+      -  Apache is now configured to use uWSGI emperor mode
+      -  Improved registration page
+      -  Static files are now served using Apache and X-Sendfile for efficiency
 
-Bugfixes:
-   -  Fixed improper unicode method on Person object
-   -  Visiting a hunt's page while not on a team no longer results in an error
+   Bugfixes:
+      -  Username is now hidden when the navbar is too small to display it properly
+      -  Various bug fixes related to properly creating Shibboleth accounts
 
-v2.0.0
-======
+   v2.1.0
+   ======
 
-New:
-   -  Server now is one account per person instead of one account per team
+   New:
+      -  Server now supports Shibboleth authentication for users
 
-      -  Registration is completely re-written
-      -  Websocket code for most pages is re-written (relied on user)
-      -  Old databases are incompatible and must be regenerated
+   v2.0.1
+   ======
 
-         -  Migration files restarted at 0001
-         -  No automatic way to migrate data from previous scheme
+   Bugfixes:
+      -  Fixed improper unicode method on Person object
+      -  Visiting a hunt's page while not on a team no longer results in an error
 
-   -  Added new informational pages
+   v2.0.0
+   ======
 
-      -  New home page with organization details!
-      -  Other information pages such as "Contact Us" and "Resources"
+   New:
+      -  Server now is one account per person instead of one account per team
 
-Updates:
-   -  ADMIN_ACCTS variable no longer used anywhere and removed
-   -  Page load time improvements to Progress and Queue staff pages
+         -  Registration is completely re-written
+         -  Websocket code for most pages is re-written (relied on user)
+         -  Old databases are incompatible and must be regenerated
 
+            -  Migration files restarted at 0001
+            -  No automatic way to migrate data from previous scheme
 
-Version 1
-*********
+      -  Added new informational pages
 
-v1.3.0
-======
+         -  New home page with organization details!
+         -  Other information pages such as "Contact Us" and "Resources"
 
-Updates:
-   -  All pages now styled with bootstrap
-   -  All staff/admin views now rely on the "Staff" label instead of ADMIN_ACCTS
+   Updates:
+      -  ADMIN_ACCTS variable no longer used anywhere and removed
+      -  Page load time improvements to Progress and Queue staff pages
 
-v1.1.1
-======
 
-Bugfixes:
-   -  Re-fixed bug where users are able to submit answer when hunt is not open
-   -  Fixed XSS vulnerability in chat updating
-   -  Fixed broken link to goat.mp3
-   -  Fixed unnecessary response of full HTML page for ajax requests.
+   Version 1
+   *********
 
-v1.1.0
-======
+   v1.3.0
+   ======
 
-New:
-   -  Added text to registration page to assist in registration
-   -  Added Emails page for easy access to hunter's emails
-   -  Location is now a field when registering
-   -  Users are now able to view an existing registration with password
+   Updates:
+      -  All pages now styled with bootstrap
+      -  All staff/admin views now rely on the "Staff" label instead of ADMIN_ACCTS
 
-Updates:
-   -  Static files are now collected after downloading puzzles
+   v1.1.1
+   ======
 
-v1.0.1
-======
+   Bugfixes:
+      -  Re-fixed bug where users are able to submit answer when hunt is not open
+      -  Fixed XSS vulnerability in chat updating
+      -  Fixed broken link to goat.mp3
+      -  Fixed unnecessary response of full HTML page for ajax requests.
 
-Bugfixes:
-   -  Fixed issue with chat websockets not sending properly
+   v1.1.0
+   ======
 
-v1.0.0
-======
+   New:
+      -  Added text to registration page to assist in registration
+      -  Added Emails page for easy access to hunter's emails
+      -  Location is now a field when registering
+      -  Users are now able to view an existing registration with password
 
-New:
-   -  Added documentation!
+   Updates:
+      -  Static files are now collected after downloading puzzles
 
-Updates:
-   -  Phone number is no longer a required field in registration
-   -  Puzzles are now automatically unlocked for newly registered teams
+   v1.0.1
+   ======
 
+   Bugfixes:
+      -  Fixed issue with chat websockets not sending properly
 
-Pre-release
-***********
+   v1.0.0
+   ======
 
-v0.6.0
-======
+   New:
+      -  Added documentation!
 
-New:
-   -  Teams may now have a size limit
-   -  Static file access is now protected by unlock structure
+   Updates:
+      -  Phone number is no longer a required field in registration
+      -  Puzzles are now automatically unlocked for newly registered teams
 
-Updates:
-   -  Answer box now clears upon submission
-   -  Puzzle image quality improved
-   -  Code is better commented
-   -  Important private settings have been moved to an untracked file
-   -  PDFs are now served from the local downloaded copy
 
-Bugfixes:
-   -  Puzzles may no longer be solved when the hunt is not open
+   Pre-release
+   ***********
 
-v0.5.0
-======
+   v0.6.0
+   ======
 
-New:
-   -  Added Hunt Control page with actions to reset or release all puzzles
-   -  Added chat functionality to allow hunters to chat with staff
-   -  Added images of puzzles on each puzzle page
-   -  Added ability to unlock objects upon a puzzle solve
-   -  Added Unlockables page to view unlocked objects
-   -  Added Registration page to allow self registration of teams
+   New:
+      -  Teams may now have a size limit
+      -  Static file access is now protected by unlock structure
 
-Updates:
-   -  Responses are now changeable after submitting
+   Updates:
+      -  Answer box now clears upon submission
+      -  Puzzle image quality improved
+      -  Code is better commented
+      -  Important private settings have been moved to an untracked file
+      -  PDFs are now served from the local downloaded copy
 
-Bugfixes:
-   -  Progress page no longer displays UTC times
-   -  Fixed XSS vulnerability in Queue page
-   -  Users can now only be on 1 team
+   Bugfixes:
+      -  Puzzles may no longer be solved when the hunt is not open
 
-v0.4.0
-======
+   v0.5.0
+   ======
 
-New:
-   -  Added "Access Denied" page and appropriate logic
-   -  Added "Staleness coloring" on progress page
-   -  Added Team/Puzzle status chart to charts page
+   New:
+      -  Added Hunt Control page with actions to reset or release all puzzles
+      -  Added chat functionality to allow hunters to chat with staff
+      -  Added images of puzzles on each puzzle page
+      -  Added ability to unlock objects upon a puzzle solve
+      -  Added Unlockables page to view unlocked objects
+      -  Added Registration page to allow self registration of teams
 
-Updates:
-   -  Puzzle ID's are now unique
-   -  Phone number no longer required for Team creation
-   -  Updated style of header
+   Updates:
+      -  Responses are now changeable after submitting
 
-v0.3.0
-======
+   Bugfixes:
+      -  Progress page no longer displays UTC times
+      -  Fixed XSS vulnerability in Queue page
+      -  Users can now only be on 1 team
 
-New:
-   -  Added Progress page to show all teams' progress
-   -  Added support for live updating on Progress page
+   v0.4.0
+   ======
 
-Updates:
-   -  Styled built-in admin pages to look like staff pages
+   New:
+      -  Added "Access Denied" page and appropriate logic
+      -  Added "Staleness coloring" on progress page
+      -  Added Team/Puzzle status chart to charts page
 
-v0.2.0
-======
+   Updates:
+      -  Puzzle ID's are now unique
+      -  Phone number no longer required for Team creation
+      -  Updated style of header
 
-New:
-   -  Added Login, Landing, Puzzle and Queue pages
-   -  Added answer submission on puzzle page and answer viewing on queue page
-   -  Added websocket functionality to allow Puzzle and Queue pages to update live
+   v0.3.0
+   ======
 
-v0.1.0
-======
+   New:
+      -  Added Progress page to show all teams' progress
+      -  Added support for live updating on Progress page
 
-New:
-   -  Django webserver with base models and views
-   -  Deployment configuration for nginx and mySQL
+   Updates:
+      -  Styled built-in admin pages to look like staff pages
+
+   v0.2.0
+   ======
+
+   New:
+      -  Added Login, Landing, Puzzle and Queue pages
+      -  Added answer submission on puzzle page and answer viewing on queue page
+      -  Added websocket functionality to allow Puzzle and Queue pages to update live
+
+   v0.1.0
+   ======
+
+   New:
+      -  Django webserver with base models and views
+      -  Deployment configuration for nginx and mySQL

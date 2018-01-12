@@ -52,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Puzzlehunt_server'
+project = u'Puzzlehunt Server'
 copyright = u'2017, Dillon Lareau'
 author = u'Dillon Lareau'
 
@@ -213,6 +213,11 @@ htmlhelp_basename = 'Puzzlehunt_serverdoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
+# Remove blank pages
+'babel' : r'\usepackage[english]{babel}',
+'classoptions': ',openany,oneside',
+'fncychap': r'\usepackage[Lenny]{fncychap}',
+
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
 
@@ -230,17 +235,17 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'Puzzlehunt_server.tex', u'Puzzlehunt\\_server Documentation',
+  (master_doc, 'Puzzlehunt_server.tex', u'Puzzlehunt Server Documentation',
    u'Dillon Lareau', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+latex_logo = "../huntserver/static/huntserver/phcmulong.png"
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
-#latex_use_parts = False
+#latex_use_parts = True
 
 # If true, show page references after internal links.
 #latex_show_pagerefs = False
@@ -260,7 +265,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'puzzlehunt_server', u'Puzzlehunt_server Documentation',
+    (master_doc, 'puzzlehunt_server', u'Puzzlehunt Server Documentation',
      [author], 1)
 ]
 
@@ -274,8 +279,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'Puzzlehunt_server', u'Puzzlehunt_server Documentation',
-   author, 'Puzzlehunt_server', 'One line description of project.',
+  (master_doc, 'Puzzlehunt Server', u'Puzzlehunt Server Documentation',
+   author, 'Puzzlehunt Server', 'One line description of project.',
    'Miscellaneous'),
 ]
 
