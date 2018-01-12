@@ -8,14 +8,23 @@ from huntserver.info_views import index
 from .models import Hunt
 from .forms import UserForm, PersonForm, ShibUserForm
 
+
 def login_selection(request):
+    """ A mostly static view to render the login selection. Next url parameter is conserved. """
+
     if 'next' in request.GET:
         context = {'next': request.GET['next']}
     else:
         context = {'next': "/"}
     return render(request, "login_selection.html", context)
 
+
 def create_account(request):
+    """
+    A view to create user and person objects from valid user POST data, as well as render
+    the account creation form.
+    """
+
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     teams = curr_hunt.real_teams.all().exclude(team_name="Admin").order_by('pk')
     if request.method == 'POST':
@@ -39,7 +48,10 @@ def create_account(request):
         pf = PersonForm(prefix='person')
         return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
 
+
 def account_logout(request):
+    """ A view to logout the user and *hopefully* also logout out the shibboleth system. """
+
     logout(request)
     if 'next' in request.GET:
         additional_url = request.GET['next']
@@ -47,7 +59,12 @@ def account_logout(request):
         additional_url = ""
     return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + additional_url)
 
+
 def shib_login(request):
+    """
+    A view that takes the attributes that the shibboleth server passes back and either logs in
+    or creates a new shibboleth user. The view then redirects the user back to where they were.
+    """
 
     # Get attributes from REMOTE_USER/META
     attr, error = parse_attributes(request.META)
@@ -86,7 +103,7 @@ def shib_login(request):
     try:
         user = User.objects.get(username=eppn)
     except User.DoesNotExist:
-        existing_context = {"username":eppn, "email":eppn}
+        existing_context = {"username": eppn, "email": eppn}
         try:
             existing_context['first_name'] = attr[settings.SHIB_FIRST_NAME]
             existing_context['last_name'] = attr[settings.SHIB_LAST_NAME]

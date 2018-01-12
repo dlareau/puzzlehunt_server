@@ -123,7 +123,7 @@
         <MetadataProvider type="XML" uri="http://md.incommon.org/InCommon/InCommon-metadata.xml"
 	backingFilePath="incommon-metadata.xml" reloadInterval="7200">
             <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
-            <MetadataFilter type="Signature" certificate="incommon.pem"/>
+           <!-- <MetadataFilter type="Signature" certificate="incommon.pem"/> -->
         </MetadataProvider>
 
 
