@@ -1,24 +1,29 @@
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
-from django.contrib.admin.views.decorators import staff_member_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template.loader import render_to_string
-from django.conf import settings
-import json
 from datetime import datetime
 from dateutil import tz
-import networkx as nx
+from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import EmailMessage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.utils import timezone
 import itertools
+import json
+import networkx as nx
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
 from .forms import SubmissionForm, UnlockForm, EmailForm
 from .utils import unlock_puzzles, download_puzzle
 
+
 @staff_member_required
 def queue(request, page_num=1):
-    # Process admin responses to submissions
+    """
+    A view to handle queue response updates via POST, handle submission update requests via AJAX,
+    and render the queue page. Submissions are pre-rendered for standard and AJAX requests.
+    """
+
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
         if not form.is_valid():
@@ -33,7 +38,7 @@ def queue(request, page_num=1):
     elif request.is_ajax():
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
-        submissions = Submission.objects.filter(modified_date__gt = last_date)
+        submissions = Submission.objects.filter(modified_date__gt=last_date)
 
     else:
         hunt = Hunt.objects.get(is_current_hunt=True)
@@ -61,9 +66,15 @@ def queue(request, page_num=1):
         'submission_list': submission_list, 'last_date': last_date}
         return render(request, 'queue.html', context)
 
+
 @staff_member_required
 def progress(request):
-    # Admin unlocking a puzzle
+    """
+    A view to handle puzzle unlocks via POST, handle unlock/solve update requests via AJAX,
+    and render the progress page. Rendering the progress page is extremely data intensive and so
+    the view involves a good amount of pre-fetching.
+    """
+
     if request.method == 'POST':
         form = UnlockForm(request.POST)
         if form.is_valid():
@@ -84,17 +95,17 @@ def progress(request):
             return HttpResponseNotFound('access denied')
 
         last_solve_pk = request.GET.get("last_solve_pk")
-        solves = list(Solve.objects.filter(pk__gt = last_solve_pk))
+        solves = list(Solve.objects.filter(pk__gt=last_solve_pk))
         for i in range(len(solves)):
             results.append(solves[i].serialize_for_ajax())
 
         last_unlock_pk = request.GET.get("last_unlock_pk")
-        unlocks = list(Unlock.objects.filter(pk__gt = last_unlock_pk))
+        unlocks = list(Unlock.objects.filter(pk__gt=last_unlock_pk))
         for i in range(len(unlocks)):
             results.append(unlocks[i].serialize_for_ajax())
 
         last_submission_pk = request.GET.get("last_submission_pk")
-        submissions = list(Submission.objects.filter(pk__gt = last_submission_pk))
+        submissions = list(Submission.objects.filter(pk__gt=last_submission_pk))
         for i in range(len(submissions)):
             results.append(submissions[i].serialize_for_ajax())
 
@@ -115,15 +126,15 @@ def progress(request):
         sol_array = []
         for team in teams:
             # These are defined to reduce DB queries
-            solved = team.solved.all()                           # puzzles
-            unlocked = team.unlocked.all()                       # puzzles
-            solves = team.solve_set.select_related('submission') # solves
-            unlocks = team.unlock_set.all()                      # unlocks
-            submissions = team.submission_set.all()              # submissions
+            solved = team.solved.all()                            # puzzles
+            unlocked = team.unlocked.all()                        # puzzles
+            solves = team.solve_set.select_related('submission')  # solves
+            unlocks = team.unlock_set.all()                       # unlocks
+            submissions = team.submission_set.all()               # submissions
 
             # Basic team information for row headers
             # The last element ('cells') is an array of the row's data
-            sol_array.append({'team':team, 'num':len(solved), 'cells':[]})
+            sol_array.append({'team': team, 'num': len(solved), 'cells': []})
             # What goes in each cell (item in "cells") is based on puzzle status
             for puzzle in puzzles:
                 # Solved => solve object and puzzle id
@@ -154,13 +165,16 @@ def progress(request):
             last_submission_pk = Submission.objects.latest('id').id
         except Submission.DoesNotExist:
             last_submission_pk = 0
-        context = {'puzzle_list':puzzles, 'team_list':teams, 'sol_array':sol_array, 
+        context = {'puzzle_list': puzzles, 'team_list': teams, 'sol_array': sol_array,
                    'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk,
                    'last_submission_pk': last_submission_pk}
         return render(request, 'progress.html', context)
 
+
 @staff_member_required
 def charts(request):
+    """ A view to render the charts page. Mostly just collecting and oraganizing data """
+
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
     puzzle_info_dict1 = []
@@ -175,13 +189,13 @@ def charts(request):
             "locked": team_count - unlocked_count,
             "unlocked": unlocked_count - solved_count,
             "solved": solved_count
-            })
+        })
 
         puzzle_info_dict2.append({
             "name": puzzle.puzzle_name,
             "incorrect": submission_count - solved_count,
             "correct": solved_count
-            })
+        })
 
     time_zone = tz.gettz(settings.TIME_ZONE)
     subs = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission_time")
@@ -192,7 +206,7 @@ def charts(request):
         amount = len(matches)
         # TODO: change this to be based on hunt date
         if(matches[0].puzzle.hunt.start_date < matches[0].submission_time < matches[0].puzzle.hunt.end_date):
-            submission_hours.append({"hour": group, "amount":amount})
+            submission_hours.append({"hour": group, "amount": amount})
 
     solves = Solve.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission__submission_time")
     grouped = itertools.groupby(solves, lambda x:x.submission.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
@@ -201,18 +215,24 @@ def charts(request):
         matches = list(matches)
         amount = len(matches)
         if(matches[0].puzzle.hunt.start_date < matches[0].submission.submission_time < matches[0].puzzle.hunt.end_date):
-            solve_hours.append({"hour": group, "amount":amount})
+            solve_hours.append({"hour": group, "amount": amount})
 
-            
-    context = {'data1_list':puzzle_info_dict1, 'data2_list':puzzle_info_dict2,
-               'data3_list': submission_hours, 'data4_list': solve_hours }
+    context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
+               'data3_list': submission_hours, 'data4_list': solve_hours}
     return render(request, 'charts.html', context)
+
 
 @staff_member_required
 def admin_chat(request):
+    """
+    A view to handle chat update requests via AJAX and render the staff chat page. Chat message
+    submissions are sent to ``huntserver.hunt_views.chat``. Chat messages are pre-rendered for
+    both standard and AJAX requests.
+    """
+
     if request.is_ajax():
         last_pk = request.GET.get("last_pk")
-        messages = Message.objects.filter(pk__gt = last_pk)
+        messages = Message.objects.filter(pk__gt=last_pk)
     else:
         curr_hunt = Hunt.objects.get(is_current_hunt=True)
         messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time').select_related('team')
@@ -231,20 +251,28 @@ def admin_chat(request):
     except Message.DoesNotExist:
         last_pk = 0
 
-
-    context = {'message_dict': message_dict, 'last_pk':last_pk}
+    context = {'message_dict': message_dict, 'last_pk': last_pk}
     if request.is_ajax():
         return HttpResponse(json.dumps(context))
     else:
         return render(request, 'staff_chat.html', context)
 
+
 @staff_member_required
 def hunt_management(request):
+    """ A view to render the hunt management page """
+
     hunts = Hunt.objects.all()
     return render(request, 'hunt_management.html', {'hunts': hunts})
 
+
 @staff_member_required
 def control(request):
+    """
+    A view to handle all of the different management actions from staff users via POST requests.
+    This view is not responsible for rendering any normal pages.
+    """
+
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if(curr_hunt.is_open):
         teams = curr_hunt.team_set.all().order_by('team_name')
@@ -274,19 +302,24 @@ def control(request):
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
-            new_curr.is_current_hunt = True;
+            new_curr.is_current_hunt = True
             new_curr.save()
             return redirect('huntserver:hunt_management')
         else:
             return render(request, 'access_error.html')
 
-        
+
 @staff_member_required
 def emails(request):
+    """
+    A view to send emails out to hunt participants upon recieveing a valid post request as well as
+    rendering the staff email form page
+    """
+
     teams = Team.objects.filter(hunt__is_current_hunt=True)
     people = []
     for team in teams:
-         people = people + list(team.person_set.all())
+        people = people + list(team.person_set.all())
     email_list = [person.user.email for person in people]
 
     if request.method == 'POST':
@@ -294,9 +327,9 @@ def emails(request):
         if email_form.is_valid():
             subject = email_form.cleaned_data['subject']
             message = email_form.cleaned_data['message']
-            email_to_chunks = [email_list[x:x+80] for x in xrange(0, len(email_list), 80)]
+            email_to_chunks = [email_list[x: x + 80] for x in xrange(0, len(email_list), 80)]
             for to_chunk in email_to_chunks:
-                email = EmailMessage(subject, message,'puzzlehuntcmu@gmail.com',
+                email = EmailMessage(subject, message, 'puzzlehuntcmu@gmail.com',
                      [], to_chunk)
                 email.send()
             return HttpResponseRedirect('')
@@ -305,10 +338,13 @@ def emails(request):
     context = {'email_list': (', ').join(email_list), 'email_form': email_form}
     return render(request, 'email.html', context)
 
+
 @staff_member_required
 def depgraph(request):
+    """ A view to generate and render the puzzle dependency graph visualization """
+
     hunt = Hunt.objects.get(is_current_hunt=True)
-    G=nx.DiGraph()
+    G = nx.DiGraph()
     for puzzle in hunt.puzzle_set.all():
         for unlock in puzzle.unlocks.all():
             G.add_edge(unlock.puzzle_number, puzzle.puzzle_number)
