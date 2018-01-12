@@ -30,7 +30,7 @@ v3.0.3
 ======
 
 New:
-   -  Documentation of models, configuration, and how to run the server.
+   -  Documentation of models, views, configuration, and how to run the server.
 
 v3.0.2
 ======
