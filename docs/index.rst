@@ -32,6 +32,7 @@ Contents
    setup
    basics
    models
+   views
    hunt_creation
    hunt_running
    changelog

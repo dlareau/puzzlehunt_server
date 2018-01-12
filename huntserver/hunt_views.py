@@ -17,6 +17,11 @@ from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_h
 
 @login_required
 def protected_static(request, file_path):
+    """ 
+    A view to serve protected static content. Does a permission check and if it passes,
+    the file is served via X-Sendfile.
+    """
+
     allowed = False
     levels = file_path.split("/")
     if(levels[0] == "puzzles"):
@@ -44,6 +49,11 @@ def protected_static(request, file_path):
 
 @login_required
 def hunt(request, hunt_num):
+    """
+    The main view to render hunt templates. Does various permission checks to determine the set
+    of puzzles to display and then renders the string in the hunt's "template" field to HTML.
+    """
+
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
     team = team_from_user_hunt(request.user, hunt)
 
@@ -84,10 +94,16 @@ def hunt(request, hunt_num):
 
 @login_required
 def current_hunt(request):
+    """ A simple view that calls ``huntserver.hunt_views.hunt`` with the current hunt's number. """
     return hunt(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 @login_required
 def puzzle_view(request, puzzle_id):
+    """ 
+    A view to handle answer submissions via POST, handle response update requests via AJAX, and 
+    render the basic per-puzzle pages.
+    """
+
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
 
@@ -174,7 +190,11 @@ def puzzle_view(request, puzzle_id):
 
 @login_required
 def chat(request):
-    # Generate messages depending on what we are doing.
+    """
+    A view to handle message submissions via POST, handle message update requests via AJAX, and
+    render the hunt participant view of the chat.
+    """
+
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if request.method == 'POST':
         if(request.POST.get('team_pk') == ""):
@@ -227,6 +247,7 @@ def chat(request):
 
 @login_required
 def unlockables(request):
+    """ A view to render the unlockables page for hunt participants. """
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
     if(team == None):
