@@ -19,6 +19,7 @@ Info Views
 .. autofunction:: huntserver.info_views.current_hunt_info(request)
 .. autofunction:: huntserver.info_views.previous_hunts(request)
 .. autofunction:: huntserver.info_views.registration(request)
+.. autofunction:: huntserver.info_views.user_profile(request)
 
 Staff Views
 ===========

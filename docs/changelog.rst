@@ -5,32 +5,32 @@ Changelog
 Version 3
 *********
 
-.. v3.1.0-rc.1
-.. ===========
+v3.1.0
+======
 
-.. New:
-..    -  Users can now update their profile information including name, email, phone, and food preferences
-..    -  Teams can now update their own location from the registration page
-..    -  Automatic submission responses now support markdown style links
-..    -  Progress page now has a button to unlock a specific puzzle for all teams
+New:
+   -  Users can now update their profile information including name, email, phone, and food preferences
+   -  Teams can now update their own location from the registration page
+   -  Automatic submission responses now support markdown style links
+   -  Progress page now has a button to unlock a specific puzzle for all teams
 
-.. Updates:
-..    -  Removed unlockables tab from hunt header due to disuse
-..    -  Progress and Queue page now have sleeker more compact look
-..    -  Hunt info page now pulls max team size from database
-..    -  "Contact us" page now has more contact info
+Updates:
+   -  Removed unlockables tab from hunt header due to disuse
+   -  Progress and Queue page now have sleeker more compact look
+   -  Hunt info page now pulls max team size from database
+   -  "Contact us" page now has more contact info
 
-.. Bugfixes:
-..    -  Fixed bug where team names could be made entirely of whitespace characters
-..    -  Removed dummy teams from all normal hunt interactions
-..    -  Fixed bug where parts of old hunt headers lead to the current hunt pages
-..    -  Fixed bug where staff announcements triggered new message alert for other staff members.
+Bugfixes:
+   -  Fixed bug where team names could be made entirely of whitespace characters
+   -  Removed dummy teams from all normal hunt interactions
+   -  Fixed bug where parts of old hunt headers lead to the current hunt pages
+   -  Fixed bug where staff announcements triggered new message alert for other staff members.
 
 v3.0.3
 ======
 
 New:
-   -  Documentation of models, configuration, and how to run the server.
+   -  Documentation of models, views, configuration, and how to run the server.
 
 v3.0.2
 ======

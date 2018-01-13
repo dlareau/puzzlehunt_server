@@ -40,7 +40,7 @@ def registration(request):
     team = team_from_user_hunt(request.user, curr_hunt)
     error = ""
     if(request.method == 'POST' and "form_type" in request.POST):
-        if(request.POST["form_type"] == "new_team"):
+        if(request.POST["form_type"] == "new_team" and team is None):
             if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
                 error = "The team name you have provided already exists."
             elif(re.match(".*[A-Za-z0-9].*", request.POST.get("team_name"))):
@@ -50,7 +50,7 @@ def registration(request):
                 request.user.person.teams.add(team)
             else:
                 error = "Your team name must contain at least one alphanumeric character."
-        elif(request.POST["form_type"] == "join_team"):
+        elif(request.POST["form_type"] == "join_team" and team is None):
             team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
             if(len(team.person_set.all()) >= team.hunt.team_size):
                 error = "The team you have tried to join is already full."
@@ -63,7 +63,7 @@ def registration(request):
         elif(request.POST["form_type"] == "leave_team"):
             request.user.person.teams.remove(team)
             team = None
-        elif(request.POST["form_type"] == "new_location"):
+        elif(request.POST["form_type"] == "new_location" and team is not None):
             # TODO: add success message
             team.location = request.POST.get("team_location")
             team.save()
@@ -77,7 +77,8 @@ def registration(request):
 
 @login_required
 def user_profile(request):
-    # For form submission
+    """ A view to handle user information update POST data and render the user information form. """
+
     if request.method == 'POST':
         uf = ShibUserForm(request.POST, instance=request.user)
         pf = PersonForm(request.POST, instance=request.user.person)
