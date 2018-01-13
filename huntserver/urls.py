@@ -18,7 +18,6 @@ from huntserver import hunt_views, auth_views, info_views, staff_views
 from django.contrib.auth import views as base_auth_views
 from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
-from django.conf import settings
 
 urlpatterns = [
     # Auth and Accounts
@@ -50,8 +49,8 @@ urlpatterns = [
         url(r'^queue/(?P<page_num>[0-9]+)/$', staff_views.queue, name='queue_paged'),
         url(r'^progress/$', staff_views.progress, name='progress'),
         url(r'^charts/$', staff_views.charts, name='charts'),
-        url(r'^chat/$',  staff_views.admin_chat, name='admin_chat'),
-        url(r'^control/$',  staff_views.control, name='control'),
+        url(r'^chat/$', staff_views.admin_chat, name='admin_chat'),
+        url(r'^control/$', staff_views.control, name='control'),
         url(r'^teams/$', RedirectView.as_view(url='/admin/huntserver/team/', permanent=False)),
         url(r'^puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
         url(r'^emails/$', staff_views.emails, name='emails'),
