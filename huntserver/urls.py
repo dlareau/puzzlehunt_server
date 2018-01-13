@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^accounts/create/$', auth_views.create_account, name='create_account'),
     url(r'^login-selection/$', auth_views.login_selection, name='login_selection'),
     url(r'^shib/login$', auth_views.shib_login, name='new_shib_account'),
-    url(r'^logout/$', auth_views.account_logout, name='accout_logout'),
+    url(r'^logout/$', auth_views.account_logout, name='account_logout'),
 
     # Info Pages
     url(r'^$', info_views.index, name='index'),
@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', hunt_views.puzzle_view, name='puzzle'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
     url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
-    url(r'^chat/$',  hunt_views.chat, name='chat'),
+    url(r'^chat/$', hunt_views.chat, name='chat'),
     url(r'^objects/$', hunt_views.unlockables, name='unlockables'),
     url(r'^protected/(?P<file_path>.+)$', hunt_views.protected_static, name='protected_static'),
 
