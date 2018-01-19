@@ -74,7 +74,7 @@ def hunt(request, hunt_num):
     # Hunt has started
     elif(hunt.is_open):
         # see if the team does not belong to the hunt being accessed
-        if(team is not None or (team.hunt != hunt)):
+        if(team is None or (team.hunt != hunt)):
             return render(request, 'not_released.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
@@ -86,7 +86,7 @@ def hunt(request, hunt_num):
         return render(request, 'access_error.html')
 
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
-    if(team is not None):
+    if(team is None):
         solved = []
     else:
         solved = team.solved.all()
@@ -133,7 +133,7 @@ def puzzle_view(request, puzzle_id):
             return render(request, 'puzzle.html', context)
 
         # If the hunt isn't public and you aren't signed in, please stop...
-        if(team is not None):
+        if(team is None):
             return HttpResponse('fail')
 
         # Normal answer responses for a signed in user in an ongoing hunt
@@ -158,7 +158,7 @@ def puzzle_view(request, puzzle_id):
 
     # Will return HTML rows for all submissions the user does not yet have
     elif request.is_ajax():
-        if(team is not None):
+        if(team is None):
             return HttpResponseNotFound('access denied')
 
         # Find which objects the user hasn't seen yet and render them to HTML
@@ -218,7 +218,7 @@ def chat(request):
             messages = [m]
     else:
         team = team_from_user_hunt(request.user, curr_hunt)
-        if(team is not None):
+        if(team is None):
             #TODO maybe handle more nicely because hunt may just not be released
             #return render(request, 'not_released.html', {'reason': "team"})
             return HttpResponse(status=404)
@@ -255,7 +255,7 @@ def unlockables(request):
     """ A view to render the unlockables page for hunt participants. """
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
-    if(team is not None):
+    if(team is None):
         return render(request, 'not_released.html', {'reason': "team"})
     unlockables = Unlockable.objects.filter(puzzle__in=team.solved.all())
     return render(request, 'unlockables.html', {'unlockables': unlockables, 'team': team})
