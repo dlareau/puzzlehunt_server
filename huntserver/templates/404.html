@@ -1,0 +1,20 @@
+{% extends "info_base.html" %}
+{% load static %}
+
+{% block title %}404 Error{% endblock title %}
+
+{% block left-header %}{% endblock left-header %}
+
+{% block content %}
+<div class="container">
+  <center><h1> 404 - Page Not Found </h1></center>
+  <center><img width="400px" src="{% static "huntserver/404.jpg" %}"></center>
+  <center><h4> The page you are looking for either does not exist. </h4></center>
+  <br>
+  <br>
+  <center> Please click the puzzlehunt logo in the top right to be taken back to our home page. </center>
+  <br>
+  <center><b>This is not a puzzle.</b></center>
+</div>
+{% endblock content %}
+{% block footer %}{% endblock footer %}

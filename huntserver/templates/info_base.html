@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load bootstrap_tags %}
+{% load static %}
 
 {% block base_includes %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/info_base.css">
+<link rel="stylesheet" type="text/css" href="{% static "huntserver/info_base.css" %}">
 {% endblock base_includes %}
 
 {% block left-header %}

@@ -1,14 +1,15 @@
 {% load bootstrap_tags %}
+{% load static %}
 <!DOCTYPE html>
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="{{ STATIC_URL }}huntserver/favicon.ico" />
+    <link rel="shortcut icon" href="{% static "huntserver/favicon.ico" %}" />
     <title>{% block title %} Puzzlehunt! {% endblock title %}</title>
-    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
+    <link rel="stylesheet" href="{% static "bootstrap.min.css" %}">
     {% block base_includes %} {% endblock base_includes %}
-    <script src="{{ STATIC_URL }}jquery.min.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
+    <script src="{% static "jquery.min.js" %}"></script>
+    <script src="{% static "bootstrap.min.js" %}"></script>
     {% block includes %} {% endblock includes %}
     <!-- Done for compatability with the fixed navbar, move into base.css eventually -->
     <style>
