@@ -13,18 +13,21 @@ New:
    -  Teams can now update their own location from the registration page
    -  Automatic submission responses now support markdown style links
    -  Progress page now has a button to unlock a specific puzzle for all teams
+   -  New 404 and 500 error pages to match website's style
 
 Updates:
    -  Removed unlockables tab from hunt header due to disuse
    -  Progress and Queue page now have sleeker more compact look
    -  Hunt info page now pulls max team size from database
    -  "Contact us" page now has more contact info
+   -  Unused /staff URLs will now route to /admin URLs
 
 Bugfixes:
    -  Fixed bug where team names could be made entirely of whitespace characters
    -  Removed dummy teams from all normal hunt interactions
    -  Fixed bug where parts of old hunt headers lead to the current hunt pages
    -  Fixed bug where staff announcements triggered new message alert for other staff members.
+   -  Fixed bug in 3.0.3 relating to the use of "is not None" in info_views
 
 v3.0.3
 ======

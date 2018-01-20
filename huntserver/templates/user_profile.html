@@ -3,20 +3,6 @@
 {% block content %}
 <div class="container">
 <h2>Change User Details</h2>
-{% if user_form.subject.errors %}
-    <ol>
-    {% for error in user_form.subject.errors %}
-        <li><strong>{{ error|escape }}</strong></li>
-    {% endfor %}
-    </ol>
-{% endif %}
-{% if person_form.subject.errors %}
-    <ol>
-    {% for error in person_form.subject.errors %}
-        <li><strong>{{ error|escape }}</strong></li>
-    {% endfor %}
-    </ol>
-{% endif %}
 <form method="POST">
   {% csrf_token %}
   <div>

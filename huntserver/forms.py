@@ -32,7 +32,7 @@ class UserForm(forms.ModelForm):
         self.fields['email'].required = True
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
-        self.fields['password'].widget=forms.PasswordInput()
+        self.fields['password'].widget = forms.PasswordInput()
 
     required_css_class = 'required'
     confirm_password = forms.CharField(label='Confirm Password', widget=forms.PasswordInput())
@@ -59,7 +59,7 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError(u'Passwords must match')
 
     class Meta:
-        model = User 
+        model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password']
         help_texts = {
             'username': "Required. 30 characters or fewer. Letters, digits and '-' or '_' only.",
@@ -78,6 +78,14 @@ class ShibUserForm(forms.ModelForm):
           return instance.username
         else:
           return self.cleaned_data['username']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        username = self.cleaned_data.get('username')
+        if email and User.objects.filter(email=email).exclude(username=username).exists():
+            raise forms.ValidationError(u'Someone is already using that email address.')
+        return email
+
 
     class Meta:
         model = User 
