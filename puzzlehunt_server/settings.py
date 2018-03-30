@@ -33,7 +33,9 @@ class globlist(list):
             if fnmatch(key, pat): return True
         return False
 
-if(not INTERNAL_IPS):
+try:
+    INTERNAL_IPS
+except NameError:
     INTERNAL_IPS = globlist(['128.237.*.*', '128.2.*.*'])
 
 # Application definition

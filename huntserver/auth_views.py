@@ -57,7 +57,7 @@ def account_logout(request):
         additional_url = request.GET['next']
     else:
         additional_url = ""
-    return redirect("/Shibboleth.sso/Logout?return=https://puzzlehunt.club.cc.cmu.edu" + additional_url)
+    return redirect("/Shibboleth.sso/Logout?return=https://" + request.get_host() + additional_url)
 
 
 def shib_login(request):
