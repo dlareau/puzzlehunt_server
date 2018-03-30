@@ -5,6 +5,12 @@ Changelog
 Version 3
 *********
 
+v3.1.1
+======
+
+Updates:
+   - Updated documentation to include instructions for hunt asset files
+
 v3.1.0
 ======
 

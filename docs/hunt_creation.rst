@@ -32,6 +32,15 @@ The following context will be passed to the renderer for use in the template: ``
 
 **While you may use completely custom HTML, it is STRONGLY RECOMMENDED that you follow the instructions below on how to inherit the base template to get nice features like the header bar, common style sheets, google analytics, and graceful degradation when the hunt becomes public.**
 
+A note about static files
+-------------------------
+
+As of version ``3.0.0``, in order to reduce repository clutter, it is now against policy to commit files specific to a certain hunt to the respository. This means that you are no longer allowed to put images, fonts, and other files in ``/huntserver/static`` or ``/static``. To still allow the use of new static files in each hunt, a new object class has been created called "Hunt Asset Files". This class allows uploading of assets from the web interface, removing the need to interact with the hosting server directly.
+
+To upload a new asset file, navigate to ``{server URL}/admin/huntserver/huntassetfile/`` and click the blue "Add hunt asset file" button at the top. On the following screen, choose the file you wish to upload and hit save. Keep in mind that the URL for the file will be generated based on the uploaded file name and cannot be changed once uploaded, so name your files beforehand.
+
+After you upload your file, click the save button and you will be taken back to the list of asset files. Next to each asset file is the link to use in your html template to access that file. It is clear to see that for each file, the link is just ``/media/hunt/assets/{name of file}``.
+
 Inheriting the base template
 ----------------------------
 
@@ -81,8 +90,6 @@ While you may have all of the information you need, that doesn't mean you know w
     overflow: hidden;
     width: 320px;
   }
-  
-  .puzzle-name:after { content: ".........................................................."; }
   </style>
   {% endblock base_includes %}
   
@@ -112,7 +119,11 @@ While you may have all of the information you need, that doesn't mean you know w
                 {% endif %}
                 <tr id='puzzle{{ puzzle.puzzle_number }}' class='puzzle'>
                   <td>
-                    <p class="puzzle-name"><a href='/puzzle/{{ puzzle.puzzle_id }}/'>{{puzzle.puzzle_name}}</a></p>
+                    <p class="puzzle-name">
+                      <a href='/puzzle/{{ puzzle.puzzle_id }}/'>
+                        {{puzzle.puzzle_name}}
+                      </a>
+                    </p>
                   </td>
                   <td>
                     {% if puzzle in solved %}
