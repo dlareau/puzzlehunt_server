@@ -72,7 +72,6 @@ $(document).ready(function() {
     if ($('tr[data-id=' + pk + ']').length == 0) {
       if(!submission.hasClass('correct')) {
         flashing = !focused;
-        $('audio')[0].play();
       }
       submission.prependTo("#sub_table");
       $('#sub_table tr:last').remove();
