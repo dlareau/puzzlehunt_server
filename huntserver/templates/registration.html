@@ -56,7 +56,7 @@
       {% endif %}
       <div class="row">
         <div class="col-md-6">
-          <div class="container col-md-12" style="height:300px">
+          <div class="container col-md-12" style="height:230px">
             <h2>Create New Team</h2>
             <hr style="border-width:2px; border-color: black;">
             <form method="Post">
@@ -64,14 +64,7 @@
               <input type="hidden" name="form_type" value="new_team">
               Please enter a new team name:
               <input name="team_name" type="text">
-              <br>
-              <br>
-              Does your team need a room for the hunt?
-              <select name="need_room">
-                <option value="need_a_room">Yes</option>
-                <option value="has_a_room">The team has a room</option>
-                <option value="off_campus">The team will remote solve</option>
-              </select>
+              <input type="hidden" name="need_room" value="">
               <br>
               <br>
               <input type="submit" value="Create and Join Team">
