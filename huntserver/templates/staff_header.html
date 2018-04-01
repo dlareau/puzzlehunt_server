@@ -44,7 +44,7 @@
           </p>
           <a id="login_logout_button" class="btn btn-default navbar-btn" href="/logout/">Log out</a>
         {% else %}
-          <a id="login_logout_button" class="btn btn-default navbar-btn" href="{% url 'huntserver:login_selection' %}">Log in</a>
+          <a id="login_logout_button" class="btn btn-default navbar-btn" href="/accounts/login/?next={{next}}">Log in</a>
         {% endif %}
       </ul>
     </div><!-- /.navbar-collapse -->

@@ -51,7 +51,7 @@
                   </ul>
                 </li>
               {% else %}
-                <a class="btn btn-default navbar-btn" href="{% url 'huntserver:login_selection' %}">Log in</a>
+                <a class="btn btn-default navbar-btn" href="/accounts/login/?next={{next}}">Log in</a>
               {% endif %}
             {% endblock %}
           </ul>

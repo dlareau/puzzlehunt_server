@@ -134,7 +134,7 @@ MEDIA_URL = '/media/'
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 PROTECTED_URL = '/protected/'
-LOGIN_URL = '/login-selection/'
+LOGIN_URL = '/accounts/login/'
 
 SHIB_ATTRIBUTE_MAP = {
     "Shib-Identity-Provider": (True, "idp"), "eppn": (True, "eppn"), "givenName": (False, "givenName"), "sn": (False, "sn"), 
