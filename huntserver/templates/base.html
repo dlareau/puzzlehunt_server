@@ -30,7 +30,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/"> {% if debug %} DEVELOPMENT SERVER {% else %} Puzzlehunt CMU {% endif %}</a>
+          <a class="navbar-brand" href="/"> {% if debug %} DEVELOPMENT SERVER {% else %} {% get_title request %} {% endif %}</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
