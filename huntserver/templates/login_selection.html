@@ -6,22 +6,7 @@
   <div class="row">
     <div class="col-md-6">
       <h2>Select Your Login Service</h2>
-      <h4>(Please use a university login if possible)</h4>
       <div class="row">
-        <div class="col-xs-4">
-          <!-- This is one really nasty URL -->
-          <a href="/Shibboleth.sso/Login?entityID=https://login.cmu.edu/idp/shibboleth&target=https://puzzlehunt.club.cc.cmu.edu/shib/login?next={{next}}">
-            <img src="/static/huntserver/cmu_login.png" alt="Login Image" width="100%">
-            Carnegie Mellon University
-          </a>
-        </div>
-        <div class="col-xs-4">
-          <!-- This is one really nasty URL -->
-          <a href="/Shibboleth.sso/Login?entityID=https://passport.pitt.edu/idp/shibboleth&target=https://puzzlehunt.club.cc.cmu.edu/shib/login?next={{next}}">
-            <img src="/static/huntserver/pitt_login.png" alt="Login Image" width="100%">
-            University of Pittsburgh
-          </a>
-        </div>
         <div class="col-xs-4">
           <a href="/accounts/login/?next={{next}}">
             <img src="/static/huntserver/phcmu_login.png" alt="Login Image" width="100%">
@@ -34,18 +19,15 @@
       <h3> Don't have an account? </h3>
       <hr style="border-width:2px; border-color: black;">
       <p>
-        If you don't have an account with either Carnegie Mellon University or 
-        the University of Pittsburgh, you can
+        If you don't have an account you can
         <a href="{% url 'huntserver:create_account' %}">create a Puzzlehunt Local Login account</a>.
         <br>
-        (Again, this does not need to be done for CMU or Pitt students)
       </p>
 
       <h3> Forgot your password? </h3>
       <hr style="border-width:2px; border-color: black;">
       <p>
-        If you are using a university account, please use their services to reset your password.
-	      If you are using a PuzzlehuntCMU account, you can <a href="{% url 'password_reset' %}">reset your password here.</a>
+	      You can <a href="{% url 'password_reset' %}">reset your password here.</a>
       </p>
     </div>
   </div>
