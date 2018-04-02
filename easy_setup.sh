@@ -1,40 +1,53 @@
 #!/bin/bash
 
+# Setup script. Debian (and variant) specific
+
 # Variables
 MYSQL_ROOT_PASSWORD=wrongbaa
 MYSQL_NORMAL_USER=hunt
-MYSQL_NORMAL_PASSWORD=puzzlehunt
+MYSQL_NORMAL_PASSWORD=$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*(\-_=+)' | head -c 16)
 MYSQL_PUZZLEHUNT_DB=puzzlehunt_db
 
-# Very basic
-apt-get update
-apt-get install -y git
+# Helper functions
+yell() { echo "$0: $*" >&2; }
+die() { yell "$*"; cd ~puzzlehunt; rm -rf puzzlehunt_server; exit 111; }
+try() { "$@" || die "cannot $*"; }
+
+# Create puzzlehunt user
+
+getent passwd puzzlehunt > /dev/null 2&>1
+if [ $? -eq 0 ]; then
+    echo "Puzzlehunt User already exists"
+else
+	try adduser --gecos "" --disabled-password puzzlehunt
+fi
+
+# Need git to kick off the process
+try apt-get update
+try apt-get install -y git
 
 # Get the git repository
-git clone https://github.com/dlareau/puzzlehunt_server.git
-cd puzzlehunt_server
+try cd ~puzzlehunt
+try git clone https://github.com/dlareau/puzzlehunt_server.git
+try cd puzzlehunt_server
 
-# Make sure we don't get prompted for anything (Debian specific)
-export DEBIAN_FRONTEND="noninteractive"
-debconf-set-selections <<< "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD"
-debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD"
+# Make sure we don't get prompted for anything 
+try export DEBIAN_FRONTEND="noninteractive"
+try debconf-set-selections <<< "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD"
+try debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD"
 
 # Get all basic system packages
-apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-proxy-html libapache2-mod-wsgi
+try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi
 
-# Get all python dependencies and setup virtual environment
-pip install virtualenv
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
+apt-get install -y libapache2-mod-proxy-html || true
 
 # Set up MYSQL user and database
-mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE $MYSQL_PUZZLEHUNT_DB"
-mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on $MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost' identified by '$MYSQL_NORMAL_PASSWORD'"
+try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_PUZZLEHUNT_DB"
+try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on $MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost' identified by '$MYSQL_NORMAL_PASSWORD'"
 
 # Configure application (Consider this the same as modifying secret_settings.py.template)
-cat > puzzlehunt_server/secret_settings.py <<EOF
-SECRET_KEY = 'this is not the secret key, use your own'
+try cat > puzzlehunt_server/secret_settings.py <<EOF
+SECRET_KEY = '$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*(\-_=+)' | head -c 50)'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -50,20 +63,27 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EOF
 
+# Get all python dependencies and setup virtual environment
+try pip install virtualenv
+try virtualenv venv
+try source venv/bin/activate
+try pip install -r requirements.txt
+
 # Run application setup commands
-python manage.py migrate
-python manage.py collectstatic --noinput
-git checkout generic # Only needed until test branch is merged
-python manage.py loaddata /vagrant/initial_hunt.json
+try python manage.py migrate
+try python manage.py collectstatic --noinput
+try git checkout generic # Only needed until test branch is merged
+try deactivate
+# try python manage.py loaddata /vagrant/initial_hunt.json
 
 # We are root until this point, pass off ownership of all we have created
-chown -R vagrant .
+try chown -R puzzlehunt .
 
 # Apache hosting setup
-a2enmod proxy
-a2enmod proxy_http
-a2enmod proxy_html
-a2enmod xsendfile
-a2enmod wsgi
-cp /vagrant/puzzlehunt.conf /etc/apache2/sites-enabled/
-service apache2 restart
+try a2enmod proxy
+try a2enmod proxy_http
+try a2enmod proxy_html
+try a2enmod xsendfile
+try a2enmod wsgi
+try cp config/puzzlehunt.conf /etc/apache2/sites-enabled/
+try service apache2 restart
