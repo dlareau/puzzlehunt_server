@@ -85,5 +85,6 @@ try a2enmod proxy_http
 try a2enmod proxy_html
 try a2enmod xsendfile
 try a2enmod wsgi
+rm /etc/apache2/sites-enabled/*
 try cp config/puzzlehunt.conf /etc/apache2/sites-enabled/
 try service apache2 restart
