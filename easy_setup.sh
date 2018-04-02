@@ -74,7 +74,7 @@ try python manage.py migrate
 try python manage.py collectstatic --noinput
 try git checkout generic # Only needed until test branch is merged
 try deactivate
-# try python manage.py loaddata /vagrant/initial_hunt.json
+try python manage.py loaddata initial_hunt.json
 
 # We are root until this point, pass off ownership of all we have created
 try chown -R puzzlehunt .
