@@ -73,8 +73,8 @@ try pip install -r requirements.txt
 try python manage.py migrate
 try python manage.py collectstatic --noinput
 try git checkout generic # Only needed until test branch is merged
-try deactivate
 try python manage.py loaddata initial_hunt.json
+try deactivate
 
 # We are root until this point, pass off ownership of all we have created
 try chown -R puzzlehunt .
