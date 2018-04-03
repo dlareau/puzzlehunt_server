@@ -6,9 +6,11 @@
 {% else %}
   incorrect-replied
 {% endif %} submission" data-id='{{ submission.pk }}'>
-  <td>{{ submission.team.team_name }}</td>
+  <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" >
+    {{ submission.team.team_name }}
+  </td>
   <td>{{ submission.puzzle.puzzle_name }}</td>
-  <td>{{ submission.submission_text }}</td>
+  <td style="max-width: 200px; overflow-wrap: break-word;">{{ submission.submission_text }}</td>
   <td>{{ submission.submission_time|time:"h:i a" }}</td>
   <td>
     {% if submission.response_text == '' %}

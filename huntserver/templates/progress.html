@@ -44,7 +44,9 @@
     <tbody>
       {% for row in sol_array %}
         <tr>
-          <td>{{ row.team.team_name }}</td>
+          <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+            {{ row.team.team_name }}
+          </td>
           <td class='num'>{{ row.num }}</td>
           {% for cell in row.cells %}
           {% if cell.0 == "locked"%}
