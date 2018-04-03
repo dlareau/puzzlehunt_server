@@ -63,7 +63,7 @@ EOF
 python manage.py migrate
 python manage.py collectstatic --noinput
 git checkout development # Only needed until test branch is merged
-python manage.py loaddata /vagrant/initial_hunt.json
+python manage.py loaddata config/initial_hunt.json
 
 # We are root until this point, pass off ownership of all we have created
 chown -R vagrant .
@@ -78,5 +78,5 @@ a2enmod proxy_http
 a2enmod proxy_html
 a2enmod xsendfile
 a2enmod wsgi
-cp /vagrant/puzzlehunt.conf /etc/apache2/sites-enabled/
+cp config/puzzlehunt_vagrant.conf /etc/apache2/sites-enabled/
 service apache2 restart

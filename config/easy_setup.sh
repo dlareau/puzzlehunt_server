@@ -2,6 +2,9 @@
 
 # Setup script. Debian (and variant) specific
 # Meant for dead simple setup on debian based systems.
+
+# Should only be run on a new, clean installation, it will ruin other apache configurations.
+
 # You should probably change the MYSQL_ROOT_PASSWORD variable...
 
 # Variables
@@ -75,7 +78,7 @@ try pip install -r requirements.txt
 try python manage.py migrate
 try python manage.py collectstatic --noinput
 try git checkout development # Only needed until test branch is merged
-#try python manage.py loaddata initial_hunt.json
+try python manage.py loaddata config/initial_hunt.json
 try deactivate
 
 # We are root until this point, pass off ownership of all we have created
@@ -88,5 +91,5 @@ try a2enmod proxy_html
 try a2enmod xsendfile
 try a2enmod wsgi
 rm /etc/apache2/sites-enabled/*
-try cp config/puzzlehunt.conf /etc/apache2/sites-enabled/
+try cp config/puzzlehunt_easy.conf /etc/apache2/sites-enabled/
 try service apache2 restart
