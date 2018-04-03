@@ -3,6 +3,8 @@
 # A setup file for rapid setup of a development environment in
 # conjunction with vagrant. Debian specific.
 
+# Nothing about this setup is secure, this is absolutely not for production
+
 # Variables
 MYSQL_ROOT_PASSWORD=wrongbaa
 MYSQL_NORMAL_USER=hunt
@@ -78,5 +80,6 @@ a2enmod proxy_http
 a2enmod proxy_html
 a2enmod xsendfile
 a2enmod wsgi
+rm /etc/apache2/sites-enabled/*
 cp config/puzzlehunt_vagrant.conf /etc/apache2/sites-enabled/
 service apache2 restart
