@@ -21,7 +21,7 @@
       <div id="button_container" class="content col-sm-3 col-md-2">
         {% for team, dict in message_dict.items %}
           <button data-id='{{ dict.pk }}' class="chatselect">
-            {{ team|truncatechars:20 }}
+            {{ team|truncatechars:16 }}
           </button>
           <br>
         {% endfor %}
