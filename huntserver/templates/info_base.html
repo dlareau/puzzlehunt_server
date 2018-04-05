@@ -7,7 +7,7 @@
 {% endblock base_includes %}
 
 {% block left-header %}
-    <li class='{% active_page request "index" %} visible-xs'><a href="{% url 'huntserver:index' %}"> Homepage </a></li>
+    <li class='{% active_page request "index" %} visible-sm visible-xs'><a href="{% url 'huntserver:index' %}"> Homepage </a></li>
     <li class='{% active_page request "current_hunt_info" %}'><a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Info</a></li>
     <li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:current_hunt' %}"> Current Hunt </a></li>
     <li class='{% active_page request "previous_hunts" %}'><a href="{% url 'huntserver:previous_hunts' %}"> Previous Hunts </a></li>
