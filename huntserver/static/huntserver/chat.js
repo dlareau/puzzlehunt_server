@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+  $("#chatcontainer").scrollTop($("#chatcontainer")[0].scrollHeight);
+
   function is_visible(){
     var stateKey, keys = {
       hidden: "visibilitychange",
@@ -73,6 +75,7 @@ $(document).ready(function() {
       if(team_data['pk'] != curr_team && $(team_data['messages']).hasClass('user-message')){
         $("button[data-id=" + team_data['pk'] + "]").css("background-color", "red");
       }
+      $("#chatcontainer").scrollTop($("#chatcontainer")[0].scrollHeight);
     });
   }
 });

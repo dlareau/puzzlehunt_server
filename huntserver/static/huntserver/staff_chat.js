@@ -6,6 +6,7 @@
       $("#chat_" + $(this).data('id')).show();
       curr_team = $(this).data('id');
       $("button[data-id=" + curr_team + "]").css("background-color", "white");
+      $("#chatcontainer").scrollTop($("#chatcontainer")[0].scrollHeight);
     });
   }
 $(document).ready(function() {
