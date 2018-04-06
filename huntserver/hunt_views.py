@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 import json
 import os
+import re
 
 from .models import Puzzle, Hunt, Submission, Message, Team, Unlockable
 from .forms import AnswerForm
@@ -119,7 +120,7 @@ def puzzle_view(request, puzzle_id):
             form = AnswerForm(request.POST)
             team = dummy_team_from_hunt(puzzle.hunt)
             if form.is_valid():
-                user_answer = form.cleaned_data['answer']
+                user_answer = re.sub("[ _]", "", form.cleaned_data['answer'])
                 s = Submission.objects.create(submission_text=user_answer,
                     puzzle=puzzle, submission_time=timezone.now(), team=team)
                 response = respond_to_submission(s)
@@ -139,7 +140,7 @@ def puzzle_view(request, puzzle_id):
         # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
         if form.is_valid():
-            user_answer = form.cleaned_data['answer']
+            user_answer = re.sub("[ _]", "", form.cleaned_data['answer'])
             s = Submission.objects.create(submission_text=user_answer,
                 puzzle=puzzle, submission_time=timezone.now(), team=team)
             response = respond_to_submission(s)
