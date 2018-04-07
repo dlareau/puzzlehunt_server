@@ -32,13 +32,16 @@ def respond_to_submission(submission):
             response = regex_response
         else:
             response = "Correct!"
-    # Answers should not contain spaces
-    elif(" " in submission.submission_text):
-        response = "Invalid answer (spaces)"
-    # Answers should not contain underscores
-    elif("_" in submission.submission_text):
-        response = "Invalid answer (underscores)"
+
+    # Currently not used to do punctiation stripping
+    # # Answers should not contain spaces
+    # elif(" " in submission.submission_text):
+    #     response = "Invalid answer (spaces)"
+    # # Answers should not contain underscores
+    # elif("_" in submission.submission_text):
+    #     response = "Invalid answer (underscores)"
     # Check against all expected answers and respond appropriately
+
     else:
         if(regex_response != ""):
             response = regex_response
