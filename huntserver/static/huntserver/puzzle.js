@@ -44,8 +44,13 @@ jQuery(document).ready(function($) {
       type: "POST",
       data: $(this).serialize(),
       error: function (jXHR, textStatus, errorThrown) {
-        console.log(jXHR.responseText);
-        alert(errorThrown);
+        if(jXHR.status == 403){
+          error = "Submission rejected due to exessive guessing."
+          $("<tr><td colspan = 3><i>" + error +"</i></td></tr>").prependTo("#sub_table");
+        } else {
+          console.log(jXHR.responseText);
+          alert(errorThrown);
+        }
       },
       success: function (response) {
         response = JSON.parse(response);

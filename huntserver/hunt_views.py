@@ -1,8 +1,9 @@
 from datetime import datetime
 from dateutil import tz
 from django.conf import settings
+from ratelimit.decorators import ratelimit
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.template import Template, RequestContext
 from django.template.loader import render_to_string
@@ -103,11 +104,14 @@ def current_hunt(request):
 
 
 @login_required
+@ratelimit(key='user', rate='10/m', method='POST')
 def puzzle_view(request, puzzle_id):
     """
     A view to handle answer submissions via POST, handle response update requests via AJAX, and
     render the basic per-puzzle pages.
     """
+    if(getattr(request, 'limited', False)):
+        return HttpResponseForbidden()
 
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
@@ -120,7 +124,7 @@ def puzzle_view(request, puzzle_id):
             form = AnswerForm(request.POST)
             team = dummy_team_from_hunt(puzzle.hunt)
             if form.is_valid():
-                user_answer = re.sub("[ _-;:+,.!?]", "", form.cleaned_data['answer'])
+                user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
                 s = Submission.objects.create(submission_text=user_answer,
                     puzzle=puzzle, submission_time=timezone.now(), team=team)
                 response = respond_to_submission(s)
@@ -140,7 +144,7 @@ def puzzle_view(request, puzzle_id):
         # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
         if form.is_valid():
-            user_answer = re.sub("[ _-;:+,.!?]", "", form.cleaned_data['answer'])
+            user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
             s = Submission.objects.create(submission_text=user_answer,
                 puzzle=puzzle, submission_time=timezone.now(), team=team)
             response = respond_to_submission(s)
