@@ -54,6 +54,7 @@ DATABASES = {
         'PORT': '3306',
         'USER': '$MYSQL_NORMAL_USER',
         'PASSWORD': '$MYSQL_NORMAL_PASSWORD',
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 INTERNAL_IPS = ''

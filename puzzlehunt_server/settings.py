@@ -15,6 +15,8 @@ from secret_settings import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import codecs
+codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else None)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
