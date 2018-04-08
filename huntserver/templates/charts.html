@@ -15,6 +15,7 @@
   <div id="chart_div4"></div>
   <div id="chart_div5" style="height: 700px; overflow: hidden;"></div>
   <div id="chart_div6">
+    <h4>Puzzle stats</h4>
     <table>
       <tr>
         <td><b>Puzzle</b></td>
@@ -33,6 +34,28 @@
           <td></td>
           <td>{{ info.num_solves }}</td>
         {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <br>
+  <div id="after_subs">
+    <h4>Submissions after solve</h4>
+    <table>
+      <tr>
+        <td><b>Team</b></td>
+        <td><b>Puzzle</b></td>
+        <td><b>Time</b></td>
+        <td><b>Correct answer</b></td>
+        <td><b>Submission</b></td>
+      </tr>
+      {% for entry in after_subs %}
+      <tr>
+          <td>{{ entry.solve.puzzle.puzzle_name }}</td>
+          <td>{{ entry.solve.team.team_name|truncatechars:20 }}</td>
+          <td>{{ entry.sub.submission_time|time:"h:i a" }}</td>
+          <td>{{ entry.solve.puzzle.answer }}</td>
+          <td>{{ entry.sub.submission_text }}</td>
       </tr>
       {% endfor %}
     </table>
