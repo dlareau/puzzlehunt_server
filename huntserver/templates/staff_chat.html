@@ -19,9 +19,9 @@
   <div class="container">
     <div class="row">
       <div id="button_container" class="content col-sm-3 col-md-2">
-        {% for team, dict in message_dict.items %}
-          <button data-id='{{ dict.pk }}' class="chatselect">
-            {{ team|truncatechars:16 }}
+        {% for team in teams %}
+          <button data-id='{{ team.pk }}' class="chatselect">
+            {{ team.team_name|truncatechars:16 }}
           </button>
           <br>
         {% endfor %}
