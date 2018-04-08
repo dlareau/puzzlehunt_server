@@ -149,7 +149,7 @@ function drawStacked() {
        left: 50,
        height: '50%'
     },
-    vAxis: {maxValue: {{num_puzzles}}},
+    vAxis: {maxValue: {{puzzles|length}}},
     hAxis: {slantedText:true, slantedTextAngle:60 },
   };
 

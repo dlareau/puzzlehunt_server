@@ -13,6 +13,29 @@
   <div id="chart_div2"></div>
   <div id="chart_div3"></div>
   <div id="chart_div4"></div>
-  <div id="chart_div5"></div>
+  <div id="chart_div5" style="height: 700px; overflow: hidden;"></div>
+  <div id="chart_div6">
+    <table>
+      <tr>
+        <td><b>Puzzle</b></td>
+        <td><b>First Team</b></td>
+        <td><b>First Time</b></td>
+        <td><b>Num Soves</b></td>
+      </tr>
+      {% for puzzle, info in table_dict %}
+      <tr>
+        <td>{{ puzzle }}</td>
+        <td>{{ info.first_team }}</td>
+        {% if info.num_solves != 0 %}
+          <td>{{ info.first_time|time:"h:i a" }}</td>
+          <td>{{ info.num_solves }}</td>
+        {% else %}
+          <td></td>
+          <td>{{ info.num_solves }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 
 {% endblock content %}

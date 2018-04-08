@@ -233,7 +233,7 @@ def charts(request):
     # Chart 5
     solves = solves.order_by("submission__submission_time")
     teams = list(curr_hunt.team_set.exclude(location="DUMMY").exclude(location="off_campus"))
-    num_puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number').count()
+    num_puzzles = puzzles.count()
     solve_points = []
     tmp = [None]
     for team in teams:
@@ -244,10 +244,24 @@ def charts(request):
             tmp[teams.index(solve.team) + 1] += 1
             solve_points.append(tmp[:])
 
+    # Info Table
+    table_dict = {}
+    for puzzle in puzzles:
+        try:
+            solve_set = puzzle.solve_set.exclude(team__location="DUMMY").exclude(team__location="off_campus")
+            solve = solve_set.order_by("submission__submission_time")[:1].get()
+            table_dict[puzzle.puzzle_name] = {'first_team': solve.team.team_name,
+                                              'first_time': solve.submission.submission_time,
+                                              'num_solves': solve_set.count()}
+        except:
+            table_dict[puzzle.puzzle_name] = {'first_team': None,
+                                              'first_time': datetime.max.replace(tzinfo=tz.gettz('UTC')),
+                                              'num_solves': puzzle.solve_set.count()}
 
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
-               'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles}
+               'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
+               'table_dict': sorted(table_dict.iteritems(), key=lambda x:x[1]['first_time'])}
     return render(request, 'charts.html', context)
 
 
@@ -284,6 +298,8 @@ def admin_chat(request):
     if request.is_ajax():
         return HttpResponse(json.dumps(context))
     else:
+        teams = curr_hunt.team_set.all()
+        context['teams'] = teams
         return render(request, 'staff_chat.html', context)
 
 
