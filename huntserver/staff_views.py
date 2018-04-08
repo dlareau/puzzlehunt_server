@@ -183,8 +183,9 @@ def progress(request):
 
 @staff_member_required
 def charts(request):
-    """ A view to render the charts page. Mostly just collecting and oraganizing data """
+    """ A view to render the charts page. Mostly just collecting and organizing data """
 
+    # Charts 1 and 2
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
     puzzle_info_dict1 = []
@@ -207,6 +208,7 @@ def charts(request):
             "correct": solved_count
         })
 
+    # Chart 3
     time_zone = tz.gettz(settings.TIME_ZONE)
     subs = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission_time")
     grouped = itertools.groupby(subs, lambda x:x.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
@@ -218,6 +220,7 @@ def charts(request):
         if(matches[0].puzzle.hunt.start_date < matches[0].submission_time < matches[0].puzzle.hunt.end_date):
             submission_hours.append({"hour": group, "amount": amount})
 
+    # Chart 4
     solves = Solve.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission__submission_time")
     grouped = itertools.groupby(solves, lambda x:x.submission.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
     solve_hours = []
@@ -227,8 +230,24 @@ def charts(request):
         if(matches[0].puzzle.hunt.start_date < matches[0].submission.submission_time < matches[0].puzzle.hunt.end_date):
             solve_hours.append({"hour": group, "amount": amount})
 
+    # Chart 5
+    solves = solves.order_by("submission__submission_time")
+    teams = list(curr_hunt.team_set.exclude(location="DUMMY").exclude(location="off_campus"))
+    num_puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number').count()
+    solve_points = []
+    tmp = [None]
+    for team in teams:
+        tmp.append(0)
+    for solve in solves:
+        tmp[0] = solve.submission.submission_time
+        if(solve.team in teams):
+            tmp[teams.index(solve.team) + 1] += 1
+            solve_points.append(tmp[:])
+
+
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
-               'data3_list': submission_hours, 'data4_list': solve_hours}
+               'data3_list': submission_hours, 'data4_list': solve_hours,
+               'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles}
     return render(request, 'charts.html', context)
 
 
