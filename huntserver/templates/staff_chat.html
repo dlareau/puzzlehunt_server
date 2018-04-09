@@ -18,15 +18,15 @@
   <h1> Staff Chat </h1>
   <div class="container">
     <div class="row">
-      <div id="button_container" class="content col-sm-3 col-md-2">
+      <div id="button_container" class="content col-sm-4 col-md-3">
         {% for team in teams %}
-          <button data-id='{{ team.pk }}' class="chatselect">
-            {{ team.team_name|truncatechars:16 }}
+          <button style="width:45%" data-id='{{ team.pk }}' class="chatselect">
+            {{ team.team_name|truncatechars:12 }}
           </button>
-          <br>
+
         {% endfor %}
       </div>
-      <div class="content col-sm-9 col-md-10">
+      <div class="content col-sm-8 col-md-9">
         <div id="chatcontainer">
           {% for team, dict in message_dict.items %}
             <div id='chat_{{ dict.pk }}' class="chatwindow">

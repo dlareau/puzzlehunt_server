@@ -307,7 +307,7 @@ def admin_chat(request):
     if request.is_ajax():
         return HttpResponse(json.dumps(context))
     else:
-        teams = curr_hunt.team_set.all()
+        teams = curr_hunt.team_set.order_by("team_name").all()
         context['teams'] = teams
         return render(request, 'staff_chat.html', context)
 
