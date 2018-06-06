@@ -5,6 +5,20 @@ Changelog
 Version 3
 *********
 
+v3.2.0
+======
+
+New:
+   - Common punctuation ( _-;:+,.!?) is now automatically stripped from puzzle answer submissions
+   - All string fields now support unicode characters
+   - Puzzle answer submissions are now ratelimited to 10 submissions per minute
+   - New charts and other info on charts page
+
+Updates:
+   - Staff chat now allows staff to initiate conversations with teams
+   - Chat now automatically scrolls to the bottom upon loading and new messages
+   - Minor style changes including navbar and team name rendering
+
 v3.1.1
 ======
 
