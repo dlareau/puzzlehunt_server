@@ -42,7 +42,7 @@ try debconf-set-selections <<< "mysql-server mysql-server/root_password password
 try debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD"
 
 # Get all basic system packages
-try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi
+try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi imagemagick
 
 apt-get install -y libapache2-mod-proxy-html || true
 
@@ -76,6 +76,7 @@ try source venv/bin/activate
 try pip install -r requirements.txt
 
 # Run application setup commands
+try mkdir -p ./media/puzzles
 try python manage.py migrate
 try python manage.py collectstatic --noinput
 try git checkout development # Only needed until test branch is merged
@@ -84,6 +85,8 @@ try deactivate
 
 # We are root until this point, pass off ownership of all we have created
 try chown -R puzzlehunt .
+try chmod -R go+r .
+try chmod -R og+rw ./media
 
 # Apache hosting setup
 try a2enmod proxy
