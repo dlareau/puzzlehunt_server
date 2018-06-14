@@ -35,6 +35,7 @@ try apt-get install -y git
 try cd ~puzzlehunt
 try git clone https://github.com/dlareau/puzzlehunt_server.git
 try cd puzzlehunt_server
+try git checkout development # Only needed until test branch is merged
 
 # Make sure we don't get prompted for anything 
 try export DEBIAN_FRONTEND="noninteractive"
@@ -79,7 +80,6 @@ try pip install -r requirements.txt
 try mkdir -p ./media/puzzles
 try python manage.py migrate
 try python manage.py collectstatic --noinput
-try git checkout development # Only needed until test branch is merged
 try python manage.py loaddata config/initial_hunt.json
 try deactivate
 
