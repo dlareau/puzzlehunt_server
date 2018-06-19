@@ -39,7 +39,7 @@ th {
     overflow: auto;
 }
 
-.puzzle .info h1 {
+.leftinfo {
     float: left;
 }
 
