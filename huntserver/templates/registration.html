@@ -21,15 +21,29 @@
     </p>
     <h3>The code to join this team is <b>{{registered_team.join_code}}</b></h3>
     <p>
-      <b> Team Name: </b> {{ registered_team.team_name }}
+      <div>
+        <span> <b> Team Name: </b> {{ registered_team.team_name }} </span>
+        <a href='#' class='edit_button'>[Change Name]</a>
+        <form method="Post" class="" style="display: none;">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="new_name">
+          <b> Team Name: </b>
+          <input name="team_name" value="{{ registered_team.team_name }}" type="text">
+          <input type="submit" value="Change Name">
+        </form>
+      </div>
       <br>
-      <form method="Post">
-        {% csrf_token %}
-        <input type="hidden" name="form_type" value="new_location">
-        <b> Team Location: </b>
-        <input name="team_location" value="{{ registered_team.location }}" type="text">
-        <input type="submit" value="Change location">
-      </form>
+      <div>
+        <span> <b> Team Location: </b> {{ registered_team.location }} </span>
+        <a href='#' class='edit_button'>[Change Location]</a>
+        <form method="Post" style="display: none;">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="new_location">
+          <b> Team Location: </b>
+          <input name="team_location" value="{{ registered_team.location }}" type="text">
+          <input type="submit" value="Change Location">
+        </form>
+      </div>
       <br>
       <b> Team Members: </b>
       <ul>
@@ -45,6 +59,14 @@
         <input type="submit" value="Remove me from this team" onclick="return confirm('Are you sure?')">
       </form>
     </p>
+    <script type="text/javascript">
+      $(document).delegate('.edit_button', 'click', function() {
+        $(this).siblings('form').show();
+        $(this).siblings('span').hide();
+        $(this).hide();
+        return false;
+      });
+    </script>
   {% else %}
     </div>
     <div class="container no_outline">

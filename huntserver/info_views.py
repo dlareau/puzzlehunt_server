@@ -67,6 +67,10 @@ def registration(request):
             # TODO: add success message
             team.location = request.POST.get("team_location")
             team.save()
+        elif(request.POST["form_type"] == "new_name" and team is not None):
+            # TODO: add success message
+            team.team_name = request.POST.get("team_name")
+            team.save()
 
     if(team is not None):
         return render(request, "registration.html", {'registered_team': team})
