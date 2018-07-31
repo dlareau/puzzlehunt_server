@@ -13,6 +13,8 @@ New:
    - All string fields now support unicode characters
    - Puzzle answer submissions are now ratelimited to 10 submissions per minute
    - New charts and other info on charts page
+   - Puzzle pages now show a solve count
+   - Teams can now update their name before the hunt starts from the team management page
 
 Updates:
    - Staff chat now allows staff to initiate conversations with teams
