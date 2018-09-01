@@ -282,7 +282,7 @@ class Message(models.Model):
         help_text="Message send time")
 
     def __unicode__(self):
-        return unicode(self.team.team_name + ": " + self.text)
+        return str(self.team.team_name + ": " + self.text)
 
 
 class Unlockable(models.Model):

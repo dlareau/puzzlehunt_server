@@ -41,13 +41,13 @@ class UserForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         username = self.cleaned_data.get('username')
         if email and User.objects.filter(email=email).exclude(username=username).exists():
-            raise forms.ValidationError(u'Someone is already using that email address.')
+            raise forms.ValidationError('Someone is already using that email address.')
         return email
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if(re.match("^[a-zA-Z0-9]+([_-]?[a-zA-Z0-9])*$", username) == None):
-            raise forms.ValidationError(u"Username must contain only letters, digits, or '-' or '_' ")
+            raise forms.ValidationError("Username must contain only letters, digits, or '-' or '_' ")
         return username
 
     def clean_confirm_password(self):
@@ -56,7 +56,7 @@ class UserForm(forms.ModelForm):
         if password1 and password2 and (password1 == password2):
             return password1
         else:
-            raise forms.ValidationError(u'Passwords must match')
+            raise forms.ValidationError('Passwords must match')
 
     class Meta:
         model = User
@@ -83,7 +83,7 @@ class ShibUserForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         username = self.cleaned_data.get('username')
         if email and User.objects.filter(email=email).exclude(username=username).exists():
-            raise forms.ValidationError(u'Someone is already using that email address.')
+            raise forms.ValidationError('Someone is already using that email address.')
         return email
 
 

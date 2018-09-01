@@ -105,7 +105,7 @@ def download_puzzle(puzzle):
 def parse_attributes(META):
     shib_attrs = {}
     error = False
-    for header, attr in settings.SHIB_ATTRIBUTE_MAP.items():
+    for header, attr in list(settings.SHIB_ATTRIBUTE_MAP.items()):
         required, name = attr
         values = META.get(header, None)
         value = None

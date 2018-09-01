@@ -269,7 +269,7 @@ def charts(request):
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
-               'table_dict': sorted(table_dict.iteritems(), key=lambda x:x[1]['first_time']),
+               'table_dict': sorted(iter(table_dict.items()), key=lambda x:x[1]['first_time']),
                'after_subs': after_subs}
     return render(request, 'charts.html', context)
 
@@ -381,7 +381,7 @@ def emails(request):
         if email_form.is_valid():
             subject = email_form.cleaned_data['subject']
             message = email_form.cleaned_data['message']
-            email_to_chunks = [email_list[x: x + 80] for x in xrange(0, len(email_list), 80)]
+            email_to_chunks = [email_list[x: x + 80] for x in range(0, len(email_list), 80)]
             for to_chunk in email_to_chunks:
                 email = EmailMessage(subject, message, 'puzzlehuntcmu@gmail.com',
                      [], to_chunk)
