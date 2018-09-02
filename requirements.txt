@@ -10,3 +10,5 @@ six==1.11.0
 sqlparse==0.2.3
 sphinx_rtd_theme
 django-ratelimit==1.1.0
+django-nose==1.4.5
+coverage==4.5.1
