@@ -1,7 +1,7 @@
 [
 {
     "fields": {
-        "username": "jlareau",
+        "username": "admin",
         "first_name": "",
         "last_name": "",
         "is_active": true,
@@ -10,13 +10,27 @@
         "last_login": "2017-12-31T02:30:12Z",
         "groups": [],
         "user_permissions": [],
-        "password": "pbkdf2_sha256$20000$GLdG9P4Fdk25$/MUEQESmazezJ8xe6A87Jm5sBl/JIhk3skYQD20Dnn8=",
-        "email": "flybye22@gmail.com",
+        "password": "pbkdf2_sha256$20000$9jwvmBqyU2Tx$12EC1C4+8w+3pBzPASl970L4oDpwaCt/NPLppkJCAVs=",
+        "email": "admin@example.com",
         "date_joined": "2017-12-27T18:39:26Z"
     },
     "model": "auth.user",
     "pk": 1
 },
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "",
+        "comments": "",
+        "teams": [],
+        "phone": "000-000-0000",
+        "user": 1
+    },
+    "model": "huntserver.person",
+    "pk": 1
+},
+
+
 {
     "fields": {
         "username": "user1",
@@ -37,6 +51,24 @@
 },
 {
     "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 1",
+        "comments": "This is user 1",
+        "teams": [
+            2,
+            6,
+            8
+        ],
+        "phone": "111-111-1111",
+        "user": 2
+    },
+    "model": "huntserver.person",
+    "pk": 2
+},
+
+
+{
+    "fields": {
         "username": "user2",
         "first_name": "First2",
         "last_name": "Last2",
@@ -53,6 +85,24 @@
     "model": "auth.user",
     "pk": 3
 },
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 2",
+        "comments": "This is user 2",
+        "teams": [
+            2,
+            6,
+            9
+        ],
+        "phone": "222-222-2222",
+        "user": 3
+    },
+    "model": "huntserver.person",
+    "pk": 3
+},
+
+
 {
     "fields": {
         "username": "user3",
@@ -73,6 +123,23 @@
 },
 {
     "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 3",
+        "comments": "This is user 3",
+        "teams": [
+            3,
+            5
+        ],
+        "phone": "333-333-3333",
+        "user": 4
+    },
+    "model": "huntserver.person",
+    "pk": 4
+},
+
+
+{
+    "fields": {
         "username": "user4",
         "first_name": "First4",
         "last_name": "Last4",
@@ -89,6 +156,23 @@
     "model": "auth.user",
     "pk": 5
 },
+{
+    "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 4",
+        "comments": "This is user 4",
+        "teams": [
+            3,
+            4
+        ],
+        "phone": "444-444-4444",
+        "user": 5
+    },
+    "model": "huntserver.person",
+    "pk": 5
+},
+
+
 {
     "fields": {
         "username": "user5",
@@ -109,6 +193,22 @@
 },
 {
     "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 5",
+        "comments": "This is user 5",
+        "teams": [
+            6
+        ],
+        "phone": "555-555-5555",
+        "user": 6
+    },
+    "model": "huntserver.person",
+    "pk": 6
+},
+
+
+{
+    "fields": {
         "username": "user6",
         "first_name": "First6",
         "last_name": "Last6",
@@ -127,6 +227,20 @@
 },
 {
     "fields": {
+        "is_shib_acct": false,
+        "allergies": "Food 6",
+        "comments": "This is user 6",
+        "teams": [],
+        "phone": "666-666-6666",
+        "user": 7
+    },
+    "model": "huntserver.person",
+    "pk": 7
+},
+
+
+{
+    "fields": {
         "team_size": 5,
         "end_date": "2000-01-02T05:00:00Z",
         "hunt_name": "Example Hunt 1",
@@ -141,7 +255,7 @@
 },
 {
     "fields": {
-        "team_size": 6,
+        "team_size": 3,
         "end_date": "3000-01-01T05:00:00Z",
         "hunt_name": "Example Hunt 2",
         "is_current_hunt": true,
@@ -167,6 +281,8 @@
     "model": "huntserver.hunt",
     "pk": 3
 },
+
+
 {
     "fields": {
         "num_pages": 1,
@@ -186,7 +302,7 @@
     "fields": {
         "num_pages": 1,
         "puzzle_name": "Puzzle1-2",
-        "unlocks": [],
+        "unlocks": [3],
         "puzzle_number": 2,
         "hunt": 1,
         "num_required_to_unlock": 0,
@@ -204,7 +320,7 @@
         "unlocks": [],
         "puzzle_number": 3,
         "hunt": 1,
-        "num_required_to_unlock": 0,
+        "num_required_to_unlock": 1,
         "link": "http://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf",
         "answer": "ANSWER13",
         "puzzle_id": "103"
@@ -231,7 +347,7 @@
     "fields": {
         "num_pages": 1,
         "puzzle_name": "Puzzle2-2",
-        "unlocks": [],
+        "unlocks": [6],
         "puzzle_number": 2,
         "hunt": 2,
         "num_required_to_unlock": 0,
@@ -249,7 +365,7 @@
         "unlocks": [],
         "puzzle_number": 3,
         "hunt": 2,
-        "num_required_to_unlock": 0,
+        "num_required_to_unlock": 1,
         "link": "http://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf",
         "answer": "ANSWER23",
         "puzzle_id": "203"
@@ -291,10 +407,10 @@
     "fields": {
         "num_pages": 1,
         "puzzle_name": "Puzzle3-3",
-        "unlocks": [],
+        "unlocks": [9],
         "puzzle_number": 3,
         "hunt": 3,
-        "num_required_to_unlock": 0,
+        "num_required_to_unlock": 1,
         "link": "http://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf",
         "answer": "ANSWER33",
         "puzzle_id": "303"
@@ -302,6 +418,8 @@
     "model": "huntserver.puzzle",
     "pk": 9
 },
+
+
 {
     "fields": {
         "hunt": 1,
@@ -410,104 +528,15 @@
     "model": "huntserver.team",
     "pk": 9
 },
+
+
 {
     "fields": {
-        "is_shib_acct": false,
-        "allergies": "",
-        "comments": "",
-        "teams": [],
-        "phone": "000-000-0000",
-        "user": 1
+      "puzzle": 5,
+      "regex": "^almost$",
+      "text": "Keep Going!"
     },
-    "model": "huntserver.person",
+    "model": "huntserver.response",
     "pk": 1
-},
-{
-    "fields": {
-        "is_shib_acct": false,
-        "allergies": "Food 1",
-        "comments": "This is user 1",
-        "teams": [
-            2,
-            6,
-            8
-        ],
-        "phone": "111-111-1111",
-        "user": 2
-    },
-    "model": "huntserver.person",
-    "pk": 2
-},
-{
-    "fields": {
-        "is_shib_acct": false,
-        "allergies": "Food 2",
-        "comments": "This is user 2",
-        "teams": [
-            2,
-            6,
-            9
-        ],
-        "phone": "222-222-2222",
-        "user": 3
-    },
-    "model": "huntserver.person",
-    "pk": 3
-},
-{
-    "fields": {
-        "is_shib_acct": false,
-        "allergies": "Food 3",
-        "comments": "This is user 3",
-        "teams": [
-            3,
-            5
-        ],
-        "phone": "333-333-3333",
-        "user": 4
-    },
-    "model": "huntserver.person",
-    "pk": 4
-},
-{
-    "fields": {
-        "is_shib_acct": false,
-        "allergies": "Food 4",
-        "comments": "This is user 4",
-        "teams": [
-            3,
-            5
-        ],
-        "phone": "444-444-4444",
-        "user": 5
-    },
-    "model": "huntserver.person",
-    "pk": 5
-},
-{
-    "fields": {
-        "is_shib_acct": false,
-        "allergies": "Food 5",
-        "comments": "This is user 5",
-        "teams": [
-            6
-        ],
-        "phone": "555-555-5555",
-        "user": 6
-    },
-    "model": "huntserver.person",
-    "pk": 6
-},
-{
-    "fields": {
-        "is_shib_acct": false,
-        "allergies": "Food 6",
-        "comments": "This is user 6",
-        "teams": [],
-        "phone": "666-666-6666",
-        "user": 7
-    },
-    "model": "huntserver.person",
-    "pk": 7
 }
 ]

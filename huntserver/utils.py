@@ -122,16 +122,18 @@ def parse_attributes(META):
                 error = True
     return shib_attrs, error
 
-def build_shib_url(request, target, entityid=None):
-    url_base = 'https://%s' % request.get_host()
-    shib_url = "%s%s" % (url_base, getattr(settings, 'SHIB_HANDLER', '/Shibboleth.sso/DS'))
-    if not target.startswith('http'):
-        target = url_base + target
+# This is from an old shibboleth implementation
+# Maybe bring this back for login_selection.html
+# def build_shib_url(request, target, entityid=None):
+#     url_base = 'https://%s' % request.get_host()
+#     shib_url = "%s%s" % (url_base, getattr(settings, 'SHIB_HANDLER', '/Shibboleth.sso/DS'))
+#     if not target.startswith('http'):
+#         target = url_base + target
 
-    url = '%s?target=%s' % (shib_url, target)
-    if entityid:
-        url += '&entityID=%s' % entityid
-    return url
+#     url = '%s?target=%s' % (shib_url, target)
+#     if entityid:
+#         url += '&entityID=%s' % entityid
+#     return url
 
 def dummy_team_from_hunt(hunt):
     try:
