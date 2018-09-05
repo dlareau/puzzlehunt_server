@@ -11,8 +11,11 @@ env:
     - DJANGO=1.8 DB=mysql
 install:
   - pip install -r requirements.txt
+  - pip install coveralls
   - mkdir -p ./media/puzzles
 before_script:
   - mysql -e 'create database puzzlehunt_db;' -u root
 script:
   - python manage.py test
+after_success:
+  - coveralls
