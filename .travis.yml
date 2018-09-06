@@ -14,7 +14,7 @@ env:
     - DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.travis_settings"
     - DB=mysql    
   matrix:
-    - DJANGO=1.8
+    - DJANGO=1.8.18
     - DJANGO=1.9
     - DJANGO=1.10
     - DJANGO=1.11
