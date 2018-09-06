@@ -20,17 +20,17 @@ env:
 matrix:
   exclude:
     - python: 3.6
-      env: DJANGO=1.8.*
+      env: DJANGO=1.8.* DB=mysql
     - python: 3.6
-      env: DJANGO=1.9.*
+      env: DJANGO=1.9.* DB=mysql
     - python: 3.6
-      env: DJANGO=1.10.*
+      env: DJANGO=1.10.* DB=mysql
     - python: 2.7
-      env: DJANGO=2.0.*
+      env: DJANGO=2.0.* DB=mysql
     - python: 2.7
-      env: DJANGO=2.1.*
+      env: DJANGO=2.1.* DB=mysql
     - python: 3.4
-      env: DJANGO=2.1.*
+      env: DJANGO=2.1.* DB=mysql
 
 before_install:
   - export DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.travis_settings"
