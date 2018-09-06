@@ -94,7 +94,7 @@ def download_puzzle(puzzle):
 
     # Get the file
     file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
-    call(["wget", puzzle.link, "-O", file_str])
+    call(["wget", "-q", puzzle.link, "-O", file_str])
     with open(file_str, "rb") as f:
         puzzle.num_pages = PdfFileReader(f).getNumPages()
         puzzle.save()

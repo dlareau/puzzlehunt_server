@@ -1,9 +1,7 @@
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.db import transaction
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.utils.html import escape
 from django.utils.dateformat import DateFormat
 from dateutil import tz
 from django.conf import settings
@@ -12,7 +10,6 @@ import os
 import re
 
 time_zone = tz.gettz(settings.TIME_ZONE)
-
 
 class Hunt(models.Model):
     """ Base class for a hunt. Contains basic details about a puzzlehunt. """
@@ -96,7 +93,7 @@ class Puzzle(models.Model):
         help_text="Number of prerequisite puzzles that need to be solved to unlock this puzzle")
     unlocks = models.ManyToManyField("self", blank=True, symmetrical=False,
         help_text="Puzzles that this puzzle is a possible prerequisite for")
-    hunt = models.ForeignKey(Hunt,
+    hunt = models.ForeignKey(Hunt, on_delete=models.CASCADE,
         help_text="The hunt that this puzzle is a part of")
     num_pages = models.IntegerField(
         help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
@@ -124,7 +121,7 @@ class Team(models.Model):
         through="Unlock", help_text="The puzzles the team has unlocked")
     unlockables = models.ManyToManyField("Unlockable", blank=True,
         help_text="The unlockables the team has earned")
-    hunt = models.ForeignKey(Hunt,
+    hunt = models.ForeignKey(Hunt, on_delete=models.CASCADE,
         help_text="The hunt that the team is a part of")
     location = models.CharField(max_length=80, blank=True,
         help_text="The physical location that the team is solving at")
@@ -174,13 +171,13 @@ class Person(models.Model):
 class Submission(models.Model):
     """ A class representing a submission to a given puzzle from a given team """
 
-    team = models.ForeignKey(Team,
+    team = models.ForeignKey(Team, on_delete=models.CASCADE,
         help_text="The team that made the submission")
     submission_time = models.DateTimeField()
     submission_text = models.CharField(max_length=100)
     response_text = models.CharField(blank=True, max_length=400,
         help_text="Response to the given answer. Empty string indicates human response needed")
-    puzzle = models.ForeignKey(Puzzle,
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE,
         help_text="The puzzle that this submission is in response to")
     modified_date = models.DateTimeField(
         help_text="Last date/time of response modification")
@@ -215,11 +212,11 @@ class Submission(models.Model):
 class Solve(models.Model):
     """ A class that links a team and a puzzle to indicate that the team has solved the puzzle """
 
-    puzzle = models.ForeignKey(Puzzle,
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE,
         help_text="The puzzle that this is a solve for")
-    team = models.ForeignKey(Team,
+    team = models.ForeignKey(Team, on_delete=models.CASCADE,
         help_text="The team that this solve is from")
-    submission = models.ForeignKey(Submission, blank=True,
+    submission = models.ForeignKey(Submission, blank=True, on_delete=models.CASCADE,
         help_text="The submission object that the team submitted to solve the puzzle")
 
     class Meta:
@@ -248,9 +245,9 @@ class Solve(models.Model):
 class Unlock(models.Model):
     """ A class that links a team and a puzzle to indicate that the team has unlocked the puzzle """
 
-    puzzle = models.ForeignKey(Puzzle,
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE,
         help_text="The puzzle that this is an unlock for")
-    team = models.ForeignKey(Team,
+    team = models.ForeignKey(Team, on_delete=models.CASCADE,
         help_text="The team that this unlocked puzzle is for")
     time = models.DateTimeField(
         help_text="The time this puzzle was unlocked for this team")
@@ -272,7 +269,7 @@ class Unlock(models.Model):
 class Message(models.Model):
     """ A class that represents a message sent using the chat functionality """
 
-    team = models.ForeignKey(Team,
+    team = models.ForeignKey(Team, on_delete=models.CASCADE,
         help_text="The team that this message is being sent to/from")
     is_response = models.BooleanField(
         help_text="A boolean representing whether or not the message is from the staff")
@@ -294,7 +291,7 @@ class Unlockable(models.Model):
         ('TXT', 'Text'),
         ('WEB', 'Link'),
     )
-    puzzle = models.ForeignKey(Puzzle,
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE,
         help_text="The puzzle that needs to be solved to unlock this object")
     content_type = models.CharField(max_length=3, choices=TYPE_CHOICES, default='TXT',
         help_text="The type of object that is to be unlocked, can be 'IMG', 'PDF', 'TXT', or 'WEB'")
@@ -308,7 +305,7 @@ class Unlockable(models.Model):
 class Response(models.Model):
     """ A class to represent an automated response regex """
 
-    puzzle = models.ForeignKey(Puzzle,
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE,
         help_text="The puzzle that this automated response is related to")
     regex = models.CharField(max_length=400,
         help_text="The python-style regex that will be checked against the user's response")
