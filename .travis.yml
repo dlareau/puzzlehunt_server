@@ -14,9 +14,7 @@ env:
   - DJANGO=1.9.* DB=mysql
   - DJANGO=1.10.* DB=mysql
   - DJANGO=1.11.* DB=mysql
-  - DJANGO=2.0.* DB=mysql
-  - DJANGO=2.1.* DB=mysql
-
+  
 matrix:
   exclude:
     - python: 3.6
