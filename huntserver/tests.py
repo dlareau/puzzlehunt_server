@@ -300,37 +300,101 @@ class AuthTests(TestCase):
                         'user-email': 'user7@example.com', 'person-phone': "777-777-7777", 
                         'person-allergies': "something", 'user-password': "password",
                         'user-confirm_password':"password"}
+
         post_context['user-email'] = "user6@example.com"
         response = self.client.post(reverse('huntserver:create_account'), post_context)
         self.assertEqual(response.status_code, 200)
         post_context['user-email'] = "user7@example.com"
+
         post_context['user-username'] = "$$$"
         response = self.client.post(reverse('huntserver:create_account'), post_context)
         self.assertEqual(response.status_code, 200)
         post_context['user-username'] = "user7"
+
         post_context['user-confirm_password'] = "wordpass"
         response = self.client.post(reverse('huntserver:create_account'), post_context)
         self.assertEqual(response.status_code, 200)
         post_context['user-confirm_password'] = "password"
+
         response = self.client.post(reverse('huntserver:create_account'), post_context)
         self.assertEqual(response.status_code, 200)
 
     def test_login_selection(self):
         "Test the login selection view"
         response = get_and_check_page(self, 'huntserver:login_selection', 200)
+        response = self.client.get(reverse('huntserver:login_selection'), {'next': '/'})
+        self.assertEqual(response.status_code, 200)
 
     def test_account_logout(self):
         "Test the account logout view"
         login(self, 'user1')
         response = get_and_check_page(self, 'huntserver:account_logout', 302)
+        login(self, 'user1')
+        response = self.client.get(reverse('huntserver:account_logout'), {'next': '/'})
+        self.assertEqual(response.status_code, 302)
 
     def test_shib_login(self):
         "Test the shib login view"
+        # No HTTP_META data, should fail
+        response = self.client.get(reverse('huntserver:new_shib_account'))
+        self.assertTemplateUsed(response, 'attribute_error.html')
+
+        # Username is empty, should fail
         META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',
-                "eppn": "jlareau@andrew.cmu.edu", "givenName": "John Dillon",
-                "sn": "Lareau"}
+                "eppn": "", "givenName": "Test",
+                "sn": "User"}
         response = self.client.get(reverse('huntserver:new_shib_account'), **META)
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'attribute_error.html')
+
+        # Bad shib setup, should fail
+        META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',
+                "eppn": "user@andrew.cmu.edu", "givenName": "Test",
+                "sn": "User"}
+        with self.settings(SHIB_USERNAME="foobar"):
+            response = self.client.get(reverse('huntserver:new_shib_account'), **META)
+            self.assertTemplateUsed(response, 'attribute_error.html')
+            self.assertEqual(response.status_code, 200)
+
+        # Bad shib setup, should fail
+        META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',
+                "eppn": "user@andrew.cmu.edu", "givenName": "",
+                "sn": "User"}
+        with self.settings(SHIB_USERNAME="givenName"):
+            response = self.client.get(reverse('huntserver:new_shib_account'), **META)
+            self.assertTemplateUsed(response, 'attribute_error.html')
+            self.assertEqual(response.status_code, 200)
+
+        with self.settings(SHIB_FIRST_NAME="foobar"):
+            response = self.client.get(reverse('huntserver:new_shib_account'), **META)
+            self.assertEqual(response.status_code, 200)
+
+        # Proper shib response, should succeed
+        META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',
+                "eppn": "user@andrew.cmu.edu", "givenName": "Test",
+                "sn": "User"}
+        response = self.client.get(reverse('huntserver:new_shib_account'), **META)
+        self.assertEqual(response.status_code, 200)
+
+        # Username is empty, should fail
+        post_context = {'first_name': "Test", 'last_name': "User", 
+                        'username': "",
+                        'email': 'user@andrew.cmu.edu', 
+                        'phone': "777-777-7777", 
+                        'allergies': "something"}
+        response = self.client.post(reverse('huntserver:new_shib_account'), post_context, **META)
+        self.assertEqual(response.status_code, 200)
+
+        # Proper post request, should succeed
+        post_context = {'first_name': "Test", 'last_name': "User", 
+                        'username': "user@andrew.cmu.edu",
+                        'email': 'user@andrew.cmu.edu', 
+                        'phone': "777-777-7777", 
+                        'allergies': "something"}
+        response = self.client.post(reverse('huntserver:new_shib_account') + "?next=// ",
+                                    post_context, **META)
+        self.assertEqual(response.status_code, 302)
+
 
 class StaffTests(TestCase):
     fixtures = ["basic_hunt"]
@@ -457,4 +521,11 @@ call the tag with bad data?
 utils.py
 puzzle submission that matches a response
 the rest is errors/edgecases
+
+
+Plan: 
+- Get D1.8 P2.7 coverage to 100%
+- Merge python 3 branch
+- Attempt P2.7, P3.6, D1.8 D1.9 D1.10 D1.11 D1.12 D2.0 D2.1
+- Fix things until step 3 works
 """
