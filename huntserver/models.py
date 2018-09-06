@@ -61,7 +61,7 @@ class Hunt(models.Model):
     @property
     def is_open(self):
         """ A boolean indicating whether or not the hunt is open to registered participants """
-        return timezone.now() > self.start_date and timezone.now() < self.end_date
+        return timezone.now() >= self.start_date and timezone.now() < self.end_date
 
     @property
     def is_public(self):

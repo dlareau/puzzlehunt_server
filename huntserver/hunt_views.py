@@ -84,8 +84,6 @@ def hunt(request, hunt_num):
     elif(hunt.is_public):
         puzzle_list = hunt.puzzle_set.all()
     # How did you get here?
-    else:
-        return render(request, 'access_error.html')
 
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
     if(team is None):

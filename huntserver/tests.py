@@ -1,14 +1,16 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from huntserver import models, forms
-from django.contrib.auth.models import User
+from huntserver import models, forms, templatetags
+from django.contrib.auth.models import User, AnonymousUser
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 #python manage.py dumpdata --indent=4  --exclude=contenttypes --exclude=sessions --exclude=admin --exclude=auth.permission
 
 # Users: jlareau, user1, user2, user3, user4, user5, user6
 #   jlareau is superuser/staff and on no teams
 #   user1 is on teams 2, 6, 8 (1-2, 2-3, 3-2)
-#   user2 is on teams 2, 6, 9 (1-2, 2-3, 3-3)
+#   user2 is on teams 2, 6, 9 (1-2, 2-3, 3-3) # Reserved for ratelimiting
 #   user3 is on teams 3, 5    (1-3, 2-2     )
 #   user4 is on teams 3, 4    (1-3, 2-1     )
 #   user5 is on teams    6    (     2-3     )
@@ -56,11 +58,46 @@ def solve_puzzle_from_admin(test):
 class nonWebTests(TestCase):
     fixtures = ["basic_hunt"]
 
+    def setUp(self):
+        puzzle = models.Puzzle.objects.get(pk=5)
+        team = models.Team.objects.get(pk=2)
+
+        # Gotta add the anonymous person and a huntAssetFile
+
+        #models.Person.objects.create(user=, is_shib_acct=False)
+        models.Submission.objects.create(team=team, submission_time=timezone.now(),
+            submission_text="foobar", puzzle=puzzle, modified_date=timezone.now())
+        models.Solve.objects.create(puzzle=puzzle, team=team, 
+            submission=models.Submission.objects.all()[0])
+        models.Unlock.objects.create(puzzle=puzzle, team=team, time=timezone.now())
+        models.Message.objects.create(team=team, is_response=False, text="foobar", 
+            time=timezone.now())
+        models.Unlockable.objects.create(puzzle=puzzle, content_type="TXT", 
+            content="foobar")
+        #models.HuntAssetFile.objects.create()
+
     def test_unicode(self):
         rv = str(models.Hunt.objects.all()[0])
         rv = str(models.Puzzle.objects.all()[0])
         rv = str(models.Person.objects.all()[0])
-        rv = str(models.Team.objects.all()[0])
+        #rv = str(models.Person.objects.all()[-1])
+        rv = str(models.Submission.objects.all()[0])
+        rv = str(models.Solve.objects.all()[0])
+        rv = str(models.Unlock.objects.all()[0])
+        rv = str(models.Message.objects.all()[0])
+        rv = str(models.Unlockable.objects.all()[0])
+        rv = str(models.Response.objects.all()[0])
+        #rv = str(models.HuntAssetFile.objects.all()[0])
+
+    def test_hunt_cleaning(self):
+        with self.assertRaises(ValidationError):
+            hunt = models.Hunt.objects.get(is_current_hunt=True)
+            hunt.is_current_hunt = False
+            hunt.save()
+
+    def test_bootstrap_tag(self):
+        templatetags.bootstrap_tags.active_page(None, None)
+        # Try to cover Resolver404 case
 
 class InfoTests(TestCase):
     fixtures = ["basic_hunt"]
@@ -245,7 +282,12 @@ class HuntTests(TestCase):
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"3"})
         self.assertTemplateUsed(response, 'not_released.html')
-
+        login(self, 'admin')
+        response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
+        login(self, 'user3')
+        response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
+        login(self, 'user6')
+        response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
 
     def test_current_hunt(self):
         "Test the current hunt redirect"
@@ -256,38 +298,102 @@ class HuntTests(TestCase):
         "Test the basic per-puzzle view"
         login(self, 'user4')
         response = get_and_check_page(self, 'huntserver:puzzle', 200, {"puzzle_id":"101"})
+
         post_context = {'answer': "Wrong Answer"}
         response = self.client.post(reverse('huntserver:puzzle', 
                                             kwargs={"puzzle_id":"101"}), 
                                     post_context)
         self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(reverse('huntserver:puzzle', 
+                                            kwargs={"puzzle_id":"101"}))
+        self.assertEqual(response.status_code, 200)
+
         response = get_and_check_page(self, 'huntserver:puzzle', 200, {"puzzle_id":"201"})
+
         post_context = {'answer': "Wrong Answer"}
         response = self.client.post(reverse('huntserver:puzzle', 
                                             kwargs={"puzzle_id":"201"}), 
                                     post_context)
         self.assertEqual(response.status_code, 200)
+
         post_context = {'answer': "ANSWER21"}
         response = self.client.post(reverse('huntserver:puzzle', 
                                             kwargs={"puzzle_id":"201"}), 
                                     post_context)
         self.assertEqual(response.status_code, 200)
+
+        post_context = {'answer': "almost"}
+        response = self.client.post(reverse('huntserver:puzzle', 
+                                            kwargs={"puzzle_id":"202"}), 
+                                    post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {'answer': "answer22"}
+        response = self.client.post(reverse('huntserver:puzzle', 
+                                            kwargs={"puzzle_id":"202"}), 
+                                    post_context)
+        self.assertEqual(response.status_code, 200)
+
         response = self.client.get(reverse('huntserver:puzzle', 
                                             kwargs={"puzzle_id":"201"}), 
                                     {'last_date': '2000-01-01T01:01:01.001Z'}, 
                                     **{'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'})
         self.assertEqual(response.status_code, 200)
 
+    def test_puzzle_ratelimit(self):
+        "Test that users are properly ratelimited"
+        login(self, 'user2')
+        post_context = {'answer': "Wrong Answer"}
+        for i in range(20):
+            response = self.client.post(reverse('huntserver:puzzle', 
+                                            kwargs={"puzzle_id":"101"}), 
+                                        post_context)
+        response = self.client.post(reverse('huntserver:puzzle', 
+                                            kwargs={"puzzle_id":"101"}), 
+                                        post_context)
+        self.assertEqual(response.status_code, 403)
 
     def test_chat_normal(self):
         "Test the basic chat view"
+        login(self, 'user6')
+        response = get_and_check_page(self, 'huntserver:chat', 404)
+
         login(self, 'user1')
         response = get_and_check_page(self, 'huntserver:chat', 200)
+
+        post_context = {'team_pk': "2", 'is_announcement': "false",
+                        'is_response':"false", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:chat'), post_context)
+        response = self.client.post(reverse('huntserver:chat'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {'team_pk': "", 'is_announcement': "true",
+                        'is_response':"false", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:chat'), post_context)
+        self.assertEqual(response.status_code, 400)
+
+        response = ajax_and_check_page(self, 'huntserver:chat', 200, {'last_pk': '0'})
+        response = get_and_check_page(self, 'huntserver:chat', 200)
+
+        login(self, 'admin')
+        post_context = {'team_pk': "2", 'is_announcement': "true",
+                        'is_response':"true", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:chat'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {'team_pk': "2", 'is_announcement': "false",
+                        'is_response':"true", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:chat'), post_context)
+        self.assertEqual(response.status_code, 200)
 
     def test_unlockables(self):
         "Test the unlockables view"
         login(self, 'user1')
-        response = get_and_check_page(self, 'huntserver:unlockables', 200)        
+        response = get_and_check_page(self, 'huntserver:unlockables', 200)  
+        login(self, 'user6')
+        response = get_and_check_page(self, 'huntserver:unlockables', 200)  
+        self.assertTemplateUsed(response, 'not_released.html')      
 
 class AuthTests(TestCase):
     fixtures = ["basic_hunt"]
@@ -403,8 +509,21 @@ class StaffTests(TestCase):
         "Test the staff queue view"
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:queue', 200)
+
         response = ajax_and_check_page(self, 'huntserver:queue', 200, 
                                        {'last_date': '2000-01-01T01:01:01.001Z'})
+
+        puzzle = models.Puzzle.objects.all()[0]
+        team = models.Team.objects.all()[0]
+        s = models.Submission.objects.create(submission_text="bad answer",
+                    puzzle=puzzle, submission_time=timezone.now(), team=team)
+        post_context = {'response': "Wrong answer", 'sub_id': str(s.pk)}
+        response = self.client.post(reverse('huntserver:queue'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {'response': "Wrong answer", 'sub_id': ""}
+        response = self.client.post(reverse('huntserver:queue'), post_context)
+        self.assertEqual(response.status_code, 400)
 
     def test_staff_queue_paged(self):
         "Test the staff paged queue view"
@@ -421,6 +540,18 @@ class StaffTests(TestCase):
         solve_puzzle_from_admin(self)
         response = ajax_and_check_page(self, 'huntserver:progress', 200, ajax_args)
         response = get_and_check_page(self, 'huntserver:progress', 200)
+
+        post_context = {'action': "unlock", 'team_id': "5", 'puzzle_id': "202"}
+        response = self.client.post(reverse('huntserver:progress'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {'action': "unlock_all", 'puzzle_id': "5"}
+        response = self.client.post(reverse('huntserver:progress'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {}
+        response = self.client.post(reverse('huntserver:progress'), post_context)
+        self.assertEqual(response.status_code, 400)
 
     def test_staff_charts(self):
         "Test the staff charts view"
@@ -456,6 +587,10 @@ class StaffTests(TestCase):
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:emails', 200)
 
+        post_context = {'subject': "test_subject", 'message': "test_message"}
+        response = self.client.post(reverse('huntserver:emails'), post_context)
+        self.assertEqual(response.status_code, 302)
+
     def test_staff_management(self):
         "Test the staff management view"
         login(self, 'admin')
@@ -466,37 +601,43 @@ class StaffTests(TestCase):
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:depgraph', 200)
 
+    def test_staff_chat(self):
+        "Test the staff progress view"
+        login(self, 'admin')
+        ajax_args = {'last_pk': '0'}
+        response = ajax_and_check_page(self, 'huntserver:admin_chat', 200, ajax_args)
+
+        response = get_and_check_page(self, 'huntserver:admin_chat', 200)
+
+        login(self, 'user1')
+        post_context = {'team_pk': "2", 'is_announcement': "false",
+                        'is_response':"false", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:chat'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        login(self, 'admin')
+        response = ajax_and_check_page(self, 'huntserver:admin_chat', 200, ajax_args)
+
+    def test_admin_pages(self):
+        "Test the admin page for team objects"
+        login(self, 'admin')
+        response = self.client.get(reverse('admin:huntserver_team_change', args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('admin:huntserver_puzzle_change', args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('admin:huntserver_hunt_change', args=(1,)))
+        self.assertEqual(response.status_code, 200)
+
 """
 admin.py
-Admin interface
-
-auth_views.py
-login_selection with 'next' parameter
-logging out of an account via the url with a 'next' parameter
-bad cases in shib logins
-
-forms.py
-shib user trying to change username
+Saving models
 
 hunt_views.py
-hunt view as staff
-hunt view as playtester
-hunt view as not registered
-(see if it is possible to reach else case)
-(see if "team is none" after sorting puzzles is possible to reach)
-puzzle view when ratelimited
-puzzle view submission with invalid submissions
 puzzle view submission with no team
 puzzle view submission with excecption case?
 puzzle view ajax with no team
 puzzle view ajax with exception case?
-puzzle view when public and exception case?
-chat view message submission
-chat view message submission with invalid data
-chat view with no team
-chat view ajax
-add chat messages to basic_hunt so that we enter the for loop
-unlockables view with no team
+chat view ajax something about messages?
 
 info_views.py
 registration view with team name update
@@ -504,28 +645,21 @@ registration view with team name update
 models.py
 check if serialize for ajax is still needed/used (if so, use it)
 unicode on all models
-basically just call a bunch of model functions from everything
 
 staff_views.py
-queue post request
 queue page exceptions (not possible?)
-progress post requests
 progress ajax as non-staff (not possible?)
 progress normal page with no submissions
-all of admin chat
-email post request (how to do without emailing?)
 
 bootstrap_tags.py
 call the tag with bad data?
 
 utils.py
-puzzle submission that matches a response
-the rest is errors/edgecases
+download puzzles but directory doesn't exist
+values exception in parse_attributes
 
 
 Plan: 
-- Get D1.8 P2.7 coverage to 100%
-- Merge python 3 branch
 - Attempt P2.7, P3.6, D1.8 D1.9 D1.10 D1.11 D1.12 D2.0 D2.1
 - Fix things until step 3 works
 """

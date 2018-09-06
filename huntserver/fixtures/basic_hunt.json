@@ -538,5 +538,14 @@
     },
     "model": "huntserver.response",
     "pk": 1
+},
+{
+    "fields": {
+      "puzzle": 5,
+      "regex": "^answer22$",
+      "text": "You did it!"
+    },
+    "model": "huntserver.response",
+    "pk": 2
 }
 ]
