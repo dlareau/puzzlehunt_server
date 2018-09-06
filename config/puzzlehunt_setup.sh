@@ -24,7 +24,7 @@ apt-get install -y git
 try cd /vagrant
 try ln -s /vagrant/puzzlehunt_server /home/vagrant/puzzlehunt_server
 try cd /home/vagrant/puzzlehunt_server
-try git checkout development # Only needed until test branch is merged
+try git checkout tests # Only needed until test branch is merged
 
 # Make sure we don't get prompted for anything
 try export DEBIAN_FRONTEND="noninteractive"
@@ -39,9 +39,12 @@ apt-get install -y libapache2-mod-proxy-html || true
 # Set up MYSQL user and database
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_PUZZLEHUNT_DB"
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on $MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost' identified by '$MYSQL_NORMAL_PASSWORD'"
+try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_$MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost'"
 
 # Configure application (Consider this the same as modifying secret_settings.py.template)
-try cat > puzzlehunt_server/secret_settings.py <<EOF
+try cat > puzzlehunt_server/settings/local_settings.py <<EOF
+from .base_settings import *
+DEBUG=False
 SECRET_KEY = '$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*(\-_=+)' | head -c 50)'
 DATABASES = {
     'default': {
@@ -67,6 +70,7 @@ try source venv/bin/activate
 try pip install -r requirements.txt
 
 # Run application setup commands
+export DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.local_settings"
 try mkdir -p ./media/puzzles
 try python manage.py migrate
 try python manage.py collectstatic --noinput
