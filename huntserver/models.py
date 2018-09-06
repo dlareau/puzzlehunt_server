@@ -147,7 +147,7 @@ class Team(models.Model):
 class Person(models.Model):
     """ A class to associate more personal information with the default django auth user class """
 
-    user = models.OneToOneField(User,
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
         help_text="The corresponding user to this person")
     phone = models.CharField(max_length=20, blank=True,
         help_text="Person's phone number, no particular formatting")
