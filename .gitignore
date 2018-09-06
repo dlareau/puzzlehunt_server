@@ -5,7 +5,6 @@
 /huntserver/static/huntserver/*.pdf
 /huntserver/static/huntserver/puzzles/*
 /puzzlehunt_server/settings/local_settings.py
-/puzzlehunt_server/settings/local_settings.py.template
 /docs/_build/
 db.sqlite3
 /env/

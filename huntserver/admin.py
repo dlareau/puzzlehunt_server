@@ -5,7 +5,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from huntserver.widgets import HtmlEditor
 
 # Register your models here.
-import models
+from . import models
 
 class UnlockableInline(admin.TabularInline):
     model = models.Unlockable

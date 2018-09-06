@@ -130,7 +130,7 @@ def puzzle_view(request, puzzle_id):
             else:
                 response = "Invalid Submission"
                 is_correct = None
-            context = {'form': form, 'pages': range(puzzle.num_pages),
+            context = {'form': form, 'pages': list(range(puzzle.num_pages)),
                       'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
                       'response': response, 'is_correct': is_correct}
             return render(request, 'puzzle.html', context)
@@ -188,7 +188,7 @@ def puzzle_view(request, puzzle_id):
                 last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
             except:
                 last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-            context = {'form': form, 'pages': range(puzzle.num_pages), 'puzzle': puzzle,
+            context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
                        'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
                        'last_date': last_date}
             return render(request, 'puzzle.html', context)
