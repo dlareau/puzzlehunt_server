@@ -1,7 +1,10 @@
 language: python
 
 python:
+  - "2.6"
   - "2.7"
+  - "3.5"
+  - "3.6"
 services:
   - mysql
 env:
@@ -9,7 +12,12 @@ env:
     - DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.travis_settings"
   matrix:
     - DJANGO=1.8 DB=mysql
+    - DJANGO=1.9 DB=mysql
+    - DJANGO=1.10 DB=mysql
+    - DJANGO=1.11 DB=mysql
+    - DJANGO=2.0 DB=mysql
 install:
+  - pip install -q Django==$DJANGO
   - pip install -r requirements.txt
   - pip install coveralls
   - mkdir -p ./media/puzzles
