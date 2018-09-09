@@ -3,6 +3,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from huntserver.widgets import HtmlEditor
+from django.contrib.auth.models import User, Group
 
 # Register your models here.
 from . import models
@@ -14,7 +15,7 @@ class UnlockableInline(admin.TabularInline):
 class ResponseInline(admin.TabularInline):
     model = models.Response
     extra = 1
-    template = "admin/tabular_custom.html"
+#    template = "admin/tabular_custom.html"
 
 class UnlockInline(admin.TabularInline):
     model = models.Puzzle.unlocks.through
@@ -22,7 +23,7 @@ class UnlockInline(admin.TabularInline):
     fk_name = 'to_puzzle'
     verbose_name = "Puzzle that counts towards unlocking this puzzle"
     verbose_name_plural = "Puzzles that count towards this puzzle"
-    template = "admin/tabular_custom.html"
+#    template = "admin/tabular_custom.html"
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "from_puzzle":
@@ -107,6 +108,17 @@ class HuntAssetFileAdmin(admin.ModelAdmin):
     def url(self, obj):
         return obj.file.url
 
+class UserProxyObject(User):
+    class Meta:
+        proxy = True
+        app_label = 'huntserver'
+        verbose_name = User._meta.verbose_name
+        verbose_name_plural = User._meta.verbose_name_plural
+
+admin.site.unregister(User)
+admin.site.unregister(Group)
+        
+admin.site.register(UserProxyObject)
 admin.site.register(models.Hunt, HuntAdmin)
 admin.site.register(models.Puzzle, PuzzleAdmin)
 admin.site.register(models.Person, PersonAdmin)

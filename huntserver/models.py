@@ -279,7 +279,7 @@ class Message(models.Model):
         help_text="Message send time")
 
     def __unicode__(self):
-        return str(self.team.team_name + ": " + self.text)
+        return self.team.team_name + ": " + self.text
 
 
 class Unlockable(models.Model):
@@ -313,7 +313,7 @@ class Response(models.Model):
         help_text="The text to use in the submission response if the regex matched")
 
     def __unicode__(self):
-        return self.regex + "=>" + self.text
+        return self.regex + " => " + self.text
 
 
 class OverwriteStorage(FileSystemStorage):

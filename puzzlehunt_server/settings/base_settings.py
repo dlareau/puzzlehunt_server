@@ -23,7 +23,7 @@ class globlist(list):
 # Application definition
 
 INSTALLED_APPS = (
-    'django_admin_bootstrapped',
+    'bootstrap_admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'puzzlehunt_server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'puzzlehunt_server/templates')],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -112,6 +112,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = '/media/'
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
 
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'

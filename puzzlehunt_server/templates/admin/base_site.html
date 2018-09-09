@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+	  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
+{% endblock %}
+	
+{% block branding %}
+	<a href="{% url 'admin:index' %}" class="django-admin-logo">
+	    <!-- Django Administration -->
+	    <img height="60" src="{% static "bootstrap_admin/img/logo-140x60.png" %}" alt="{{ site_header|default:_('Django administration') }}">
+	</a>
+{% endblock %}
+
+{% block pretitle %}
+	<div class="collapse navbar-collapse" id="admin_navbar">
+	<ul class="nav navbar-nav">
+		<li><a href="/staff/progress">Progress</a></li>
+	    <li><a href="/staff/queue">Queue</a></li>
+	    <li><a href="/staff/chat">Chat</a></li>
+	    <li><a href="/staff/management">Management</a></li>
+	    <li><a href="/staff/emails">Email</a></li>
+	    <li><a href="/staff/charts">Charts</a></li>
+	</ul>
+	</div>
+{% endblock%}
+
+{% block content_title %}{% endblock %}
