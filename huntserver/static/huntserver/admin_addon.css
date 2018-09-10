@@ -18,3 +18,11 @@ td.original p {
 	width: 0px;
 	height: 0px;
 }
+
+.sidebar-menu .django-admin-logo {
+	background: #efefef;
+	border-right: 1px solid #ddd;
+	height: 70px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}

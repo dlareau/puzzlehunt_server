@@ -1,0 +1,49 @@
+{% load i18n %}
+	{% if app_list %}
+	  {% for app in app_list %}
+	    <ul class="nav nav-sidebar app-{{ app.app_label }} module{% if app.app_url in current_url %} has-active-menu show-models{% endif %}">
+	      <li {% if app.app_url == current_url %} class="active"{% endif %}>
+	        <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
+	          {{ app.name }}
+	        </a>
+	      </li>
+	      {% for model in app.models %}
+	        <li {% if model.admin_url in current_url %}class="active"{% endif %}>
+	          <a href="{% firstof model.admin_url model.add_url '#' %}" title="{% if not model.admin_url and not model.add_url %}{% trans "You don't have permission to edit anything." %}{% endif %}">{{ model.name }}</a>
+	        </li>
+	      {% endfor %}
+	    </ul>
+	  {% endfor %}
+	{% else %}
+	  <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
+	{% endif %}
+
+{% if "progress" in current_url or "queue" in current_url %}
+	<ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
+{% else %}
+	<ul class="nav nav-sidebar app-staffpages module">
+{% endif %}
+	  <li>
+	    <a href="/staff" class="section">
+	      Other Staff Pages
+	    </a>
+	  </li>
+        <li {% if "progress" in current_url %}class="active"{% endif %}>
+          <a href="/staff/progress">Progress</a>  
+        </li>
+		<li {% if "queue" in current_url %}class="active"{% endif %}>
+          <a href="/staff/queue">Queue</a>
+        </li>
+		<li {% if "chat" in current_url %}class="active"{% endif %}>
+          <a href="/staff/chat">Chat</a>
+        </li>
+		<li {% if "management" in current_url %}class="active"{% endif %}>
+          <a href="/staff/management">Management</a>
+        </li>
+		<li {% if "emails" in current_url %}class="active"{% endif %}>
+          <a href="/staff/emails">Email</a>
+        </li>
+		<li {% if "charts" in current_url %}class="active"{% endif %}>
+          <a href="/staff/charts">Charts</a>
+        </li>
+    </ul>
