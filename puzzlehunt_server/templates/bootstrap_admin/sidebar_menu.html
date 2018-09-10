@@ -18,7 +18,7 @@
 	  <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
 	{% endif %}
 
-{% if "progress" in current_url or "queue" in current_url %}
+{% if "progress" in current_url or "queue" in current_url or "chat" in current_url or "management" in current_url or "emails" in current_url or "charts" in current_url %}
 	<ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
 {% else %}
 	<ul class="nav nav-sidebar app-staffpages module">
