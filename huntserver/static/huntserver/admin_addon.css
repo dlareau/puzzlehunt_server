@@ -12,3 +12,9 @@
 	padding-top: 8px;
 	padding-bottom: 0px;
 }
+
+td.original p {
+	visibility: hidden;
+	width: 0px;
+	height: 0px;
+}

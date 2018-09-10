@@ -1,23 +1,16 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{% block title %} Puzzlehunt Admin {% endblock title %}</title>
-    <script src="{{ STATIC_URL }}jquery.min.js"></script>
-    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
-    <script src="{{ STATIC_URL }}bootstrap.min.js"></script>
-    {% block includes %} {% endblock includes %}
-  </head>
-  <body style="margin-top: 70px;">
-    {% include "staff_header.html" %}
-    <section id="content">
-      {% block content %}
+{% extends "admin/base_site.html" %}
 
-      {% endblock content %}
-      <br/>
-      <p style='margin-top: 50px;display:block'></p>
-    </section>
-    <script>
+{% block title %} Puzzlehunt Admin {% endblock title %}
+
+{% block extrahead %}
+	<script src="{{ STATIC_URL }}jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
+{% block includes %} {% endblock %}
+{% endblock %}
+
+{% block js %}
+	<script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -27,5 +20,4 @@
       ga('send', 'pageview');
 
     </script>
-  </body>
-</html>
+{% endblock %}
