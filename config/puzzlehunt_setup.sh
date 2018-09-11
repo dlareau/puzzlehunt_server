@@ -74,7 +74,7 @@ export DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.local_settings"
 try mkdir -p ./media/puzzles
 try python manage.py migrate
 try python manage.py collectstatic --noinput
-try python manage.py loaddata config/initial_hunt.json
+try python manage.py loaddata initial_hunt
 try deactivate
 
 # We are root until this point, pass off ownership of all we have created
