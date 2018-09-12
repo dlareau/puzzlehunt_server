@@ -33,6 +33,11 @@
               {{dict.messages}}
             </div>
           {% endfor %}
+          {% for team in teams %}
+            {% if team.team_name not in message_dict %}
+              <div id='chat_{{ team.pk }}' class="chatwindow"></div>
+            {% endif %}
+          {% endfor %}
           </div>
         <div style="margin-top: 10px">
           <input id="messagebox" typpe='text'> </input>
