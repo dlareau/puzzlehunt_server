@@ -27,7 +27,7 @@ try apt-get update
 try apt-get install -y git
 
 # Get the git repository and link it for external access
-try cd /vagrant
+# Consider checking and cloning
 try ln -s -f /vagrant/puzzlehunt_server /home/$USERNAME/puzzlehunt_server
 try cd /home/$USERNAME/puzzlehunt_server
 try git checkout development
@@ -40,6 +40,7 @@ try debconf-set-selections <<< "mysql-server mysql-server/root_password_again pa
 # Get all basic system packages
 try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi imagemagick
 
+# Sometimes this isn't needed
 try apt-get install -y libapache2-mod-proxy-html || true
 
 # Set up MYSQL user and database
@@ -47,7 +48,7 @@ try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on $MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost' identified by '$MYSQL_NORMAL_PASSWORD'"
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_$MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost'"
 
-# Configure application (Consider this the same as modifying secret_settings.py.template)
+# Configure application (Consider this the same as making local_settings.py)
 try cat > puzzlehunt_server/settings/local_settings.py <<EOF
 from .base_settings import *
 DEBUG=False
@@ -78,7 +79,6 @@ try pip install -r requirements.txt
 # Run application setup commands
 try mkdir -p ./media/puzzles
 try export DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.local_settings
-env
 try python manage.py migrate
 try python manage.py collectstatic --noinput
 try python manage.py loaddata initial_hunt
@@ -96,5 +96,9 @@ try a2enmod proxy_html
 try a2enmod xsendfile
 try a2enmod wsgi
 rm /etc/apache2/sites-enabled/*
-try cp config/puzzlehunt_vagrant.conf /etc/apache2/sites-enabled/
+
+# modify and copy configuration
+try sed "s/vagrant/$USERNAME/g" config/puzzlehunt_generic.conf > /etc/apache2/sites-enabled/puzzlehunt_generic.conf
 try service apache2 restart
+
+echo $(ip address show eth0 | grep 'inet ' | sed -e 's/^.*inet //' -e 's/\/.*$//')
