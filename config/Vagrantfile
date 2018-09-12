@@ -23,4 +23,8 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 80, host: 8080
 
   config.vm.provision "shell", path: "puzzlehunt_server/config/puzzlehunt_setup.sh"
+
+  config.vm.provision "shell", 
+    inline: "/vagrant/puzzlehunt_server/venv/bin/python /vagrant/puzzlehunt_server/manage.py collectstatic --noinput --settings puzzlehunt_server.settings.local_settings -v0", 
+    run: "always"
 end
