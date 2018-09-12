@@ -6,25 +6,31 @@
 # Nothing about this setup is secure, this is absolutely not for production
 
 # Variables
+USERNAME=vagrant
 MYSQL_ROOT_PASSWORD=wrongbaa
 MYSQL_NORMAL_USER=hunt
 MYSQL_NORMAL_PASSWORD=$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*(\-_=+)' | head -c 16)
 MYSQL_PUZZLEHUNT_DB=puzzlehunt_db
 
 # Helper functions
-yell() { echo "$0: $*" >&2; }
-die() { yell "$*"; exit 111; }
-try() { "$@" || die "cannot $*"; }
+try() { "$@" || (echo "$0: cannot $*" >&2; exit 1;)}
+
+getent passwd $USERNAME > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "$USERNAME user already exists"
+else
+	try adduser --gecos "" --disabled-password $USERNAME
+fi
 
 # Need git to kick off the process
-apt-get update
-apt-get install -y git
+try apt-get update
+try apt-get install -y git
 
 # Get the git repository and link it for external access
 try cd /vagrant
-try ln -s /vagrant/puzzlehunt_server /home/vagrant/puzzlehunt_server
-try cd /home/vagrant/puzzlehunt_server
-try git checkout tests # Only needed until test branch is merged
+try ln -s -f /vagrant/puzzlehunt_server /home/$USERNAME/puzzlehunt_server
+try cd /home/$USERNAME/puzzlehunt_server
+try git checkout development
 
 # Make sure we don't get prompted for anything
 try export DEBIAN_FRONTEND="noninteractive"
@@ -34,7 +40,7 @@ try debconf-set-selections <<< "mysql-server mysql-server/root_password_again pa
 # Get all basic system packages
 try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi imagemagick
 
-apt-get install -y libapache2-mod-proxy-html || true
+try apt-get install -y libapache2-mod-proxy-html || true
 
 # Set up MYSQL user and database
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_PUZZLEHUNT_DB"
@@ -70,15 +76,16 @@ try source venv/bin/activate
 try pip install -r requirements.txt
 
 # Run application setup commands
-export DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.local_settings"
 try mkdir -p ./media/puzzles
+try export DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.local_settings
+env
 try python manage.py migrate
 try python manage.py collectstatic --noinput
 try python manage.py loaddata initial_hunt
 try deactivate
 
 # We are root until this point, pass off ownership of all we have created
-try chown -R vagrant .
+try chown -R $USERNAME .
 try chmod -R go+r .
 try chmod -R og+rw ./media
 
