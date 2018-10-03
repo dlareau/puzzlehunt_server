@@ -66,6 +66,16 @@ class Hunt(models.Model):
         return timezone.now() > self.end_date
 
     @property
+    def season(self):
+        """ A boolean indicating whether or not the hunt is open to the public """
+        if(self.start_date.month >= 1 and self.start_date.month <= 5):
+            return "Spring"
+        elif(self.start_date.month >= 8 and self.start_date.month <= 12):
+            return "Fall"
+        else:
+            return "Summer"
+
+    @property
     def real_teams(self):
         return self.team_set.exclude(location="DUMMY").all()
 

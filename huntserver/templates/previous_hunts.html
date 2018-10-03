@@ -9,13 +9,43 @@
 
 <div class="container">
   <p>
-    In the future this page will hold more information about each previous hunt. For now here are just links to the puzzles from each hunt.   
+    Puzzlehunts we have run, listed in reverse chronological order back to 2007. (Playable back to 2015)
+    
   </p>
-  <ul>
-      {% for hunt in hunts %}
-        <li><a href="{% url 'huntserver:hunt' hunt.hunt_number %}">{{hunt.hunt_name}}</a></li>
-      {% endfor %}
-  </ul>
+  {% for hunt in hunts reversed %}
+    <p>
+      <h4>
+        <a href="{% url 'huntserver:hunt' hunt.hunt_number %}">
+          {{hunt.hunt_name}} ({{hunt.season}} '{{ hunt.start_date|date:"y" }})
+        </a>
+      </h4>
+      <ul>
+        <li>
+          {{ hunt.start_date|date:" m/d/y " }} 
+          {{ hunt.start_date|time:"h:iA" }} - 
+          {{ hunt.end_date|time:"h:iA" }}
+        </li>
+        <li>{{hunt.location}} Puzzles</li>
+        <li>{{hunt.puzzle_set.all|length}} Puzzles</li>
+        <li>{{hunt.real_teams|length}} Teams</li>
+      </ul>
+    </p>
+  {% endfor %}
+  <h4> Ornithology Hunt (Fall '14) </h4>
+  <h4> Zombie Apocalypse Hunt (Spring '14) </h4>
+  <h4> Hitchhikers Guide Hunt (Fall '13) </h4>
+  <h4> Pirate Treasure Hunt (Spring '13) </h4>
+  <h4> Weather Machine Hunt (Fall '12) </h4>
+  <h4> Myst Hunt (Spring '12) </h4>
+  <h4> Babel Systems Hunt (Fall '11) </h4>
+  <h4> Film Noir Hunt (Spring '11) </h4>
+  <h4> Dungeon Hunt (Spring '10) </h4>
+  <h4> Clone Hunt (Fall '09) </h4>
+  <h4> Time Travel Hunt (Spring '09) </h4>
+  <h4> Geller Hotel Hunt (Fall '08) </h4>
+  <h4> (Pirates?) Hunt (Spring '08) </h4>
+  <h4> Carmen Sandiego Hunt (Fall '07) </h4>
+  <h4> Alice in Wonderland Hunt (Spring '07) </h4>
 
 </div>
 {% endblock content %}
