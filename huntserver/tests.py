@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 
 #python manage.py dumpdata --indent=4  --exclude=contenttypes --exclude=sessions --exclude=admin --exclude=auth.permission
 
-# Users: jlareau, user1, user2, user3, user4, user5, user6
-#   jlareau is superuser/staff and on no teams
+# Users: admin, user1, user2, user3, user4, user5, user6
+#   admin is superuser/staff and on no teams
 #   user1 is on teams 2, 6, 8 (1-2, 2-3, 3-2)
 #   user2 is on teams 2, 6, 9 (1-2, 2-3, 3-3) # Reserved for ratelimiting
 #   user3 is on teams 3, 5    (1-3, 2-2     )
@@ -619,6 +619,11 @@ class StaffTests(TestCase):
         "Test the staff management view"
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:hunt_management', 200)
+
+    def test_staff_info(self):
+        "Test the staff info view"
+        login(self, 'admin')
+        response = get_and_check_page(self, 'huntserver:hunt_info', 200)
 
     def test_staff_depgraph(self):
         "Test the staff depgraph view"

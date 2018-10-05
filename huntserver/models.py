@@ -153,6 +153,10 @@ class Team(models.Model):
     def __unicode__(self):
         return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name
 
+    @property
+    def short_name(self):
+        """ A boolean indicating whether or not the team is a playtesting team """
+        return self.team_name[:30]
 
 class Person(models.Model):
     """ A class to associate more personal information with the default django auth user class """

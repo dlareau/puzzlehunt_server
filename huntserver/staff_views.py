@@ -12,7 +12,7 @@ import itertools
 import json
 import networkx as nx
 
-from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
+from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm
 from .utils import unlock_puzzles, download_puzzle
 
@@ -318,6 +318,26 @@ def hunt_management(request):
 
     hunts = Hunt.objects.all()
     return render(request, 'hunt_management.html', {'hunts': hunts})
+
+@staff_member_required
+def hunt_info(request):
+    """ A view to render the hunt info page """
+
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    teams = curr_hunt.real_teams
+    people = []
+    for team in teams:
+        people = people + list(team.person_set.all())
+    need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
+    have_teams = teams.exclude(location="need_a_room").exclude(location="needs_a_room").exclude(location="off_campus")
+    offsite_teams = teams.filter(location="off_campus")
+
+    context = {'curr_hunt': curr_hunt, 
+               'people': people,
+               'need_teams': need_teams.all(),
+               'have_teams': have_teams.all(),
+               'offsite_teams': offsite_teams.all()}
+    return render(request, 'staff_hunt_info.html', context)
 
 
 @staff_member_required

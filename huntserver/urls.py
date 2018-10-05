@@ -55,6 +55,7 @@ urlpatterns = [
         url(r'^puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
         url(r'^emails/$', staff_views.emails, name='emails'),
         url(r'^management/$', staff_views.hunt_management, name='hunt_management'),
+        url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
         url(r'^depgraph/$', staff_views.depgraph, name='depgraph'),
     ])),
 
