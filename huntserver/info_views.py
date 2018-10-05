@@ -62,12 +62,14 @@ def registration(request):
                 request.user.person.teams.add(team)
         elif(request.POST["form_type"] == "leave_team"):
             request.user.person.teams.remove(team)
+            if(team.person_set.count() == 0 and team.hunt.is_locked):
+                team.delete()
             team = None
         elif(request.POST["form_type"] == "new_location" and team is not None):
             # TODO: add success message
             team.location = request.POST.get("team_location")
             team.save()
-        elif(request.POST["form_type"] == "new_name" and team is not None):
+        elif(request.POST["form_type"] == "new_name" and team is not None and team.hunt.is_locked):
             # TODO: add success message
             team.team_name = request.POST.get("team_name")
             team.save()

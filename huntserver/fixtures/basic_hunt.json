@@ -281,6 +281,34 @@
     "model": "huntserver.hunt",
     "pk": 3
 },
+{
+    "fields": {
+        "team_size": 3,
+        "end_date": "1000-07-03T05:00:00Z",
+        "hunt_name": "Example Hunt 4",
+        "is_current_hunt": false,
+        "location": "Location 4",
+        "template": "{% extends \"hunt_base.html\" %}\r\n{% block title %}Puzzles 4{% endblock title %}\r\n\r\n{% block content %}\r\nExample Template 3\r\n{% endblock content %}",
+        "hunt_number": 4,
+        "start_date": "1000-07-02T05:00:00Z"
+    },
+    "model": "huntserver.hunt",
+    "pk": 4
+},
+{
+    "fields": {
+        "team_size": 3,
+        "end_date": "1000-12-03T05:00:00Z",
+        "hunt_name": "Example Hunt 5",
+        "is_current_hunt": false,
+        "location": "Location 5",
+        "template": "{% extends \"hunt_base.html\" %}\r\n{% block title %}Puzzles 5{% endblock title %}\r\n\r\n{% block content %}\r\nExample Template 3\r\n{% endblock content %}",
+        "hunt_number": 5,
+        "start_date": "1000-12-02T05:00:00Z"
+    },
+    "model": "huntserver.hunt",
+    "pk": 5
+},
 
 
 {
@@ -527,6 +555,15 @@
     },
     "model": "huntserver.team",
     "pk": 9
+},
+
+
+{
+    "fields": {
+        "file": "foo"
+    },
+    "model": "huntserver.huntassetfile",
+    "pk": 1
 },
 
 

@@ -4,6 +4,7 @@ from huntserver import models, forms, templatetags
 from django.contrib.auth.models import User, AnonymousUser
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from datetime import datetime, timedelta
 
 #python manage.py dumpdata --indent=4  --exclude=contenttypes --exclude=sessions --exclude=admin --exclude=auth.permission
 
@@ -174,17 +175,26 @@ class InfoTests(TestCase):
 
     def test_registration_post_leave(self):
         "Test the registration page's leave team functionality"
-        login(self, 'user4')
+        login(self, 'user5')
         post_context = {"form_type":"leave_team"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['error'], "")
         hunt = models.Hunt.objects.get(is_current_hunt=True)
         self.assertEqual(len(response.context['user'].person.teams.filter(hunt=hunt)), 0)
-        self.assertEqual(len(models.Team.objects.get(team_name="Team2-2").person_set.all()), 1)
+        self.assertEqual(len(models.Team.objects.get(team_name="Team2-3").person_set.all()), 2)
+        login(self, 'user4')
+        hunt.start_date = hunt.start_date + timedelta(days=10000)
+        hunt.end_date = hunt.end_date + timedelta(days=10000)
+        hunt.save()
+        post_context = {"form_type":"leave_team"}
+        response = self.client.post(reverse('huntserver:registration'), post_context)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['error'], "")
+        self.assertEqual(len(response.context['user'].person.teams.filter(hunt=hunt)), 0)
 
     def test_registration_post_change_location(self):
-        "Test the registration page's leave team functionality"
+        "Test the registration page's new location functionality"
         login(self, 'user4')
         post_context = {"form_type":"new_location", "team_location": "location2.0"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
@@ -193,6 +203,20 @@ class InfoTests(TestCase):
         team = response.context['user'].person.teams.filter(hunt=hunt)[0]
         self.assertEqual(response.context['registered_team'], team)
         self.assertEqual(team.location, post_context['team_location'])
+
+    def test_registration_post_change_name(self):
+        "Test the registration page's new team name functionality"
+        login(self, 'user4')
+        post_context = {"form_type":"new_name", "team_name": "name 2.0"}
+        hunt = models.Hunt.objects.get(is_current_hunt=True)
+        hunt.start_date = hunt.start_date + timedelta(days=10000)
+        hunt.end_date = hunt.end_date + timedelta(days=10000)
+        hunt.save()
+        response = self.client.post(reverse('huntserver:registration'), post_context)
+        self.assertEqual(response.status_code, 200)
+        team = response.context['user'].person.teams.filter(hunt=hunt)[0]
+        self.assertEqual(response.context['registered_team'], team)
+        self.assertEqual(team.team_name, post_context['team_name'])
 
     def test_registration_post_invalid_data(self):
         "Test the registration page with invalid post data"
@@ -626,6 +650,8 @@ class StaffTests(TestCase):
         response = self.client.get(reverse('admin:huntserver_puzzle_change', args=(1,)))
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse('admin:huntserver_hunt_change', args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('admin:huntserver_huntassetfile_change', args=(1,)))
         self.assertEqual(response.status_code, 200)
 
 """
