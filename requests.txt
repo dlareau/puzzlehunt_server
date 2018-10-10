@@ -1,0 +1,72 @@
+REGULAR:
+GET / 994
+	GET /hunt/current 5314
+	GET /hunt/9 2505
+		GET /EACH PUZZLE ~300
+			GET /EACH PUZZLE AJAX ~120,000
+			GET /EACH PUZZLE PDF ~40
+			GET /EACH ANSWER SUBMISSION ~300
+
+		GET /chat AJAX 48341
+		GET /chat 1112
+		POST /chat 902
+
+	LOGIN/OUT/REGISTRATION:
+		GET /login-selection 83
+		GET /login-selection w/args 466
+			GET /accounts/login 4
+			GET /accounts/login w/args 30
+			POST /accounts/login 30
+
+			GET /shib/login w/args 138
+			POST /shib/login 4
+			GET /Shibboleth.sso/Login 175
+			POST /Shibboleth.sso/SAML2/POST 139
+
+		GET /logout 8
+		GET /Shibboleth.sso/Logout 7
+
+		GET /registration 203
+		POST /registration 18
+
+		GET /accounts/create 11
+		POST /accounts/create 7
+
+	OTHER FRONT PAGES:
+		GET /hunt/info 270
+		GET /contact-us 11
+		GET /resources 86
+		GET /previous-hunts 64
+			GET /EACH OLD HUNT PAGE ~15
+		GET /user-profile 9
+
+	GET /favicon.ico 387
+
+STAFF:
+GET /admin 43
+	GET /staff/charts 77
+
+	GET /staff/chat 124
+	GET /staff/chat AJAX 10332
+
+	GET /staff/emails 39
+	POST /staff/emails 15
+
+	GET /staff/progress 136
+	GET /staff/progress AJAX 5937
+	POST /staff/progress 38
+
+	GET /staff/queue 159
+	GET /staff/queue/# 60
+	GET /staff/queue AJAX 58838
+	POST /staff/queue 363
+
+	GET /staff/management 30
+	POST /staff/control 5
+
+	GET /admin/huntserver/hunt 9
+	GET /admin/huntserver/hunt/10 8
+
+	GET /admin/huntserver/puzzle 16
+
+	GET /admin/huntserver/team 37
