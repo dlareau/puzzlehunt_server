@@ -1,6 +1,24 @@
 # TEST PLAN
-from locust import Locust, TaskSet, task, TaskSequence, seq_task
+from locust import Locust, TaskSet, TaskSequence
 import sys
+from bs4 import BeautifulSoup
+
+# Todo:
+#   Most tests need to be written
+#   Implement web browser caching of static files?
+#   Figure out what login logic is and where it goes
+#       Maybe login happens automatically when response is the login-select page
+#   Maybe add on_start/on_stop arguments to page_and_subpages
+#   Deal with CSRF
+
+# CSRF code:
+#    
+self.client.headers['Referer'] = self.client.base_url
+csrftoken = response.cookies['csrftoken']
+self.client.post('/accounts/login/', 
+    {'email': 'email', 'password': 'password', 'csrfmiddlewaretoken': csrftoken},
+     headers={"X-CSRFToken": csrftoken},
+     cookies={"csrftoken": csrftoken})
 
 def stop(l):
     l.interrupt()
@@ -14,9 +32,123 @@ def page_and_subpages(main_function, action_set):
 
     return ts
 
+def fetch_static_assets(session, response):
+    resource_urls = set()
+    soup = BeautifulSoup(response.text, "html.parser")
+ 
+    for res in soup.find_all(src=True):
+        url = res['src']
+        if ("/static" in url or "/media" in url):
+            resource_urls.add(url)
+
+    for res in soup.find_all(href=True):
+        url = res['src']
+        if ("/static" in url or "/media" in url):
+            resource_urls.add(url)
+
+    for url in set(resource_urls):
+        if "/media" in url:
+            session.client.get(url, name="Media File")
+        else:
+            session.client.get(url, name="Static File")
+
+def ensure_login(session):
+    # Login if not already logged in with given user.
 
 # All of the page view functions
+def index(l):
+    # Load index page
+    response = l.client.get("/")
+    fetch_static_assets(l, response)
+
+
+def current_hunt_main_page(l):
+    # Load page, get puzzles, set puzzles on locust object
+    # Possibly separate by solved and unsolved
+    sys.stdout.write("current hunt main page")
+
+
+def puzzle_main_page(l):
+    # Pick puzzle from puzzles, go to page, possibly weight by solved/unsolved
+    # Store current puzzle number in locust object
+    # Get ajax number from page and store to locust object
+    sys.stdout.write("individual puzzle main page")
+
+def puzzle_ajax(l):
+    # make request to current puzzle object with current ajax number
+    # store returned ajax number in locust object
+    sys.stdout.write("puzzle ajax request")
+
+def puzzle_pdf_link(l):
+    # Load pdf link for current puzzle number
+    sys.stdout.write("puzzle pdf request")
+
+def puzzle_answer(l):
+    # Submit answer to current puzzle using POST with some correctness chance
+    sys.stdout.write("submit answer request")
+
+
+def chat_main_page(l):
+    # Load main chat page and store ajax value in locust object
+    sys.stdout.write("chat main page")
+
+def chat_ajax(l):
+    # Make ajax request with current ajax value and store new value
+    sys.stdout.write("chat ajax request")
+
+def chat_new_message(l):
+    # Make POST request to create a new chat message, store ajax value
+    sys.stdout.write("chat new message request")
+
+
+def info_main_page(l):
+    # Load info page
+    response = l.client.get("/hunt/info")
+    fetch_static_assets(l, response)
+
+
+def registration_main_page(l):
+    # Load registration page
+    sys.stdout.write("registration main page")
+
+def registration_update_info(l):
+    # Update the teams room location
+    sys.stdout.write("update team info request")
+
+
+def resources(l):
+    # Load resources page
+    response = l.client.get("/resources")
+    fetch_static_assets(l, response)
+
+
+def previous_hunts_main_page(l):
+    # Load previous hunts page, store list of available hunts in locust object
+    sys.stdout.write("previous hunts main page")
+
+def previous_hunt(l):
+    # Load a random previous hunt page in the locust object
+    sys.stdout.write("previous hunt page")
+
+
+def create_account(l):
+    # Load the create account page
+    sys.stdout.write("create account page")
+
+
+def contact(l):
+    # Load contact page
+    response = l.client.get("/resources")
+    fetch_static_assets(l, response)
+
+
+def user_profile(l):
+    # Load user profile page
+    sys.stdout.write("user profile page")
+
+
 def staff_chat_main_page(l):
+    # Load staff chat page, get and store ajax token
     sys.stdout.write("chat main page")
 
 def staff_chat_new_message(l):
@@ -64,72 +196,7 @@ def management(self):
     sys.stdout.write("management main page")
 
 
-def index(l):
-    sys.stdout.write("index page")
-
-
-def current_hunt_main_page(l):
-    sys.stdout.write("current hunt main page")
-
-
-def puzzle_main_page(l):
-    sys.stdout.write("individual puzzle main page")
-
-def puzzle_ajax(l):
-    sys.stdout.write("puzzle ajax request")
-
-def puzzle_pdf_link(l):
-    sys.stdout.write("puzzle pdf request")
-
-def puzzle_answer(l):
-    sys.stdout.write("submit answer request")
-
-
-def chat_main_page(l):
-    sys.stdout.write("chat main page")
-
-def chat_ajax(l):
-    sys.stdout.write("chat ajax request")
-
-def chat_new_message(l):
-    sys.stdout.write("chat new message request")
-
-
-def info_main_page(l):
-    sys.stdout.write("info page")
-
-
-def registration_main_page(l):
-    sys.stdout.write("registration main page")
-
-def registration_update_info(l):
-    sys.stdout.write("update team info request")
-
-
-def resources(l):
-    sys.stdout.write("resource page")
-
-
-def previous_hunts_main_page(l):
-    sys.stdout.write("previous hunts main page")
-
-def previous_hunt(l):
-    sys.stdout.write("previous hunt page")
-
-
-def create_account(l):
-    sys.stdout.write("create account page")
-
-
-def contact(l):
-    sys.stdout.write("contact page")
-
-
-def user_profile(l):
-    sys.stdout.write("user profile page")
-
-
-# All of the probabilty stuff
+# All of the probability stuff
 staff_chat_fs = {staff_chat_new_message: 3, staff_chat_ajax: 80, stop: 1}
 progress_fs = {progress_unlock: 1, progress_ajax: 150, stop: 4}
 queue_fs = {queue_num_page: 1, queue_new_response: 6, queue_ajax: 1000, stop: 3}
@@ -137,11 +204,12 @@ email_fs = {email_send_email: 1, stop: 2}
 
 puzzle_fs = {puzzle_ajax: 3000, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
 chat_fs = {chat_ajax: 40, chat_new_message: 4, stop: 1}
-current_hunt_fs = {page_and_subpages(puzzle_main_page, puzzle_fs): 4, 
-                   page_and_subpages(chat_main_page, chat_fs): 1, 
+current_hunt_fs = {page_and_subpages(puzzle_main_page, puzzle_fs): 4,
+                   page_and_subpages(chat_main_page, chat_fs): 1,
                    stop: 7}
 registration_fs = {registration_update_info: 1, stop: 10}
 prev_hunt_fs = {previous_hunt: 3, stop: 1}
+
 
 class StaffSet(TaskSet):
     tasks = {
@@ -150,8 +218,9 @@ class StaffSet(TaskSet):
         page_and_subpages(queue_main_page, queue_fs): 8,
         page_and_subpages(email_main_page, email_fs): 2,
         admin_page: 1,
-        management: 2 
+        management: 2
     }
+
 
 class WebsiteSet(TaskSet):
     tasks = {
@@ -166,6 +235,7 @@ class WebsiteSet(TaskSet):
         stop: 100
     }
 
+
 class HunterSet(TaskSequence):
     tasks = [index, WebsiteSet]
 
@@ -176,6 +246,7 @@ class StaffLocust(Locust):
     min_wait = 2500
     max_wait = 3000
     weight = 10
+
 
 # Regular user
 class HunterLocust(Locust):
@@ -195,7 +266,7 @@ class HunterLocust(Locust):
 #       - NEW MESSAGE
 #   - PROGRESS
 #       - AJAX (LOG)
-#       - MANUALLY UNLOCK 
+#       - MANUALLY UNLOCK
 #   - QUEUE 160
 #       - AJAX (LOG)
 #       - NUMBERED PAGE 6
