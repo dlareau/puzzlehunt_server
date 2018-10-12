@@ -1,27 +1,24 @@
 # TEST PLAN
-from locust import Locust, TaskSet, TaskSequence
+from locust import HttpLocust, TaskSet, TaskSequence, task
 import sys
 from bs4 import BeautifulSoup
 
-# Todo:
+# TODO:
 #   Most tests need to be written
 #   Implement web browser caching of static files?
-#   Figure out what login logic is and where it goes
-#       Maybe login happens automatically when response is the login-select page
 #   Maybe add on_start/on_stop arguments to page_and_subpages
-#   Deal with CSRF
+#   Fix CSRF to live in the session
+
 
 # CSRF code:
-#    
-self.client.headers['Referer'] = self.client.base_url
-csrftoken = response.cookies['csrftoken']
-self.client.post('/accounts/login/', 
-    {'email': 'email', 'password': 'password', 'csrfmiddlewaretoken': csrftoken},
-     headers={"X-CSRFToken": csrftoken},
-     cookies={"csrftoken": csrftoken})
+def CSRF_post(session, response, url, args):
+    session.client.headers['Referer'] = session.client.base_url
+    csrftoken = response.cookies['csrftoken']
+    args['csrfmiddlewaretoken'] = csrftoken
+    session.client.post('/accounts/login/', args,
+                        headers={"X-CSRFToken": csrftoken},
+                        cookies={"csrftoken": csrftoken})
 
-def stop(l):
-    l.interrupt()
 
 def page_and_subpages(main_function, action_set):
     class ActionSet(TaskSet):
@@ -32,17 +29,19 @@ def page_and_subpages(main_function, action_set):
 
     return ts
 
-def fetch_static_assets(session, response):
+
+def add_static(session, response):
+    # Fetches all static resources from a response
     resource_urls = set()
     soup = BeautifulSoup(response.text, "html.parser")
- 
+
     for res in soup.find_all(src=True):
         url = res['src']
         if ("/static" in url or "/media" in url):
             resource_urls.add(url)
 
     for res in soup.find_all(href=True):
-        url = res['src']
+        url = res['href']
         if ("/static" in url or "/media" in url):
             resource_urls.add(url)
 
@@ -52,14 +51,54 @@ def fetch_static_assets(session, response):
         else:
             session.client.get(url, name="Static File")
 
-def ensure_login(session):
-    # Login if not already logged in with given user.
+    return response
+
+
+def ensure_login(session, input_response, static=True):
+    # Login if login is required and not already logged in
+    # optional static arg determines if it should fetch login page static files
+
+    if("login-selection" in input_response.url):
+        if("?next=" in input_response.url):
+            next_param = input_response.url.split("?next=")[1]
+            response = session.client.get("/accounts/login/?next=" + next_param)
+            next_url = '/accounts/login/?next=' + next_param
+        else:
+            response = session, session.client.get("/accounts/login/")
+            next_url = '/accounts/login/'
+
+        if(static):
+            add_static(session, input_response)
+            add_static(session, response)
+
+        session.client.headers['Referer'] = session.client.base_url
+        csrftoken = response.cookies['csrftoken']
+        args = {"username": "",
+                "password": "",
+                "csrfmiddlewaretoken": csrftoken
+                }
+
+        response = session.client.post(next_url, args,
+                                       headers={"X-CSRFToken": csrftoken},
+                                       cookies={"csrftoken": csrftoken})
+        return response
+    else:
+        return input_response
+    pass
+
+
+def url_all(l, r):
+    add_static(l, ensure_login(l, r))
+
+
+def stop(l):
+    l.interrupt()
+
 
 # All of the page view functions
 def index(l):
     # Load index page
-    response = l.client.get("/")
-    fetch_static_assets(l, response)
+    response = url_all(l, l.client.get("/"))
 
 
 def current_hunt_main_page(l):
@@ -74,14 +113,17 @@ def puzzle_main_page(l):
     # Get ajax number from page and store to locust object
     sys.stdout.write("individual puzzle main page")
 
+
 def puzzle_ajax(l):
     # make request to current puzzle object with current ajax number
     # store returned ajax number in locust object
     sys.stdout.write("puzzle ajax request")
 
+
 def puzzle_pdf_link(l):
     # Load pdf link for current puzzle number
     sys.stdout.write("puzzle pdf request")
+
 
 def puzzle_answer(l):
     # Submit answer to current puzzle using POST with some correctness chance
@@ -92,9 +134,11 @@ def chat_main_page(l):
     # Load main chat page and store ajax value in locust object
     sys.stdout.write("chat main page")
 
+
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
     sys.stdout.write("chat ajax request")
+
 
 def chat_new_message(l):
     # Make POST request to create a new chat message, store ajax value
@@ -103,13 +147,13 @@ def chat_new_message(l):
 
 def info_main_page(l):
     # Load info page
-    response = l.client.get("/hunt/info")
-    fetch_static_assets(l, response)
+    response = url_all(l, l.client.get("/hunt/info"))
 
 
 def registration_main_page(l):
     # Load registration page
     sys.stdout.write("registration main page")
+
 
 def registration_update_info(l):
     # Update the teams room location
@@ -118,13 +162,13 @@ def registration_update_info(l):
 
 def resources(l):
     # Load resources page
-    response = l.client.get("/resources")
-    fetch_static_assets(l, response)
+    response = url_all(l, l.client.get("/resources"))
 
 
 def previous_hunts_main_page(l):
     # Load previous hunts page, store list of available hunts in locust object
     sys.stdout.write("previous hunts main page")
+
 
 def previous_hunt(l):
     # Load a random previous hunt page in the locust object
@@ -138,8 +182,7 @@ def create_account(l):
 
 def contact(l):
     # Load contact page
-    response = l.client.get("/resources")
-    fetch_static_assets(l, response)
+    response = url_all(l, l.client.get("/contact"))
 
 
 def user_profile(l):
@@ -151,8 +194,10 @@ def staff_chat_main_page(l):
     # Load staff chat page, get and store ajax token
     sys.stdout.write("chat main page")
 
+
 def staff_chat_new_message(l):
     sys.stdout.write("chat message page")
+
 
 def staff_chat_ajax(l):
     sys.stdout.write("chat ajax request")
@@ -161,8 +206,10 @@ def staff_chat_ajax(l):
 def progress_main_page(l):
     sys.stdout.write("progress main page")
 
+
 def progress_unlock(l):
     sys.stdout.write("progress unlock request")
+
 
 def progress_ajax(l):
     sys.stdout.write("progress ajax")
@@ -171,11 +218,14 @@ def progress_ajax(l):
 def queue_main_page(l):
     sys.stdout.write("queue main page")
 
+
 def queue_num_page(l):
     sys.stdout.write("queue numbered page")
 
+
 def queue_new_response(l):
     sys.stdout.write("new response request")
+
 
 def queue_ajax(l):
     sys.stdout.write("queue ajax")
@@ -183,6 +233,7 @@ def queue_ajax(l):
 
 def email_main_page(l):
     sys.stdout.write("email main page")
+
 
 def email_send_email(l):
     sys.stdout.write("send email request")
@@ -241,7 +292,7 @@ class HunterSet(TaskSequence):
 
 
 # Staff user
-class StaffLocust(Locust):
+class StaffLocust(HttpLocust):
     task_set = StaffSet
     min_wait = 2500
     max_wait = 3000
@@ -249,11 +300,12 @@ class StaffLocust(Locust):
 
 
 # Regular user
-class HunterLocust(Locust):
+class HunterLocust(HttpLocust):
     task_set = HunterSet
     min_wait = 2500
     max_wait = 3000
     weight = 240
+
 
 # - LOGIN
 #   - LOGIN SELECTION
