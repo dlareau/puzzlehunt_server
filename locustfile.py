@@ -1,23 +1,39 @@
 # TEST PLAN
-from locust import HttpLocust, TaskSet, TaskSequence, task
+from locust import HttpLocust, TaskSet, TaskSequence
+from bs4 import BeautifulSoup, SoupStrainer
+import random
+from string import ascii_lowercase
 import sys
-from bs4 import BeautifulSoup
+import re
 
 # TODO:
 #   Most tests need to be written
-#   Implement web browser caching of static files?
-#   Maybe add on_start/on_stop arguments to page_and_subpages
-#   Fix CSRF to live in the session
+#   Modify current_hunt request to only look at unsolved puzzles
+
+# Server TODO:
+#   Make sure all post requests return proper ajax value
+#   Make sure all ajax requests end in a slash
+#   Chat page of a public hunt 404's
+#   Fix chat announcement and whois bugs
 
 
-# CSRF code:
-def CSRF_post(session, response, url, args):
+# ========== HELPTER FUNCTIONS ==========
+
+def is_puzzle_link(link):
+        return link and "/puzzle/" in link
+
+
+only_puzzles = SoupStrainer(href=is_puzzle_link)
+ajax_headers = {'X-Requested-With': 'XMLHttpRequest'}
+
+
+def CSRF_post(session, url, args):
     session.client.headers['Referer'] = session.client.base_url
-    csrftoken = response.cookies['csrftoken']
-    args['csrfmiddlewaretoken'] = csrftoken
-    session.client.post('/accounts/login/', args,
-                        headers={"X-CSRFToken": csrftoken},
-                        cookies={"csrftoken": csrftoken})
+    args['csrfmiddlewaretoken'] = session.locust.CSRF
+    response = session.client.post(url, args,
+                                   headers={"X-CSRFToken": session.locust.CSRF},
+                                   cookies={"csrftoken": session.locust.CSRF})
+    return response
 
 
 def page_and_subpages(main_function, action_set):
@@ -30,7 +46,7 @@ def page_and_subpages(main_function, action_set):
     return ts
 
 
-def add_static(session, response):
+def add_static(session, response, cache=True):
     # Fetches all static resources from a response
     resource_urls = set()
     soup = BeautifulSoup(response.text, "html.parser")
@@ -46,10 +62,13 @@ def add_static(session, response):
             resource_urls.add(url)
 
     for url in set(resource_urls):
-        if "/media" in url:
-            session.client.get(url, name="Media File")
-        else:
-            session.client.get(url, name="Static File")
+        if(url not in session.locust.static_urls):
+            session.locust.static_urls.add(url)
+
+            if "/media" in url:
+                session.client.get(url, name="Media File")
+            else:
+                session.client.get(url, name="Static File")
 
     return response
 
@@ -73,29 +92,43 @@ def ensure_login(session, input_response, static=True):
 
         session.client.headers['Referer'] = session.client.base_url
         csrftoken = response.cookies['csrftoken']
-        args = {"username": "",
-                "password": "",
+        args = {"username": "hunt",
+                "password": "wrongbaa",
                 "csrfmiddlewaretoken": csrftoken
                 }
 
         response = session.client.post(next_url, args,
                                        headers={"X-CSRFToken": csrftoken},
                                        cookies={"csrftoken": csrftoken})
+
+        if("/accounts/login/" in response.url):
+            # Login failed
+            sys.stdout.write("login-failed")
+
         return response
     else:
         return input_response
     pass
 
 
+def store_CSRF(session, response):
+    if('csrftoken' in response.cookies):
+        session.locust.CSRF = response.cookies['csrftoken']
+    return response
+
+
 def url_all(l, r):
-    add_static(l, ensure_login(l, r))
+    return add_static(l, ensure_login(l, store_CSRF(l, r)))
 
 
 def stop(l):
     l.interrupt()
 
+# ========== END HELPTER FUNCTIONS ==========
 
-# All of the page view functions
+
+# ========== HUNTER PAGE VIEW FUNCTIONS ==========
+
 def index(l):
     # Load index page
     response = url_all(l, l.client.get("/"))
@@ -104,25 +137,47 @@ def index(l):
 def current_hunt_main_page(l):
     # Load page, get puzzles, set puzzles on locust object
     # Possibly separate by solved and unsolved
-    sys.stdout.write("current hunt main page")
+    response = url_all(l, l.client.get("/hunt/current"))
+
+    puzzle_ids = []
+    soup = BeautifulSoup(response.text, "html.parser", parse_only=only_puzzles)
+    for puzzle_link in soup.find_all(href=True):
+        puzzle_ids.append(puzzle_link['href'].split("/")[2])
+
+    l.locust.puzzle_ids = puzzle_ids
 
 
 def puzzle_main_page(l):
     # Pick puzzle from puzzles, go to page, possibly weight by solved/unsolved
     # Store current puzzle number in locust object
     # Get ajax number from page and store to locust object
-    sys.stdout.write("individual puzzle main page")
+    puzzle_id = random.choice(l.locust.puzzle_ids)
+    l.locust.puzzle_id = puzzle_id
+    response = url_all(l, l.client.get("/puzzle/" + puzzle_id))
+    search_results = re.search(r"last_date = '(.*)';", response.text)
+    if(search_results):
+        last_date = search_results.group(1)
+    else:
+        last_date = ""
+    l.locust.ajax_args = {'last_date': last_date}
 
 
 def puzzle_ajax(l):
     # make request to current puzzle object with current ajax number
     # store returned ajax number in locust object
-    sys.stdout.write("puzzle ajax request")
+    puzzle_id = l.locust.puzzle_id
+    response = l.client.get("/puzzle/" + puzzle_id + "/?last_date=" + l.locust.ajax_args['last_date'],
+                            headers=ajax_headers)
+    try:
+        l.locust.ajax_args = {'last_date': response.json()["last_date"]}
+    except:
+        l.locust.ajax_args = {'last_date': ""}
 
 
 def puzzle_pdf_link(l):
     # Load pdf link for current puzzle number
-    sys.stdout.write("puzzle pdf request")
+    puzzle_id = l.locust.puzzle_id
+    l.client.get("/protected/puzzles/" + puzzle_id + ".pdf")
 
 
 def puzzle_answer(l):
@@ -132,17 +187,35 @@ def puzzle_answer(l):
 
 def chat_main_page(l):
     # Load main chat page and store ajax value in locust object
-    sys.stdout.write("chat main page")
+    response = url_all(l, l.client.get("/chat"))
+
+    search_results = re.search(r"last_pk = (.*);", response.text)
+    if(search_results):
+        last_pk = search_results.group(1)
+    else:
+        last_pk = ""
+    l.locust.ajax_args = {'last_pk': last_pk}
 
 
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
-    sys.stdout.write("chat ajax request")
+    response = l.client.get("/chat?last_pk=" + str(l.locust.ajax_args['last_pk']),
+                            headers=ajax_headers)
+    try:
+        l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
+    except:
+        l.locust.ajax_args = {'last_pk': ""}
 
 
 def chat_new_message(l):
     # Make POST request to create a new chat message, store ajax value
-    sys.stdout.write("chat new message request")
+    message_data = {
+        "team_pk": 97,
+        "message": ''.join(random.choice(ascii_lowercase) for i in range(40)),
+        "is_response": False,
+        "is_announcement": False
+    }
+    response = store_CSRF(l, CSRF_post(l, "/chat/", message_data))
 
 
 def info_main_page(l):
@@ -189,6 +262,10 @@ def user_profile(l):
     # Load user profile page
     sys.stdout.write("user profile page")
 
+# ========== END HUNTER PAGE VIEW FUNCTIONS ==========
+
+
+# ========== STAFF PAGE VIEW FUNCTIONS ==========
 
 def staff_chat_main_page(l):
     # Load staff chat page, get and store ajax token
@@ -246,14 +323,18 @@ def admin_page(self):
 def management(self):
     sys.stdout.write("management main page")
 
+# ========== END STAFF PAGE VIEW FUNCTIONS ==========
 
-# All of the probability stuff
+
+# ========== PAGE VIEW PROBABILITIES ==========
+
 staff_chat_fs = {staff_chat_new_message: 3, staff_chat_ajax: 80, stop: 1}
 progress_fs = {progress_unlock: 1, progress_ajax: 150, stop: 4}
 queue_fs = {queue_num_page: 1, queue_new_response: 6, queue_ajax: 1000, stop: 3}
 email_fs = {email_send_email: 1, stop: 2}
 
-puzzle_fs = {puzzle_ajax: 3000, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
+# puzzle_fs = {puzzle_ajax: 3000, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
+puzzle_fs = {puzzle_ajax: 30, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
 chat_fs = {chat_ajax: 40, chat_new_message: 4, stop: 1}
 current_hunt_fs = {page_and_subpages(puzzle_main_page, puzzle_fs): 4,
                    page_and_subpages(chat_main_page, chat_fs): 1,
@@ -271,6 +352,9 @@ class StaffSet(TaskSet):
         admin_page: 1,
         management: 2
     }
+
+    def on_start(self):
+        self.locust.static_urls = set()
 
 
 class WebsiteSet(TaskSet):
@@ -290,6 +374,13 @@ class WebsiteSet(TaskSet):
 class HunterSet(TaskSequence):
     tasks = [index, WebsiteSet]
 
+    def on_start(self):
+        self.locust.static_urls = set()
+
+# ========== END PAGE VIEW PROBABILITIES ==========
+
+
+# ========== USERS CODE ==========
 
 # Staff user
 class StaffLocust(HttpLocust):
@@ -302,48 +393,8 @@ class StaffLocust(HttpLocust):
 # Regular user
 class HunterLocust(HttpLocust):
     task_set = HunterSet
-    min_wait = 2500
-    max_wait = 3000
+    min_wait = 1000
+    max_wait = 1000
     weight = 240
 
-
-# - LOGIN
-#   - LOGIN SELECTION
-#       - SHIB 14
-#       - LOCAL 3
-
-# - STAFF 10
-#   - CHAT
-#       - AJAX (LOG)
-#       - NEW MESSAGE
-#   - PROGRESS
-#       - AJAX (LOG)
-#       - MANUALLY UNLOCK
-#   - QUEUE 160
-#       - AJAX (LOG)
-#       - NUMBERED PAGE 6
-#       - SEND NEW RESPONSE 36
-#   - EMAILS 40
-#       - SEND EMAILS 15
-#   - ADMIN PAGES 50
-#   - MANAGEMENT 30
-
-# - REGULAR 240
-#   - INDEX 10
-#       - CURRENT HUNT 780
-#           - PUZZLE PAGES 450
-#               - AJAX (LOG) 180,000
-#               - PDF LINK 60
-#               - SUBMIT ANSWER 450
-#           - CHAT 111
-#               - AJAX (LOG) 4830
-#               - NEW MESSAGE 450
-#       - INFO 27
-#       - REGISTRATION 20
-#           - UPDATE INFO 2
-#       - RESOURCES 9
-#       - PREVIOUS HUNTS 6
-#           - OLD HUNT PAGES 15
-#       - CREATE ACCOUNT 1
-#       - CONTACT 1
-#       - USER PROFILE 1
+# ========== END USERS CODE ==========
