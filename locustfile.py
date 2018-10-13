@@ -7,8 +7,10 @@ import sys
 import re
 
 # TODO:
-#   Most tests need to be written
+#   Write staff url functions
+#   Write puzzle_submit_answer url function
 #   Modify current_hunt request to only look at unsolved puzzles
+#   Add name arguments to all ajax requests
 
 # Server TODO:
 #   Make sure all post requests return proper ajax value
@@ -17,13 +19,46 @@ import re
 #   Fix chat announcement and whois bugs
 
 
-# ========== HELPTER FUNCTIONS ==========
+# ========== HELPTER FUNCTIONS/VARIABLES ==========
+
+puzzle_answers = {
+    201: "answer1",
+    202: "answer2",
+    203: "answer3",
+    204: "answer4",
+    205: "answer5",
+    206: "answer6",
+    207: "answer7",
+    208: "answer8",
+    209: "answer9",
+    210: "answer10",
+    211: "answer11",
+    212: "answer12",
+    213: "answer13",
+    214: "answer14",
+    215: "answer15",
+    216: "answer16",
+}
+
+
+def random_string(n):
+    return ''.join(random.choice(ascii_lowercase) for i in range(n))
+
 
 def is_puzzle_link(link):
         return link and "/puzzle/" in link
 
 
 only_puzzles = SoupStrainer(href=is_puzzle_link)
+
+
+def is_hunt_link(link):
+        return link and "/hunt/" in link
+
+
+only_hunts = SoupStrainer(href=is_hunt_link)
+
+
 ajax_headers = {'X-Requested-With': 'XMLHttpRequest'}
 
 
@@ -92,8 +127,8 @@ def ensure_login(session, input_response, static=True):
 
         session.client.headers['Referer'] = session.client.base_url
         csrftoken = response.cookies['csrftoken']
-        args = {"username": "hunt",
-                "password": "wrongbaa",
+        args = {"username": "",
+                "password": "",
                 "csrfmiddlewaretoken": csrftoken
                 }
 
@@ -124,20 +159,20 @@ def url_all(l, r):
 def stop(l):
     l.interrupt()
 
-# ========== END HELPTER FUNCTIONS ==========
+# ========== END HELPTER FUNCTIONS/VARIABLES ==========
 
 
 # ========== HUNTER PAGE VIEW FUNCTIONS ==========
 
 def index(l):
     # Load index page
-    response = url_all(l, l.client.get("/"))
+    url_all(l, l.client.get("/"))
 
 
 def current_hunt_main_page(l):
     # Load page, get puzzles, set puzzles on locust object
     # Possibly separate by solved and unsolved
-    response = url_all(l, l.client.get("/hunt/current"))
+    response = url_all(l, l.client.get("/hunt/current/"))
 
     puzzle_ids = []
     soup = BeautifulSoup(response.text, "html.parser", parse_only=only_puzzles)
@@ -182,12 +217,13 @@ def puzzle_pdf_link(l):
 
 def puzzle_answer(l):
     # Submit answer to current puzzle using POST with some correctness chance
+    # 1 in 9 submissions is correct
     sys.stdout.write("submit answer request")
 
 
 def chat_main_page(l):
     # Load main chat page and store ajax value in locust object
-    response = url_all(l, l.client.get("/chat"))
+    response = url_all(l, l.client.get("/chat/"))
 
     search_results = re.search(r"last_pk = (.*);", response.text)
     if(search_results):
@@ -196,10 +232,17 @@ def chat_main_page(l):
         last_pk = ""
     l.locust.ajax_args = {'last_pk': last_pk}
 
+    search_results = re.search(r"curr_team = (.*);", response.text)
+    if(search_results):
+        curr_team = search_results.group(1)
+    else:
+        curr_team = ""
+    l.locust.team_pk = curr_team
+
 
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
-    response = l.client.get("/chat?last_pk=" + str(l.locust.ajax_args['last_pk']),
+    response = l.client.get("/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
                             headers=ajax_headers)
     try:
         l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
@@ -210,57 +253,69 @@ def chat_ajax(l):
 def chat_new_message(l):
     # Make POST request to create a new chat message, store ajax value
     message_data = {
-        "team_pk": 97,
-        "message": ''.join(random.choice(ascii_lowercase) for i in range(40)),
+        "team_pk": int(l.locust.team_pk),
+        "message": random_string(40),
         "is_response": False,
         "is_announcement": False
     }
-    response = store_CSRF(l, CSRF_post(l, "/chat/", message_data))
+    store_CSRF(l, CSRF_post(l, "/chat/", message_data))
 
 
 def info_main_page(l):
     # Load info page
-    response = url_all(l, l.client.get("/hunt/info"))
+    url_all(l, l.client.get("/hunt/info/"))
 
 
 def registration_main_page(l):
     # Load registration page
-    sys.stdout.write("registration main page")
+    url_all(l, l.client.get("/registration/"))
 
 
 def registration_update_info(l):
     # Update the teams room location
-    sys.stdout.write("update team info request")
+    registration_data = {
+        "form type": "new_location",
+        "team_location": random_string(10)
+    }
+    store_CSRF(l, CSRF_post(l, "/registration/", registration_data))
 
 
 def resources(l):
     # Load resources page
-    response = url_all(l, l.client.get("/resources"))
+    url_all(l, l.client.get("/resources/"))
 
 
 def previous_hunts_main_page(l):
     # Load previous hunts page, store list of available hunts in locust object
-    sys.stdout.write("previous hunts main page")
+    response = url_all(l, l.client.get("/hunt/current/"))
+
+    hunt_ids = []
+    soup = BeautifulSoup(response.text, "html.parser", parse_only=only_hunts)
+    for hunt_link in soup.find_all(href=True):
+        hunt_ids.append(hunt_link['href'].split("/")[2])
+
+    l.locust.hunt_ids = hunt_ids
 
 
 def previous_hunt(l):
     # Load a random previous hunt page in the locust object
-    sys.stdout.write("previous hunt page")
+    hunt_id = random.choice(l.locust.hunt_ids)
+    url_all(l, l.client.get("/hunt/" + hunt_id))
 
 
 def create_account(l):
     # Load the create account page
-    sys.stdout.write("create account page")
+    url_all(l, l.client.get("/accounts/create/"))
 
 
 def contact(l):
     # Load contact page
-    response = url_all(l, l.client.get("/contact"))
+    url_all(l, l.client.get("/contact/"))
 
 
 def user_profile(l):
     # Load user profile page
-    sys.stdout.write("user profile page")
+    url_all(l, l.client.get("/user-profile/"))
 
 # ========== END HUNTER PAGE VIEW FUNCTIONS ==========
 
@@ -337,7 +392,7 @@ email_fs = {email_send_email: 1, stop: 2}
 puzzle_fs = {puzzle_ajax: 30, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
 chat_fs = {chat_ajax: 40, chat_new_message: 4, stop: 1}
 current_hunt_fs = {page_and_subpages(puzzle_main_page, puzzle_fs): 4,
-                   page_and_subpages(chat_main_page, chat_fs): 1,
+                   page_and_subpages(chat_main_page, chat_fs): 100,
                    stop: 7}
 registration_fs = {registration_update_info: 1, stop: 10}
 prev_hunt_fs = {previous_hunt: 3, stop: 1}
