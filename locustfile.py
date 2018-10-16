@@ -1,16 +1,19 @@
 # TEST PLAN
 from locust import HttpLocust, TaskSet, TaskSequence
 from bs4 import BeautifulSoup, SoupStrainer
-import random
 from string import ascii_lowercase
+import random
+import gevent
 import sys
 import re
 
 # TODO:
 #   Write staff url functions
+#       Chat not finished
 #   Write puzzle_submit_answer url function
 #   Modify current_hunt request to only look at unsolved puzzles
 #   Add name arguments to all ajax requests
+#   Put logic in ensure_login to make staff be staff and users be users
 
 # Server TODO:
 #   Make sure all post requests return proper ajax value
@@ -71,12 +74,64 @@ def CSRF_post(session, url, args):
     return response
 
 
-def page_and_subpages(main_function, action_set):
+def gen_from_list(in_list):
+    index = 0
+    length = len(in_list)
+    while True:
+        if(index < length):
+            yield in_list[index]
+        else:
+            yield in_list[index - 1]
+
+
+def gevent_func(poller, l):
+    try:
+        while True:
+            poller.ajax_func(l)
+            a = next(poller.time_iter)
+            gevent.sleep(a)
+    except gevent.GreenletExit:
+        return
+
+
+class Poller(object):
+    thread = None
+    ajax_vars = None
+
+    def __init__(self, ajax_func, delay_list):
+        self.ajax_func = ajax_func
+        self.delay_list = delay_list
+        self.time_iter = gen_from_list(delay_list)
+
+    def reset_time_iter(self):
+        self.time_iter = gen_from_list(self.delay_list)
+
+
+def apply_poller(task_set, poller):
+    def poller_on_start(ts):
+        poller.thread = gevent.spawn(gevent_func, poller, ts)
+        ts.locust.self = poller
+
+    def poller_on_stop(ts):
+        gevent.kill(poller.thread)
+
+    if(poller):
+        task_set.on_start = poller_on_start
+        task_set.on_stop = poller_on_stop
+
+    return task_set
+
+
+def page_and_subpages(main_function, action_set, poller=None, wait_time=None):
     class ActionSet(TaskSet):
         tasks = action_set
+        if(wait_time):
+            wait_function = lambda self: wait_time
 
     class ts(TaskSequence):
-        tasks = [main_function, ActionSet, stop]
+        tasks = [main_function, apply_poller(ActionSet, poller), stop]
+        if(poller):
+            wait_function = lambda self: 1
 
     return ts
 
@@ -157,6 +212,8 @@ def url_all(l, r):
 
 
 def stop(l):
+    if(hasattr(l, 'on_stop')):
+        l.on_stop()
     l.interrupt()
 
 # ========== END HELPTER FUNCTIONS/VARIABLES ==========
@@ -287,7 +344,7 @@ def resources(l):
 
 def previous_hunts_main_page(l):
     # Load previous hunts page, store list of available hunts in locust object
-    response = url_all(l, l.client.get("/hunt/current/"))
+    response = url_all(l, l.client.get("/previous-hunts/"))
 
     hunt_ids = []
     soup = BeautifulSoup(response.text, "html.parser", parse_only=only_hunts)
@@ -310,7 +367,7 @@ def create_account(l):
 
 def contact(l):
     # Load contact page
-    url_all(l, l.client.get("/contact/"))
+    url_all(l, l.client.get("/contact-us/"))
 
 
 def user_profile(l):
@@ -323,16 +380,43 @@ def user_profile(l):
 # ========== STAFF PAGE VIEW FUNCTIONS ==========
 
 def staff_chat_main_page(l):
-    # Load staff chat page, get and store ajax token
-    sys.stdout.write("chat main page")
+    # Load main chat page and store ajax value in locust object
+    response = url_all(l, l.client.get("/chat/"))
+
+    search_results = re.search(r"last_pk = (.*);", response.text)
+    if(search_results):
+        last_pk = search_results.group(1)
+    else:
+        last_pk = ""
+    l.locust.ajax_args = {'last_pk': last_pk}
+
+    search_results = re.search(r"curr_team = (.*);", response.text)
+    if(search_results):
+        curr_team = search_results.group(1)
+    else:
+        curr_team = ""
+    l.locust.team_pk = curr_team
 
 
 def staff_chat_new_message(l):
-    sys.stdout.write("chat message page")
+    # Make POST request to create a new chat message, store ajax value
+    message_data = {
+        "team_pk": int(l.locust.team_pk),
+        "message": random_string(40),
+        "is_response": False,
+        "is_announcement": False
+    }
+    store_CSRF(l, CSRF_post(l, "/chat/", message_data))
 
 
 def staff_chat_ajax(l):
-    sys.stdout.write("chat ajax request")
+    # Make ajax request with current ajax value and store new value
+    response = l.client.get("/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
+                            headers=ajax_headers)
+    try:
+        l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
+    except:
+        l.locust.ajax_args = {'last_pk': ""}
 
 
 def progress_main_page(l):
@@ -364,48 +448,93 @@ def queue_ajax(l):
 
 
 def email_main_page(l):
-    sys.stdout.write("email main page")
+    url_all(l, l.client.get("/staff/emails/"))
 
 
 def email_send_email(l):
     sys.stdout.write("send email request")
 
 
-def admin_page(self):
-    sys.stdout.write("generic admin page")
+def admin_page(l):
+    url_all(l, l.client.get("/staff/huntserver/hunt/"))
+    # Then get hunt urls then pick and load a hunt
 
 
-def management(self):
-    sys.stdout.write("management main page")
+def management(l):
+    url_all(l, l.client.get("/staff/management/"))
 
 # ========== END STAFF PAGE VIEW FUNCTIONS ==========
 
 
 # ========== PAGE VIEW PROBABILITIES ==========
+# These numbers come from a experimental and finicky verification process
+# Changing one number could have unintended effects on the rates for other pages
+# They are also specifically tuned to specific request times (30, 130, 1200)
 
-staff_chat_fs = {staff_chat_new_message: 3, staff_chat_ajax: 80, stop: 1}
-progress_fs = {progress_unlock: 1, progress_ajax: 150, stop: 4}
-queue_fs = {queue_num_page: 1, queue_new_response: 6, queue_ajax: 1000, stop: 3}
-email_fs = {email_send_email: 1, stop: 2}
+staff_chat_fs = {
+    staff_chat_new_message: 3,
+    stop:                   1
+}
 
-# puzzle_fs = {puzzle_ajax: 3000, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
-puzzle_fs = {puzzle_ajax: 30, puzzle_pdf_link: 1, puzzle_answer: 8, stop: 8}
-chat_fs = {chat_ajax: 40, chat_new_message: 4, stop: 1}
-current_hunt_fs = {page_and_subpages(puzzle_main_page, puzzle_fs): 4,
-                   page_and_subpages(chat_main_page, chat_fs): 100,
-                   stop: 7}
-registration_fs = {registration_update_info: 1, stop: 10}
-prev_hunt_fs = {previous_hunt: 3, stop: 1}
+progress_fs = {
+    progress_unlock:    1,
+    stop:               4
+}
+
+queue_fs = {
+    queue_num_page:     1,
+    queue_new_response: 6,
+    stop:               3
+}
+
+email_fs = {
+    email_send_email:   1,
+    stop:               2
+}
+
+puzzle_fs = {
+    puzzle_pdf_link:    2,
+    puzzle_answer:      15,
+    stop:               15
+}
+
+chat_fs = {
+    chat_new_message:   9,
+    stop:               11
+}
+
+current_hunt_fs = {
+    page_and_subpages(puzzle_main_page, puzzle_fs,
+                      Poller(puzzle_ajax, [3]),
+                      1060000):                     54,
+    page_and_subpages(chat_main_page, chat_fs,
+                      Poller(chat_ajax, [3]),
+                      130000):                      11,
+    stop:                                           78
+}
+
+registration_fs = {
+    registration_update_info:   1,
+    stop:                       10
+}
+
+prev_hunt_fs = {
+    previous_hunt:  5,
+    stop:           2
+}
 
 
 class StaffSet(TaskSet):
     tasks = {
-        page_and_subpages(staff_chat_main_page, staff_chat_fs): 6,
-        page_and_subpages(progress_main_page, progress_fs): 7,
-        page_and_subpages(queue_main_page, queue_fs): 8,
-        page_and_subpages(email_main_page, email_fs): 2,
-        admin_page: 1,
-        management: 2
+        page_and_subpages(staff_chat_main_page, staff_chat_fs,
+                          Poller(staff_chat_ajax, [3])):        6,
+        page_and_subpages(progress_main_page, progress_fs,
+                          Poller(progress_ajax, [3])):          7,
+        page_and_subpages(queue_main_page, queue_fs,
+                          Poller(queue_ajax, [3])):             8,
+        page_and_subpages(email_main_page, email_fs):           2,
+        admin_page:                                             1,
+        management:                                             2
     }
 
     def on_start(self):
@@ -414,15 +543,18 @@ class StaffSet(TaskSet):
 
 class WebsiteSet(TaskSet):
     tasks = {
-        page_and_subpages(current_hunt_main_page, current_hunt_fs): 780,
-        info_main_page: 27,
-        page_and_subpages(registration_main_page, registration_fs): 20,
-        resources: 9,
-        page_and_subpages(previous_hunts_main_page, prev_hunt_fs): 6,
-        create_account: 1,
-        contact: 1,
-        user_profile: 1,
-        stop: 100
+        page_and_subpages(current_hunt_main_page,
+                          current_hunt_fs):         780,
+        page_and_subpages(registration_main_page,
+                          registration_fs):         20,
+        page_and_subpages(previous_hunts_main_page,
+                          prev_hunt_fs):            6,
+        info_main_page:                             27,
+        resources:                                  9,
+        create_account:                             1,
+        contact:                                    1,
+        user_profile:                               1,
+        stop:                                       70
     }
 
 
@@ -438,18 +570,18 @@ class HunterSet(TaskSequence):
 # ========== USERS CODE ==========
 
 # Staff user
-class StaffLocust(HttpLocust):
-    task_set = StaffSet
-    min_wait = 2500
-    max_wait = 3000
-    weight = 10
+# class StaffLocust(HttpLocust):
+#     task_set = StaffSet
+#     min_wait = 30000
+#     max_wait = 30000
+#     weight = 10
 
 
 # Regular user
 class HunterLocust(HttpLocust):
     task_set = HunterSet
-    min_wait = 1000
-    max_wait = 1000
+    min_wait = 25000
+    max_wait = 35000
     weight = 240
 
 # ========== END USERS CODE ==========
