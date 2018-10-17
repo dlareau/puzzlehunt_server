@@ -1,4 +1,3 @@
-# TEST PLAN
 from locust import HttpLocust, TaskSet, TaskSequence
 from bs4 import BeautifulSoup, SoupStrainer
 from string import ascii_lowercase
@@ -10,10 +9,10 @@ import re
 # TODO:
 #   Write staff url functions
 #       Chat not finished
-#   Write puzzle_submit_answer url function
 #   Modify current_hunt request to only look at unsolved puzzles
-#   Add name arguments to all ajax requests
-#   Put logic in ensure_login to make staff be staff and users be users
+#   Fix CSRF error with registration post
+#   Fix no last_pk error with chat post
+#   Put password in separate file
 
 # Server TODO:
 #   Make sure all post requests return proper ajax value
@@ -24,7 +23,7 @@ import re
 
 # ========== HELPTER FUNCTIONS/VARIABLES ==========
 
-user_ids = range(285)
+user_ids = range(285) + range(285)
 
 
 def random_string(n):
@@ -241,8 +240,9 @@ def puzzle_ajax(l):
     # make request to current puzzle object with current ajax number
     # store returned ajax number in locust object
     puzzle_id = l.locust.puzzle_id
-    response = l.client.get("/puzzle/" + puzzle_id + "/?last_date=" + l.locust.ajax_args['last_date'],
-                            headers=ajax_headers)
+    puzzle_url = "/puzzle/" + puzzle_id + "/"
+    response = l.client.get(puzzle_url + "?last_date=" + l.locust.ajax_args['last_date'],
+                            headers=ajax_headers, name=puzzle_url+" AJAX")
     try:
         l.locust.ajax_args = {'last_date': response.json()["last_date"]}
     except:
@@ -258,7 +258,14 @@ def puzzle_pdf_link(l):
 def puzzle_answer(l):
     # Submit answer to current puzzle using POST with some correctness chance
     # 1 in 9 submissions is correct
-    sys.stdout.write("submit answer request")
+    puzzle_id = l.locust.puzzle_id
+    if(random.random() < (1.0 / 9.0)):
+        answer = "answer" + puzzle_id
+    else:
+        answer = random_string(10)
+
+    message_data = {"answer": answer}
+    store_CSRF(l, CSRF_post(l, "/puzzle/" + puzzle_id + "/", message_data))
 
 
 def chat_main_page(l):
@@ -283,7 +290,7 @@ def chat_main_page(l):
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
     response = l.client.get("/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
-                            headers=ajax_headers)
+                            headers=ajax_headers, name="/chat/ AJAX")
     try:
         l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
     except:
