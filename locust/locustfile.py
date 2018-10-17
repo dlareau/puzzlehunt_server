@@ -20,28 +20,11 @@ import re
 #   Make sure all ajax requests end in a slash
 #   Chat page of a public hunt 404's
 #   Fix chat announcement and whois bugs
-
+#   Make sure all models have the proper str and unicode methods
 
 # ========== HELPTER FUNCTIONS/VARIABLES ==========
 
-puzzle_answers = {
-    201: "answer1",
-    202: "answer2",
-    203: "answer3",
-    204: "answer4",
-    205: "answer5",
-    206: "answer6",
-    207: "answer7",
-    208: "answer8",
-    209: "answer9",
-    210: "answer10",
-    211: "answer11",
-    212: "answer12",
-    213: "answer13",
-    214: "answer14",
-    215: "answer15",
-    216: "answer16",
-}
+user_ids = range(285)
 
 
 def random_string(n):
@@ -182,7 +165,7 @@ def ensure_login(session, input_response, static=True):
 
         session.client.headers['Referer'] = session.client.base_url
         csrftoken = response.cookies['csrftoken']
-        args = {"username": "",
+        args = {"username": "test_user_" + str(session.locust.user_id),
                 "password": "",
                 "csrfmiddlewaretoken": csrftoken
                 }
@@ -563,6 +546,7 @@ class HunterSet(TaskSequence):
 
     def on_start(self):
         self.locust.static_urls = set()
+        self.locust.user_id = user_ids.pop()
 
 # ========== END PAGE VIEW PROBABILITIES ==========
 
@@ -580,8 +564,8 @@ class HunterSet(TaskSequence):
 # Regular user
 class HunterLocust(HttpLocust):
     task_set = HunterSet
-    min_wait = 25000
-    max_wait = 35000
+    min_wait = 20000
+    max_wait = 40000
     weight = 240
 
 # ========== END USERS CODE ==========
