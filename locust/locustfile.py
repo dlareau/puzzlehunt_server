@@ -7,12 +7,8 @@ import sys
 import re
 
 # TODO:
-#   Write staff url functions
-#       Chat not finished
 #   Modify current_hunt request to only look at unsolved puzzles
-#   Fix CSRF error with registration post
-#   Fix no last_pk error with chat post
-#   Put password in separate file
+#   Fix no last_pk error with chat post (user and staff)
 
 # Server TODO:
 #   Make sure all post requests return proper ajax value
@@ -24,6 +20,9 @@ import re
 # ========== HELPTER FUNCTIONS/VARIABLES ==========
 
 user_ids = range(285) + range(285)
+staff_ids = range(300, 310) + range(300, 310)
+
+USER_PASSWORD = ""
 
 
 def random_string(n):
@@ -163,7 +162,7 @@ def ensure_login(session, input_response, static=True):
         session.client.headers['Referer'] = session.client.base_url
         store_CSRF(session, response)
         args = {"username": "test_user_" + str(session.locust.user_id),
-                "password": ""
+                "password": USER_PASSWORD
         }
 
         response = store_CSRF(session, CSRF_post(session, next_url, args))
@@ -607,7 +606,7 @@ class StaffSet(TaskSet):
 
     def on_start(self):
         self.locust.static_urls = set()
-        # self.locust.staff_id = user_ids.pop()
+        self.locust.user_id = staff_ids.pop()
 
 
 class WebsiteSet(TaskSet):
@@ -648,10 +647,10 @@ class StaffLocust(HttpLocust):
 
 
 # Regular user
-# class HunterLocust(HttpLocust):
-#     task_set = HunterSet
-#     min_wait = 20000
-#     max_wait = 40000
-#     weight = 240
+class HunterLocust(HttpLocust):
+    task_set = HunterSet
+    min_wait = 20000
+    max_wait = 40000
+    weight = 240
 
 # ========== END USERS CODE ==========
