@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup, SoupStrainer
 from string import ascii_lowercase
 import random
 import gevent
-import requests
 import sys
 import re
 
@@ -49,16 +48,7 @@ ajax_headers = {'X-Requested-With': 'XMLHttpRequest'}
 
 
 def better_get(l, url, **kwargs):
-    return l.client.get(url, **dict(timeout=10.0, **kwargs))
-
-
-def CSRF_post(session, url, args):
-    session.client.headers['Referer'] = session.client.base_url
-    args['csrfmiddlewaretoken'] = session.locust.CSRF
-    response = session.client.post(url, args,
-                                   headers={"X-CSRFToken": session.locust.CSRF},
-                                   cookies={"csrftoken": session.locust.CSRF})
-    return response
+    return l.client.get(url, **dict(timeout=None, **kwargs))
 
 
 def gen_from_list(in_list):
@@ -155,7 +145,9 @@ def ensure_login(session, input_response, static=True):
     # Login if login is required and not already logged in
     # optional static arg determines if it should fetch login page static files
 
-    if(input_response.url and "login-selection" in input_response.url):
+    if(input_response.url and
+       ("login-selection" in input_response.url or
+        "/staff/login/" in input_response.url)):
         if("?next=" in input_response.url):
             next_param = input_response.url.split("?next=")[1]
             response = session.client.get("/accounts/login/?next=" + next_param)
@@ -169,17 +161,14 @@ def ensure_login(session, input_response, static=True):
             add_static(session, response)
 
         session.client.headers['Referer'] = session.client.base_url
-        csrftoken = response.cookies['csrftoken']
+        store_CSRF(session, response)
         args = {"username": "test_user_" + str(session.locust.user_id),
-                "password": "",
-                "csrfmiddlewaretoken": csrftoken
-                }
+                "password": ""
+        }
 
-        response = session.client.post(next_url, args,
-                                       headers={"X-CSRFToken": csrftoken},
-                                       cookies={"csrftoken": csrftoken})
+        response = store_CSRF(session, CSRF_post(session, next_url, args))
 
-        if("/accounts/login/" in response.url):
+        if("/accounts/login/" in response.url or "/staff/login/" in response.url):
             # Login failed
             sys.stdout.write("login-failed")
 
@@ -190,8 +179,34 @@ def ensure_login(session, input_response, static=True):
 
 
 def store_CSRF(session, response):
+    # sys.stdout.write("|STORED CSRF: " + response.url)
     if(response.cookies and 'csrftoken' in response.cookies):
-        session.locust.CSRF = response.cookies['csrftoken']
+        session.locust.client.cookies.set('csrftoken', None)
+        session.locust.client.cookies.set('csrftoken', response.cookies['csrftoken'])
+        sys.stdout.write("|    COOKIE:   " + session.locust.client.cookies['csrftoken'])
+
+    search_results = re.search(r"csrf_token = '(.*?)';", response.text)
+    if(search_results):
+        session.locust.templateCSRF = search_results.group(1)
+        # sys.stdout.write("|    TEMPLATE: " + session.locust.templateCSRF)
+    search_results = re.search(r"name='csrfmiddlewaretoken' value='(.*?)'", response.text)
+    if(search_results):
+        session.locust.templateCSRF = search_results.group(1)
+        # sys.stdout.write("|    TEMPLATE: " + session.locust.templateCSRF)
+    return response
+
+
+def CSRF_post(session, url, args):
+    session.client.headers['Referer'] = session.client.base_url
+    args['csrfmiddlewaretoken'] = session.locust.templateCSRF
+    response = session.client.post(url, args,
+                                   headers={"X-CSRFToken": session.locust.templateCSRF})
+    # if(response.status_code == 403):
+    #     sys.stdout.write("|403 FAILURE: " + response.url)
+    #     sys.stdout.write(str("|    COOKIE:   " + str(session.locust.client.cookies.items())))
+    #     sys.stdout.write(str("|    TEMPLATE: " + session.locust.templateCSRF))
+    #     sys.stdout.write(str("|    " + str(response.request.headers)))
+    #     sys.stdout.write(str("|    " + str(response.request.body)))
     return response
 
 
@@ -233,7 +248,7 @@ def puzzle_main_page(l):
     # Get ajax number from page and store to locust object
     puzzle_id = random.choice(l.locust.puzzle_ids)
     l.locust.puzzle_id = puzzle_id
-    response = url_all(l, better_get(l, "/puzzle/" + puzzle_id))
+    response = url_all(l, better_get(l, "/puzzle/" + puzzle_id + "/"))
     search_results = re.search(r"last_date = '(.*)';", response.text)
     if(search_results):
         last_date = search_results.group(1)
@@ -248,7 +263,7 @@ def puzzle_ajax(l):
     puzzle_id = l.locust.puzzle_id
     puzzle_url = "/puzzle/" + puzzle_id + "/"
     response = better_get(l, puzzle_url + "?last_date=" + l.locust.ajax_args['last_date'],
-                            headers=ajax_headers, name=puzzle_url+" AJAX")
+                          headers=ajax_headers, name=puzzle_url + " AJAX")
     try:
         l.locust.ajax_args = {'last_date': response.json()["last_date"]}
     except:
@@ -297,11 +312,11 @@ def chat_main_page(l):
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
     response = better_get(l, "/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
-                            headers=ajax_headers, name="/chat/ AJAX")
+                          headers=ajax_headers, name="/chat/ AJAX")
     try:
         l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
     except:
-        l.locust.ajax_args = {'last_pk': ""}
+        pass
 
 
 def chat_new_message(l):
@@ -378,7 +393,7 @@ def user_profile(l):
 
 def staff_chat_main_page(l):
     # Load main chat page and store ajax value in locust object
-    response = url_all(l, better_get(l, "/chat/"))
+    response = url_all(l, better_get(l, "/staff/chat/"))
 
     search_results = re.search(r"last_pk = (.*);", response.text)
     if(search_results):
@@ -387,74 +402,132 @@ def staff_chat_main_page(l):
         last_pk = ""
     l.locust.ajax_args = {'last_pk': last_pk}
 
-    search_results = re.search(r"curr_team = (.*);", response.text)
+    search_results = re.findall(r"data-id='(.*)' ", response.text)
     if(search_results):
-        curr_team = search_results.group(1)
+        l.locust.staff_chat_teams = search_results
     else:
-        curr_team = ""
-    l.locust.team_pk = curr_team
+        l.locust.staff_chat_teams = None
 
 
 def staff_chat_new_message(l):
     # Make POST request to create a new chat message, store ajax value
-    message_data = {
-        "team_pk": int(l.locust.team_pk),
-        "message": random_string(40),
-        "is_response": False,
-        "is_announcement": False
-    }
-    store_CSRF(l, CSRF_post(l, "/chat/", message_data))
+    if(l.locust.staff_chat_teams):
+        message_data = {
+            "team_pk": int(random.choice(l.locust.staff_chat_teams)),
+            "message": random_string(40),
+            "is_response": True,
+            "is_announcement": False
+        }
+        store_CSRF(l, CSRF_post(l, "/chat/", message_data))
 
 
 def staff_chat_ajax(l):
     # Make ajax request with current ajax value and store new value
-    response = better_get(l, "/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
-                            headers=ajax_headers)
+    response = better_get(l, "/staff/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
+                          headers=ajax_headers, name="/staff/chat/ AJAX")
     try:
         l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
     except:
-        l.locust.ajax_args = {'last_pk': ""}
+        pass
 
 
 def progress_main_page(l):
-    sys.stdout.write("progress main page")
+    response = url_all(l, better_get(l, "/staff/progress/"))
+    search_results = re.search(r"last_solve_pk = (.*);\n *last_unlock_pk = (.*);\n *last_submission_pk = (.*)", response.text)
+    if(search_results):
+        l.locust.ajax_args = {
+            'last_solve_pk': search_results.group(1),
+            'last_unlock_pk': search_results.group(2),
+            'last_submission_pk': search_results.group(3),
+        }
+    else:
+        l.locust.ajax_args = {
+            'last_solve_pk': 0,
+            'last_unlock_pk': 0,
+            'last_submission_pk': 0,
+        }
+
+    search_results = re.findall(r"id='p(.*)t(.*)' class='unavailable'", response.text)
+    if(search_results):
+        l.locust.progress_info = search_results
+    else:
+        l.locust.progress_info = None
 
 
 def progress_unlock(l):
-    sys.stdout.write("progress unlock request")
-
+    if(l.locust.progress_info and len(l.locust.progress_info) > 0):
+        puzzle_info = random.choice(l.locust.progress_info)
+        l.locust.progress_info.remove(puzzle_info)
+        message_data = {
+            "team_id": int(puzzle_info[1]),
+            "puzzle_id": puzzle_info[0],
+            "action": "unlock"
+        }
+        store_CSRF(l, CSRF_post(l, "/staff/progress/", message_data))
 
 def progress_ajax(l):
-    sys.stdout.write("progress ajax")
+    response = better_get(l, "/staff/progress/?" +
+        "last_solve_pk=" + str(l.locust.ajax_args['last_solve_pk']) +
+        "&last_unlock_pk=" + str(l.locust.ajax_args['last_unlock_pk']) +
+        "&last_submission_pk=" + str(l.locust.ajax_args['last_submission_pk']),
+        headers=ajax_headers, name="/staff/progress/ AJAX")
+    try:
+        update_info = response.json()["update_info"]
+        if(len(update_info) > 0):
+            l.locust.ajax_args = {
+                'last_solve_pk': update_info[0],
+                'last_unlock_pk': update_info[1],
+                'last_submission_pk': update_info[2],
+            }
+    except:
+        pass
 
 
 def queue_main_page(l):
-    sys.stdout.write("queue main page")
+    response = url_all(l, better_get(l, "/staff/queue/"))
+    search_results = re.search(r"last_date = '(.*)';", response.text)
+    if(search_results):
+        last_date = search_results.group(1)
+    else:
+        last_date = ""
+    l.locust.ajax_args = {'last_date': last_date}
+
+    search_results = re.search(r"incorrect-replied *\n *submission.*data-id='(\d+)'>", response.text)
+    if(search_results):
+        l.locust.queue_sub_id = search_results.group(1)
+    else:
+        l.locust.queue_sub_id = None
 
 
 def queue_num_page(l):
-    sys.stdout.write("queue numbered page")
+    url_all(l, better_get(l, "/staff/queue/1/"))
 
 
 def queue_new_response(l):
-    sys.stdout.write("new response request")
+    if(l.locust.queue_sub_id):
+        message_data = {
+            "response": random_string(40),
+            "sub_id": l.locust.queue_sub_id
+        }
+        store_CSRF(l, CSRF_post(l, "/staff/queue/", message_data))
 
 
 def queue_ajax(l):
-    sys.stdout.write("queue ajax")
+    response = better_get(l, "/staff/queue/?last_date=" + str(l.locust.ajax_args['last_date']) + "&all=true",
+                          headers=ajax_headers, name="/staff/queue/ AJAX")
+    try:
+        l.locust.ajax_args = {'last_date': response.json()["last_date"]}
+    except:
+        pass
 
 
 def email_main_page(l):
     url_all(l, better_get(l, "/staff/emails/"))
 
 
-def email_send_email(l):
-    sys.stdout.write("send email request")
-
-
 def admin_page(l):
     url_all(l, better_get(l, "/staff/huntserver/hunt/"))
-    # Then get hunt urls then pick and load a hunt
+    url_all(l, better_get(l, "/staff/huntserver/hunt/9/change/"))
 
 
 def management(l):
@@ -482,11 +555,6 @@ queue_fs = {
     queue_num_page:     1,
     queue_new_response: 6,
     stop:               3
-}
-
-email_fs = {
-    email_send_email:   1,
-    stop:               2
 }
 
 puzzle_fs = {
@@ -529,13 +597,14 @@ class StaffSet(TaskSet):
                           Poller(progress_ajax, [3])):          7,
         page_and_subpages(queue_main_page, queue_fs,
                           Poller(queue_ajax, [3])):             8,
-        page_and_subpages(email_main_page, email_fs):           2,
+        email_main_page:                                        2,
         admin_page:                                             1,
         management:                                             2
     }
 
     def on_start(self):
         self.locust.static_urls = set()
+        # self.locust.staff_id = user_ids.pop()
 
 
 class WebsiteSet(TaskSet):
@@ -568,18 +637,18 @@ class HunterSet(TaskSequence):
 # ========== USERS CODE ==========
 
 # Staff user
-# class StaffLocust(HttpLocust):
-#     task_set = StaffSet
-#     min_wait = 30000
-#     max_wait = 30000
-#     weight = 10
+class StaffLocust(HttpLocust):
+    task_set = StaffSet
+    min_wait = 30000
+    max_wait = 30000
+    weight = 10
 
 
 # Regular user
-class HunterLocust(HttpLocust):
-    task_set = HunterSet
-    min_wait = 20000
-    max_wait = 40000
-    weight = 240
+# class HunterLocust(HttpLocust):
+#     task_set = HunterSet
+#     min_wait = 20000
+#     max_wait = 40000
+#     weight = 240
 
 # ========== END USERS CODE ==========
