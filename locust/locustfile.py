@@ -183,7 +183,7 @@ def store_CSRF(session, response):
     if(response.cookies and 'csrftoken' in response.cookies):
         session.locust.client.cookies.set('csrftoken', None)
         session.locust.client.cookies.set('csrftoken', response.cookies['csrftoken'])
-        sys.stdout.write("|    COOKIE:   " + session.locust.client.cookies['csrftoken'])
+        #sys.stdout.write("|    COOKIE:   " + session.locust.client.cookies['csrftoken'])
 
     search_results = re.search(r"csrf_token = '(.*?)';", response.text)
     if(search_results):
@@ -542,19 +542,19 @@ def management(l):
 # They are also specifically tuned to specific request times (30, 130, 1200)
 
 staff_chat_fs = {
-    staff_chat_new_message: 3,
-    stop:                   1
+    staff_chat_new_message: 98,
+    stop:                   27
 }
 
 progress_fs = {
-    progress_unlock:    1,
-    stop:               4
+    progress_unlock:    27,
+    stop:               98
 }
 
 queue_fs = {
-    queue_num_page:     1,
-    queue_new_response: 6,
-    stop:               3
+    queue_num_page:     17,
+    queue_new_response: 104,
+    stop:               45
 }
 
 puzzle_fs = {
@@ -592,14 +592,17 @@ prev_hunt_fs = {
 class StaffSet(TaskSet):
     tasks = {
         page_and_subpages(staff_chat_main_page, staff_chat_fs,
-                          Poller(staff_chat_ajax, [3])):        6,
+                          Poller(staff_chat_ajax, [3]),
+                          70000):                               15,
         page_and_subpages(progress_main_page, progress_fs,
-                          Poller(progress_ajax, [3])):          7,
+                          Poller(progress_ajax, [3]),
+                          465000):                              27,
         page_and_subpages(queue_main_page, queue_fs,
-                          Poller(queue_ajax, [3])):             8,
-        email_main_page:                                        2,
-        admin_page:                                             1,
-        management:                                             2
+                          Poller(queue_ajax, [3]),
+                          418000):                              32,
+        email_main_page:                                        8,
+        admin_page:                                             2,
+        management:                                             6
     }
 
     def on_start(self):
@@ -639,8 +642,8 @@ class HunterSet(TaskSequence):
 # Staff user
 class StaffLocust(HttpLocust):
     task_set = StaffSet
-    min_wait = 30000
-    max_wait = 30000
+    min_wait = 100000
+    max_wait = 140000
     weight = 10
 
 
