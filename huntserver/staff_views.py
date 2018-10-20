@@ -82,8 +82,11 @@ def progress(request):
                 if form.is_valid():
                     t = Team.objects.get(pk=form.cleaned_data['team_id'])
                     p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
-                    u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
-                    return HttpResponse(json.dumps(u.serialize_for_ajax()))
+                    if(p not in t.unlocked.all()):
+                        u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
+                        return HttpResponse(json.dumps(u.serialize_for_ajax()))
+                    else:
+                        return HttpResponse(status=200)
             if request.POST.get("action") == "unlock_all":
                     p = Puzzle.objects.get(pk=request.POST.get('puzzle_id'))
                     response = []
