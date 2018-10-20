@@ -1,18 +1,18 @@
 button {
-	background-color: white;
+    background-color: white;
     border: 1px solid black;
-	margin: 1px;
+    margin: 1px;
     text-align: center;
     text-decoration: none;
-	border-radius: 4px;
-	white-space: nowrap;
+    border-radius: 4px;
+    white-space: nowrap;
     display: inline-block;}
 
 button:hover {
-	background-color: lightgrey; }
+    background-color: lightgrey; }
 
-button:active {
-	background-color: grey; }
+button.active {
+    background-color: lightgrey; }
 
 #queue {
   width: 100%; }
@@ -39,10 +39,10 @@ td {
   border: 1px solid black; }
 
 th {
-	text-align: center;
-	padding-left: 3px;
-	padding-right: 3px;
-	border: 1px solid black; }
+    text-align: center;
+    padding-left: 3px;
+    padding-right: 3px;
+    border: 1px solid black; }
 
 #puzzles .meta {
   background: #DADAF8; }

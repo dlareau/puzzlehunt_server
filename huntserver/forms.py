@@ -20,7 +20,7 @@ class PersonForm(forms.ModelForm):
         super(PersonForm, self).__init__(*args, **kwargs)
         self.fields['phone'].help_text = "Optional"
         self.fields['allergies'].help_text = "Optional"
-        self.fields['allergies'].label = "Food Preferences"
+        self.fields['allergies'].label = "Allergies/Preferences"
 
     class Meta:
         model = Person
