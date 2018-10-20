@@ -11,15 +11,6 @@ codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else Non
 
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
-ALLOWED_HOSTS = ['*']
-
-from fnmatch import fnmatch
-class globlist(list):
-    def __contains__(self, key):
-        for pat in self:
-            if fnmatch(key, pat): return True
-        return False
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -32,7 +23,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'huntserver',
-    'debug_toolbar',
     'django_nose',
 )
 
@@ -43,7 +33,6 @@ NOSE_ARGS = [
 ]
 
 MIDDLEWARE_CLASSES = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,6 +48,7 @@ ROOT_URLCONF = 'puzzlehunt_server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
         'DIRS': [os.path.join(BASE_DIR, 'puzzlehunt_server/templates')],
         'OPTIONS': {
             'context_processors': [
@@ -69,12 +59,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
             ],
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                        'django.template.loaders.filesystem.Loader',
-                        'django.template.loaders.app_directories.Loader',
-                    ])
-            ]
         },
     },
 ]
@@ -126,6 +110,18 @@ SHIB_USERNAME = "eppn"
 SHIB_EMAIL = "eppn"
 SHIB_FIRST_NAME = "givenName"
 SHIB_LAST_NAME = "sn"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': '/home/hunt/dev_puzzlehunt_server/debug.log',
+        },
+    },
+}
 
 #Comment out for production.
 #EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'

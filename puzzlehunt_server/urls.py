@@ -36,6 +36,10 @@ urlpatterns = [
     url(r'^reset/done/$', base_auth_views.password_reset_complete, name='password_reset_complete'),
 ]
 
+# Use silk if enabled
+if 'silk' in settings.INSTALLED_APPS:
+    urlpatterns.append(url(r'^silk/', include('silk.urls', namespace='silk')))
+
 # Hack for using development server
 if(settings.DEBUG):
     import debug_toolbar

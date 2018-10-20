@@ -13,3 +13,4 @@ db.sqlite3
 setup.cfg
 /cover/
 .coverage
+debug.log
