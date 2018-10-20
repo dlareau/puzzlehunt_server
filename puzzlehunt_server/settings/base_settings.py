@@ -115,10 +115,9 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
+        'noop': {
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': '/home/hunt/dev_puzzlehunt_server/debug.log',
+            'class': 'logging.NullHandler',
         },
     },
 }
