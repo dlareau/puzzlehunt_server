@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.dateformat import DateFormat
+from django.utils.encoding import python_2_unicode_compatible
 from dateutil import tz
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -11,6 +12,7 @@ import re
 
 time_zone = tz.gettz(settings.TIME_ZONE)
 
+@python_2_unicode_compatible
 class Hunt(models.Model):
     """ Base class for a hunt. Contains basic details about a puzzlehunt. """
 
@@ -79,13 +81,14 @@ class Hunt(models.Model):
     def real_teams(self):
         return self.team_set.exclude(location="DUMMY").all()
 
-    def __unicode__(self):
+    def __str__(self):
         if(self.is_current_hunt):
             return self.hunt_name + " (c)"
         else:
             return self.hunt_name
 
 
+@python_2_unicode_compatible
 class Puzzle(models.Model):
     """ A class representing a puzzle within a hunt """
 
@@ -116,10 +119,11 @@ class Puzzle(models.Model):
         message['name'] = self.puzzle_name
         return message
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
 
 
+@python_2_unicode_compatible
 class Team(models.Model):
     """ A class representing a team within a hunt """
 
@@ -150,14 +154,16 @@ class Team(models.Model):
         """ A boolean indicating whether or not the team is a normal (non-playtester) team """
         return (not self.playtester)
 
-    def __unicode__(self):
-        return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name
-
     @property
     def short_name(self):
         """ A boolean indicating whether or not the team is a playtesting team """
         return self.team_name[:30]
 
+    def __str__(self):
+        return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name
+
+
+@python_2_unicode_compatible
 class Person(models.Model):
     """ A class to associate more personal information with the default django auth user class """
 
@@ -174,7 +180,7 @@ class Person(models.Model):
     is_shib_acct = models.BooleanField(
         help_text="A boolean to indicate if the person uses shibboleth authentication for login")
 
-    def __unicode__(self):
+    def __str__(self):
         name = self.user.first_name + " " + self.user.last_name + " (" + self.user.username + ")"
         if(name == "  ()"):
             return "Anonymous User"
@@ -182,6 +188,7 @@ class Person(models.Model):
             return name
 
 
+@python_2_unicode_compatible
 class Submission(models.Model):
     """ A class representing a submission to a given puzzle from a given team """
 
@@ -219,10 +226,11 @@ class Submission(models.Model):
         self.modified_date = timezone.now()
         super(Submission, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.submission_text
 
 
+@python_2_unicode_compatible
 class Solve(models.Model):
     """ A class that links a team and a puzzle to indicate that the team has solved the puzzle """
 
@@ -252,10 +260,11 @@ class Solve(models.Model):
         message['status_type'] = "solve"
         return message
 
-    def __unicode__(self):
+    def __str__(self):
         return self.team.team_name + " => " + self.puzzle.puzzle_name
 
 
+@python_2_unicode_compatible
 class Unlock(models.Model):
     """ A class that links a team and a puzzle to indicate that the team has unlocked the puzzle """
 
@@ -276,10 +285,11 @@ class Unlock(models.Model):
         message['status_type'] = "unlock"
         return message
 
-    def __unicode__(self):
+    def __str__(self):
         return self.team.team_name + ": " + self.puzzle.puzzle_name
 
 
+@python_2_unicode_compatible
 class Message(models.Model):
     """ A class that represents a message sent using the chat functionality """
 
@@ -292,10 +302,11 @@ class Message(models.Model):
     time = models.DateTimeField(
         help_text="Message send time")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.team.team_name + ": " + self.text
 
 
+@python_2_unicode_compatible
 class Unlockable(models.Model):
     """ A class that represents an object to be unlocked after solving a puzzle """
 
@@ -312,10 +323,11 @@ class Unlockable(models.Model):
     content = models.CharField(max_length=500,
         help_text="The link to the content, files must be externally hosted.")
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.puzzle.puzzle_name, self.content_type)
 
 
+@python_2_unicode_compatible
 class Response(models.Model):
     """ A class to represent an automated response regex """
 
@@ -326,7 +338,7 @@ class Response(models.Model):
     text = models.CharField(max_length=400,
         help_text="The text to use in the submission response if the regex matched")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.regex + " => " + self.text
 
 
@@ -338,9 +350,10 @@ class OverwriteStorage(FileSystemStorage):
         return name
 
 
+@python_2_unicode_compatible
 class HuntAssetFile(models.Model):
     """ A class to represent an asset file for a puzzlehunt """
     file = models.FileField(upload_to='hunt/assets/', storage=OverwriteStorage())
 
-    def __unicode__(self):
+    def __str__(self):
         return os.path.basename(self.file.name)
