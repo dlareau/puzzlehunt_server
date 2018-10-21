@@ -10,13 +10,6 @@ import re
 #   Modify current_hunt request to only look at unsolved puzzles
 #   Fix no last_pk error with chat post (user and staff)
 
-# Server TODO:
-#   Make sure all post requests return proper ajax value
-#   Make sure all ajax requests end in a slash
-#   Chat page of a public hunt 404's
-#   Fix chat announcement and whois bugs
-#   Make sure all models have the proper str and unicode methods
-
 # ========== HELPTER FUNCTIONS/VARIABLES ==========
 
 user_ids = range(285) + range(285)

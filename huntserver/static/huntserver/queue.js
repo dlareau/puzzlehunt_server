@@ -29,7 +29,7 @@ $(document).ready(function() {
   var get_posts = function() {
     $.ajax({
       type: 'get',
-      url: "/staff/queue",
+      url: "/staff/queue/",
       data: {last_date: last_date, all: true},
       success: function (response) {
         var response = JSON.parse(response);

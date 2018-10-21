@@ -18,7 +18,7 @@
     <div class='col-md-12 info'>
       <div class='leftinfo'>
         <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
-        <h4> {{ puzzle.solved_for.all | length }} teams have solved this puzzle so far.</h4>
+        <h4> {{ puzzle.solved_for.count }} teams have solved this puzzle so far.</h4>
       </div>
       <h3><a href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf'>
         Click here for a downloadable pdf
