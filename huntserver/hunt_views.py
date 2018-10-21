@@ -4,7 +4,7 @@ from django.conf import settings
 from ratelimit.decorators import ratelimit
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -18,7 +18,6 @@ from .forms import AnswerForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 
 
-@login_required
 def protected_static(request, file_path):
     """
     A view to serve protected static content. Does a permission check and if it passes,
@@ -30,17 +29,18 @@ def protected_static(request, file_path):
     if(levels[0] == "puzzles"):
         puzzle_id = levels[1][0:3]
         puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
-        team = team_from_user_hunt(request.user, puzzle.hunt)
-        # Only allowed access to the image if the puzzle is unlocked
-        if (puzzle.hunt.is_public or request.user.is_staff or
-           (team is not None and puzzle in team.unlocked.all())):
+        hunt = puzzle.hunt
+        user = request.user
+        if (hunt.is_public or user.is_staff):
             allowed = True
+        else:
+            team = team_from_user_hunt(user, hunt)
+            if (team is not None and puzzle in team.unlocked.all()):
+                allowed = True
     else:
         allowed = True
 
     if allowed:
-        #if(settings.DEBUG):
-        #    return redirect(settings.MEDIA_URL + file_path)
         response = HttpResponse()
         # let apache determine the correct content type
         response['Content-Type'] = ""
@@ -51,7 +51,6 @@ def protected_static(request, file_path):
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
 
-@login_required
 def hunt(request, hunt_num):
     """
     The main view to render hunt templates. Does various permission checks to determine the set
@@ -63,7 +62,7 @@ def hunt(request, hunt_num):
 
     # Admins get all access, wrong teams/early lookers get an error page
     # real teams get appropriate puzzles, and puzzles from past hunts are public
-    if(request.user.is_staff):
+    if (hunt.is_public or request.user.is_staff):
         puzzle_list = hunt.puzzle_set.all()
 
     elif(team and team.is_playtester_team):
@@ -76,14 +75,15 @@ def hunt(request, hunt_num):
     # Hunt has started
     elif(hunt.is_open):
         # see if the team does not belong to the hunt being accessed
-        if(team is None or (team.hunt != hunt)):
+        if (not request.user.is_authenticated):
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
+        elif(team is None or (team.hunt != hunt)):
             return render(request, 'not_released.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
-    # Hunt is over
-    elif(hunt.is_public):
-        puzzle_list = hunt.puzzle_set.all()
-    # How did you get here?
+
+        # No else case, all 3 possible hunt states have been checked.
 
     puzzles = sorted(puzzle_list, key=lambda p: p.puzzle_number)
     if(team is None):
@@ -95,13 +95,11 @@ def hunt(request, hunt_num):
     return HttpResponse(Template(hunt.template).render(RequestContext(request, context)))
 
 
-@login_required
 def current_hunt(request):
     """ A simple view that calls ``huntserver.hunt_views.hunt`` with the current hunt's number. """
     return hunt(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 
-@login_required
 @ratelimit(key='user', rate='10/m', method='POST')
 def puzzle_view(request, puzzle_id):
     """
@@ -181,20 +179,27 @@ def puzzle_view(request, puzzle_id):
 
     else:
         # Only allowed access if the hunt is public or if unlocked by team
-        if(puzzle.hunt.is_public or (team != None and puzzle in team.unlocked.all()) or request.user.is_staff):
-            submissions = puzzle.submission_set.filter(team=team).order_by('pk')
-            form = AnswerForm()
-            try:
-                last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-            except:
-                last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-            context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
-                       'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
-                       'last_date': last_date}
-            return render(request, 'puzzle.html', context)
-        else:
-            return render(request, 'access_error.html')
+        if(not puzzle.hunt.is_public):
+            if(not request.user.is_authenticated):
+                return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 
+            if (not request.user.is_staff):
+                if(team is None or puzzle not in team.unlocked.all()):
+                    return render(request, 'access_error.html')
+
+        # The logic above is negated to weed out edge cases, so here is a summary:
+        # If we've made it here, the hunt is public OR the user is staff OR
+        # the user 1) is signed in, 2) not staff, 3) is on a team, and 4) has access
+        submissions = puzzle.submission_set.filter(team=team).order_by('pk')
+        form = AnswerForm()
+        try:
+            last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except:
+            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
+                   'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
+                   'last_date': last_date}
+        return render(request, 'puzzle.html', context)
 
 @login_required
 def chat(request):

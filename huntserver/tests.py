@@ -298,9 +298,12 @@ class HuntTests(TestCase):
         response = get_and_check_page(self, 'huntserver:protected_static', 200, {"file_path":"/"})
         response = get_and_check_page(self, 'huntserver:protected_static', 200, {"file_path":"puzzles/101/example.pdf"})
         response = get_and_check_page(self, 'huntserver:protected_static', 404, {"file_path":"puzzles/201/example.pdf"})
-        
+
     def test_hunt_normal(self):
         "Test the basic per-hunt view"
+        # Check when logged out
+        response = get_and_check_page(self, 'huntserver:hunt', 302, {"hunt_num":"2"})
+
         login(self, 'user4')
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"1"})
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
@@ -320,6 +323,9 @@ class HuntTests(TestCase):
 
     def test_puzzle_normal(self):
         "Test the basic per-puzzle view"
+        # Check when logged out
+        response = get_and_check_page(self, 'huntserver:puzzle', 302, {"puzzle_id":"201"})
+
         login(self, 'user4')
         response = get_and_check_page(self, 'huntserver:puzzle', 200, {"puzzle_id":"101"})
 
