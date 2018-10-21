@@ -400,17 +400,6 @@ class HuntTests(TestCase):
         response = ajax_and_check_page(self, 'huntserver:chat', 200, {'last_pk': '0'})
         response = get_and_check_page(self, 'huntserver:chat', 200)
 
-        login(self, 'admin')
-        post_context = {'team_pk': "2", 'is_announcement': "true",
-                        'is_response':"true", 'message': "my simple message"}
-        response = self.client.post(reverse('huntserver:chat'), post_context)
-        self.assertEqual(response.status_code, 200)
-
-        post_context = {'team_pk': "2", 'is_announcement': "false",
-                        'is_response':"true", 'message': "my simple message"}
-        response = self.client.post(reverse('huntserver:chat'), post_context)
-        self.assertEqual(response.status_code, 200)
-
     def test_unlockables(self):
         "Test the unlockables view"
         login(self, 'user1')
@@ -637,6 +626,16 @@ class StaffTests(TestCase):
         response = ajax_and_check_page(self, 'huntserver:admin_chat', 200, ajax_args)
 
         response = get_and_check_page(self, 'huntserver:admin_chat', 200)
+
+        post_context = {'team_pk': "2", 'is_announcement': "true",
+                        'is_response':"true", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:admin_chat'), post_context)
+        self.assertEqual(response.status_code, 200)
+
+        post_context = {'team_pk': "2", 'is_announcement': "false",
+                        'is_response':"true", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:admin_chat'), post_context)
+        self.assertEqual(response.status_code, 200)
 
         login(self, 'user1')
         post_context = {'team_pk': "2", 'is_announcement': "false",

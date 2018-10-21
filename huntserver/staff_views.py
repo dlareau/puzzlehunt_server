@@ -280,18 +280,35 @@ def charts(request):
 @staff_member_required
 def admin_chat(request):
     """
-    A view to handle chat update requests via AJAX and render the staff chat page. Chat message
-    submissions are sent to ``huntserver.hunt_views.chat``. Chat messages are pre-rendered for
-    both standard and AJAX requests.
+    A view to handle chat update requests via AJAX and render the staff chat 
+    page. Chat messages are pre-rendered for both standard and AJAX requests.
     """
 
-    if request.is_ajax():
-        last_pk = request.GET.get("last_pk")
-        messages = Message.objects.filter(pk__gt=last_pk)
-    else:
-        curr_hunt = Hunt.objects.get(is_current_hunt=True)
-        messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time').select_related('team')
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    if request.method == 'POST':
+        if(request.POST.get('team_pk') == ""):
+            return HttpResponse(status=400)
+        if(request.POST.get("is_announcement") == "true" and request.user.is_staff):
+            messages = []
+            for team in curr_hunt.real_teams.all():
+                m = Message.objects.create(time=timezone.now(),
+                    text="[Anouncement] " + request.POST.get('message'),
+                    is_response=(request.POST.get('is_response') == "true"), team=team)
+                messages.append(m)
+        else:
+            team = Team.objects.get(pk=request.POST.get('team_pk'))
+            m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
+                is_response=(request.POST.get('is_response') == "true"), team=team)
+            messages = [m]
 
+    else:
+        if request.is_ajax():
+            messages = Message.objects.filter(pk__gt=request.GET.get("last_pk"))
+        else:
+            messages = Message.objects.filter(team__hunt=curr_hunt)
+        messages = messages.order_by('team', 'time').select_related('team')
+
+    # This block assumes messages are grouped by team
     team_name = ""
     message_dict = {}
     for message in messages:
@@ -300,14 +317,16 @@ def admin_chat(request):
             message_dict[team_name] = {'pk': message.team.pk, 'messages': []}
         message_dict[team_name]['messages'].append(message)
     for team in message_dict:
-        message_dict[team]['messages'] = render_to_string('chat_messages.html', {'messages': message_dict[team]['messages']})
+        message_dict[team]['messages'] = render_to_string(
+            'chat_messages.html', {'messages': message_dict[team]['messages'], 'team_name': team})
+
     try:
         last_pk = Message.objects.latest('id').id
     except Message.DoesNotExist:
         last_pk = 0
 
     context = {'message_dict': message_dict, 'last_pk': last_pk}
-    if request.is_ajax():
+    if request.is_ajax() or request.method == 'POST':
         return HttpResponse(json.dumps(context))
     else:
         teams = curr_hunt.team_set.order_by("team_name").all()

@@ -2,6 +2,6 @@
   {% if message.is_response %}
     <div class='admin-message' style='white-space:pre-wrap;'>Admin     : {{ message.text }}</div>
   {% else %}
-    <div class='user-message' style='white-space:pre-wrap;'>{{ message.team.team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
+    <div class='user-message' style='white-space:pre-wrap;'>{{ team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
   {% endif %}
 {% endfor %}

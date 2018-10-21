@@ -410,7 +410,7 @@ def staff_chat_new_message(l):
             "is_response": True,
             "is_announcement": False
         }
-        store_CSRF(l, CSRF_post(l, "/chat/", message_data))
+        store_CSRF(l, CSRF_post(l, "/staff/chat/", message_data))
 
 
 def staff_chat_ajax(l):
