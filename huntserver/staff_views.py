@@ -104,8 +104,6 @@ def progress(request):
                 "last_submission_pk" in request.GET):
             return HttpResponse(status=404)
         results = []
-        if(not request.user.is_staff):
-            return HttpResponseNotFound('access denied')
 
         last_solve_pk = request.GET.get("last_solve_pk")
         solves = list(Solve.objects.filter(pk__gt=last_solve_pk))

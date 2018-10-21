@@ -558,6 +558,10 @@ class StaffTests(TestCase):
         response = self.client.post(reverse('huntserver:progress'), post_context)
         self.assertEqual(response.status_code, 200)
 
+        post_context = {'action': "unlock", 'team_id': "5", 'puzzle_id': "202"}
+        response = self.client.post(reverse('huntserver:progress'), post_context)
+        self.assertEqual(response.status_code, 200)
+
         post_context = {'action': "unlock_all", 'puzzle_id': "5"}
         response = self.client.post(reverse('huntserver:progress'), post_context)
         self.assertEqual(response.status_code, 200)
@@ -568,6 +572,8 @@ class StaffTests(TestCase):
 
     def test_staff_charts(self):
         "Test the staff charts view"
+
+
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:charts', 200)
         solve_puzzle_from_admin(self)
@@ -626,6 +632,11 @@ class StaffTests(TestCase):
         response = ajax_and_check_page(self, 'huntserver:admin_chat', 200, ajax_args)
 
         response = get_and_check_page(self, 'huntserver:admin_chat', 200)
+
+        post_context = {'team_pk': "", 'is_announcement': "false",
+                        'is_response':"true", 'message': "my simple message"}
+        response = self.client.post(reverse('huntserver:admin_chat'), post_context)
+        self.assertEqual(response.status_code, 400)
 
         post_context = {'team_pk': "2", 'is_announcement': "true",
                         'is_response':"true", 'message': "my simple message"}

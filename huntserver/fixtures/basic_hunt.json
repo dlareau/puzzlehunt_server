@@ -242,6 +242,8 @@
 {
     "fields": {
         "team_size": 5,
+        "display_end_date": "2000-01-02T05:00:00Z",
+        "display_start_date": "2000-01-01T05:00:00Z",
         "end_date": "2000-01-02T05:00:00Z",
         "hunt_name": "Example Hunt 1",
         "is_current_hunt": false,
@@ -256,6 +258,8 @@
 {
     "fields": {
         "team_size": 3,
+        "display_end_date": "3000-01-01T05:00:00Z",
+        "display_start_date": "2001-01-01T05:00:00Z",
         "end_date": "3000-01-01T05:00:00Z",
         "hunt_name": "Example Hunt 2",
         "is_current_hunt": true,
@@ -270,6 +274,8 @@
 {
     "fields": {
         "team_size": 3,
+        "display_end_date": "3000-01-03T05:00:00Z",
+        "display_start_date": "3000-01-02T05:00:00Z",
         "end_date": "3000-01-03T05:00:00Z",
         "hunt_name": "Example Hunt 3",
         "is_current_hunt": false,
@@ -284,6 +290,8 @@
 {
     "fields": {
         "team_size": 3,
+        "display_end_date": "1000-07-03T05:00:00Z",
+        "display_start_date": "1000-07-02T05:00:00Z",
         "end_date": "1000-07-03T05:00:00Z",
         "hunt_name": "Example Hunt 4",
         "is_current_hunt": false,
@@ -298,6 +306,8 @@
 {
     "fields": {
         "team_size": 3,
+        "display_end_date": "1000-12-03T05:00:00Z",
+        "display_start_date": "1000-12-02T05:00:00Z",
         "end_date": "1000-12-03T05:00:00Z",
         "hunt_name": "Example Hunt 5",
         "is_current_hunt": false,

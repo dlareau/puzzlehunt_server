@@ -25,6 +25,10 @@ class Hunt(models.Model):
         help_text="The date/time at which a hunt will become visible to registered users")
     end_date = models.DateTimeField(
         help_text="The date/time at which a hunt will be archived and available to the public")
+    display_start_date = models.DateTimeField(
+        help_text="The start date/time displayed to users")
+    display_end_date = models.DateTimeField(
+        help_text="The end date/time displayed to users")
     location = models.CharField(max_length=100,
         help_text="Starting location of the puzzlehunt")
     is_current_hunt = models.BooleanField(default=False)
@@ -69,7 +73,7 @@ class Hunt(models.Model):
 
     @property
     def season(self):
-        """ A boolean indicating whether or not the hunt is open to the public """
+        """ Gets a season string from the hunt dates """
         if(self.start_date.month >= 1 and self.start_date.month <= 5):
             return "Spring"
         elif(self.start_date.month >= 8 and self.start_date.month <= 12):
