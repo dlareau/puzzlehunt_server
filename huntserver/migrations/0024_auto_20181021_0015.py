@@ -45,6 +45,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='hunt',
             name='display_start_date',
-            field=models.DateTimeField(null=True, help_text=b'The start date/time displayed to users'),
+            field=models.DateTimeField(help_text=b'The start date/time displayed to users'),
         ),
     ]

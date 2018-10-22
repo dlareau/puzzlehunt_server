@@ -12,6 +12,7 @@ import re
 
 time_zone = tz.gettz(settings.TIME_ZONE)
 
+
 @python_2_unicode_compatible
 class Hunt(models.Model):
     """ Base class for a hunt. Contains basic details about a puzzlehunt. """
@@ -114,6 +115,8 @@ class Puzzle(models.Model):
         help_text="The hunt that this puzzle is a part of")
     num_pages = models.IntegerField(
         help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
+    is_meta = models.BooleanField(default=False,
+        help_text="Is this puzzle a meta-puzzle?")
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """

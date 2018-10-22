@@ -44,6 +44,10 @@ th {
     padding-right: 3px;
     border: 1px solid black; }
 
+.actions {
+  text-align: center;
+}
+
 #puzzles .meta {
   background: #DADAF8; }
 
@@ -60,3 +64,14 @@ th {
 
   #progress .available {
       background: yellow; }
+
+.sort_select {
+  display: inline;
+  width: 160px;
+  margin-bottom: 10px;
+  -webkit-appearance: menulist;
+}
+
+.sort_label {
+  margin-left: 30px;
+}
