@@ -92,15 +92,24 @@ def download_puzzle(puzzle):
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])
 
-    # Get the file
-    file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
-    call(["wget", "-q", puzzle.link, "-O", file_str])
-    with open(file_str, "rb") as f:
-        puzzle.num_pages = PdfFileReader(f).getNumPages()
-        puzzle.save()
-    call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
-    #get document: wget {{URL}} -O {{FILENAME}}
-    #convert: convert -density 200 {{FILENAME}} {{OUTFILE}}
+    if(puzzle.link != ""):
+        # Get the PDF
+        file_str = directory + "/" + puzzle.puzzle_id + ".pdf"
+        call(["wget", "-q", puzzle.link, "-O", file_str])
+        with open(file_str, "rb") as f:
+            puzzle.num_pages = PdfFileReader(f).getNumPages()
+            puzzle.save()
+        call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
+        # get document: wget {{URL}} -O {{FILENAME}}
+        # convert: convert -density 200 {{FILENAME}} {{OUTFILE}}
+
+    if(puzzle.resource_link != ""):
+        # Get the other resources
+        file_str = directory + "/" + puzzle.puzzle_id + ".zip"
+        call(["wget", "-q", "--max-redirect=20", puzzle.resource_link, "-O", file_str])
+        call(["unzip", "-o", "-d", directory + "/" + puzzle.puzzle_id, file_str])
+        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
+        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
 
 def parse_attributes(META):
     shib_attrs = {}

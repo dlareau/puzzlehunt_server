@@ -105,8 +105,10 @@ class Puzzle(models.Model):
         help_text="A 3 character hex string that uniquely identifies the puzzle")
     answer = models.CharField(max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
-    link = models.URLField(max_length=200,
+    link = models.URLField(max_length=200, blank=True,
         help_text="The full link (needs http://) to a publicly accessible PDF of the puzzle")
+    resource_link = models.URLField(max_length=200, blank=True,
+        help_text="The full link (needs http://) to a folder of additional resources.")
     num_required_to_unlock = models.IntegerField(default=1,
         help_text="Number of prerequisite puzzles that need to be solved to unlock this puzzle")
     unlocks = models.ManyToManyField("self", blank=True, symmetrical=False,
@@ -117,6 +119,8 @@ class Puzzle(models.Model):
         help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
     is_meta = models.BooleanField(default=False,
         help_text="Is this puzzle a meta-puzzle?")
+    is_html_puzzle = models.BooleanField(default=False,
+        help_text="Does this puzzle use an HTML folder as it's source?")
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """

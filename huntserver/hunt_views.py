@@ -13,7 +13,7 @@ import json
 import os
 import re
 
-from .models import Puzzle, Hunt, Submission, Message, Team, Unlockable
+from .models import Puzzle, Hunt, Submission, Message, Unlockable
 from .forms import AnswerForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 
@@ -200,6 +200,7 @@ def puzzle_view(request, puzzle_id):
                    'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
                    'last_date': last_date}
         return render(request, 'puzzle.html', context)
+
 
 @login_required
 def chat(request):
