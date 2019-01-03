@@ -51,6 +51,17 @@ class PuzzleAdmin(admin.ModelAdmin):
               'num_pages', 'num_required_to_unlock')
     inlines = (UnlockInline, ResponseInline)
 
+class PrepuzzleAdminForm(forms.ModelForm):
+    model = models.Prepuzzle
+    class Meta:
+        fields = '__all__'
+        widgets = {
+            'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
+        }
+
+class PrepuzzleAdmin(admin.ModelAdmin):
+    form = PrepuzzleAdminForm
+
 class TeamAdminForm(forms.ModelForm):
     persons = forms.ModelMultipleChoiceField(
         queryset=models.Person.objects.all(),
@@ -122,6 +133,7 @@ admin.site.unregister(Group)
 admin.site.register(UserProxyObject)
 admin.site.register(models.Hunt, HuntAdmin)
 admin.site.register(models.Puzzle, PuzzleAdmin)
+admin.site.register(models.Prepuzzle, PrepuzzleAdmin)
 admin.site.register(models.Person, PersonAdmin)
 admin.site.register(models.Team, TeamAdmin)
 admin.site.register(models.Submission)

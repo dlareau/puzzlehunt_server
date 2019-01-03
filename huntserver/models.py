@@ -135,6 +135,31 @@ class Puzzle(models.Model):
 
 
 @python_2_unicode_compatible
+class Prepuzzle(models.Model):
+    """ A class representing a pre-puzzle within a hunt """
+
+    puzzle_name = models.CharField(max_length=200,
+        help_text="The name of the puzzle as it will be seen by hunt participants")
+    puzzle_id = models.CharField(max_length=8, unique=True,  # hex only please
+        help_text="A 3 character hex string that uniquely identifies the puzzle")
+    answer = models.CharField(max_length=100,
+        help_text="The answer to the puzzle, not case sensitive")
+    link = models.URLField(max_length=200, blank=True,
+        help_text="The full link (needs http://) to a publicly accessible PDF of the puzzle")
+    resource_link = models.URLField(max_length=200, blank=True,
+        help_text="The full link (needs http://) to a folder of additional resources.")
+    hunt = models.OneToOneField(Hunt, on_delete=models.CASCADE,
+        help_text="The hunt that this puzzle is a part of")
+    num_pages = models.IntegerField(
+        help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
+    is_html_puzzle = models.BooleanField(default=False,
+        help_text="Does this puzzle use an HTML folder as it's source?")
+
+    def __str__(self):
+        return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
+
+
+@python_2_unicode_compatible
 class Team(models.Model):
     """ A class representing a team within a hunt """
 

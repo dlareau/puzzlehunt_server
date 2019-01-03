@@ -100,6 +100,44 @@ def current_hunt(request):
     return hunt(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 
+def prepuzzle(request, hunt_num):
+    """
+    A view to handle answer submissions via POST and render the basic prepuzzle page rendering.
+    """
+    hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
+    # TODO: Check if prepuzzle exists for hunt and redirect or error if not
+
+    # Dealing with answer submissions, proper procedure is to create a submission
+    # object and then rely on utils.respond_to_submission for automatic responses.
+    if request.method == 'POST':
+        # Deal with answers from archived hunts
+        if(puzzle.hunt.is_public):
+            form = AnswerForm(request.POST)
+            team = dummy_team_from_hunt(puzzle.hunt)
+            if form.is_valid():
+                user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+                s = Submission.objects.create(submission_text=user_answer,
+                    puzzle=puzzle, submission_time=timezone.now(), team=team)
+                response = respond_to_submission(s)
+                is_correct = s.is_correct
+            else:
+                response = "Invalid Submission"
+                is_correct = None
+            context = {'form': form, 'pages': list(range(puzzle.num_pages)),
+                      'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
+                      'response': response, 'is_correct': is_correct}
+            return render(request, 'puzzle.html', context)
+
+    else:
+        form = AnswerForm()
+        context = {'form': form, 'puzzle': puzzle}
+        return HttpResponse(Template(puzzle.template).render(RequestContext(request, context)))
+
+
+def current_prepuzzle(request):
+    return prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
+
+
 @ratelimit(key='user', rate='10/m', method='POST')
 def puzzle_view(request, puzzle_id):
     """
