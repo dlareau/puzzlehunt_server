@@ -13,7 +13,7 @@ import json
 import os
 import re
 
-from .models import Puzzle, Hunt, Submission, Message, Unlockable
+from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle
 from .forms import AnswerForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 
@@ -105,7 +105,10 @@ def prepuzzle(request, hunt_num):
     A view to handle answer submissions via POST and render the basic prepuzzle page rendering.
     """
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
-    # TODO: Check if prepuzzle exists for hunt and redirect or error if not
+    puzzle = Prepuzzle.objects.filter(hunt=hunt).first()
+    if(puzzle is None):
+        # Maybe we can do something better, but for now, redirect to the related hunt
+        return hunt(hunt_num)
 
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on utils.respond_to_submission for automatic responses.
@@ -113,19 +116,22 @@ def prepuzzle(request, hunt_num):
         # Deal with answers from archived hunts
         if(puzzle.hunt.is_public):
             form = AnswerForm(request.POST)
-            team = dummy_team_from_hunt(puzzle.hunt)
             if form.is_valid():
                 user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
-                s = Submission.objects.create(submission_text=user_answer,
-                    puzzle=puzzle, submission_time=timezone.now(), team=team)
-                response = respond_to_submission(s)
-                is_correct = s.is_correct
+
+                # Compare against correct answer
+                if(puzzle.answer.lower() == user_answer.lower()):
+                    is_correct = True
+                    response = "Correct!"
+                else:
+                    is_correct = False
+                    response = "Wrong Answer."
             else:
                 response = "Invalid Submission"
                 is_correct = None
-            context = {'form': form, 'pages': list(range(puzzle.num_pages)),
-                      'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
-                      'response': response, 'is_correct': is_correct}
+            context = {'form': form, 'puzzle': puzzle, 
+                       'PROTECTED_URL': settings.PROTECTED_URL,
+                       'response': response, 'is_correct': is_correct}
             return render(request, 'puzzle.html', context)
 
     else:
