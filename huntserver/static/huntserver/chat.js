@@ -60,7 +60,7 @@ $(document).ready(function() {
     }
   });
 
-  setInterval(get_posts, 3000);
+  setInterval(get_posts, 5000);
 
   function receiveMessages(message_dict) {
     $.each(message_dict, function(team_name, team_data) {
