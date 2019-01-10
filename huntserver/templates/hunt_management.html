@@ -48,6 +48,20 @@
   </br>
   <form method="Post" action="/staff/control/">
     {% csrf_token %}
+    <select name="puzzle_number" style="width: 200px;">
+    {% for puzzle in prepuzzles|dictsort:"pk" %}
+      <option value="{{puzzle.pk}}">
+        {{ puzzle }}
+      </option>
+    {% endfor %}
+    </select>
+    <input type="hidden" name="action" value="getprepuzzle">
+    <input type="submit" value="Fetch selected prepuzzle from URL"
+           onclick="return confirm('Are you sure?')">
+  </form>
+  </br>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
     <input type="hidden" name="action" value="getpuzzles">
     <input type="submit" value="Fetch ALL puzzles from URLs"
            onclick="return confirm('Are you sure?')">

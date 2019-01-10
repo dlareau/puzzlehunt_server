@@ -12,9 +12,9 @@ import itertools
 import json
 import networkx as nx
 
-from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person
+from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person, Prepuzzle
 from .forms import SubmissionForm, UnlockForm, EmailForm
-from .utils import unlock_puzzles, download_puzzle
+from .utils import unlock_puzzles, download_puzzle, download_prepuzzle
 
 
 @staff_member_required
@@ -337,7 +337,8 @@ def hunt_management(request):
     """ A view to render the hunt management page """
 
     hunts = Hunt.objects.all()
-    return render(request, 'hunt_management.html', {'hunts': hunts})
+    prepuzzles = Prepuzzle.objects.all()
+    return render(request, 'hunt_management.html', {'hunts': hunts, 'prepuzzles': prepuzzles})
 
 @staff_member_required
 def hunt_info(request):
@@ -402,6 +403,11 @@ def control(request):
             else:
                 for puzzle in curr_hunt.puzzle_set.all():
                     download_puzzle(puzzle)
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "getprepuzzle"):
+            if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
+                puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
+                download_prepuzzle(puzzle)
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))

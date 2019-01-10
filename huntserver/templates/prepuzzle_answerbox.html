@@ -1,0 +1,27 @@
+<fieldset id='submit'>
+  <form id='sub_form' method='post'>
+    <div style="width:400px; border: 1px solid black; padding: 10px; text-align: center;">
+      <label for="id_answer">Answer:</label>
+      <input type="text" name="answer" required id="id_answer" maxlength="100" />
+      <input type='submit' value='Submit'/>
+      <div id="response" style='width: 100%; text-align: center; margin-top: 10px;'>
+        &nbsp;
+      </div>
+    </div>
+  </form>
+</fieldset>
+<script type="text/javascript">
+  jQuery(document).ready(function($) {
+    $('#sub_form').on('submit', function(e) {
+      e.preventDefault();
+      check_answer(function(result){
+        if(result['response'] == ""){
+          $('#response').html("Incorrect");
+        } else {
+          $('#response').html(result['response']);
+        }
+      }, $('#id_answer').val());
+      $('#id_answer').val('');
+    }); 
+  });
+</script>

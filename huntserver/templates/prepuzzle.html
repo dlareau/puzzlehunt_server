@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load prepuzzle_tags %}
+
+{% block title %}{{ puzzle.puzzle_name }}{% endblock title %}
+
+{% block base_includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script>
+function check_answer(callback, user_answer) {
+  $.ajax({
+    url : window.location.pathname,
+    type: "POST",
+    data: {answer: user_answer,
+           csrfmiddlewaretoken: "{{ csrf_token }}" },
+    error: function (jXHR, textStatus, errorThrown) {
+      console.log(jXHR.responseText);
+      alert(errorThrown);
+    },
+    success: function (response) {
+      response = JSON.parse(response);
+      callback(response);
+    }
+  });
+}
+</script>
+{% endblock base_includes %}

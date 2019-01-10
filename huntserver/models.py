@@ -140,17 +140,24 @@ class Prepuzzle(models.Model):
 
     puzzle_name = models.CharField(max_length=200,
         help_text="The name of the puzzle as it will be seen by hunt participants")
+    hunt = models.OneToOneField(Hunt, on_delete=models.CASCADE, blank=True, null=True,
+        help_text="The hunt that this puzzle is a part of")
     answer = models.CharField(max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
-    template = models.TextField(default="",
+    template = models.TextField(default=u'{% extends "prepuzzle.html" %}\r\n' +
+        u'{% load prepuzzle_tags %}\r\n\r\n{% block content %}\r\n{% endblock content %}',
         help_text="The template string to be rendered to HTML on the hunt page")
     resource_link = models.URLField(max_length=200, blank=True,
         help_text="The full link (needs http://) to a folder of additional resources.")
-    hunt = models.OneToOneField(Hunt, on_delete=models.CASCADE,
-        help_text="The hunt that this puzzle is a part of")
+    response_string = models.TextField(default="",
+        help_text="Data returned to the webpage for use upon solving.")
+    released = models.BooleanField(default=False)
 
     def __str__(self):
-        return "Hunt" + str(self.hunt.hunt_number) + "-prepuzzle " + self.puzzle_name
+        if(self.hunt):
+            return "prepuzzle " + str(self.pk) + " (" + str(self.hunt.hunt_name) + ")"
+        else:
+            return "prepuzzle " + str(self.pk)
 
 
 @python_2_unicode_compatible

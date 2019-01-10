@@ -100,44 +100,48 @@ def current_hunt(request):
     return hunt(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 
-def prepuzzle(request, hunt_num):
+def prepuzzle(request, prepuzzle_num):
     """
     A view to handle answer submissions via POST and render the basic prepuzzle page rendering.
     """
-    hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
-    puzzle = Prepuzzle.objects.filter(hunt=hunt).first()
-    if(puzzle is None):
-        # Maybe we can do something better, but for now, redirect to the related hunt
-        return hunt(hunt_num)
+
+    puzzle = Prepuzzle.objects.get(pk=prepuzzle_num)
 
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on utils.respond_to_submission for automatic responses.
     if request.method == 'POST':
-        # Deal with answers from archived hunts
-        if(puzzle.hunt.is_public):
-            form = AnswerForm(request.POST)
-            if form.is_valid():
-                user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
 
-                # Compare against correct answer
-                if(puzzle.answer.lower() == user_answer.lower()):
-                    is_correct = True
-                    response = "Correct!"
-                else:
-                    is_correct = False
-                    response = "Wrong Answer."
+            # Compare against correct answer
+            if(puzzle.answer.lower() == user_answer.lower()):
+                is_correct = True
+                response = puzzle.response_string
             else:
-                response = "Invalid Submission"
-                is_correct = None
-            context = {'form': form, 'puzzle': puzzle, 
-                       'PROTECTED_URL': settings.PROTECTED_URL,
-                       'response': response, 'is_correct': is_correct}
-            return render(request, 'puzzle.html', context)
+                is_correct = False
+                response = ""
+        else:
+            is_correct = None
+            response = ""
+        response_vars = {'response': response, 'is_correct': is_correct}
+        return HttpResponse(json.dumps(response_vars))
 
     else:
+        if(not puzzle.released):
+            return render(request, 'access_error.html')
         form = AnswerForm()
         context = {'form': form, 'puzzle': puzzle}
         return HttpResponse(Template(puzzle.template).render(RequestContext(request, context)))
+
+
+def hunt_prepuzzle(request, hunt_num):
+    curr_hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
+    if(hasattr(curr_hunt, "prepuzzle")):
+        return prepuzzle(request, curr_hunt.prepuzzle.pk)
+    else:
+        # Maybe we can do something better, but for now, redirect to the related hunt
+        return hunt(request, hunt_num)
 
 
 def current_prepuzzle(request):
