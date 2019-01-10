@@ -78,6 +78,7 @@ try pip install -r requirements.txt
 
 # Run application setup commands
 try mkdir -p ./media/puzzles
+try mkdir -p ./media/prepuzzles
 try export DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.local_settings
 try python manage.py migrate
 try python manage.py collectstatic --noinput
@@ -86,6 +87,7 @@ try deactivate
 
 # We are root until this point, pass off ownership of all we have created
 try chown -R $USERNAME .
+try chgrp -R www-data ./media
 try chmod -R go+r .
 try chmod -R og+rw ./media
 

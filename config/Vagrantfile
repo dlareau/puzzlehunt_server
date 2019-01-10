@@ -20,6 +20,8 @@ Vagrant.configure(2) do |config|
     v.memory = 2048
   end
 
+  config.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: "www-data", mount_options: ["dmode=775,fmode=775"]
+
   config.vm.network "forwarded_port", guest: 80, host: 8080
 
   config.vm.provision "shell", path: "puzzlehunt_server/config/puzzlehunt_setup.sh"
