@@ -128,7 +128,7 @@ def prepuzzle(request, prepuzzle_num):
         return HttpResponse(json.dumps(response_vars))
 
     else:
-        if(not puzzle.released):
+        if(not (puzzle.released or request.user.is_staff)):
             return render(request, 'access_error.html')
         form = AnswerForm()
         context = {'form': form, 'puzzle': puzzle}

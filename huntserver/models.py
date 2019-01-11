@@ -140,8 +140,9 @@ class Prepuzzle(models.Model):
 
     puzzle_name = models.CharField(max_length=200,
         help_text="The name of the puzzle as it will be seen by hunt participants")
+    released = models.BooleanField(default=False)
     hunt = models.OneToOneField(Hunt, on_delete=models.CASCADE, blank=True, null=True,
-        help_text="The hunt that this puzzle is a part of")
+        help_text="The hunt that this puzzle is a part of, leave blank for no associated hunt.")
     answer = models.CharField(max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
     template = models.TextField(default=u'{% extends "prepuzzle.html" %}\r\n' +
@@ -151,7 +152,6 @@ class Prepuzzle(models.Model):
         help_text="The full link (needs http://) to a folder of additional resources.")
     response_string = models.TextField(default="",
         help_text="Data returned to the webpage for use upon solving.")
-    released = models.BooleanField(default=False)
 
     def __str__(self):
         if(self.hunt):

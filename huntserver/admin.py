@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from huntserver.widgets import HtmlEditor
 from django.contrib.auth.models import User, Group
+from django.utils.safestring import mark_safe
 
 # Register your models here.
 from . import models
@@ -61,6 +62,25 @@ class PrepuzzleAdminForm(forms.ModelForm):
 
 class PrepuzzleAdmin(admin.ModelAdmin):
     form = PrepuzzleAdminForm
+    readonly_fields = ('puzzle_url',)
+
+    def get_queryset(self, request):
+        qs = super(PrepuzzleAdmin, self).get_queryset(request)
+        self.request = request
+        return qs
+
+    def puzzle_url(self, obj):
+        puzzle_url_str = "http://" + self.request.get_host() + "/prepuzzle/" + str(obj.pk) + "/"
+        html = "<script> function myFunction() { "
+        html += "var copyText = document.getElementById('puzzleURL'); "
+        html += "copyText.select(); "
+        html += "document.execCommand('copy'); } </script>"
+        html += "<input style='width: 400px;' type=\"text\" value=\"" + puzzle_url_str + "\" id=\"puzzleURL\">"
+        html += "<button onclick=\"myFunction()\" type=\"button\">Copy Puzzle URL</button>"
+        return mark_safe(html)
+
+    puzzle_url.short_description = 'Puzzle URL: (Not editable)'
+
 
 class TeamAdminForm(forms.ModelForm):
     persons = forms.ModelMultipleChoiceField(
