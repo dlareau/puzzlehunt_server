@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg?branch=tests)](https://travis-ci.org/dlareau/puzzlehunt_server)
-[![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg?branch=tests)](https://coveralls.io/github/dlareau/puzzlehunt_server?branch=tests)
+[![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg)](https://travis-ci.org/dlareau/puzzlehunt_server)
+[![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg)](https://coveralls.io/github/dlareau/puzzlehunt_server)
 
 # puzzlehunt_server
 Server for Puzzlehunt CMU's bi-annual puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting. 
