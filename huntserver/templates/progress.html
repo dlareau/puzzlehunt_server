@@ -81,7 +81,7 @@
       {% for row in sol_array %}
         <tr class="team_row">
           <td data-id={{row.team.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-            {{ row.team.team_name }}
+            {{ row.team.team_name|truncatechars:40 }}
           </td>
           <td class='num'>{{ row.num }}</td>
           {% for cell in row.cells %}
