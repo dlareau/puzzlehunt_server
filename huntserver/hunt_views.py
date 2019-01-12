@@ -136,6 +136,9 @@ def prepuzzle(request, prepuzzle_num):
 
 
 def hunt_prepuzzle(request, hunt_num):
+    """
+    A simple view that locates the correct prepuzzle for a hunt and redirects there if it exists.
+    """
     curr_hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
     if(hasattr(curr_hunt, "prepuzzle")):
         return prepuzzle(request, curr_hunt.prepuzzle.pk)
@@ -145,6 +148,9 @@ def hunt_prepuzzle(request, hunt_num):
 
 
 def current_prepuzzle(request):
+    """
+    A simple view that locates the correct prepuzzle for the current hunt and redirects there if it exists.
+    """
     return prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 

@@ -3,6 +3,26 @@ Setup
 
 Instructions on how to setup a machine to run this project. 
 
+Development Instructions
+========================
+
+If your only goal is to set up a working development or test environment, or if security really
+isn't a concern for some reason, this project does come with an easy development deployment option.
+
+1. Install Virtualbox. (https://www.virtualbox.org/wiki/Downloads)
+2. Install Vagrant. (https://www.vagrantup.com/downloads.html)
+3. Make a folder for the VM.
+4. Clone this repository into that folder. (such that the folder you made now contains only one folder named "puzzlehunt_server")
+5. Copy the Vagrantfile from the config folder within the puzzlehunt_server folder out into the folder that you made.
+6. Run "vagrant up" from the folder you made and wait for it to complete.
+7. You should now have the server running on a newly created VM, accessible via http://localhost:8080. The repository you cloned has been linked into the VM by vagrant, so any changes made to the repository on the host system should show up automatically. (A "vagrant reload" may be needed for some changes to take effect)
+
+Production Instructions
+=======================
+
+Setting up the application on a production server should be done with a bit more care than the
+vagrant script provides. The instructions below detail how to get mostly set up from a bare environment.
+
 Environment setup
 -----------------
 
@@ -26,9 +46,9 @@ Code Setup
 If you haven't already,
 clone the repository to a location that the user running the server will have access to. 
 
-Instantiate a copy of the secret settings file by copying the secret settings template::
+Instantiate a copy of the local settings file by copying the local settings template::
 
-	cp puzzlehunt_server/secret_settings.py.template puzzlehunt_server/secret_settings.py
+	cp puzzlehunt_server/settings/local_settings.py.template puzzlehunt_server/settings/local_settings.py
 
 Then replace the default settings such as the database login details  and secret key.
 (If needed, look up instructions on how to generate a new secret key)
@@ -37,7 +57,7 @@ Database setup
 --------------
 
 This project is configured to use a MySQL database.
-It can be configured to use a different type of database by modifying settings in secret_settings.py,
+It can be configured to use a different type of database by modifying settings in local_settings.py,
 but those modifications are out of the scope of this setup.
 
 First we have to create the user and database that the application will use.
@@ -61,9 +81,7 @@ Collect all of the static files by running ``python manage.py collectstatic``.
 
 At this point the server should be able to start up.
 
-.. Add note about fixtures after tests is merged
-
-Developers note: There may be a few other steps before the server will function without error. For example I believe it expects at least one hunt object to exist. I hope to one day have those needs either be documented or not exist any more.
+Note: There are a few other steps before the server will function without error. For example the server expects at least one hunt object to exist. If you want some basic data to get started, you can run ``python manage.py loaddata initial_hunt``.
 
 Apache setup
 ------------

@@ -8,7 +8,7 @@ Create Hunt Object
 
 You aren't going to get very far without a hunt object to attach all of this data to, so sign in with a staff account and navigate over to ``{server URL}/admin/huntserver/hunt/``
 
-Click the "Add Hunt" button at the top. 
+Click the "+" button at the top. 
 
 You will be brought to the hunt creation page, which you should fill out, keeping in mind the following points:
 
@@ -75,7 +75,7 @@ footer
 Starter example
 ---------------
 
-While you may have all of the information you need, that doesn't mean you know what to do with it. Below is a simple example base upon our first hunt. It will show the puzzles, display the answer for any solved puzzles, and demonstrates how to insert a break a hunt into two rounds.
+While you may have all of the information you need, that doesn't mean you know what to do with it. Below is a simple example based on our first hunt. It will show the puzzles, display the answer for any solved puzzles, and demonstrates how to insert a break a hunt into two rounds.
 
 .. code-block:: html
 
@@ -146,7 +146,7 @@ Create Puzzle Objects
 
 Great, now we have a hunt template and we can view our hunt, but that's not good without any puzzles, so lets add some. 
 
-Start by going to ``{server URL}/admin/huntserver/puzzle/`` and clicking the "New Puzzle" button at the top. 
+Start by going to ``{server URL}/admin/huntserver/puzzle/`` and clicking the "+" button at the top. 
 
 You will be brought to the puzzle creation page, which you should fill out, keeping in mind the following points:
 
@@ -172,6 +172,46 @@ Some notes about the responses:
   - You are allowed to regex upon the correct answer and override the default "Correct!" response, the puzzle will still be marked as solved
   - Regexes are currently applied in no guaranteed order, answer that satisfy more than one regex are considered undefined behavior
   - Response texts are allowed to contain markdown style links: [foo](https://link.to.foo)
+
+Create Prepuzzle Objects
+========================
+
+As of version 3.3.0, the server now supports prepuzzles. A prepuzzle is a simpler puzzle that exists outside of the normal set of puzzles for a hunt. Prepuzzles are different in a number of ways:
+
+- Prepuzzles do not require users to sign in
+- Once published, prepuzzles are accessable before the hunt is open
+- Prepuzzle submissions only support auto-response and do not show up on the queue page
+- Prepuzzles can be, but do not need to be tied to any specific hunt.
+
+Like other above objects, to create a prepuzzle object, navigate to the prepuzzle section of the admin pages and click the "+" icon in the upper right.
+
+Fill out the following fields:
+
+- Puzzle name: Pretty self descriptive
+- Released: Controls whether or not non-staff members can see the puzzle
+- Hunt: Select which hunt this prepuzzle is associated with, leave blank to not associate it with any hunt.
+- Answer: Pretty self explanatory
+- Template: See the "Prepuzzle Templating" section below
+- Resource link: Allows the optional inclusion of static files for the prepuzzle, must be a link to a ZIP file. See the "Prepuzzle Templating" section for details on how to reference the files.
+- Response string: The string that the server sends back to the prepuzzle page when the puzzle is solved. In the simple example, this string is just displayed to the user, but more complex templates could do anything they desire with this string. 
+- Puzzle URL: This isn't really a field but rather an easy way to copy out the prepuzzle URL because it isn't currently accessible from anywhere on the site. 
+
+Prepuzzle Templating
+--------------------
+
+As with the hunt "Template" field, everything typed into the "Template" form on the hunt editing page will be run through django's templating engine and rendered as HTML. 
+
+The following context will be passed to the renderer for use in the template: ``{'puzzle': ... }`` where 'puzzle' is the current prepuzzle object with the above accessible fields.
+
+**While you may use completely custom HTML, it is STRONGLY RECOMMENDED that you add onto the default prepuzzle template (which extends prepuzzle.html) to get nice features like the header bar, common style sheets, google analytics, and javascript helper functions.**
+
+A few notes about extending the default prepuzzle template:
+
+- Put all of your additions inside the "content" block unless specified otherwise below.
+- Do any style sheet or JS loading you need to do inside of an "includes" block as mentioned above in the hunt section.
+- If you want to have simple answer checking and response, just use ``{% include "prepuzzle_answerbox.html" %}`` which will insert a submission box (and associated javascript) into the page and display the response string when the correct answer is entered.
+- If you opt not to use the puzzle answerbox template, you can use the supplied javascript helpter function "check_answer" which takes a callback that will be passed the response and the user's answer
+- If you have supplied a resource_link that links to a zip file, after downloading from the management page, the files inside the zip file will be accessible using the the prepuzzle static tag: ``{% prepuzzle_static %}file.png``
 
 Update Current Hunt Label
 =========================

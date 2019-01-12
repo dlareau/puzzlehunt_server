@@ -342,7 +342,7 @@ def hunt_management(request):
 
 @staff_member_required
 def hunt_info(request):
-    """ A view to render the hunt info page """
+    """ A view to render the hunt info page, which contains room and allergy information """
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     teams = curr_hunt.real_teams
