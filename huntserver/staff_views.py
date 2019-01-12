@@ -12,9 +12,9 @@ import itertools
 import json
 import networkx as nx
 
-from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message
+from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person, Prepuzzle
 from .forms import SubmissionForm, UnlockForm, EmailForm
-from .utils import unlock_puzzles, download_puzzle
+from .utils import unlock_puzzles, download_puzzle, download_prepuzzle
 
 
 @staff_member_required
@@ -82,8 +82,11 @@ def progress(request):
                 if form.is_valid():
                     t = Team.objects.get(pk=form.cleaned_data['team_id'])
                     p = Puzzle.objects.get(puzzle_id=form.cleaned_data['puzzle_id'])
-                    u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
-                    return HttpResponse(json.dumps(u.serialize_for_ajax()))
+                    if(p not in t.unlocked.all()):
+                        u = Unlock.objects.create(team=t, puzzle=p, time=timezone.now())
+                        return HttpResponse(json.dumps(u.serialize_for_ajax()))
+                    else:
+                        return HttpResponse(status=200)
             if request.POST.get("action") == "unlock_all":
                     p = Puzzle.objects.get(pk=request.POST.get('puzzle_id'))
                     response = []
@@ -101,8 +104,6 @@ def progress(request):
                 "last_submission_pk" in request.GET):
             return HttpResponse(status=404)
         results = []
-        if(not request.user.is_staff):
-            return HttpResponseNotFound('access denied')
 
         last_solve_pk = request.GET.get("last_solve_pk")
         solves = list(Solve.objects.filter(pk__gt=last_solve_pk))
@@ -269,7 +270,7 @@ def charts(request):
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
-               'table_dict': sorted(table_dict.iteritems(), key=lambda x:x[1]['first_time']),
+               'table_dict': sorted(iter(table_dict.items()), key=lambda x:x[1]['first_time']),
                'after_subs': after_subs}
     return render(request, 'charts.html', context)
 
@@ -277,18 +278,35 @@ def charts(request):
 @staff_member_required
 def admin_chat(request):
     """
-    A view to handle chat update requests via AJAX and render the staff chat page. Chat message
-    submissions are sent to ``huntserver.hunt_views.chat``. Chat messages are pre-rendered for
-    both standard and AJAX requests.
+    A view to handle chat update requests via AJAX and render the staff chat 
+    page. Chat messages are pre-rendered for both standard and AJAX requests.
     """
 
-    if request.is_ajax():
-        last_pk = request.GET.get("last_pk")
-        messages = Message.objects.filter(pk__gt=last_pk)
-    else:
-        curr_hunt = Hunt.objects.get(is_current_hunt=True)
-        messages = Message.objects.filter(team__hunt=curr_hunt).order_by('team', 'time').select_related('team')
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    if request.method == 'POST':
+        if(request.POST.get('team_pk') == ""):
+            return HttpResponse(status=400)
+        if(request.POST.get("is_announcement") == "true" and request.user.is_staff):
+            messages = []
+            for team in curr_hunt.real_teams.all():
+                m = Message.objects.create(time=timezone.now(),
+                    text="[Anouncement] " + request.POST.get('message'),
+                    is_response=(request.POST.get('is_response') == "true"), team=team)
+                messages.append(m)
+        else:
+            team = Team.objects.get(pk=request.POST.get('team_pk'))
+            m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
+                is_response=(request.POST.get('is_response') == "true"), team=team)
+            messages = [m]
 
+    else:
+        if request.is_ajax():
+            messages = Message.objects.filter(pk__gt=request.GET.get("last_pk"))
+        else:
+            messages = Message.objects.filter(team__hunt=curr_hunt)
+        messages = messages.order_by('team', 'time').select_related('team')
+
+    # This block assumes messages are grouped by team
     team_name = ""
     message_dict = {}
     for message in messages:
@@ -297,14 +315,16 @@ def admin_chat(request):
             message_dict[team_name] = {'pk': message.team.pk, 'messages': []}
         message_dict[team_name]['messages'].append(message)
     for team in message_dict:
-        message_dict[team]['messages'] = render_to_string('chat_messages.html', {'messages': message_dict[team]['messages']})
+        message_dict[team]['messages'] = render_to_string(
+            'chat_messages.html', {'messages': message_dict[team]['messages'], 'team_name': team})
+
     try:
         last_pk = Message.objects.latest('id').id
     except Message.DoesNotExist:
         last_pk = 0
 
     context = {'message_dict': message_dict, 'last_pk': last_pk}
-    if request.is_ajax():
+    if request.is_ajax() or request.method == 'POST':
         return HttpResponse(json.dumps(context))
     else:
         teams = curr_hunt.team_set.order_by("team_name").all()
@@ -317,7 +337,37 @@ def hunt_management(request):
     """ A view to render the hunt management page """
 
     hunts = Hunt.objects.all()
-    return render(request, 'hunt_management.html', {'hunts': hunts})
+    prepuzzles = Prepuzzle.objects.all()
+    return render(request, 'hunt_management.html', {'hunts': hunts, 'prepuzzles': prepuzzles})
+
+@staff_member_required
+def hunt_info(request):
+    """ A view to render the hunt info page, which contains room and allergy information """
+
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    teams = curr_hunt.real_teams
+    people = []
+    new_people = []
+    for team in teams:
+        people = people + list(team.person_set.all())
+    try:
+        old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number-1)
+        new_people = [p for p in people if p.user.date_joined > old_hunt.start_date]
+    except:
+        new_people = people
+
+    need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
+    have_teams = teams.exclude(location="need_a_room").exclude(location="needs_a_room").exclude(location="off_campus")
+    offsite_teams = teams.filter(location="off_campus")
+
+    context = {'curr_hunt': curr_hunt, 
+               'people': people,
+               'new_people': new_people,
+               'need_teams': need_teams.all(),
+               'have_teams': have_teams.all(),
+               'offsite_teams': offsite_teams.all(),
+            }
+    return render(request, 'staff_hunt_info.html', context)
 
 
 @staff_member_required
@@ -354,6 +404,11 @@ def control(request):
                 for puzzle in curr_hunt.puzzle_set.all():
                     download_puzzle(puzzle)
             return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "getprepuzzle"):
+            if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
+                puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
+                download_prepuzzle(puzzle)
+            return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
             new_curr.is_current_hunt = True
@@ -381,7 +436,7 @@ def emails(request):
         if email_form.is_valid():
             subject = email_form.cleaned_data['subject']
             message = email_form.cleaned_data['message']
-            email_to_chunks = [email_list[x: x + 80] for x in xrange(0, len(email_list), 80)]
+            email_to_chunks = [email_list[x: x + 80] for x in range(0, len(email_list), 80)]
             for to_chunk in email_to_chunks:
                 email = EmailMessage(subject, message, 'puzzlehuntcmu@gmail.com',
                      [], to_chunk)

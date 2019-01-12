@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+	  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
+{% endblock %}
+	
+{% block branding %}
+	<a href="{% url 'admin:index' %}" class="django-admin-logo">
+	    <!-- Django Administration -->
+	    <img height="60" src="{% static "huntserver/phcmulong.png" %}" alt="{{ site_header|default:_('Django administration') }}">
+	</a>
+{% endblock %}
+

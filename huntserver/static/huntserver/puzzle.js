@@ -14,27 +14,50 @@ jQuery(document).ready(function($) {
     return true;
   }
 
+
+  // get_posts is set to be called every 3 seconds.
+  // Each time get_posts does not receive any data, the time till the next call
+  // gets multiplied by 2.5 until a maximum of 120 seconds, reseting to 3 when
+  // get_posts receives data.
+  // TODO: reset to 3 seconds when the user sends an answer
+  var ajax_delay = 3;
+
   var get_posts = function() {
-    $.ajax({
-      type: 'get',
-      url: puzzle_url,
-      data: {last_date: last_date},
-      success: function (response) {
-        var response = JSON.parse(response);
-        messages = response.submission_list;
-        if(messages.length > 0){
-          for (var i = 0; i < messages.length; i++) {
-            receiveMessage(messages[i]);
-          };
-          last_date = response.last_date;
+    if(is_visible()){
+      $.ajax({
+        type: 'get',
+        url: puzzle_url,
+        data: {last_date: last_date},
+        success: function (response) {
+          var response = JSON.parse(response);
+          messages = response.submission_list;
+          if(messages.length > 0){
+            ajax_delay = 3;
+            for (var i = 0; i < messages.length; i++) {
+              receiveMessage(messages[i]);
+            };
+            last_date = response.last_date;
+          }
+          else {
+            ajax_delay = ajax_delay * 2.5;
+            if(ajax_delay > 120){
+              ajax_delay = 120;
+            }
+          }
+        },
+        error: function (html) {
+          console.log(html);
+          ajax_delay = ajax_delay * 2.5;
+          if(ajax_delay > 120){
+            ajax_delay = 120;
+          }
         }
-      },
-      error: function (html) {
-        console.log(html);
-      }
-    });
+      });
+    }
+    setTimeout(get_posts, ajax_delay*1000);
   }
-  setInterval(get_posts, 3000);
+
+  setTimeout(get_posts, ajax_delay*1000);
 
 
   $('#sub_form').on('submit', function(e) {

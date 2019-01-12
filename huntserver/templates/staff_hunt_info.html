@@ -1,0 +1,47 @@
+{% extends "staff_base.html" %}
+{% load admin_urls %}
+{% block title %}Hunt Info{% endblock title %}
+
+{% block content %}
+  <h1>Hunt Info</h1>
+  <div class="row">
+    <div class="col-xs-12 col-sm-8 col-lg-5">
+      {{ curr_hunt.real_teams.count }} Teams: <br>
+      <b>Needs a room: ({{ need_teams.count }})</b><br>
+      <table>
+        {% for team in need_teams %}
+          <tr><td>{{ team.short_name }}</td> <td>{{ team.location }}</td></tr>
+        {% endfor %}
+      </table>
+      <br>
+      <b>Has a room: ({{ have_teams.count }})</b><br>
+      <table>
+        {% for team in have_teams %}
+          <tr><td>{{ team.short_name }}</td> <td>{{ team.location }}</td></tr>
+        {% endfor %}
+      </table>
+      <br>
+      <b>Off Campus: ({{ offsite_teams.count }})</b><br>
+      <table>
+        {% for team in offsite_teams %}
+          <tr><td>{{ team.short_name }}</td> <td>{{ team.location }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-lg-7">
+      <b>{{ people|length }} People ({{ new_people|length }} new)</b><br><br>
+
+      <b> Allergies/Preferences: </b>
+      </br>
+      {% for person in people %}
+        {% if person.allergies %}
+          <a href="{% url 'admin:huntserver_person_change' person.pk %}">
+            {{person.allergies}}
+          </a>
+          </br>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  
+{% endblock content %}

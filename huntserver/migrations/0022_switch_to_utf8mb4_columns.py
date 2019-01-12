@@ -2,14 +2,16 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import sys
 
 def printHelp(apps, schema_editor):
-    print("=== NOTICE: ===")
-    print("Do not forget to add the line")
-    print("'OPTIONS': {'charset': 'utf8mb4'},")
-    print("to your database settings if applying this")
-    print("migration to an existing database/server.")
-    print("===============")
+    if 'test' not in sys.argv:
+        print("=== NOTICE: ===")
+        print("Do not forget to add the line")
+        print("'OPTIONS': {'charset': 'utf8mb4'},")
+        print("to your database settings if applying this")
+        print("migration to an existing database/server.")
+        print("===============")
 
 class Migration(migrations.Migration):
 

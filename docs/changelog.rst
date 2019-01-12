@@ -5,6 +5,31 @@ Changelog
 Version 3
 *********
 
+v3.3.0
+======
+
+New:
+   - Python 3 compatibility
+   - Now requires Django 1.11 (Start of Django 2.0 compatibility)
+   - New testing and coverage framework, including integration with travis-ci/coveralls
+   - New admin layout that supports new Django version
+   - Added "Info" page for staff showing team locations and allergies
+   - New load testing framework
+   - Added support for "HTML puzzles" that are just a webpage rather than a PDF
+   - Added support for customizable prepuzzles.
+
+Updates:
+   - Setup script is now idempotent
+   - Added information to previous hunt page
+   - Many minor fixes to reduce server load
+   - Hunt start and end dates are now controllable independently from display dates
+   - Progress page now sortable by success metrics
+
+Bugfixes:
+   - First message no longer gets lost when sent by staff
+   - Teams now automatically get deleted if all users leave before the hunt starts
+   - Past hunts now viewable when not logged in
+
 v3.2.0
 ======
 

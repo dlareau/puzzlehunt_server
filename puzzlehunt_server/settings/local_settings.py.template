@@ -1,3 +1,7 @@
+from .base_settings import *
+
+DEBUG = False
+
 SECRET_KEY = 'this is not the secret key, use your own'
 
 DATABASES = {

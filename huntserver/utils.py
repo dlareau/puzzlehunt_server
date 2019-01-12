@@ -92,20 +92,43 @@ def download_puzzle(puzzle):
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])
 
-    # Get the file
-    file_str = directory + "/" +  puzzle.puzzle_id + ".pdf"
-    call(["wget", puzzle.link, "-O", file_str])
-    with open(file_str, "rb") as f:
-        puzzle.num_pages = PdfFileReader(f).getNumPages()
-        puzzle.save()
-    call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
-    #get document: wget {{URL}} -O {{FILENAME}}
-    #convert: convert -density 200 {{FILENAME}} {{OUTFILE}}
+    if(puzzle.link != ""):
+        # Get the PDF
+        file_str = directory + "/" + puzzle.puzzle_id + ".pdf"
+        call(["wget", "-q", puzzle.link, "-O", file_str])
+        with open(file_str, "rb") as f:
+            puzzle.num_pages = PdfFileReader(f).getNumPages()
+            puzzle.save()
+        call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
+        # get document: wget {{URL}} -O {{FILENAME}}
+        # convert: convert -density 200 {{FILENAME}} {{OUTFILE}}
+
+    if(puzzle.resource_link != ""):
+        # Get the other resources
+        file_str = directory + "/" + puzzle.puzzle_id + ".zip"
+        call(["wget", "-q", "--max-redirect=20", puzzle.resource_link, "-O", file_str])
+        call(["unzip", "-o", "-d", directory + "/" + puzzle.puzzle_id, file_str])
+        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
+        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
+
+def download_prepuzzle(puzzle):
+    directory = settings.MEDIA_ROOT + "prepuzzles"
+    print(directory)
+    if(not os.path.isdir(directory)):
+        call(["mkdir", directory])
+
+    if(puzzle.resource_link != ""):
+        # Get the other resources
+        file_str = directory + "/" + str(puzzle.pk) + ".zip"
+        call(["wget", "--max-redirect=20", puzzle.resource_link, "-O", file_str])
+        call(["unzip", "-o", "-d", directory + "/" + str(puzzle.pk), file_str])
+        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
+        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
 
 def parse_attributes(META):
     shib_attrs = {}
     error = False
-    for header, attr in settings.SHIB_ATTRIBUTE_MAP.items():
+    for header, attr in list(settings.SHIB_ATTRIBUTE_MAP.items()):
         required, name = attr
         values = META.get(header, None)
         value = None
@@ -122,16 +145,18 @@ def parse_attributes(META):
                 error = True
     return shib_attrs, error
 
-def build_shib_url(request, target, entityid=None):
-    url_base = 'https://%s' % request.get_host()
-    shib_url = "%s%s" % (url_base, getattr(settings, 'SHIB_HANDLER', '/Shibboleth.sso/DS'))
-    if not target.startswith('http'):
-        target = url_base + target
+# This is from an old shibboleth implementation
+# Maybe bring this back for login_selection.html
+# def build_shib_url(request, target, entityid=None):
+#     url_base = 'https://%s' % request.get_host()
+#     shib_url = "%s%s" % (url_base, getattr(settings, 'SHIB_HANDLER', '/Shibboleth.sso/DS'))
+#     if not target.startswith('http'):
+#         target = url_base + target
 
-    url = '%s?target=%s' % (shib_url, target)
-    if entityid:
-        url += '&entityID=%s' % entityid
-    return url
+#     url = '%s?target=%s' % (shib_url, target)
+#     if entityid:
+#         url += '&entityID=%s' % entityid
+#     return url
 
 def dummy_team_from_hunt(hunt):
     try:

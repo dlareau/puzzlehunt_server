@@ -17,7 +17,7 @@
     </strong></p>
     <p align="center"><strong>
       {{curr_hunt.hunt_name}}<br>
-      {{ curr_hunt.start_date|date:" m/d/y " }}  {{ curr_hunt.start_date|time:"h:iA" }} - {{ curr_hunt.end_date|time:"h:iA" }}<br>
+      {{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} - {{ curr_hunt.display_end_date|time:"h:iA" }}<br>
       Starts in {{ curr_hunt.location }}
     </strong></p>
     <p align="center">

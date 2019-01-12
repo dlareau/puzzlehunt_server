@@ -13,7 +13,9 @@
 	{% else %}
     <li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:current_hunt' %}"> Puzzles </a></li>
   {% endif %}
+  {% if not hunt.is_public %}
     <li class='{% active_page request "chat" %}'><a href="{% url 'huntserver:chat' %}"> Chat </a></li>
+  {% endif %}
     <li class='{% active_page request "index" %}'><a href="{% url 'huntserver:index' %}"> Main Site </a></li>
 {% endblock %}
 

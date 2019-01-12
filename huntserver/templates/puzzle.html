@@ -6,7 +6,7 @@
 {% if not puzzle.hunt.is_public %}
 <script type="text/javascript">
     last_date = '{{last_date}}';
-    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}'
+    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}/'
 </script>
 <script src="{{ STATIC_URL }}huntserver/puzzle.js"></script>
 {% endif %}
@@ -18,11 +18,17 @@
     <div class='col-md-12 info'>
       <div class='leftinfo'>
         <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
-        <h4> {{ puzzle.solved_for.all | length }} teams have solved this puzzle so far.</h4>
+        <h4> {{ puzzle.solved_for.count }} teams have solved this puzzle so far.</h4>
       </div>
-      <h3><a href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf'>
-        Click here for a downloadable pdf
-      </a></h3>
+      {% if puzzle.is_html_puzzle %}
+        <h3><a href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html'>
+          Click here to go to the puzzle.
+        </a></h3>
+      {% else %}
+        <h3><a href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf'>
+          Click here for a downloadable pdf
+        </a></h3>
+      {% endif %}
     </div>
     <div class="col-md-4 col-md-offset-1">
       <fieldset id='submit'>
@@ -73,15 +79,26 @@
       </fieldset>
     {% endif %}
     </div>
-    <div class="col-md-10 col-md-offset-1">
-      {% if pages|length == 1 %}
-        <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.png"  alt="Could not load image">
-      {% else %}
-        {% for i in pages %}
-        <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="Could not load image">
-        {% endfor %}
-      {% endif %}
-    </div>
+    {% if puzzle.is_html_puzzle %}
+      <div style="text-align: center;" class="col-md-10 col-md-offset-1">
+        <h4>
+          <br>
+          <br>
+          This puzzle is a web-based puzzle:
+          <a href="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html">Click here to go to the puzzle.</a>
+        </h4>
+      </div>
+    {% else %}
+      <div class="col-md-10 col-md-offset-1">
+        {% if pages|length == 1 %}
+          <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.png"  alt="Could not load image">
+        {% else %}
+          {% for i in pages %}
+          <img id="puzzleimg" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}-{{i}}.png"  alt="Could not load image">
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock content %}

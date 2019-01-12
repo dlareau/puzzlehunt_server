@@ -26,7 +26,7 @@ $(document).ready(function() {
     data = {team_pk: curr_team, message: $('#messagebox').val(),
             is_response: is_response, csrfmiddlewaretoken: csrf_token,
             is_announcement: is_announcement};
-    $.post('/chat/', data, 'json')
+    $.post(chat_url, data, 'json')
       .fail( function(xhr, textStatus, errorThrown) {
         console.log(xhr);
       })
@@ -40,7 +40,7 @@ $(document).ready(function() {
 
   var get_posts = function() {
     if(is_visible()){
-      $.getJSON(ajax_url, {last_pk: last_pk})
+      $.getJSON(chat_url, {last_pk: last_pk})
         .done(function(result){
           receiveMessages(result['message_dict']);
           last_pk = result['last_pk'];
@@ -60,7 +60,7 @@ $(document).ready(function() {
     }
   });
 
-  setInterval(get_posts, 3000);
+  setInterval(get_posts, 5000);
 
   function receiveMessages(message_dict) {
     $.each(message_dict, function(team_name, team_data) {

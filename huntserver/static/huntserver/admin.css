@@ -1,31 +1,18 @@
-body {
-  font-family: verdana;
-  font-size: 14px;
-  padding: 0;
-  margin: 0; }
-
-#login_logout_button {
-  margin-right: 8px;
-}
-
-#content {
-  margin: 20px; }
-
 button {
-	background-color: white;
+    background-color: white;
     border: 1px solid black;
-	margin: 1px;
+    margin: 1px;
     text-align: center;
     text-decoration: none;
-	border-radius: 4px;
-	white-space: nowrap;
+    border-radius: 4px;
+    white-space: nowrap;
     display: inline-block;}
 
 button:hover {
-	background-color: lightgrey; }
+    background-color: lightgrey; }
 
-button:active {
-	background-color: grey; }
+button.active {
+    background-color: lightgrey; }
 
 #queue {
   width: 100%; }
@@ -52,10 +39,14 @@ td {
   border: 1px solid black; }
 
 th {
-	text-align: center;
-	padding-left: 3px;
-	padding-right: 3px;
-	border: 1px solid black; }
+    text-align: center;
+    padding-left: 3px;
+    padding-right: 3px;
+    border: 1px solid black; }
+
+.actions {
+  text-align: center;
+}
 
 #puzzles .meta {
   background: #DADAF8; }
@@ -72,62 +63,15 @@ th {
     background: #92E292; }
 
   #progress .available {
-    background: yellow; }
+      background: yellow; }
 
-@media (max-width: 900px) {
-    .navbar-header {
-        float: none;
-    }
-    .navbar-toggle {
-        display: block;
-    }
-    .navbar-collapse {
-        border-top: 1px solid transparent;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .navbar-collapse.collapse {
-        display: none!important;
-    }
-    .navbar-nav {
-        float: none!important;
-        margin: 7.5px -15px;
-    }
-    .navbar-nav>li {
-        float: none;
-    }
-    .navbar-nav>li>a {
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    .navbar-text {
-        float: none;
-        margin: 15px 0;
-    }
-    /* since 3.1.0 */
-    .navbar-collapse.collapse.in {
-        display: block!important;
-    }
-    .collapsing {
-        overflow: hidden!important;
-    }
-    .dropdown-menu{
-        display: block;
-        position: static;
-        background-color:transparent;
-        border:0 none;
-        box-shadow:none;
-        margin-top:0;
-        position:static;
-        width:100%;
-    }
-    .navbar-nav .dropdown-menu > li > a,
-    .navbar-nav .dropdown-menu .dropdown-header {
-        padding:5px 15px 5px 25px;
-    }
-    .navbar-nav .dropdown-menu > li > a{
-        line-height:20px;
-    }
-    .navbar-default .navbar-nav .dropdown-menu > li > a{
-        color:#777;
-    }
+.sort_select {
+  display: inline;
+  width: 160px;
+  margin-bottom: 10px;
+  -webkit-appearance: menulist;
+}
+
+.sort_label {
+  margin-left: 30px;
 }

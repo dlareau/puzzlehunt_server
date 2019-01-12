@@ -6,25 +6,31 @@
 # Nothing about this setup is secure, this is absolutely not for production
 
 # Variables
+USERNAME=vagrant
 MYSQL_ROOT_PASSWORD=wrongbaa
 MYSQL_NORMAL_USER=hunt
 MYSQL_NORMAL_PASSWORD=$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*(\-_=+)' | head -c 16)
 MYSQL_PUZZLEHUNT_DB=puzzlehunt_db
 
 # Helper functions
-yell() { echo "$0: $*" >&2; }
-die() { yell "$*"; exit 111; }
-try() { "$@" || die "cannot $*"; }
+try() { "$@" || (echo "$0: cannot $*" >&2; exit 1;)}
+
+getent passwd $USERNAME > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "$USERNAME user already exists"
+else
+	try adduser --gecos "" --disabled-password $USERNAME
+fi
 
 # Need git to kick off the process
-apt-get update
-apt-get install -y git
+try apt-get update
+try apt-get install -y git
 
 # Get the git repository and link it for external access
-try cd /vagrant
-try ln -s /vagrant/puzzlehunt_server /home/vagrant/puzzlehunt_server
-try cd /home/vagrant/puzzlehunt_server
-try git checkout development # Only needed until test branch is merged
+# Consider checking and cloning
+try ln -s -f /vagrant/puzzlehunt_server /home/$USERNAME/puzzlehunt_server
+try cd /home/$USERNAME/puzzlehunt_server
+try git checkout development
 
 # Make sure we don't get prompted for anything
 try export DEBIAN_FRONTEND="noninteractive"
@@ -34,14 +40,18 @@ try debconf-set-selections <<< "mysql-server mysql-server/root_password_again pa
 # Get all basic system packages
 try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi imagemagick
 
-apt-get install -y libapache2-mod-proxy-html || true
+# Sometimes this isn't needed
+try apt-get install -y libapache2-mod-proxy-html || true
 
 # Set up MYSQL user and database
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_PUZZLEHUNT_DB"
 try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on $MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost' identified by '$MYSQL_NORMAL_PASSWORD'"
+try mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "grant all privileges on test_$MYSQL_PUZZLEHUNT_DB.* to '$MYSQL_NORMAL_USER'@'localhost'"
 
-# Configure application (Consider this the same as modifying secret_settings.py.template)
-try cat > puzzlehunt_server/secret_settings.py <<EOF
+# Configure application (Consider this the same as making local_settings.py)
+try cat > puzzlehunt_server/settings/local_settings.py <<EOF
+from .base_settings import *
+DEBUG=False
 SECRET_KEY = '$(head /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9!@#$%^&*(\-_=+)' | head -c 50)'
 DATABASES = {
     'default': {
@@ -68,13 +78,16 @@ try pip install -r requirements.txt
 
 # Run application setup commands
 try mkdir -p ./media/puzzles
+try mkdir -p ./media/prepuzzles
+try export DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.local_settings
 try python manage.py migrate
 try python manage.py collectstatic --noinput
-try python manage.py loaddata config/initial_hunt.json
+try python manage.py loaddata initial_hunt
 try deactivate
 
 # We are root until this point, pass off ownership of all we have created
-try chown -R vagrant .
+try chown -R $USERNAME .
+try chgrp -R www-data ./media
 try chmod -R go+r .
 try chmod -R og+rw ./media
 
@@ -85,5 +98,9 @@ try a2enmod proxy_html
 try a2enmod xsendfile
 try a2enmod wsgi
 rm /etc/apache2/sites-enabled/*
-try cp config/puzzlehunt_vagrant.conf /etc/apache2/sites-enabled/
+
+# modify and copy configuration
+try sed "s/vagrant/$USERNAME/g" config/puzzlehunt_generic.conf > /etc/apache2/sites-enabled/puzzlehunt_generic.conf
 try service apache2 restart
+
+echo $(ip address show eth0 | grep 'inet ' | sed -e 's/^.*inet //' -e 's/\/.*$//')
