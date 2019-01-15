@@ -118,7 +118,8 @@ def progress(request):
         last_submission_pk = request.GET.get("last_submission_pk")
         submissions = list(Submission.objects.filter(pk__gt=last_submission_pk))
         for i in range(len(submissions)):
-            results.append(submissions[i].serialize_for_ajax())
+            if(not submissions[i].team.solved.filter(pk=submissions[i].puzzle.pk).exists()):
+                results.append(submissions[i].serialize_for_ajax())
 
         if(len(results) > 0):
             update_info = [Solve.objects.latest('id').id]
