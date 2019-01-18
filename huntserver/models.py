@@ -111,6 +111,8 @@ class Puzzle(models.Model):
         help_text="The full link (needs http://) to a publicly accessible PDF of the puzzle")
     resource_link = models.URLField(max_length=200, blank=True,
         help_text="The full link (needs http://) to a folder of additional resources.")
+    solution_link = models.URLField(max_length=200, blank=True,
+        help_text="The full link (needs http://) to a publicly accessible PDF of the solution")
     num_required_to_unlock = models.IntegerField(default=1,
         help_text="Number of prerequisite puzzles that need to be solved to unlock this puzzle")
     unlocks = models.ManyToManyField("self", blank=True, symmetrical=False,

@@ -95,7 +95,7 @@ def download_puzzle(puzzle):
     if(puzzle.link != ""):
         # Get the PDF
         file_str = directory + "/" + puzzle.puzzle_id + ".pdf"
-        call(["wget", "-q", puzzle.link, "-O", file_str])
+        call(["wget", puzzle.link, "-O", file_str])
         with open(file_str, "rb") as f:
             puzzle.num_pages = PdfFileReader(f).getNumPages()
             puzzle.save()
@@ -110,6 +110,12 @@ def download_puzzle(puzzle):
         call(["unzip", "-o", "-d", directory + "/" + puzzle.puzzle_id, file_str])
         # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
         # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
+
+    if(puzzle.solution_link != ""):
+        # Get the PDF
+        file_str = settings.MEDIA_ROOT + "solutions" + "/" + puzzle.puzzle_id + "_sol.pdf"
+        call(["wget", "-q", puzzle.solution_link, "-O", file_str])
+        # get document: wget {{URL}} -O {{FILENAME}}
 
 def download_prepuzzle(puzzle):
     directory = settings.MEDIA_ROOT + "prepuzzles"

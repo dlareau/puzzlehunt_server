@@ -37,6 +37,11 @@ def protected_static(request, file_path):
             team = team_from_user_hunt(user, hunt)
             if (team is not None and puzzle in team.unlocked.all()):
                 allowed = True
+    elif(levels[0] == "solutions"):
+        puzzle_id = levels[1][0:3]
+        hunt = get_object_or_404(Puzzle, puzzle_id=puzzle_id).hunt
+        if (hunt.is_public or user.is_staff):
+            allowed = True
     else:
         allowed = True
 
