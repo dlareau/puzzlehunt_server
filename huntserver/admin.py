@@ -48,7 +48,7 @@ class PuzzleAdmin(admin.ModelAdmin):
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
     fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'is_meta', 
-              'is_html_puzzle', 'resource_link', 'link', 'answer',
+              'is_html_puzzle', 'resource_link', 'link', 'answer', 'extra_data',
               'num_pages', 'num_required_to_unlock')
     inlines = (UnlockInline, ResponseInline)
 

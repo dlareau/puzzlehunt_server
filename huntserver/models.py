@@ -33,6 +33,8 @@ class Hunt(models.Model):
     location = models.CharField(max_length=100,
         help_text="Starting location of the puzzlehunt")
     is_current_hunt = models.BooleanField(default=False)
+    extra_data = models.CharField(max_length=200, blank=True,
+        help_text="A misc. field for any extra data to be stored with the hunt.")
     template = models.TextField(default="",
         help_text="The template string to be rendered to HTML on the hunt page")
 
@@ -115,6 +117,8 @@ class Puzzle(models.Model):
         help_text="Puzzles that this puzzle is a possible prerequisite for")
     hunt = models.ForeignKey(Hunt, on_delete=models.CASCADE,
         help_text="The hunt that this puzzle is a part of")
+    extra_data = models.CharField(max_length=200, blank=True,
+        help_text="A misc. field for any extra data to be stored with the puzzle.")
     num_pages = models.IntegerField(
         help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
     is_meta = models.BooleanField(default=False,
