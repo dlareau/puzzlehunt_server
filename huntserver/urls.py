@@ -49,7 +49,6 @@ urlpatterns = [
     # Staff pages
     url(r'^staff/', include([
         url(r'^queue/$', staff_views.queue, name='queue'),
-        url(r'^queue/(?P<page_num>[0-9]+)/$', staff_views.queue, name='queue_paged'),
         url(r'^progress/$', staff_views.progress, name='progress'),
         url(r'^charts/$', staff_views.charts, name='charts'),
         url(r'^chat/$', staff_views.admin_chat, name='admin_chat'),

@@ -7,7 +7,7 @@
   incorrect-replied
 {% endif %} submission" data-id='{{ submission.pk }}'>
   <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" >
-    {{ submission.team.team_name }}
+    {{ submission.team.team_name|truncatechars:40}}
   </td>
   <td>{{ submission.puzzle.puzzle_name }}</td>
   <td style="max-width: 200px; overflow-wrap: break-word;">{{ submission.submission_text }}</td>

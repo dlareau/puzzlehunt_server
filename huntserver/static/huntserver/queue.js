@@ -30,7 +30,7 @@ $(document).ready(function() {
     $.ajax({
       type: 'get',
       url: "/staff/queue/",
-      data: {last_date: last_date, all: true},
+      data: {last_date: last_date, all: true, puzzle_id: puzzle_id, team_id: team_id},
       success: function (response) {
         var response = JSON.parse(response);
         messages = response.submission_list;

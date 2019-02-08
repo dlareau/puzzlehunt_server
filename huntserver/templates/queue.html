@@ -5,11 +5,33 @@
   <script src="{{ STATIC_URL }}js.cookie.js"></script>
   <script>
     last_date = '{{last_date}}';
+    puzzle_id = '{{puzzle_id}}';
+    team_id = '{{team_id}}';
   </script>
   <script src="{{ STATIC_URL }}huntserver/queue.js"></script>
 {% endblock includes %}
 
 {% block content %}
+<form method="GET" action="">
+  <select name="puzzle_id" style="width: 200px;">
+    <option></option>
+    {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
+      <option value="{{puzzle.pk}}" {% if puzzle.pk == puzzle_id %} selected {% endif %}>
+        {{puzzle.puzzle_name}} ({{puzzle.puzzle_number}})
+      </option>
+    {% endfor %}
+  </select>
+  <select name="team_id" style="width: 200px;">
+    <option></option>
+    {% for team in hunt.team_set.all|dictsort:"team_name" %}
+      <option value="{{team.pk}}" {% if team.pk == team_id %} selected {% endif %}>
+        {{team.team_name|truncatechars:30}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Filter">
+</form>
+
 <h1>Submission Queue</h1>
 
 <table id='queue'>
@@ -35,7 +57,7 @@
 <div class="pagination">
     <span class="step-links">
         {% if page_info.has_previous %}
-            <a href="/staff/queue/{{ page_info.previous_page_number }}">Previous</a>
+            <a href="/staff/queue/?page_num={{ page_info.previous_page_number }}{{arg_string}}">Previous</a>
         {% endif %}
 
         <span class="current">
@@ -43,7 +65,7 @@
         </span>
 
         {% if page_info.has_next %}
-            <a href="/staff/queue/{{ page_info.next_page_number }}">Next</a>
+            <a href="/staff/queue/?page_num={{ page_info.next_page_number }}{{arg_string}}">Next</a>
         {% endif %}
     </span>
 </div>

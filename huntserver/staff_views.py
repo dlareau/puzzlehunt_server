@@ -18,7 +18,7 @@ from .utils import unlock_puzzles, download_puzzle, download_prepuzzle
 
 
 @staff_member_required
-def queue(request, page_num=1):
+def queue(request):
     """
     A view to handle queue response updates via POST, handle submission update requests via AJAX,
     and render the queue page. Submissions are pre-rendered for standard and AJAX requests.
@@ -39,10 +39,29 @@ def queue(request, page_num=1):
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         submissions = Submission.objects.filter(modified_date__gt = last_date).exclude(team__location="DUMMY")
+        team_id = request.GET.get("team_id")
+        puzzle_id = request.GET.get("puzzle_id")
+        if(team_id):
+            submissions = submissions.filter(team__pk=team_id)
+        if(puzzle_id):
+            submissions = submissions.filter(puzzle__pk=puzzle_id)
 
     else:
+        page_num = request.GET.get("page_num")
+        team_id = request.GET.get("team_id")
+        puzzle_id = request.GET.get("puzzle_id")
         hunt = Hunt.objects.get(is_current_hunt=True)
-        submissions = Submission.objects.filter(puzzle__hunt=hunt).exclude(team__location="DUMMY").select_related('team', 'puzzle').order_by('-pk')
+        submissions = Submission.objects.filter(puzzle__hunt=hunt).exclude(team__location="DUMMY")
+        arg_string = ""
+        if(team_id):
+            team_id = int(team_id)
+            submissions = submissions.filter(team__pk=team_id)
+            arg_string = arg_string + ("&team_id=%s" % team_id)
+        if(puzzle_id):
+            puzzle_id = int(puzzle_id)
+            submissions = submissions.filter(puzzle__pk=puzzle_id)
+            arg_string = arg_string + ("&puzzle_id=%s" % puzzle_id)
+        submissions = submissions.select_related('team', 'puzzle').order_by('-pk')
         pages = Paginator(submissions, 30)
         try:
             submissions = pages.page(page_num)
@@ -62,8 +81,9 @@ def queue(request, page_num=1):
         context = {'submission_list': submission_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))
     else:
-        context = {'form': form, 'page_info': submissions,
-        'submission_list': submission_list, 'last_date': last_date}
+        context = {'form': form, 'page_info': submissions, 'arg_string': arg_string,
+        'submission_list': submission_list, 'last_date': last_date, 'hunt': hunt,
+        'puzzle_id': puzzle_id, 'team_id': team_id}
         return render(request, 'queue.html', context)
 
 
