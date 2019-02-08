@@ -1,10 +1,12 @@
 {% extends "info_base.html" %}
 {% load prepuzzle_tags %}
+{% load static %}
 
 {% block title %}{{ puzzle.puzzle_name }}{% endblock title %}
 
 {% block base_includes %}
 <script src="{{ STATIC_URL }}jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static "huntserver/navbar.css" %}">
 <script>
 function check_answer(callback, user_answer) {
   $.ajax({
