@@ -21,6 +21,7 @@ jQuery(document).ready(function($) {
   // get_posts receives data.
   // TODO: reset to 3 seconds when the user sends an answer
   var ajax_delay = 3;
+  var ajax_timeout;
 
   var get_posts = function() {
     if(is_visible()){
@@ -54,10 +55,10 @@ jQuery(document).ready(function($) {
         }
       });
     }
-    setTimeout(get_posts, ajax_delay*1000);
+    ajax_timeout = setTimeout(get_posts, ajax_delay*1000);
   }
 
-  setTimeout(get_posts, ajax_delay*1000);
+  ajax_timeout = setTimeout(get_posts, ajax_delay*1000);
 
 
   $('#sub_form').on('submit', function(e) {
@@ -76,6 +77,9 @@ jQuery(document).ready(function($) {
         }
       },
       success: function (response) {
+        clearTimeout(ajax_timeout);
+        ajax_delay = 3;
+        ajax_timeout = setTimeout(get_posts, ajax_delay*1000);
         response = JSON.parse(response);
         receiveMessage(response.submission_list[0]);
       }
