@@ -156,7 +156,7 @@ def current_prepuzzle(request):
     """
     A simple view that locates the correct prepuzzle for the current hunt and redirects there if it exists.
     """
-    return prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
+    return hunt_prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 
 @ratelimit(key='user', rate='10/m', method='POST')
