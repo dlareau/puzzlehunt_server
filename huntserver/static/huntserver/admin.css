@@ -75,3 +75,7 @@ th {
 .sort_label {
   margin-left: 30px;
 }
+
+select {
+  -webkit-appearance: menulist;
+}
