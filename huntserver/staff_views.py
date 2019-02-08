@@ -41,9 +41,9 @@ def queue(request):
         submissions = Submission.objects.filter(modified_date__gt = last_date).exclude(team__location="DUMMY")
         team_id = request.GET.get("team_id")
         puzzle_id = request.GET.get("puzzle_id")
-        if(team_id):
+        if(team_id and team_id != "None"):
             submissions = submissions.filter(team__pk=team_id)
-        if(puzzle_id):
+        if(puzzle_id and puzzle_id != "None"):
             submissions = submissions.filter(puzzle__pk=puzzle_id)
 
     else:

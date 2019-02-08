@@ -544,10 +544,12 @@ class StaffTests(TestCase):
         response = self.client.post(reverse('huntserver:queue'), post_context)
         self.assertEqual(response.status_code, 400)
 
-    def test_staff_queue_paged(self):
+    def test_staff_queue_args(self):
         "Test the staff paged queue view"
         login(self, 'admin')
-        response = self.client.get(reverse('huntserver:queue_paged', kwargs={"page_num":"1"}))
+        response = self.client.get(reverse('huntserver:queue'), 
+                                   {"page_num": "1", "team_id": "18", "puzzle_id": "12"})
+        self.assertEqual(response.status_code, 200)
 
     def test_staff_progress(self):
         "Test the staff progress view"
