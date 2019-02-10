@@ -54,22 +54,41 @@
 
 <br>
 
-<div class="pagination">
-    <span class="step-links">
-        {% if page_info.has_previous %}
-            <a href="/staff/queue/?page_num={{ page_info.previous_page_number }}{{arg_string}}">Previous</a>
-        {% endif %}
+<div class="pages">
+  {% if page_info.has_other_pages %}
+    <ul class="pagination">
 
-        <span class="current">
-            Page {{ page_info.number }} of {{ page_info.paginator.num_pages }}.
-        </span>
+    {% if page_info.has_previous %}
+      <li><a href="/staff/queue/?page_num={{ page_info.previous_page_number }}{{arg_string}}">&laquo;</a></li>
+    {% else %}
+      <li><a>&laquo;</a></li>
+    {% endif %}
 
-        {% if page_info.has_next %}
-            <a href="/staff/queue/?page_num={{ page_info.next_page_number }}{{arg_string}}">Next</a>
-        {% endif %}
-    </span>
+    {% for i in page_info.paginator.page_range %}
+      {% if page_info.number > 3 and forloop.first %}
+        <li><a href="/staff/queue/?page_num=1{{arg_string}}">1</a></li>
+        <li><a>⋯</a></li>
+      {% endif %}
+      {% if page_info.number == i %}
+        <li class="active"><a href="/staff/queue/?page_num={{ i }}{{arg_string}}">{{ i }}</a></li>
+      {% elif i > page_info.number|add:'-3' and i < page_info.number|add:'3' %}
+        <li><a href="/staff/queue/?page_num={{ i }}{{arg_string}}">{{ i }}</a></li>
+      {% endif %}
+      {% if page_info.paginator.num_pages > page_info.number|add:'3' and forloop.last %}
+        <li><a>⋯</a></li>
+        <li><a href="/staff/queue/?page_num={{ page_info.paginator.num_pages }}{{arg_string}}">{{ page_info.paginator.num_pages }}</a></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_info.has_next %}
+      <li><a href="/staff/queue/?page_num={{ page_info.next_page_number }}{{arg_string}}">&raquo;</a></li>
+    {% else %}
+      <li><a>&raquo;</a></li>
+    {% endif %}
+
+    </ul>
+  {% endif %}
 </div>
-
 <audio>
   <source src="http://cmu.io/~jlareau/goat.mp3"  type="audio/mp3"/>
 </audio>
