@@ -51,10 +51,11 @@ $(document).ready(function() {
           }
         }
       })
+      $(this).find(".num").html(result+meta_result);
       $(this).data("meta_rank", meta_result);
       $(this).data("rank", result);
-      $(this).data("last", -1 * last);
-      $(this).data("meta_last", -1 * meta_last);
+      $(this).data("last", -1 * last); // allows consistent low->high sorting
+      $(this).data("meta_last", -1 * meta_last); 
       if($(this).data("index") == undefined){
         $(this).data("index", $(this).index());
       }
