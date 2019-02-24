@@ -311,7 +311,7 @@ def admin_chat(request):
             messages = []
             for team in curr_hunt.real_teams.all():
                 m = Message.objects.create(time=timezone.now(),
-                    text="[Anouncement] " + request.POST.get('message'),
+                    text="[Announcement] " + request.POST.get('message'),
                     is_response=(request.POST.get('is_response') == "true"), team=team)
                 messages.append(m)
         else:
