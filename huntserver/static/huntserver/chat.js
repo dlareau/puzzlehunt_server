@@ -36,6 +36,7 @@ $(document).ready(function() {
         last_pk = response['last_pk'];
       });
     $('#messagebox').val('');
+    $('#announce_checkbox').prop('checked', false);
   }
 
   var get_posts = function() {
