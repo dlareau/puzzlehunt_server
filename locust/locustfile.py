@@ -11,11 +11,49 @@ import re
 #   Fix no last_pk error with chat post (user and staff)
 
 # ========== HELPTER FUNCTIONS/VARIABLES ==========
+thread_list = []
+kill_list = []
 
 user_ids = range(285) + range(285)
 staff_ids = range(300, 310) + range(300, 310)
 
-USER_PASSWORD = ""
+USER_PASSWORD = "tup"
+
+
+def get_status(greenlets):
+    total = 0
+    running = 0
+    completed = 0
+    successed = 0
+    yet_to_run = 0
+    failed = 0
+
+    for g in greenlets:
+        total += 1
+        if bool(g):
+            running += 1
+            if(g in kill_list):
+                sys.stdout.write("Attempting to kill!")
+                g.kill(block=True)
+        else:
+            if g.ready():
+                completed += 1
+                if g.successful():
+                    successed += 1
+                else:
+                    failed += 1
+            else:
+                yet_to_run += 1
+
+    assert yet_to_run == total - completed - running
+    assert failed == completed - successed
+
+    return dict(total=total,
+                running=running,
+                completed=completed,
+                successed=successed,
+                yet_to_run=yet_to_run,
+                failed=failed)
 
 
 def random_string(n):
@@ -39,6 +77,16 @@ only_hunts = SoupStrainer(href=is_hunt_link)
 ajax_headers = {'X-Requested-With': 'XMLHttpRequest'}
 
 
+def set_ajax_args(l, attr, val):
+    #sys.stdout.write("User-id: %d, setting: %s" % (l.locust.user_id, str(val)))
+    l.locust.ajax_args[attr] = val
+
+
+def get_ajax_args(l, attr):
+    #sys.stdout.write("User-id: %d, getting: %s" % (l.locust.user_id, str(l.locust.ajax_args)))
+    return l.locust.ajax_args[attr]
+
+
 def better_get(l, url, **kwargs):
     return l.client.get(url, **dict(timeout=None, **kwargs))
 
@@ -60,6 +108,7 @@ def gevent_func(poller, l):
             a = next(poller.time_iter)
             gevent.sleep(a)
     except gevent.GreenletExit:
+        #sys.stdout.write("Got GreenletExit exception from %d" % l.locust.user_id)
         return
 
 
@@ -79,10 +128,18 @@ class Poller(object):
 def apply_poller(task_set, poller):
     def poller_on_start(ts):
         poller.thread = gevent.spawn(gevent_func, poller, ts)
+        thread_list.append(poller.thread)
         ts.locust.poller = poller
+        #sys.stdout.write("Started thread %d" % ts.locust.user_id)
+        sys.stdout.write(str(get_status(thread_list)))
+        sys.stdout.write("KILL:" + str(get_status(kill_list)))
+
 
     def poller_on_stop(ts):
+        kill_list.append(poller.thread)
+        sys.stdout.write(str(len(kill_list)))
         poller.thread.kill(block=True)
+        #sys.stdout.write("Ended thread %d" % ts.locust.user_id)
 
     if(poller):
         task_set.on_start = poller_on_start
@@ -245,8 +302,10 @@ def puzzle_main_page(l):
     if(search_results):
         last_date = search_results.group(1)
     else:
+        sys.stdout.write("puzzle_main_page could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         last_date = ""
-    l.locust.ajax_args = {'last_date': last_date}
+    set_ajax_args(l, "puzzle", {'last_date': last_date})
 
 
 def puzzle_ajax(l):
@@ -254,12 +313,14 @@ def puzzle_ajax(l):
     # store returned ajax number in locust object
     puzzle_id = l.locust.puzzle_id
     puzzle_url = "/puzzle/" + puzzle_id + "/"
-    response = better_get(l, puzzle_url + "?last_date=" + l.locust.ajax_args['last_date'],
+    response = better_get(l, puzzle_url + "?last_date=" + get_ajax_args(l, "puzzle")['last_date'],
                           headers=ajax_headers, name=puzzle_url + " AJAX")
     try:
-        l.locust.ajax_args = {'last_date': response.json()["last_date"]}
+        set_ajax_args(l, "puzzle", {'last_date': response.json()["last_date"]})
     except:
-        l.locust.ajax_args = {'last_date': ""}
+        sys.stdout.write("puzzle_ajax could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
+        pass
 
 
 def puzzle_pdf_link(l):
@@ -290,8 +351,10 @@ def chat_main_page(l):
     if(search_results):
         last_pk = search_results.group(1)
     else:
+        sys.stdout.write("chat_main_page could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         last_pk = ""
-    l.locust.ajax_args = {'last_pk': last_pk}
+    set_ajax_args(l, "chat", {'last_pk': last_pk})
 
     search_results = re.search(r"curr_team = (.*);", response.text)
     if(search_results):
@@ -303,11 +366,13 @@ def chat_main_page(l):
 
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
-    response = better_get(l, "/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
-                          headers=ajax_headers, name="/chat/ AJAX")
+    response = better_get(l, "/chat/?last_pk=" + str(get_ajax_args(l, "chat")['last_pk']),
+                      headers=ajax_headers, name="/chat/ AJAX")
     try:
-        l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
+        set_ajax_args(l, "chat", {'last_pk': response.json()["last_pk"]})
     except:
+        sys.stdout.write("chat_ajax could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         pass
 
 
@@ -391,8 +456,10 @@ def staff_chat_main_page(l):
     if(search_results):
         last_pk = search_results.group(1)
     else:
+        sys.stdout.write("staff_chat_main_page could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         last_pk = ""
-    l.locust.ajax_args = {'last_pk': last_pk}
+    set_ajax_args(l, "staff_chat", {'last_pk': last_pk})
 
     search_results = re.findall(r"data-id='(.*)' ", response.text)
     if(search_results):
@@ -415,11 +482,13 @@ def staff_chat_new_message(l):
 
 def staff_chat_ajax(l):
     # Make ajax request with current ajax value and store new value
-    response = better_get(l, "/staff/chat/?last_pk=" + str(l.locust.ajax_args['last_pk']),
+    response = better_get(l, "/staff/chat/?last_pk=" + str(get_ajax_args(l, "staff_chat")['last_pk']),
                           headers=ajax_headers, name="/staff/chat/ AJAX")
     try:
-        l.locust.ajax_args = {'last_pk': response.json()["last_pk"]}
+        set_ajax_args(l, "staff_chat", {'last_pk': response.json()["last_pk"]})
     except:
+        sys.stdout.write("staff_chat_ajax could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         pass
 
 
@@ -427,17 +496,19 @@ def progress_main_page(l):
     response = url_all(l, better_get(l, "/staff/progress/"))
     search_results = re.search(r"last_solve_pk = (.*);\n *last_unlock_pk = (.*);\n *last_submission_pk = (.*)", response.text)
     if(search_results):
-        l.locust.ajax_args = {
+        set_ajax_args(l, "progress", {
             'last_solve_pk': search_results.group(1),
             'last_unlock_pk': search_results.group(2),
             'last_submission_pk': search_results.group(3),
-        }
+        })
     else:
-        l.locust.ajax_args = {
+        sys.stdout.write("progress_main_page could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
+        set_ajax_args(l, "progress", {
             'last_solve_pk': 0,
             'last_unlock_pk': 0,
             'last_submission_pk': 0,
-        }
+        })
 
     search_results = re.findall(r"id='p(.*)t(.*)' class='unavailable'", response.text)
     if(search_results):
@@ -459,19 +530,21 @@ def progress_unlock(l):
 
 def progress_ajax(l):
     response = better_get(l, "/staff/progress/?" +
-        "last_solve_pk=" + str(l.locust.ajax_args['last_solve_pk']) +
-        "&last_unlock_pk=" + str(l.locust.ajax_args['last_unlock_pk']) +
-        "&last_submission_pk=" + str(l.locust.ajax_args['last_submission_pk']),
+        "last_solve_pk=" + str(get_ajax_args(l, "progress")['last_solve_pk']) +
+        "&last_unlock_pk=" + str(get_ajax_args(l, "progress")['last_unlock_pk']) +
+        "&last_submission_pk=" + str(get_ajax_args(l, "progress")['last_submission_pk']),
         headers=ajax_headers, name="/staff/progress/ AJAX")
     try:
         update_info = response.json()["update_info"]
         if(len(update_info) > 0):
-            l.locust.ajax_args = {
+            set_ajax_args(l, "progress", {
                 'last_solve_pk': update_info[0],
                 'last_unlock_pk': update_info[1],
                 'last_submission_pk': update_info[2],
-            }
+            })
     except:
+        sys.stdout.write("progress_ajax could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         pass
 
 
@@ -481,8 +554,9 @@ def queue_main_page(l):
     if(search_results):
         last_date = search_results.group(1)
     else:
-        last_date = ""
-    l.locust.ajax_args = {'last_date': last_date}
+        sys.stdout.write("queue_main_page could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
+    set_ajax_args(l, "queue", {'last_date': last_date})
 
     search_results = re.search(r"incorrect-replied *\n *submission.*data-id='(\d+)'>", response.text)
     if(search_results):
@@ -492,7 +566,7 @@ def queue_main_page(l):
 
 
 def queue_num_page(l):
-    url_all(l, better_get(l, "/staff/queue/1/"))
+    url_all(l, better_get(l, "/staff/queue/?page_num=1"))
 
 
 def queue_new_response(l):
@@ -505,11 +579,13 @@ def queue_new_response(l):
 
 
 def queue_ajax(l):
-    response = better_get(l, "/staff/queue/?last_date=" + str(l.locust.ajax_args['last_date']) + "&all=true",
+    response = better_get(l, "/staff/queue/?last_date=" + str(get_ajax_args(l, "queue")['last_date']) + "&all=true",
                           headers=ajax_headers, name="/staff/queue/ AJAX")
     try:
-        l.locust.ajax_args = {'last_date': response.json()["last_date"]}
+        set_ajax_args(l, "queue", {'last_date': response.json()["last_date"]})
     except:
+        sys.stdout.write("queue_ajax could not find ajax: %s" % str(response.text))
+        sys.stdout.flush()
         pass
 
 
@@ -562,7 +638,7 @@ chat_fs = {
 
 current_hunt_fs = {
     page_and_subpages(puzzle_main_page, puzzle_fs,
-                      Poller(puzzle_ajax, [3]), # [10, 20, 30, 60, 120]),
+                      Poller(puzzle_ajax, [3, 8, 20, 47, 117, 120]),
                       1060000):                     54,
     page_and_subpages(chat_main_page, chat_fs,
                       Poller(chat_ajax, [3]),
@@ -600,6 +676,7 @@ class StaffSet(TaskSet):
     def on_start(self):
         self.locust.static_urls = set()
         self.locust.user_id = staff_ids.pop()
+        self.locust.ajax_args = {}
 
 
 class WebsiteSet(TaskSet):
@@ -625,6 +702,7 @@ class HunterSet(TaskSequence):
     def on_start(self):
         self.locust.static_urls = set()
         self.locust.user_id = user_ids.pop()
+        self.locust.ajax_args = {}
 
 # ========== END PAGE VIEW PROBABILITIES ==========
 
