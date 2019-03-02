@@ -153,6 +153,7 @@ $(document).ready(function() {
       $td.addClass('solved');
       $td.html(update.time_str);
       $td.css("background", "");
+      $td.data("date", (Date.now()/1000));
     }
     else if(update.status_type == "unlock"){
       $td.removeClass();
