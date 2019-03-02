@@ -75,7 +75,9 @@ $(document).ready(function() {
         $('audio')[0].play();
       }
       submission.prependTo("#sub_table");
-      $('#sub_table tr:last').remove();
+      if($('#sub_table tr').length >= 30){
+        $('#sub_table tr:last').remove();
+      }
     } else {
       $('tr[data-id=' + pk + ']').replaceWith(submission);
     }
