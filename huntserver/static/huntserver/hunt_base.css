@@ -45,6 +45,7 @@ th {
 
 .puzzle .info a {
     float: right;
+    margin-left: 40px;
 }
 
 .puzzle fieldset {
