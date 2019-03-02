@@ -75,6 +75,11 @@ class Hunt(models.Model):
         return timezone.now() > self.end_date
 
     @property
+    def is_day_of_hunt(self):
+        """ A boolean indicating whether or not the hunt is open to the public """
+        return timezone.now().date() == self.start_date.date()
+
+    @property
     def season(self):
         """ Gets a season string from the hunt dates """
         if(self.start_date.month >= 1 and self.start_date.month <= 5):

@@ -16,6 +16,7 @@ import re
 from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle
 from .forms import AnswerForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
+from .info_views import current_hunt_info
 
 
 def protected_static(request, file_path):
@@ -75,7 +76,10 @@ def hunt(request, hunt_num):
 
     # Hunt has not yet started
     elif(hunt.is_locked):
-        return render(request, 'not_released.html', {'reason': "locked"})
+        if(hunt.is_day_of_hunt):
+            return render(request, 'not_released.html', {'reason': "locked"})
+        else:
+            return hunt_prepuzzle(request, hunt_num)
 
     # Hunt has started
     elif(hunt.is_open):
@@ -134,7 +138,7 @@ def prepuzzle(request, prepuzzle_num):
 
     else:
         if(not (puzzle.released or request.user.is_staff)):
-            return render(request, 'access_error.html')
+            return current_hunt_info(request)
         form = AnswerForm()
         context = {'form': form, 'puzzle': puzzle}
         return HttpResponse(Template(puzzle.template).render(RequestContext(request, context)))
@@ -148,8 +152,8 @@ def hunt_prepuzzle(request, hunt_num):
     if(hasattr(curr_hunt, "prepuzzle")):
         return prepuzzle(request, curr_hunt.prepuzzle.pk)
     else:
-        # Maybe we can do something better, but for now, redirect to the related hunt
-        return hunt(request, hunt_num)
+        # Maybe we can do something better, but for now, redirect to the main page
+        return current_hunt_info(request)
 
 
 def current_prepuzzle(request):
