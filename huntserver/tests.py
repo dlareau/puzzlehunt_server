@@ -308,7 +308,7 @@ class HuntTests(TestCase):
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"1"})
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"3"})
-        self.assertTemplateUsed(response, 'not_released.html')
+        self.assertTemplateUsed(response, 'hunt_info.html')
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num":"2"})
         login(self, 'user3')
