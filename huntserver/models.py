@@ -32,6 +32,8 @@ class Hunt(models.Model):
         help_text="The end date/time displayed to users")
     location = models.CharField(max_length=100,
         help_text="Starting location of the puzzlehunt")
+    resource_link = models.URLField(max_length=200, blank=True,
+        help_text="The full link (needs http://) to a folder of additional resources.")
     is_current_hunt = models.BooleanField(default=False)
     extra_data = models.CharField(max_length=200, blank=True,
         help_text="A misc. field for any extra data to be stored with the hunt.")
@@ -76,7 +78,7 @@ class Hunt(models.Model):
 
     @property
     def is_day_of_hunt(self):
-        """ A boolean indicating whether or not the hunt is open to the public """
+        """ A boolean indicating whether or not today is the day of the hunt """
         return timezone.now().date() == self.start_date.date()
 
     @property

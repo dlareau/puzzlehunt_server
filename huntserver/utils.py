@@ -119,7 +119,6 @@ def download_puzzle(puzzle):
 
 def download_prepuzzle(puzzle):
     directory = settings.MEDIA_ROOT + "prepuzzles"
-    print(directory)
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])
 
@@ -128,6 +127,19 @@ def download_prepuzzle(puzzle):
         file_str = directory + "/" + str(puzzle.pk) + ".zip"
         call(["wget", "--max-redirect=20", puzzle.resource_link, "-O", file_str])
         call(["unzip", "-o", "-d", directory + "/" + str(puzzle.pk), file_str])
+        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
+        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
+
+def download_hunt(hunt):
+    directory = settings.MEDIA_ROOT + "hunt"
+    if(not os.path.isdir(directory)):
+        call(["mkdir", directory])
+
+    if(hunt.resource_link != ""):
+        # Get the other resources
+        file_str = directory + "/" + str(hunt.pk) + ".zip"
+        call(["wget", "--max-redirect=20", hunt.resource_link, "-O", file_str])
+        call(["unzip", "-o", "-d", directory + "/" + str(hunt.pk), file_str])
         # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
         # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
 

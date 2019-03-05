@@ -36,7 +36,7 @@ urlpatterns = [
     url(r'^user-profile/$', info_views.user_profile, name='user_profile'),
 
     # Hunt Pages
-    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3})/$', hunt_views.puzzle_view, name='puzzle'),
+    url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_view, name='puzzle'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
     url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/prepuzzle/$', hunt_views.hunt_prepuzzle, name='hunt_prepuzzle'),

@@ -62,6 +62,20 @@
   </br>
   <form method="Post" action="/staff/control/">
     {% csrf_token %}
+    <select name="hunt_number" style="width: 200px;">
+    {% for hunt in hunts %}
+      <option value="{{hunt.hunt_number}}">
+        {{ hunt.hunt_name }}
+      </option>
+    {% endfor %}
+    </select>
+    <input type="hidden" name="action" value="gethunt">
+    <input type="submit" value="Fetch selected hunt resources from URL"
+           onclick="return confirm('Are you sure?')">
+  </form>
+  </br>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
     <input type="hidden" name="action" value="getpuzzles">
     <input type="submit" value="Fetch ALL puzzles from URLs"
            onclick="return confirm('Are you sure?')">

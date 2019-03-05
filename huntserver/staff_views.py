@@ -14,7 +14,7 @@ import networkx as nx
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person, Prepuzzle
 from .forms import SubmissionForm, UnlockForm, EmailForm
-from .utils import unlock_puzzles, download_puzzle, download_prepuzzle
+from .utils import unlock_puzzles, download_puzzle, download_prepuzzle, download_hunt
 
 
 @staff_member_required
@@ -429,6 +429,11 @@ def control(request):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
                 puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
                 download_prepuzzle(puzzle)
+            return redirect('huntserver:hunt_management')
+        if(request.POST["action"] == "gethunt"):
+            if("hunt_number" in request.POST and request.POST["hunt_number"]):
+                hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
+                download_hunt(hunt)
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
