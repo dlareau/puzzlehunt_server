@@ -51,6 +51,8 @@ TEMPLATES = [
         'APP_DIRS': True,
         'DIRS': [os.path.join(BASE_DIR, 'puzzlehunt_server/templates')],
         'OPTIONS': {
+            'builtins': ['huntserver.templatetags.hunt_tags',
+                         'huntserver.templatetags.prepuzzle_tags'],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',

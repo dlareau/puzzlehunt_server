@@ -137,9 +137,9 @@ def download_hunt(hunt):
 
     if(hunt.resource_link != ""):
         # Get the other resources
-        file_str = directory + "/" + str(hunt.pk) + ".zip"
+        file_str = directory + "/" + str(hunt.hunt_number) + ".zip"
         call(["wget", "--max-redirect=20", hunt.resource_link, "-O", file_str])
-        call(["unzip", "-o", "-d", directory + "/" + str(hunt.pk), file_str])
+        call(["unzip", "-o", "-d", directory + "/" + str(hunt.hunt_number), file_str])
         # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
         # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
 

@@ -38,7 +38,7 @@ try debconf-set-selections <<< "mysql-server mysql-server/root_password password
 try debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD"
 
 # Get all basic system packages
-try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi imagemagick
+try apt-get install -y mysql-client mysql-server libmysqlclient-dev python-dev python-mysqldb python-pip apache2 libapache2-mod-xsendfile libapache2-mod-wsgi imagemagick unzip
 
 # Sometimes this isn't needed
 try apt-get install -y libapache2-mod-proxy-html || true
