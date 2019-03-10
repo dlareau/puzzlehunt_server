@@ -133,12 +133,6 @@ class HuntAdminForm(forms.ModelForm):
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
 
-class HuntAssetFileAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'url')
-    readonly_fields = ('url',)
-
-    def url(self, obj):
-        return obj.file.url
 
 class UserProxyObject(User):
     class Meta:
@@ -162,4 +156,3 @@ admin.site.register(models.Unlock)
 admin.site.register(models.Message)
 admin.site.register(models.Response)
 admin.site.register(models.Unlockable)
-admin.site.register(models.HuntAssetFile, HuntAssetFileAdmin)

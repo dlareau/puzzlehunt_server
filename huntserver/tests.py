@@ -674,8 +674,6 @@ class StaffTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse('admin:huntserver_hunt_change', args=(1,)))
         self.assertEqual(response.status_code, 200)
-        response = self.client.get(reverse('admin:huntserver_huntassetfile_change', args=(1,)))
-        self.assertEqual(response.status_code, 200)
 
 """
 admin.py
