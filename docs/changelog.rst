@@ -9,6 +9,29 @@ v3.3.0
 ======
 
 New:
+   - Puzzles and hunts now have an additional field for generic data storage
+   - Puzzle solution PDFs can now be entered and displayed after the hunt ends
+   - Queue can now be filtered by team and/or puzzle
+   - Hunts can now have a "resources" link for additional static content
+   - Chat link in navbar now has a "number of unread messages" badge
+
+Updates:
+   - The announement checkbox in staff chat now automatically get unchecked after sending
+   - The "Current Hunt" link now has time sensitive behaviour for before/during hunts
+   - Due to the addition of hunt resources, hunt asset files are now deprecated
+   - Updated wording to Previous/Current/Next hunt on the index page based on date
+   - The hunt management page has been redesigned for easier usage
+
+Bugfixes:
+   - Fixed progress page bug which update initial solve time if solved again
+   - Fixed sorting bug on the progress page regarding meta-solve-time
+   - Fixed a bug where the queue would roll items to the next page when not needed
+   - Fixed a number of small CSS errors and typos
+
+v3.3.0
+======
+
+New:
    - Python 3 compatibility
    - Now requires Django 1.11 (Start of Django 2.0 compatibility)
    - New testing and coverage framework, including integration with travis-ci/coveralls
