@@ -2,14 +2,37 @@
 {% load static %}
 
 {% block extrahead %}
-	  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
 {% endblock %}
-	
+    
 {% block branding %}
-	<a href="{% url 'admin:index' %}" class="django-admin-logo">
-	    <!-- Django Administration -->
-	    <img height="60" src="{% static "huntserver/phcmulong.png" %}" alt="{{ site_header|default:_('Django administration') }}">
-	</a>
+    <a href="{% url 'admin:index' %}" class="django-admin-logo">
+        <!-- Django Administration -->
+        <img height="60" src="{% static "huntserver/phcmulong.png" %}" alt="{{ site_header|default:_('Django administration') }}">
+    </a>
+    <script type="text/javascript">
+    if ('undefined' !== typeof(django)) {
+        django.jQuery(function(){
+            setTimeout(function(){
+                    django.jQuery(window).scrollTop(django.jQuery.cookie('django_admin_scroll'));
+                    django.jQuery.cookie('django_admin_scroll', 0);
+                    django.jQuery(".CodeMirror-scroll").scrollTop(django.jQuery.cookie('django_admin_code_scroll'));
+                    django.jQuery.cookie('django_admin_code_scroll', 0);
+                }, 100);
+        });
+        django.jQuery(document).keydown(function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.which == '83' || e.which == '115')) { // s or S
+                e.preventDefault();
+                django.jQuery("button[name='_continue']").click();
+                django.jQuery.cookie('django_admin_scroll',django.jQuery(window).scrollTop());
+                django.jQuery.cookie('django_admin_code_scroll',django.jQuery(".CodeMirror-scroll").scrollTop());
+                return false;
+            }
+
+            return true;
+        });
+    }
+    </script>
 {% endblock %}
 
 {% block bootstrap_admin_css %}
