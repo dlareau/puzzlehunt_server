@@ -261,7 +261,7 @@ def puzzle_view(request, puzzle_id):
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
                    'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
-                   'last_date': last_date}
+                   'last_date': last_date, 'team': team}
         return render(request, 'puzzle.html', context)
 
 
@@ -279,11 +279,12 @@ def chat(request):
 
         m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
             is_response=(request.POST.get('is_response') == "true"), team=team)
+        team.last_received_message = m.pk
         messages = [m]
     else:
         if(team is None):
-            #TODO maybe handle more nicely because hunt may just not be released
-            #return render(request, 'not_released.html', {'reason': "team"})
+            # TODO maybe handle more nicely because hunt may just not be released
+            # return render(request, 'not_released.html', {'reason': "team"})
             return HttpResponse(status=404)
         if request.is_ajax():
             messages = Message.objects.filter(pk__gt=request.GET.get("last_pk"))
@@ -299,12 +300,14 @@ def chat(request):
         last_pk = Message.objects.latest('id').id
     except Message.DoesNotExist:
         last_pk = 0
+    team.last_seen_message = last_pk
 
+    team.save()  # Save last_*_message vars
     context = {'message_dict': message_dict, 'last_pk': last_pk}
     if request.is_ajax() or request.method == 'POST':
         return HttpResponse(json.dumps(context))
     else:
-        context['team'] = team.pk
+        context['team'] = team
         return render(request, 'chat.html', context)
 
 

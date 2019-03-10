@@ -318,6 +318,8 @@ def admin_chat(request):
             team = Team.objects.get(pk=request.POST.get('team_pk'))
             m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
                 is_response=(request.POST.get('is_response') == "true"), team=team)
+            team.last_received_message = m.pk
+            team.save()
             messages = [m]
 
     else:

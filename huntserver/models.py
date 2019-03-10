@@ -193,6 +193,8 @@ class Team(models.Model):
         help_text="The 5 character random alphanumeric password needed for a user to join a team")
     playtester = models.BooleanField(default=False,
         help_text="A boolean to indicate if the team is a playtest team and will get early access")
+    last_seen_message = models.IntegerField(default=0)
+    last_received_message = models.IntegerField(default=0)
 
     @property
     def is_playtester_team(self):
@@ -208,6 +210,10 @@ class Team(models.Model):
     def short_name(self):
         """ A boolean indicating whether or not the team is a playtesting team """
         return self.team_name[:30]
+
+    @property
+    def has_waiting_messages(self):
+        return max(self.last_received_message - self.last_seen_message, 0)
 
     def __str__(self):
         return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name

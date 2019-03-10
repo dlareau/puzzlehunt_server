@@ -143,7 +143,7 @@ class UserProxyObject(User):
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
-        
+
 admin.site.register(UserProxyObject)
 admin.site.register(models.Hunt, HuntAdmin)
 admin.site.register(models.Puzzle, PuzzleAdmin)
