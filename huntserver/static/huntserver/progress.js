@@ -4,8 +4,6 @@ $(document).ready(function() {
       var time_diff = Math.floor(Date.now()/1000) - $(this).data("date");
       var ratio = Math.max(Math.min((1-time_diff/14400), 1), 0)*55;
       var color = "hsla(" + ratio + ",100%, 75%, 1)"
-      console.log(time_diff);
-      console.log(color);
       $(this).css("background", color);
     });
   }
