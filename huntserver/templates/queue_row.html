@@ -1,10 +1,10 @@
 <tr class="
 {% if submission.response_text == '' %}
-  incorrect-unreplied
+  warning
 {% elif submission.is_correct %}
-  correct
+  success
 {% else %}
-  incorrect-replied
+  danger
 {% endif %} submission" data-id='{{ submission.pk }}'>
   <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" >
     {{ submission.team.team_name|truncatechars:40}}

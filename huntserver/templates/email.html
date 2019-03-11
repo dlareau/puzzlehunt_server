@@ -1,5 +1,5 @@
 {% extends "staff_base.html" %}
-{% block title %}Puzzle Progress{% endblock title %}
+{% block title %}Email{% endblock title %}
 
 {% block includes %}
 <style type="text/css">
@@ -17,7 +17,7 @@
 {% endblock includes %}
 
 {% block content %}
-  <h1>Hunt Management</h1>
+  <h1>Email</h1>
   <h3> Send email to all hunt competitors: </h3>
   <form method="POST" action="/staff/emails/">
     {% csrf_token %}

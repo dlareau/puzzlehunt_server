@@ -49,10 +49,10 @@
     <option>Last Puzzle Time</option>
   </select>
   </span>
-  <table id='progress'>
+  <table id='progress' class="table table-bordered table-condensed">
     <thead>
       <tr>
-        <td class="actions">Action for all teams:</td>
+        <td class="actions">All teams:</td>
         <td class="actions"></td>
         {% for puzzle in puzzle_list %}
           <td class="actions">
@@ -60,7 +60,7 @@
               {% csrf_token %}
               <input type="hidden" name="puzzle_id" value="{{ puzzle.pk }}">
               <input type="hidden" name="action" value="unlock_all">
-              <button type="Submit" onclick="return confirm('Are you sure?')">
+              <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
                 Unlock All
               </button>
             </form>
@@ -93,7 +93,7 @@
                 <input type="hidden" name="team_id" value="{{ row.team.pk }}">
                 <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">
                 <input type="hidden" name="action" value="unlock">
-                <button type="Submit">
+                <button type="Submit" class="btn btn-default btn-xs">
                   Unlock
                 </button>
         </form>

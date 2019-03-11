@@ -1,3 +1,10 @@
+/* 
+  This file is for huntserver specific page styling.
+  Contents do not get applied to included django admin pages 
+*/
+
+/* Global */
+
 button {
     background-color: white;
     border: 1px solid black;
@@ -8,62 +15,67 @@ button {
     white-space: nowrap;
     display: inline-block;}
 
-button:hover {
-    background-color: lightgrey; }
 
-button.active {
-    background-color: lightgrey; }
+table.team-list {
+  width:400px;
+}
 
+table.table-bordered {
+    border:1px solid black;
+    margin-top:20px;
+}
+table.table-bordered > thead > tr > th {
+    border:1px solid black;
+}
+table.table-bordered > tbody > tr > td {
+    border:1px solid black;
+}
+table.table-bordered > thead > tr > td {
+    border:1px solid black;
+}
+
+/* Queue */
 #queue {
   width: 100%; }
 
-  #queue td {
-    padding: 5px;
-    border: 1px solid black; }
+  #queue tbody .success td {
+    background-color: #c8ffb0; }
 
-  #queue .correct {
-    background: #cbf5cb; }
+  #queue tbody .warning td {
+    background-color: #f4f5b6; }
 
-  #queue .incorrect-unreplied {
-    background: #ffa300; }
-
-  #queue .incorrect-replied {
-    background: #febdbd; }
-
-  #queue .invalid-answer {
-    background: yellow; }
+  #queue tbody .danger td {
+    background-color: #ffc5c5; }
 
 
-td {
-  padding: 3px;
-  border: 1px solid black; }
-
-th {
-    text-align: center;
-    padding-left: 3px;
-    padding-right: 3px;
-    border: 1px solid black; }
-
+/* Progress */
 .actions {
   text-align: center;
 }
 
-#puzzles .meta {
-  background: #DADAF8; }
-
-
-#puzzles .second {
-  background: #E5FAE2; }
-
+table.table.table-condensed > thead > tr > td {
+    vertical-align: middle;
+}
+table.table.table-condensed > tbody > tr > td {
+    vertical-align: middle;
+}
 
 #progress {
   font-size: 80%; }
 
   #progress .solved {
-    background: #92E292; }
+    background: hsla(128, 100%, 75%, 1);; }
 
   #progress .available {
-      background: yellow; }
+      background: hsla(55, 100%, 75%, 1); }
+
+  #progress th {
+    text-align: center;
+  }
+
+  #progress.table-condensed>thead>tr>td {
+    padding: 3px;
+  }
 
 .sort_select {
   display: inline;
@@ -78,4 +90,40 @@ th {
 
 select {
   -webkit-appearance: menulist;
+}
+
+/* Management */
+.list-group.list-group-root {
+    padding: 0;
+    overflow: hidden;
+}
+
+.list-group.list-group-root .list-group {
+    margin-bottom: 0;
+}
+
+.list-group.list-group-root .list-group-item {
+    border-radius: 0;
+    border-width: 1px 0 0 0;
+}
+
+.list-group.list-group-root > .list-group-item:first-child {
+    border-top-width: 0;
+}
+
+.list-group.list-group-root > .list-group > .list-group-item {
+    padding-left: 45px;
+}
+
+.list-group-item .glyphicon {
+    margin-right: 5px;
+}
+
+.list-group-item button .glyphicon {
+    margin-right: 0px;
+}
+
+.download-btn {
+  padding: 3px 12px 1px 12px;
+  margin-top: -2px;
 }
