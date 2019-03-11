@@ -17,3 +17,39 @@ td.original p {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+
+/* The below is just for the management page */
+.list-group.list-group-root {
+    padding: 0;
+    overflow: hidden;
+}
+
+.list-group.list-group-root .list-group {
+    margin-bottom: 0;
+}
+
+.list-group.list-group-root .list-group-item {
+    border-radius: 0;
+    border-width: 1px 0 0 0;
+}
+
+.list-group.list-group-root > .list-group-item:first-child {
+    border-top-width: 0;
+}
+
+.list-group.list-group-root > .list-group > .list-group-item {
+    padding-left: 45px;
+}
+
+.list-group-item .glyphicon {
+    margin-right: 5px;
+}
+
+.list-group-item button .glyphicon {
+    margin-right: 0px;
+}
+
+.download-btn {
+	padding: 3px 12px 1px 12px;
+	margin-top: -2px;
+}

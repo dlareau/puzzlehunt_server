@@ -1,90 +1,113 @@
 {% extends "staff_base.html" %}
 {% block title %}Hunt Management{% endblock title %}
 
+{% block includes %}
+  <script type="text/javascript">
+    $(function() {
+      $('.list-group-item').on('click', function() {
+        if($('.glyphicon.glyphicon-chevron-right', this).length){
+          $('.glyphicon.glyphicon-chevron-right', this)
+            .toggleClass('glyphicon-chevron-right')
+            .toggleClass('glyphicon-chevron-down');
+        }
+        else if($('.glyphicon.glyphicon-chevron-down', this).length){
+          $('.glyphicon.glyphicon-chevron-down', this)
+            .toggleClass('glyphicon-chevron-right')
+            .toggleClass('glyphicon-chevron-down');
+        }
+      });
+      $('.download-btn').on('click', function(e) {
+        e.stopPropagation();
+      })
+    });
+  </script>
+{% endblock includes%}
+
 {% block content %}
   <h1>Hunt Management</h1>
-  <h3> Set Current Hunt: </h3>
-  <table>
+  <h3> Hunt Downloads: </h3>
+  <div class="list-group list-group-root well" style="max-width: 700px;">
     {% for hunt in hunts %}
-      <tr>
-        <td>{{hunt.hunt_name}}</td>
-        <td>{% if hunt.is_current_hunt%} <= Current {% endif %} </td>
-        <td>
-          <form method="Post" action="/staff/control/">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="new_current_hunt">
-            <input type="hidden" name="hunt_num" value="{{hunt.hunt_number}}">
-            <input type="submit" value="Set as Current">
-          </form>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-  </br>
-  <form method="Post" action="/staff/control/">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="reset">
-    <input type="submit" value="Reset All Progress"
-           onclick="return confirm('Are you sure?')">
-  </form>
-  </br>
-  <form method="Post" action="/staff/control/">
-    {% csrf_token %}
-    <select name="puzzle_number" style="width: 200px;">
-      {% for hunt in hunts %}
-        {% if hunt.is_current_hunt%}
-          {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
-            <option value="{{puzzle.puzzle_number}}">
-              {{puzzle.puzzle_name}} ({{puzzle.puzzle_number}})
-            </option>
-          {% endfor %}
-        {% endif %}
-      {% endfor %}
-    </select>
-    <input type="hidden" name="action" value="getpuzzles">
-    <input type="submit" value="Fetch selected puzzle from URL"
-           onclick="return confirm('Are you sure?')">
-  </form>
-  </br>
-  <form method="Post" action="/staff/control/">
-    {% csrf_token %}
-    <select name="puzzle_number" style="width: 200px;">
-    {% for puzzle in prepuzzles|dictsort:"pk" %}
-      <option value="{{puzzle.pk}}">
-        {{ puzzle }}
-      </option>
-    {% endfor %}
-    </select>
-    <input type="hidden" name="action" value="getprepuzzle">
-    <input type="submit" value="Fetch selected prepuzzle from URL"
-           onclick="return confirm('Are you sure?')">
-  </form>
-  </br>
-  <form method="Post" action="/staff/control/">
-    {% csrf_token %}
-    <select name="hunt_number" style="width: 200px;">
-    {% for hunt in hunts %}
-      <option value="{{hunt.hunt_number}}">
+      <a href="#item-{{ forloop.counter }}" class="list-group-item" data-toggle="collapse">
+        <i class="glyphicon glyphicon-chevron-right"></i>
         {{ hunt }}
-      </option>
+        <form method="Post" action="/staff/control/" style="float: right;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="gethunt">
+          <input type="hidden" name="hunt_number" value="{{hunt.hunt_number}}">
+          <button type="submit" class="download-btn btn btn-success" onclick="return confirm('Are you sure?')">
+            Resources <i class="glyphicon glyphicon-download"></i>
+          </button>
+        </form>
+        <form method="Post" action="/staff/control/" style="float: right;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="getpuzzles">
+          <input type="hidden" name="hunt_number" value="{{hunt.hunt_number}}">
+          <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
+            Puzzles <i class="glyphicon glyphicon-download"></i>
+          </button>
+        </form>
+        <form method="Post" action="/staff/control/" style="float: right;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="new_current_hunt">
+          <input type="hidden" name="hunt_number" value="{{hunt.hunt_number}}">
+          <button type="submit" class="download-btn btn btn-info">
+            Set Current
+          </button>
+        </form>
+      </a>
+      <div class="list-group collapse" id="item-{{ forloop.counter }}">
+        {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
+          <a href="#item-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" class="list-group-item" data-toggle="collapse">
+            {{ puzzle }}
+            <form method="Post" action="/staff/control/" style="float: right;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="getpuzzles">
+              <input type="hidden" name="puzzle_number" value="{{puzzle.puzzle_number}}">
+              <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
+                Download
+              </button>
+            </form>
+          </a>
+        {% endfor %}
+      </div>
     {% endfor %}
-    </select>
-    <input type="hidden" name="action" value="gethunt">
-    <input type="submit" value="Fetch selected hunt resources from URL"
-           onclick="return confirm('Are you sure?')">
-  </form>
-  </br>
-  <form method="Post" action="/staff/control/">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="getpuzzles">
-    <input type="submit" value="Fetch ALL puzzles from URLs"
-           onclick="return confirm('Are you sure?')">
-  </form>
-  </br>
+  </div>
+
+  <h3> Prepuzzle Downloads: </h3>
+  <div class="list-group list-group-root well" style="max-width: 700px;">
+    {% for puzzle in prepuzzles|dictsort:"pk" %}
+      <a href="#item-{{ forloop.counter }}" class="list-group-item">
+        {{ puzzle }}
+        <form method="Post" action="/staff/control/" style="float: right;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="getprepuzzle">
+          <input type="hidden" name="puzzle_number" value="{{puzzle.pk}}">
+          <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
+            Download
+          </button>
+        </form>
+      </a>
+    {% endfor %}
+  </div>
+
+  <h3> Puzzle Management: </h3>
   <form method="Post" action="/staff/control/">
     {% csrf_token %}
     <input type="hidden" name="action" value="initial">
-    <input type="submit" value="Release Initial Puzzles"
-           onclick="return confirm('Are you sure?')">
+    <button type="submit" class="download-btn btn btn-warning"
+            onclick="return confirm('Are you sure?')">
+      Release initial puzzles
+    </button>
   </form>
+  <br>
+  <form method="Post" action="/staff/control/">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="reset">
+    <button type="submit" class="download-btn btn btn-danger" 
+            onclick="return confirm('Are you sure?')">
+      Reset all progress
+    </button>
+  </form>
+  </br>
 {% endblock content %}

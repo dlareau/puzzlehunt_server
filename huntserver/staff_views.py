@@ -423,8 +423,9 @@ def control(request):
                 puzzles = curr_hunt.puzzle_set.filter(puzzle_number=int(request.POST["puzzle_number"]))
                 for puzzle in puzzles:
                     download_puzzle(puzzle)
-            else:
-                for puzzle in curr_hunt.puzzle_set.all():
+            elif("hunt_number" in request.POST and request.POST["hunt_number"]):
+                hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
+                for puzzle in hunt.puzzle_set.all():
                     download_puzzle(puzzle)
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "getprepuzzle"):
@@ -438,7 +439,7 @@ def control(request):
                 download_hunt(hunt)
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "new_current_hunt"):
-            new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_num')))
+            new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_number')))
             new_curr.is_current_hunt = True
             new_curr.save()
             return redirect('huntserver:hunt_management')
