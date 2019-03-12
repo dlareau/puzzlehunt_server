@@ -8,7 +8,7 @@ Below are all of the steps you should need to take to run an already created puz
 Download Puzzles
 ================
 
-Before anybody can start playing your hunt, you have to download the puzzles. Head over to ``{server URL}/staff/management/``, make sure the hunt you are trying to run is marked as the current hunt, and click the "Fetch ALL puzzles from URLs". It will take a few minutes, be patient.
+Before anybody can start playing your hunt, you have to download the puzzles. Head over to ``{server URL}/staff/management/``, and click "Puzzles" button next to your hunt. It will download all of the puzzles, and it take a few minutes, be patient.
 
 That should just work, if it doesn't, check your links, check your PDF accessibility and try again. (if you really think it is a bug, feel free to submit an issue)
 
@@ -43,9 +43,9 @@ Staff Pages / During the Hunt
 Hopefully your opening information session went well, the puzzles released flawlessly and people are now solving puzzles. Time to sit back and watch/make the magic happen with the help of the following staff pages:
 
 Progress page:
-  One of the 2 pages you definitely are going displayed somewhere during the hunt. Some cool features about this page:
+  One of the 2 pages you definitely are going to have to display somewhere during the hunt. Some cool features about this page:
 
-    - The number of solved puzzles the team has solved is displayed next to each team
+    - The number of puzzles the team has solved is displayed next to each team
     - The color of each unsolved puzzle for a team will slowly fade from yellow to red the longer they have had the puzzle unlocked but not solved.
     - The last submission time will be visible in the cell for unsolved puzzles
     - The solve time will be visible in the cell for solved puzzles
@@ -58,23 +58,23 @@ Queue page:
   You can always update the submission response using the "Fix" link. The new content will be pushed to the team's page automatically. 
 
 Chat page:
-  It is important to maintain communication with the teams, which is where the chat page comes in. New messages from a team since the page was loaded will make the team's name appear in red. Only teams that have sent a message to the staff will show up on the list. 
-
-  If you absolutely need to send a message to a team who has not contacted staff yet, you can manually do so from the /admin/huntserver/message/ page. 
+  It is important to maintain communication with the teams, which is where the chat page comes in. New messages from a team since the page was loaded will make the team's name appear in red.
 
 Management page:
-  The only thing you would want to do with the management page during the hunt is to update puzzle PDFs. If you find that you need to make a change, simply update the remote PDF content, and fetch the single puzzle with the single puzzle fetch button. The PDF and PNGs should update to match the remote content. 
+  The only thing you would want to do with the management page during the hunt is to update puzzle PDFs. If you find that you need to make a change, simply update the remote PDF content, and fetch the single puzzle with the single puzzle download button (un-collapse the respective hunt list-item). The PDF and PNGs will update to match the remote content. 
 
 Email page:
   You can use this to send email from the configured email to all hunt participants. If you don't trust the interface for some reason or want to send something fancier than plain text, you can click the "Click to show all emails" button to display all hunt participant emails and send something manually.
 
 Charts page:
-  Everybody likes charts! At the moment, we have the following charts:
+  Everybody likes charts! At the moment, we have the following charts/tables:
 
     - Graph of number of teams that have any given puzzle locked, unlocked or solved
     - Graph of correct vs incorrect submissions for all puzzles
     - Graph of submissions over time during the hours that the hunt was open
     - Graph of solves over time during the hours that the hunt was open
+    - Puzzle info (first time and team to solve each puzzle, as well as # of solves)
+    - Table of "submissions after solves" which are usually funny (teams joking)
 
 
 Hunt End

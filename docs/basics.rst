@@ -39,8 +39,8 @@ the server comes included with a protected routing path utilizing X-Sendfile.
 The /protected/ URL will only allow a user to access puzzle files if they have unlocked the puzzle.
 To avoid hard-coding that path, you can use the variable "settings.PROTECTED_URL"  after importing the project settings.
 
-It is a bit simplistic, but anything in the puzzles directory is permission guarded by the first 3 characters of the filename.
-If the requesting user has access to the puzzle object with the corresponding 3 character puzzle_id, then they will have access to that file.
+It is a bit simplistic, but anything in the puzzles directory is permission guarded by the set of hexadecimal characters before the '-' or '.' of the filename.
+If the requesting user has access to the puzzle object with the corresponding puzzle_id, then they will have access to that file.
 You can use this to protect files other than just the puzzle PDFs and PNGs.
 
 You should protect your /media/puzzles URL by only allowing access to /media/puzzles/ from internal sources.

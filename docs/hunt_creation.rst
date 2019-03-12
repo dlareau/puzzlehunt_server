@@ -12,7 +12,7 @@ Click the "+" button at the top.
 
 You will be brought to the hunt creation page, which you should fill out, keeping in mind the following points:
 
-  - Make sure the start date is accurate or at the very least in the future, otherwise people will be able to see your hunt immediately.
+  - Make sure the start date is accuratej or at the very least in the future, otherwise people will be able to see your hunt immediately.
   - Make sure the end date is **after** the start date.
   - Do not check the "Is current hunt" box just yet
   - See the section below before putting anything into the template editor.
@@ -35,11 +35,11 @@ The following context will be passed to the renderer for use in the template: ``
 A note about static files
 -------------------------
 
-As of version ``3.0.0``, in order to reduce repository clutter, it is now against policy to commit files specific to a certain hunt to the respository. This means that you are no longer allowed to put images, fonts, and other files in ``/huntserver/static`` or ``/static``. To still allow the use of new static files in each hunt, a new object class has been created called "Hunt Asset Files". This class allows uploading of assets from the web interface, removing the need to interact with the hosting server directly.
+As of version ``3.0.0``, in order to reduce repository clutter, it is now against policy to commit files specific to a certain hunt to the respository. This means that you are no longer allowed to put images, fonts, and other files in ``/huntserver/static`` or ``/static``. 
 
-To upload a new asset file, navigate to ``{server URL}/admin/huntserver/huntassetfile/`` and click the blue "Add hunt asset file" button at the top. On the following screen, choose the file you wish to upload and hit save. Keep in mind that the URL for the file will be generated based on the uploaded file name and cannot be changed once uploaded, so name your files beforehand.
+To still allow the use of new static files in each hunt, 
+... hunt resources ....
 
-After you upload your file, click the save button and you will be taken back to the list of asset files. Next to each asset file is the link to use in your html template to access that file. It is clear to see that for each file, the link is just ``/media/hunt/assets/{name of file}``.
 
 Inheriting the base template
 ----------------------------
@@ -153,7 +153,7 @@ You will be brought to the puzzle creation page, which you should fill out, keep
   - Puzzle number should ideally be incremental starting at 1, this will be used for ordering puzzles
   - Puzzle ID should be unique across all puzzles ever made, and it is good practice to have the last two digits match the puzzle number
   - Link should be a publicly accessible PDF link (including https://) that doesn't require any authentication to access
-  - You don't need to fill in num pages, the server will do that for you upon downloading
+  - You don't need to fill in num pages, the server will do that for you upon downloading the pdf
   - Num required to unlock represents the number of puzzles in the below list that need to be solved to unlock this puzzle. Any puzzle with a '0' here will be considered part of the initial set
   - Don't worry about "Responses" right now, we'll talk about that below.
 
@@ -170,7 +170,7 @@ Some notes about the responses:
 
   - Regexes are in python syntax
   - You are allowed to regex upon the correct answer and override the default "Correct!" response, the puzzle will still be marked as solved
-  - Regexes are currently applied in no guaranteed order, answer that satisfy more than one regex are considered undefined behavior
+  - Regexes are currently applied in no guaranteed order, answers that satisfy more than one regex will result in undefined behavior
   - Response texts are allowed to contain markdown style links: [foo](https://link.to.foo)
 
 Create Prepuzzle Objects
@@ -210,10 +210,10 @@ A few notes about extending the default prepuzzle template:
 - Put all of your additions inside the "content" block unless specified otherwise below.
 - Do any style sheet or JS loading you need to do inside of an "includes" block as mentioned above in the hunt section.
 - If you want to have simple answer checking and response, just use ``{% include "prepuzzle_answerbox.html" %}`` which will insert a submission box (and associated javascript) into the page and display the response string when the correct answer is entered.
-- If you opt not to use the puzzle answerbox template, you can use the supplied javascript helpter function "check_answer" which takes a callback that will be passed the response and the user's answer
+- If you opt not to use the puzzle answerbox template, you can use the supplied javascript helper function "check_answer" which takes a callback that will be passed the response and the user's answer
 - If you have supplied a resource_link that links to a zip file, after downloading from the management page, the files inside the zip file will be accessible using the the prepuzzle static tag: ``{% prepuzzle_static %}file.png``
 
 Update Current Hunt Label
 =========================
 
-Congratulations! You have finished creating a hunt, head over to ``{server URL}/staff/management/`` and click the "Set as Current" button next to your new hunt. This will cause it to become the hunt represented by the staff pages such as the Progress and Queue pages, it will be displayed on the homepage as the "Upcoming hunt", and it will be open to team registration. If any of those sound like things you don't want yet, you can wait as long as you want to set the hunt as the current hunt.
+Congratulations! You have finished creating a hunt, head over to ``{server URL}/staff/management/`` and click the "Set Current" button next to your new hunt. This will cause it to become the hunt shown on the staff pages such as the Progress and Queue pages, it will be displayed on the homepage as the "Upcoming hunt", and it will be open to team registration. If any of those sound like things you don't want yet, you can wait as long as you want to set the hunt as the current hunt.
