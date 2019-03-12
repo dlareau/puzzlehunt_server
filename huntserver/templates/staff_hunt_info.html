@@ -8,21 +8,21 @@
     <div class="col-xs-12 col-sm-8 col-lg-5">
       {{ curr_hunt.real_teams.count }} Teams: <br>
       <b>Needs a room: ({{ need_teams.count }})</b><br>
-      <table>
+      <table class="table table-bordered table-condensed team-list">
         {% for team in need_teams %}
           <tr><td>{{ team.short_name }}</td> <td>{{ team.location }}</td></tr>
         {% endfor %}
       </table>
       <br>
       <b>Has a room: ({{ have_teams.count }})</b><br>
-      <table>
+      <table class="table table-bordered table-condensed team-list">
         {% for team in have_teams %}
           <tr><td>{{ team.short_name }}</td> <td>{{ team.location }}</td></tr>
         {% endfor %}
       </table>
       <br>
       <b>Off Campus: ({{ offsite_teams.count }})</b><br>
-      <table>
+      <table class="table table-bordered table-condensed team-list">
         {% for team in offsite_teams %}
           <tr><td>{{ team.short_name }}</td> <td>{{ team.location }}</td></tr>
         {% endfor %}

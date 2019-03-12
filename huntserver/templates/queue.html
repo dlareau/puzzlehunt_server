@@ -14,8 +14,8 @@
 {% block content %}
 <h1>Submission Queue</h1>
 
-<form method="GET" action="">
-  <select name="team_id" style="width: 200px;">
+<form method="GET" action="" class="form-inline">
+  <select name="team_id" style="width: 200px;" class="form-control">
     <option></option>
     {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
       <option value="{{team.pk}}" {% if team.pk == team_id %} selected {% endif %}>
@@ -23,7 +23,7 @@
       </option>
     {% endfor %}
   </select>
-  <select name="puzzle_id" style="width: 200px;">
+  <select name="puzzle_id" style="width: 200px;" class="form-control">
     <option></option>
     {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
       <option value="{{puzzle.pk}}" {% if puzzle.pk == puzzle_id %} selected {% endif %}>
@@ -31,10 +31,10 @@
       </option>
     {% endfor %}
   </select>
-  <input type="submit" value="Filter">
+  <button type="submit" value="Filter" class="btn btn-default"> Filter </button>
 </form>
 
-<table id='queue'>
+<table id='queue' class="table table-bordered table-condensed">
   <thead>
     <tr>
       <th>Team</th>
