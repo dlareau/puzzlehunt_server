@@ -35,6 +35,7 @@ Install the following packages:
 - python-dev
 - imagemagick
 - libmysqlclient-dev
+- unzip
 
 Install the required python packages using:
 ``pip install -r requirements.txt``

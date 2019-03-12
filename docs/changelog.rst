@@ -5,7 +5,7 @@ Changelog
 Version 3
 *********
 
-v3.3.0
+v3.4.0
 ======
 
 New:
@@ -14,6 +14,7 @@ New:
    - Queue can now be filtered by team and/or puzzle
    - Hunts can now have a "resources" link for additional static content
    - Chat link in navbar now has a "number of unread messages" badge
+   - Ctrl/Cmd-S now will now save the current mode in the django admin
 
 Updates:
    - The announement checkbox in staff chat now automatically get unchecked after sending
@@ -21,6 +22,7 @@ Updates:
    - Due to the addition of hunt resources, hunt asset files are now deprecated
    - Updated wording to Previous/Current/Next hunt on the index page based on date
    - The hunt management page has been redesigned for easier usage
+   - Most staff pages now have an updated to better utilize bootstrap
 
 Bugfixes:
    - Fixed progress page bug which update initial solve time if solved again
