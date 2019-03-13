@@ -17,12 +17,12 @@ New:
    - Ctrl/Cmd-S now will now save the current mode in the django admin
 
 Updates:
-   - The announement checkbox in staff chat now automatically get unchecked after sending
-   - The "Current Hunt" link now has time sensitive behaviour for before/during hunts
+   - The announcement checkbox in staff chat now automatically get unchecked after sending
+   - The "Current Hunt" link now has time sensitive behavior for before/during hunts
    - Due to the addition of hunt resources, hunt asset files are now deprecated
    - Updated wording to Previous/Current/Next hunt on the index page based on date
    - The hunt management page has been redesigned for easier usage
-   - Most staff pages now have an updated to better utilize bootstrap
+   - Most staff pages now have been updated to better utilize bootstrap
 
 Bugfixes:
    - Fixed progress page bug which update initial solve time if solved again

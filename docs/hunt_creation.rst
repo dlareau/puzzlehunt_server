@@ -35,10 +35,13 @@ The following context will be passed to the renderer for use in the template: ``
 A note about static files
 -------------------------
 
-As of version ``3.0.0``, in order to reduce repository clutter, it is now against policy to commit files specific to a certain hunt to the respository. This means that you are no longer allowed to put images, fonts, and other files in ``/huntserver/static`` or ``/static``. 
+As of version 3.0.0, in order to reduce repository clutter, it is now against policy to commit files specific to a certain hunt to the respository. This means that you are no longer allowed to put images, fonts, and other files in ``/huntserver/static`` or ``/static``. 
 
-To still allow the use of new static files in each hunt, 
-... hunt resources ....
+As of version 3.4.0, the "hunt asset" system has been deprecated in favor of the new "hunt resources" system.
+
+To still allow the use of new static files in each hunt, there is now a field on each hunt's admin page for a resource URL. This URL should point to a publicly accessible zip file, which contains all static media needed for the main hunt page. The resources can be downloaded by clicking the "Resources" button next to the appropriate hunt on the Hunt Management page.
+
+After the resources have been downloaded, they will be accessible through the use of a special template tag: ``{% hunt static %}myimage.png``.
 
 
 Inheriting the base template
@@ -152,10 +155,16 @@ You will be brought to the puzzle creation page, which you should fill out, keep
 
   - Puzzle number should ideally be incremental starting at 1, this will be used for ordering puzzles
   - Puzzle ID should be unique across all puzzles ever made, and it is good practice to have the last two digits match the puzzle number
-  - Link should be a publicly accessible PDF link (including https://) that doesn't require any authentication to access
+  - Make sure to check the "Is meta" box if this puzzle is a metapuzzle. 
   - You don't need to fill in num pages, the server will do that for you upon downloading the pdf
   - Num required to unlock represents the number of puzzles in the below list that need to be solved to unlock this puzzle. Any puzzle with a '0' here will be considered part of the initial set
   - Don't worry about "Responses" right now, we'll talk about that below.
+  - There are 3 link fields, all should be publicly accessible (no auth require) and include the full "https://":
+  
+    - "Link" should be a link to the PDF of the puzzle if this is not an HTML puzzle.
+    - "Resource Link" should be a link to a ZIP file if the puzzle has a non-pdf component. This content will be available at ``/protected/puzzles/{{puzzle_id}}/``. 
+    - "Solution Link" should be a link to the PDF of the solution for the puzzle. If populated, this PDF will be available on the puzzle page after the hunt ends.
+    - Note: checking the "Is html puzzle" box will ignore the PDF link, and redirect the puzzle link to the resources folder. This means that the unzipped resources folder must act as a complete web page (including an index.html page) and it is recommended to use all local URL references in your HTML.  
 
 After filling out the page, hit "Save and add another" and continue to add puzzles until you have added all of the puzzles for the hunt. This will take a while, my recommendations are to be patient and have the unlocking graph on hand.
 

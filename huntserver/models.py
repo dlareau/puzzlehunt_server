@@ -111,7 +111,7 @@ class Puzzle(models.Model):
     puzzle_name = models.CharField(max_length=200,
         help_text="The name of the puzzle as it will be seen by hunt participants")
     puzzle_id = models.CharField(max_length=8, unique=True,  # hex only please
-        help_text="A 3 character hex string that uniquely identifies the puzzle")
+        help_text="A 3-5 character hex string that uniquely identifies the puzzle")
     answer = models.CharField(max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
     link = models.URLField(max_length=200, blank=True,
