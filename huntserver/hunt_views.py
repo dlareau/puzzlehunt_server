@@ -274,11 +274,10 @@ def chat(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
     if request.method == 'POST':
-        if(request.POST.get('team_pk') == ""):
-            return HttpResponse(status=400)
-
+        # There is data in the post request, but we don't need anything but
+        #   the message because normal users can't send as staff or other teams
         m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
-            is_response=(request.POST.get('is_response') == "true"), team=team)
+                                   is_response=False, team=team)
         team.last_received_message = m.pk
         messages = [m]
     else:

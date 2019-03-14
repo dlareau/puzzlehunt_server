@@ -305,9 +305,10 @@ def admin_chat(request):
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     if request.method == 'POST':
+        # We can trust all post parameters because user is already authenticated as staff
         if(request.POST.get('team_pk') == ""):
             return HttpResponse(status=400)
-        if(request.POST.get("is_announcement") == "true" and request.user.is_staff):
+        if(request.POST.get("is_announcement") == "true"):
             messages = []
             for team in curr_hunt.real_teams.all():
                 m = Message.objects.create(time=timezone.now(),
