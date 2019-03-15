@@ -1,18 +1,18 @@
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from .models import Solve, Unlock, Hunt, Person, Team
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Solve, Unlock, Person, Team
 from django.utils import timezone
 from subprocess import call
 import os
 from PyPDF2 import PdfFileReader
 import re
 
+
 # Automatic submission response system
 # Takes a submission object and should return a string
 # Returning an empty string means that huntstaff should respond via the queue
-# Currently only invalid characters are spaces and underscores.
 # Order of response importance: Correct regex, Correct default,
-# Invalid characters, Incorrect regex, Incorrect (archived), Staff response.
+# Incorrect regex, Incorrect (archived), Staff response.
 def respond_to_submission(submission):
     # Check against regexes
     regex_response = ""
@@ -33,15 +33,6 @@ def respond_to_submission(submission):
         else:
             response = "Correct!"
 
-    # Currently not used to do punctiation stripping
-    # # Answers should not contain spaces
-    # elif(" " in submission.submission_text):
-    #     response = "Invalid answer (spaces)"
-    # # Answers should not contain underscores
-    # elif("_" in submission.submission_text):
-    #     response = "Invalid answer (underscores)"
-    # Check against all expected answers and respond appropriately
-
     else:
         if(regex_response != ""):
             response = regex_response
@@ -60,6 +51,7 @@ def respond_to_submission(submission):
     submission.response_text = response
     submission.save()
     return response
+
 
 # Looks through each puzzle and sees if a team has enough solves to unlock it
 # Should be called after anything could add a solve object to a team
@@ -83,65 +75,58 @@ def unlock_puzzles(team):
             if(puzzle not in team.unlocked.all()):
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
 
-# Runs the commands listed at the bottom for the puzzle to download the pdf
-# and convert it to PNGs. Does not provide any roll-back safety if the new PDF
-# is bad. Has to also get number of pages for the template rendering
+
+def download_zip(directory, filename, url):
+    if(url == ""):
+        return
+
+    if(not os.path.isdir(directory)):
+        call(["mkdir", directory])
+
+    file_str = directory + "/" + filename + ".zip"
+    call(["wget", "--max-redirect=20", url, "-O", file_str])
+    call(["unzip", "-o", "-d", directory + "/" + filename, file_str])
+
+
+def download_pdf(directory, filename, url):
+    if(url == ""):
+        return
+
+    if(not os.path.isdir(directory)):
+        call(["mkdir", directory])
+
+    file_str = directory + "/" + filename + ".pdf"
+    call(["wget", url, "-O", file_str])
+    with open(file_str, "rb") as f:
+        num_pages = PdfFileReader(f).getNumPages()
+    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"])
+    return num_pages
+
+
 def download_puzzle(puzzle):
     directory = settings.MEDIA_ROOT + "puzzles"
 
-    if(not os.path.isdir(directory)):
-        call(["mkdir", directory])
+    puzzle.num_pages = download_pdf(directory, str(puzzle.puzzle_id), puzzle.link)
+    puzzle.save()
 
-    if(puzzle.link != ""):
-        # Get the PDF
-        file_str = directory + "/" + puzzle.puzzle_id + ".pdf"
-        call(["wget", puzzle.link, "-O", file_str])
-        with open(file_str, "rb") as f:
-            puzzle.num_pages = PdfFileReader(f).getNumPages()
-            puzzle.save()
-        call(["convert", "-density", "200", file_str, directory + "/" + puzzle.puzzle_id + ".png"])
-        # get document: wget {{URL}} -O {{FILENAME}}
-        # convert: convert -density 200 {{FILENAME}} {{OUTFILE}}
+    download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
 
-    if(puzzle.resource_link != ""):
-        # Get the other resources
-        file_str = directory + "/" + puzzle.puzzle_id + ".zip"
-        call(["wget", "-q", "--max-redirect=20", puzzle.resource_link, "-O", file_str])
-        call(["unzip", "-o", "-d", directory + "/" + puzzle.puzzle_id, file_str])
-        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
-        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
+    download_pdf(settings.MEDIA_ROOT + "solutions",
+                 str(puzzle.puzzle_id),
+                 puzzle.solution_link)
 
-    if(puzzle.solution_link != ""):
-        # Get the PDF
-        file_str = settings.MEDIA_ROOT + "solutions" + "/" + puzzle.puzzle_id + "_sol.pdf"
-        call(["wget", "-q", puzzle.solution_link, "-O", file_str])
-        # get document: wget {{URL}} -O {{FILENAME}}
 
 def download_prepuzzle(puzzle):
-    directory = settings.MEDIA_ROOT + "prepuzzles"
-    if(not os.path.isdir(directory)):
-        call(["mkdir", directory])
+    download_zip(settings.MEDIA_ROOT + "prepuzzles",
+                 str(puzzle.pk),
+                 puzzle.resource_link)
 
-    if(puzzle.resource_link != ""):
-        # Get the other resources
-        file_str = directory + "/" + str(puzzle.pk) + ".zip"
-        call(["wget", "--max-redirect=20", puzzle.resource_link, "-O", file_str])
-        call(["unzip", "-o", "-d", directory + "/" + str(puzzle.pk), file_str])
-        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
-        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
 
 def download_hunt(hunt):
-    directory = settings.MEDIA_ROOT + "hunt"
-    if(not os.path.isdir(directory)):
-        call(["mkdir", directory])
+    download_zip(settings.MEDIA_ROOT + "hunt",
+                 str(hunt.hunt_number),
+                 hunt.resource_link)
 
-    if(hunt.resource_link != ""):
-        # Get the other resources
-        file_str = directory + "/" + str(hunt.hunt_number) + ".zip"
-        call(["wget", "--max-redirect=20", hunt.resource_link, "-O", file_str])
-        call(["unzip", "-o", "-d", directory + "/" + str(hunt.hunt_number), file_str])
-        # get document: wget --max-redirect=20 {{URL}} -O {{FILENAME}}
-        # convert: unzip {{FILENAME}} -o -d {{OUTDIR}}
 
 def parse_attributes(META):
     shib_attrs = {}
@@ -163,19 +148,21 @@ def parse_attributes(META):
                 error = True
     return shib_attrs, error
 
-# This is from an old shibboleth implementation
-# Maybe bring this back for login_selection.html
-# def build_shib_url(request, target, entityid=None):
-#     url_base = 'https://%s' % request.get_host()
-#     shib_url = "%s%s" % (url_base, getattr(settings, 'SHIB_HANDLER', '/Shibboleth.sso/DS'))
-#     if not target.startswith('http'):
-#         target = url_base + target
 
-#     url = '%s?target=%s' % (shib_url, target)
-#     if entityid:
-#         url += '&entityID=%s' % entityid
-#     return url
+# https://puzzlehunt.club.cc.cmu.edu/Shibboleth.sso/Login
+    # ?entityID=https://login.cmu.edu/idp/shibboleth
+    # &target=https://puzzlehunt.club.cc.cmu.edu/shib/login
+    # ?next={{next}}
+def shib_login_url(request, entityID, next_path):
+    shib_str = "https://puzzlehunt.club.cc.cmu.edu/Shibboleth.sso/Login"
+    entity_str = "entityID=" + entityID
+    target_str = "target=" + "https://" + request.get_host() + "/shib/login"
+    next_str = "next=" + next_path
 
+    return shib_str + "?" + entity_str + "&" + target_str + "?" + next_str
+
+
+# Takes a hunt and returns the "dummy" team for that hunt, making it if needed
 def dummy_team_from_hunt(hunt):
     try:
         team = Team.objects.get(hunt=hunt, location="DUMMY")
@@ -184,12 +171,37 @@ def dummy_team_from_hunt(hunt):
                     location="DUMMY", join_code="WRONG")
     return team
 
+
+# Takes a user and a hunt and returns either the user's team for that hunt or None
 def team_from_user_hunt(user, hunt):
-    if(user.is_anonymous()):
+    if(not user.is_authenticated):
         return None
-    teams1 = get_object_or_404(Person, user=user)
-    teams = teams1.teams.filter(hunt=hunt)
-    if(len(teams) > 0):
-        return teams[0]
-    else:
-        return None
+    teams = get_object_or_404(Person, user=user).teams.filter(hunt=hunt)
+    return teams[0] if (len(teams) > 0) else None
+
+
+# Takes a request and a hunt and returns a dict with whether or not the user
+#   can access various hunt resources as well as either the team (if yes) or
+#   the web response if not.
+def get_hunt_permissions(request, hunt):
+    if(request.user.is_staff or hunt.is_public):
+        return {'access': True, 'team:': dummy_team_from_hunt(hunt)}
+
+    # Known: We are in pre-hunt or hunt and the user is not staff
+    if(not request.user.is_authenticated):
+        return {'access': False,
+                'response:': redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))}
+
+    # Known: We are in pre-hunt or hunt, the user is logged in and not staff
+    teams = get_object_or_404(Person, user=request.user).teams.filter(hunt=hunt)
+    if(len(teams) == 0):
+        return {'access': False,
+                'response:': render(request, 'access_error.html')}
+
+    team = teams[0]
+    # Known: We are in pre-hunt or hunt, the user is logged in and in this hunt
+    if(hunt.is_open or team.is_playtesting_team):
+        return {'access': True, 'team:': team}
+
+    # Known: We are in pre-hunt and the user is logged in, in this hunt and not a playtester
+    return {'access': False, 'response:': render(request, 'access_error.html')}
