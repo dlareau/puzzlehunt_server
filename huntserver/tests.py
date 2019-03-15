@@ -401,7 +401,7 @@ class HuntTests(TestCase):
         post_context = {'team_pk': "", 'is_announcement': "true",
                         'is_response':"false", 'message': "my simple message"}
         response = self.client.post(reverse('huntserver:chat'), post_context)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
 
         response = ajax_and_check_page(self, 'huntserver:chat', 200, {'last_pk': '0'})
         response = get_and_check_page(self, 'huntserver:chat', 200)
