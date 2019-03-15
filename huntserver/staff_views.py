@@ -14,7 +14,7 @@ import networkx as nx
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person, Prepuzzle
 from .forms import SubmissionForm, UnlockForm, EmailForm
-from .utils import unlock_puzzles, download_puzzle, download_prepuzzle, download_hunt
+from .utils import unlock_puzzles, download_puzzle, download_zip
 
 
 @staff_member_required
@@ -364,6 +364,7 @@ def hunt_management(request):
     prepuzzles = Prepuzzle.objects.all()
     return render(request, 'hunt_management.html', {'hunts': hunts, 'prepuzzles': prepuzzles})
 
+
 @staff_member_required
 def hunt_info(request):
     """ A view to render the hunt info page, which contains room and allergy information """
@@ -375,7 +376,7 @@ def hunt_info(request):
     for team in teams:
         people = people + list(team.person_set.all())
     try:
-        old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number-1)
+        old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
         new_people = [p for p in people if p.user.date_joined > old_hunt.start_date]
     except:
         new_people = people
@@ -384,13 +385,13 @@ def hunt_info(request):
     have_teams = teams.exclude(location="need_a_room").exclude(location="needs_a_room").exclude(location="off_campus")
     offsite_teams = teams.filter(location="off_campus")
 
-    context = {'curr_hunt': curr_hunt, 
+    context = {'curr_hunt': curr_hunt,
                'people': people,
                'new_people': new_people,
                'need_teams': need_teams.all(),
                'have_teams': have_teams.all(),
                'offsite_teams': offsite_teams.all(),
-            }
+               }
     return render(request, 'staff_hunt_info.html', context)
 
 
@@ -419,31 +420,40 @@ def control(request):
                 team.solve_set.all().delete()
                 team.submission_set.all().delete()
             return redirect('huntserver:hunt_management')
+
         if(request.POST["action"] == "getpuzzles"):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
                 puzzles = curr_hunt.puzzle_set.filter(puzzle_number=int(request.POST["puzzle_number"]))
                 for puzzle in puzzles:
                     download_puzzle(puzzle)
+
             elif("hunt_number" in request.POST and request.POST["hunt_number"]):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
                 for puzzle in hunt.puzzle_set.all():
                     download_puzzle(puzzle)
+
             return redirect('huntserver:hunt_management')
+
         if(request.POST["action"] == "getprepuzzle"):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
                 puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
-                download_prepuzzle(puzzle)
+                download_zip(settings.MEDIA_ROOT + "prepuzzles", str(puzzle.pk), puzzle.resource_link)
+
             return redirect('huntserver:hunt_management')
+
         if(request.POST["action"] == "gethunt"):
             if("hunt_number" in request.POST and request.POST["hunt_number"]):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
-                download_hunt(hunt)
+                download_zip(settings.MEDIA_ROOT + "hunt", str(hunt.hunt_number), hunt.resource_link)
+
             return redirect('huntserver:hunt_management')
+
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_number')))
             new_curr.is_current_hunt = True
             new_curr.save()
             return redirect('huntserver:hunt_management')
+
         else:
             return render(request, 'access_error.html')
 

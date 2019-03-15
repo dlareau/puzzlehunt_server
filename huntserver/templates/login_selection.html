@@ -9,15 +9,13 @@
       <h4>(Please use a university login if possible)</h4>
       <div class="row">
         <div class="col-xs-4">
-          <!-- This is one really nasty URL -->
-          <a href="/Shibboleth.sso/Login?entityID=https://login.cmu.edu/idp/shibboleth&target=https://puzzlehunt.club.cc.cmu.edu/shib/login?next={{next}}">
+          <a href="{% shib_login_url 'https://login.cmu.edu/idp/shibboleth' next %}">
             <img src="/static/huntserver/cmu_login.png" alt="Login Image" width="100%">
             Carnegie Mellon University
           </a>
         </div>
         <div class="col-xs-4">
-          <!-- This is one really nasty URL -->
-          <a href="/Shibboleth.sso/Login?entityID=https://passport.pitt.edu/idp/shibboleth&target=https://puzzlehunt.club.cc.cmu.edu/shib/login?next={{next}}">
+          <a href="{% shib_login_url 'https://passport.pitt.edu/idp/shibboleth' next %}">
             <img src="/static/huntserver/pitt_login.png" alt="Login Image" width="100%">
             University of Pittsburgh
           </a>

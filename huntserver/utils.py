@@ -110,22 +110,7 @@ def download_puzzle(puzzle):
     puzzle.save()
 
     download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
-
-    download_pdf(settings.MEDIA_ROOT + "solutions",
-                 str(puzzle.puzzle_id),
-                 puzzle.solution_link)
-
-
-def download_prepuzzle(puzzle):
-    download_zip(settings.MEDIA_ROOT + "prepuzzles",
-                 str(puzzle.pk),
-                 puzzle.resource_link)
-
-
-def download_hunt(hunt):
-    download_zip(settings.MEDIA_ROOT + "hunt",
-                 str(hunt.hunt_number),
-                 hunt.resource_link)
+    download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id), puzzle.solution_link)
 
 
 def parse_attributes(META):
@@ -149,25 +134,12 @@ def parse_attributes(META):
     return shib_attrs, error
 
 
-# https://puzzlehunt.club.cc.cmu.edu/Shibboleth.sso/Login
-    # ?entityID=https://login.cmu.edu/idp/shibboleth
-    # &target=https://puzzlehunt.club.cc.cmu.edu/shib/login
-    # ?next={{next}}
-def shib_login_url(request, entityID, next_path):
-    shib_str = "https://puzzlehunt.club.cc.cmu.edu/Shibboleth.sso/Login"
-    entity_str = "entityID=" + entityID
-    target_str = "target=" + "https://" + request.get_host() + "/shib/login"
-    next_str = "next=" + next_path
-
-    return shib_str + "?" + entity_str + "&" + target_str + "?" + next_str
-
-
 # Takes a hunt and returns the "dummy" team for that hunt, making it if needed
 def dummy_team_from_hunt(hunt):
     try:
         team = Team.objects.get(hunt=hunt, location="DUMMY")
     except:
-        team = Team.objects.create(team_name=hunt.hunt_name+"_DUMMY", hunt=hunt,
+        team = Team.objects.create(team_name=hunt.hunt_name + "_DUMMY", hunt=hunt,
                     location="DUMMY", join_code="WRONG")
     return team
 
