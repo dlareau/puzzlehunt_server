@@ -150,30 +150,3 @@ def team_from_user_hunt(user, hunt):
         return None
     teams = get_object_or_404(Person, user=user).teams.filter(hunt=hunt)
     return teams[0] if (len(teams) > 0) else None
-
-
-# Takes a request and a hunt and returns a dict with whether or not the user
-#   can access various hunt resources as well as either the team (if yes) or
-#   the web response if not.
-def get_hunt_permissions(request, hunt):
-    if(request.user.is_staff or hunt.is_public):
-        return {'access': True, 'team:': dummy_team_from_hunt(hunt)}
-
-    # Known: We are in pre-hunt or hunt and the user is not staff
-    if(not request.user.is_authenticated):
-        return {'access': False,
-                'response:': redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))}
-
-    # Known: We are in pre-hunt or hunt, the user is logged in and not staff
-    teams = get_object_or_404(Person, user=request.user).teams.filter(hunt=hunt)
-    if(len(teams) == 0):
-        return {'access': False,
-                'response:': render(request, 'access_error.html')}
-
-    team = teams[0]
-    # Known: We are in pre-hunt or hunt, the user is logged in and in this hunt
-    if(hunt.is_open or team.is_playtesting_team):
-        return {'access': True, 'team:': team}
-
-    # Known: We are in pre-hunt and the user is logged in, in this hunt and not a playtester
-    return {'access': False, 'response:': render(request, 'access_error.html')}
