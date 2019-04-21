@@ -607,7 +607,7 @@ class StaffTests(TestCase):
         self.assertEqual(response.status_code, 302)
         post_context = {'action': "foobar"}
         response = self.client.post(reverse('huntserver:control'), post_context)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
 
     def test_staff_emails(self):
         "Test the staff email view"
