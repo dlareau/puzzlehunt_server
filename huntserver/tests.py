@@ -387,7 +387,8 @@ class HuntTests(TestCase):
     def test_chat_normal(self):
         "Test the basic chat view"
         login(self, 'user6')
-        response = get_and_check_page(self, 'huntserver:chat', 404)
+        response = get_and_check_page(self, 'huntserver:chat', 200)
+        self.assertTemplateUsed(response, 'access_error.html')      
 
         login(self, 'user1')
         response = get_and_check_page(self, 'huntserver:chat', 200)
