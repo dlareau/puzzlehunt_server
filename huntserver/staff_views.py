@@ -455,7 +455,7 @@ def control(request):
             return redirect('huntserver:hunt_management')
 
         else:
-            return render(request, 'access_error.html')
+            return HttpResponseNotFound('access denied')
 
 
 @staff_member_required

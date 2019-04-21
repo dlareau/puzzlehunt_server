@@ -412,7 +412,7 @@ class HuntTests(TestCase):
         response = get_and_check_page(self, 'huntserver:unlockables', 200)  
         login(self, 'user6')
         response = get_and_check_page(self, 'huntserver:unlockables', 200)  
-        self.assertTemplateUsed(response, 'not_released.html')      
+        self.assertTemplateUsed(response, 'access_error.html')      
 
 class AuthTests(TestCase):
     fixtures = ["basic_hunt"]

@@ -1,11 +1,40 @@
-{% extends "hunt_base.html" %}
-{% block title %}Access Denied{% endblock title %}
+{% extends "info_base.html" %}
+{% block title %}Not Available{% endblock title %}
 
 {% block content %}
-    <h1 class="title">Access Denied</h1>
-    
-    <p>You are not allowed access to this page.</p>
-    <p>Consider heading back to the <a href='/' class='icon-link'>Main Page.</a></p>
-    </br>
-    <p>For assistance, email <a href="mailto:dlareau@cmu.edu">dlareau@cmu.edu</a>.</p>
+<div class="container">
+  <h1 class="title">Not Available</h1>
+
+  <center>
+    {% if reason == "hunt" %}
+    <p>
+      The resource or page you are attempting to access is associated with a
+      puzzlehunt that is not yet started. Please refresh this page after the
+      hunt has started.
+    </p>
+    {% endif %}
+
+    {% if reason == "team" %}
+    <p>
+      You must be participating in the current hunt to view this resource or 
+      page, and it does not appear you are on a team for this hunt. Please
+      ensure you are signed in correctly and that you have properly added
+      yourself to a team on the <a href="{% url 'huntserver:registration' %}"> 
+      registration page</a>. 
+    </p>
+    {% endif %}
+
+    {% if reason == "puzzle" %}
+    <p>
+      This resource or page is part of an ongoing puzzlehunt and is not yet
+      unlocked for your team. Please either continue playing to unlock it or
+      wait until the hunt is public.
+    </p>
+    {% endif %}
+
+    <br>
+    <p>For assistance, email <a href="mailto:puzzlehunt-staff@lists.andrew.cmu.edu">puzzlehunt staff.</a>.</p>
+  </center>
+</div>
 {% endblock content %}
+{% block footer %}{% endblock footer %}

@@ -77,7 +77,7 @@ def hunt(request, hunt_num):
     # Hunt has not yet started
     elif(hunt.is_locked):
         if(hunt.is_day_of_hunt):
-            return render(request, 'not_released.html', {'reason': "locked"})
+            return render(request, 'access_error.html', {'reason': "hunt"})
         else:
             return hunt_prepuzzle(request, hunt_num)
 
@@ -88,7 +88,7 @@ def hunt(request, hunt_num):
             return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 
         elif(team is None or (team.hunt != hunt)):
-            return render(request, 'not_released.html', {'reason': "team"})
+            return render(request, 'access_error.html', {'reason': "team"})
         else:
             puzzle_list = team.unlocked.filter(hunt=hunt)
 
@@ -248,7 +248,7 @@ def puzzle_view(request, puzzle_id):
 
             if (not request.user.is_staff):
                 if(team is None or puzzle not in team.unlocked.all()):
-                    return render(request, 'access_error.html')
+                    return render(request, 'access_error.html', {'reason': "puzzle"})
 
         # The logic above is negated to weed out edge cases, so here is a summary:
         # If we've made it here, the hunt is public OR the user is staff OR
@@ -282,9 +282,7 @@ def chat(request):
         messages = [m]
     else:
         if(team is None):
-            # TODO maybe handle more nicely because hunt may just not be released
-            # return render(request, 'not_released.html', {'reason': "team"})
-            return HttpResponse(status=404)
+            return render(request, 'access_error.html', {'reason': "team"})
         if request.is_ajax():
             messages = Message.objects.filter(pk__gt=request.GET.get("last_pk"))
         else:
@@ -316,6 +314,6 @@ def unlockables(request):
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = team_from_user_hunt(request.user, curr_hunt)
     if(team is None):
-        return render(request, 'not_released.html', {'reason': "team"})
+        return render(request, 'access_error.html', {'reason': "team"})
     unlockables = Unlockable.objects.filter(puzzle__in=team.solved.all())
     return render(request, 'unlockables.html', {'unlockables': unlockables, 'team': team})
