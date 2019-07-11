@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil import tz
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import admin
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
@@ -15,6 +16,11 @@ import networkx as nx
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Person, Prepuzzle
 from .forms import SubmissionForm, UnlockForm, EmailForm
 from .utils import unlock_puzzles, download_puzzle, download_zip
+
+
+def add_apps_to_context(context, request):
+    context['available_apps'] = admin.site.get_app_list(request)
+    return context
 
 
 @staff_member_required
@@ -84,7 +90,7 @@ def queue(request):
         context = {'form': form, 'page_info': submissions, 'arg_string': arg_string,
         'submission_list': submission_list, 'last_date': last_date, 'hunt': hunt,
         'puzzle_id': puzzle_id, 'team_id': team_id}
-        return render(request, 'queue.html', context)
+        return render(request, 'queue.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -200,7 +206,7 @@ def progress(request):
         context = {'puzzle_list': puzzles, 'team_list': teams, 'sol_array': sol_array,
                    'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk,
                    'last_submission_pk': last_submission_pk}
-        return render(request, 'progress.html', context)
+        return render(request, 'progress.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -293,7 +299,7 @@ def charts(request):
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
                'table_dict': sorted(iter(table_dict.items()), key=lambda x:x[1]['first_time']),
                'after_subs': after_subs}
-    return render(request, 'charts.html', context)
+    return render(request, 'charts.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -353,7 +359,7 @@ def admin_chat(request):
     else:
         teams = curr_hunt.team_set.order_by("team_name").all()
         context['teams'] = teams
-        return render(request, 'staff_chat.html', context)
+        return render(request, 'staff_chat.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -362,7 +368,8 @@ def hunt_management(request):
 
     hunts = Hunt.objects.all()
     prepuzzles = Prepuzzle.objects.all()
-    return render(request, 'hunt_management.html', {'hunts': hunts, 'prepuzzles': prepuzzles})
+    context = {'hunts': hunts, 'prepuzzles': prepuzzles}
+    return render(request, 'hunt_management.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -392,7 +399,7 @@ def hunt_info(request):
                'have_teams': have_teams.all(),
                'offsite_teams': offsite_teams.all(),
                }
-    return render(request, 'staff_hunt_info.html', context)
+    return render(request, 'staff_hunt_info.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -485,7 +492,7 @@ def emails(request):
     else:
         email_form = EmailForm()
     context = {'email_list': (', ').join(email_list), 'email_form': email_form}
-    return render(request, 'email.html', context)
+    return render(request, 'email.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
@@ -499,4 +506,4 @@ def depgraph(request):
             G.add_edge(unlock.puzzle_number, puzzle.puzzle_number)
     edges = [line.split(' ') for line in nx.generate_edgelist(G, data=False)]
     context = {'puzzles': hunt.puzzle_set.all(), 'edges': edges}
-    return render(request, 'depgraph.html', context)
+    return render(request, 'depgraph.html', add_apps_to_context(context, request))

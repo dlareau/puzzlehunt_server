@@ -1,16 +1,20 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load i18n static bootstrap_admin_template_tags  %}
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 
 {% block extrahead %}
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
 {% endblock %}
-    
-{% block branding %}
-    <a href="{% url 'admin:index' %}" class="django-admin-logo">
-        <!-- Django Administration -->
-        <img height="60" src="{% static "huntserver/phcmulong.png" %}" alt="{{ site_header|default:_('Django administration') }}">
-    </a>
-    <script type="text/javascript">
+
+{% block bootstrap_admin_css %}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+{% endblock bootstrap_admin_css %}
+
+{% block bootstrap_admin_js %}
+  <script>if (typeof jQuery === 'undefined' && django && django.jQuery) {jQuery = django.jQuery;}</script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+  <script src="{% static 'bootstrap_admin/js/base.js' %}"></script>
+  <script type="text/javascript">
     if ('undefined' !== typeof(django)) {
         django.jQuery(function(){
             setTimeout(function(){
@@ -32,15 +36,68 @@
             return true;
         });
     }
-    </script>
-{% endblock %}
-
-{% block bootstrap_admin_css %}
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-{% endblock bootstrap_admin_css %}
-
-{% block bootstrap_admin_js %}
-  <script>if (typeof jQuery === 'undefined' && django && django.jQuery) {jQuery = django.jQuery;}</script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-  <script src="{% static 'bootstrap_admin/js/base.js' %}"></script>
+  </script>
 {% endblock bootstrap_admin_js %}
+
+{% block sidebar_menu %}
+    <div id="sidebar-menu" class="col-xs-4 col-sm-3 col-md-2 sidebar-menu">
+      {% block branding %}
+        <a href="{% url 'admin:index' %}" class="django-admin-logo">
+            <!-- Django Administration -->
+            <img height="60" src="{% static "huntserver/phcmulong.png" %}" alt="{{ site_header|default:_('Django administration') }}">
+        </a>
+      {% endblock branding %}
+      {% block filters %}{% endblock filters %}
+
+      {% if available_apps %}
+      {% for app in available_apps %}
+        <ul class="nav nav-sidebar app-{{ app.app_label }} module{% if app.app_url in request.path %} has-active-menu show-models{% endif %}">
+          <li {% if app.app_url == request.path %} class="active"{% endif %}>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
+              {{ app.name }}
+            </a>
+          </li>
+          {% for model in app.models %}
+            <li {% if model.admin_url in request.path %}class="active"{% endif %}>
+              <a href="{% firstof model.admin_url model.add_url '#' %}" title="{% if not model.admin_url and not model.add_url %}{% trans "You don't have permission to edit anything." %}{% endif %}">{{ model.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    {% else %}
+      <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
+    {% endif %}
+    {% if "progress" in request.path or "queue" in request.path or "chat" in request.path or "management" in request.path or "emails" in request.path or "charts" in request.path or "info" in request.path %}
+        <ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
+    {% else %}
+        <ul class="nav nav-sidebar app-staffpages module">
+    {% endif %}
+          <li>
+            <a href="/staff" class="section">
+              Other Staff Pages
+            </a>
+          </li>
+            <li {% if "progress" in current_url %}class="active"{% endif %}>
+              <a href="/staff/progress">Progress</a>
+            </li>
+            <li {% if "queue" in current_url %}class="active"{% endif %}>
+              <a href="/staff/queue">Queue</a>
+            </li>
+            <li {% if "chat" in current_url %}class="active"{% endif %}>
+              <a href="/staff/chat">Chat</a>
+            </li>
+            <li {% if "management" in current_url %}class="active"{% endif %}>
+              <a href="/staff/management">Management</a>
+            </li>
+            <li {% if "info" in current_url %}class="active"{% endif %}>
+              <a href="/staff/info">Info</a>
+            </li>
+            <li {% if "emails" in current_url %}class="active"{% endif %}>
+              <a href="/staff/emails">Email</a>
+            </li>
+            <li {% if "charts" in current_url %}class="active"{% endif %}>
+              <a href="/staff/charts">Charts</a>
+            </li>
+        </ul>
+    </div>
+{% endblock sidebar_menu %}
