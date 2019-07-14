@@ -9,6 +9,12 @@ def hunt_static(context):
 
 
 @register.simple_tag(takes_context=True)
+def site_title(context):
+    from django.conf import settings
+    return settings.SITE_TITLE
+
+
+@register.simple_tag(takes_context=True)
 def shib_login_url(context, entityID, next_path):
     if(context['request'].is_secure()):
         protocol = "https://"
