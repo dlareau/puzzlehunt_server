@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, views
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from huntserver.utils import parse_attributes
@@ -16,7 +16,11 @@ def login_selection(request):
         context = {'next': request.GET['next']}
     else:
         context = {'next': "/"}
-    return render(request, "login_selection.html", context)
+
+    if(settings.USE_SHIBBOLETH):
+        return render(request, "login_selection.html", context)
+    else:
+        return views.login(request)
 
 
 def create_account(request):

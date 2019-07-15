@@ -105,6 +105,8 @@ BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
 
+USE_SHIBBOLETH = True
+
 SHIB_ATTRIBUTE_MAP = {
     "Shib-Identity-Provider": (True, "idp"), "eppn": (True, "eppn"), "givenName": (False, "givenName"), "sn": (False, "sn"), 
 }
