@@ -1,5 +1,6 @@
 {% extends "info_base.html" %}
 {% load humanize %}
+{% load hunt_tags %}
 
 {% block includes %}
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
@@ -58,7 +59,7 @@
     </p>
 
     <h2>Wait, I have more questions!</h2>
-    <p>Email the <a href="mailto:puzzlehunt-staff@lists.andrew.cmu.edu?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> (puzzlehunt-cmu@lists.andrew) with "Puzzle Hunt" somewhere in the subject line.</p>
+    <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
   </div>
 </div>
 {% endblock content %}

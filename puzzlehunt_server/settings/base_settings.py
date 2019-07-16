@@ -131,6 +131,8 @@ LOGGING = {
 #EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 #EMAIL_FILE_PATH = '/tmp/test_folder'
 
+CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
+
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587

@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load hunt_tags %}
 
 {% block includes %}
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
@@ -10,7 +11,7 @@
   <h1> Contact Us </h1>
   <div id='qa'>
     <p>
-      Email the <a href="mailto:puzzlehunt-staff@lists.andrew.cmu.edu?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> (puzzlehunt-staff@lists.andrew.cmu.edu) with "Puzzle Hunt" somewhere in the subject line.
+      Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.
     </p>
     <p>Visit us on our <a href="https://www.facebook.com/groups/puzzlehuntCMU">Facebook Page</a>.
 	   You can also find us on <a href="https://thebridge.cmu.edu/organization/puzzlehuntcmu">The Bridge</a>.</p>

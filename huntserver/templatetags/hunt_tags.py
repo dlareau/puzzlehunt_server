@@ -1,17 +1,21 @@
 from django import template
+from django.conf import settings
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
 def hunt_static(context):
-    from django.conf import settings
     return settings.MEDIA_URL + "hunt/" + str(context['hunt'].hunt_number) + "/"
 
 
 @register.simple_tag(takes_context=True)
 def site_title(context):
-    from django.conf import settings
     return settings.SITE_TITLE
+
+
+@register.simple_tag(takes_context=True)
+def contact_email(context):
+    return settings.CONTACT_EMAIL
 
 
 @register.simple_tag(takes_context=True)

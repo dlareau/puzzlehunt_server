@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load hunt_tags %}
 
 {% block includes %}
   <script src="{{ STATIC_URL }}jquery.min.js"></script>
@@ -50,7 +51,7 @@
     <h2>Wait that sounds cool, can I participate?</h2>
     <p>Yeah, check out our <a href="{% url 'huntserver:current_hunt_info' %}">current hunt page</a>!</p>
     <h2>Wait, I have more questions!</h2>
-    <p>Email the <a href="mailto:puzzlehunt-staff@lists.andrew.cmu.edu?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> (puzzlehunt-staff@lists.andrew.cmu.edu) with "Puzzle Hunt" somewhere in the subject line.</p>
+    <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
   </div>
 </div>
 {% endblock content %}

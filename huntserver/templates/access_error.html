@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load hunt_tags %}
 {% block title %}Not Available{% endblock title %}
 
 {% block content %}
@@ -33,7 +34,7 @@
     {% endif %}
 
     <br>
-    <p>For assistance, email <a href="mailto:puzzlehunt-staff@lists.andrew.cmu.edu">puzzlehunt staff.</a>.</p>
+    <p>For assistance, email <a href="mailto:{% contact_email %}">puzzlehunt staff.</a>.</p>
   </center>
 </div>
 {% endblock content %}

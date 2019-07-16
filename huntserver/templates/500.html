@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load hunt_tags %}
 {% load static %}
 
 {% block title %}500 Error{% endblock title %}
@@ -10,7 +11,7 @@
   <center><h1> 500 - Internal Server Error </h1></center>
   <center><img width="500px" src="{% static "huntserver/500.png" %}"></center>
   <center><h4> If you're seeing this page, something has gone wrong on our server. </h4></center>
-  <center> If there is a puzzlehunt occuring right now, consider sending an email to the <a href="mailto:puzzlehunt-staff@lists.andrew.cmu.edu">puzzlehunt staff.</a> </center>
+  <center> If there is a puzzlehunt occuring right now, consider sending an email to the <a href="mailto:{% contact_email %}">puzzlehunt staff.</a> </center>
   <br>
   <br>
   <center><p>Consider heading back to the <a href='/' class='icon-link'>main page.</a></p></center>
