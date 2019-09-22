@@ -600,7 +600,7 @@ class StaffTests(TestCase):
         post_context = {'action': "getpuzzles", "hunt_number":"1"}
         response = self.client.post(reverse('huntserver:control'), post_context)
         self.assertEqual(response.status_code, 302)
-        post_context = {'action': "getpuzzles", "puzzle_number":"1"}
+        post_context = {'action': "getpuzzles", "puzzle_number":"1", "puzzle_id":"201"}
         response = self.client.post(reverse('huntserver:control'), post_context)
         self.assertEqual(response.status_code, 302)
         post_context = {'action': "new_current_hunt", "hunt_number":"1"}

@@ -69,7 +69,7 @@ def registration(request):
             # TODO: add success message
             team.location = request.POST.get("team_location")
             team.save()
-        elif(request.POST["form_type"] == "new_name" and team is not None and 
+        elif(request.POST["form_type"] == "new_name" and team is not None and
                 not team.hunt.in_reg_lockdown):
             # TODO: add success message
             team.team_name = request.POST.get("team_name")

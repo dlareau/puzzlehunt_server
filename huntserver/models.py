@@ -84,7 +84,7 @@ class Hunt(models.Model):
     @property
     def in_reg_lockdown(self):
         """ A boolean indicating whether or not today is the day of the hunt """
-        return (self.start_date - timezone.now()).days >= 2
+        return (self.start_date - timezone.now()).days <= 2
 
     @property
     def season(self):
