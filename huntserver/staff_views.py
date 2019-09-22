@@ -430,7 +430,7 @@ def control(request):
 
         if(request.POST["action"] == "getpuzzles"):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
-                puzzles = curr_hunt.puzzle_set.filter(puzzle_number=int(request.POST["puzzle_number"]))
+                puzzles = Puzzle.objects.filter(puzzle_id=int(request.POST["puzzle_id"]))
                 for puzzle in puzzles:
                     download_puzzle(puzzle)
 

@@ -64,6 +64,7 @@
               {% csrf_token %}
               <input type="hidden" name="action" value="getpuzzles">
               <input type="hidden" name="puzzle_number" value="{{puzzle.puzzle_number}}">
+              <input type="hidden" name="puzzle_id" value="{{puzzle.puzzle_id}}">
               <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
                 Download
               </button>
