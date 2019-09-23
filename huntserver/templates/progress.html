@@ -93,7 +93,7 @@
                 <input type="hidden" name="team_id" value="{{ row.team.pk }}">
                 <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">
                 <input type="hidden" name="action" value="unlock">
-                <button type="Submit" class="btn btn-default btn-xs">
+                <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
                   Unlock
                 </button>
         </form>
