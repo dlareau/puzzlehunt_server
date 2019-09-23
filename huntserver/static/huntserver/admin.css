@@ -16,8 +16,11 @@ button {
     display: inline-block;}
 
 
-table.team-list {
+table.table-bordered.team-list {
   width:400px;
+  word-break: break-word;
+  margin-top: 10px;
+  margin-bottom: 5px;
 }
 
 table.table-bordered {

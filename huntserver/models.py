@@ -213,7 +213,7 @@ class Team(models.Model):
 
     @property
     def short_name(self):
-        """ A boolean indicating whether or not the team is a playtesting team """
+        """ Team name shortened to 30 characters for more consistent display """
         return self.team_name[:30]
 
     @property

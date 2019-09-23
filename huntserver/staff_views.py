@@ -395,7 +395,7 @@ def hunt_info(request):
     context = {'curr_hunt': curr_hunt,
                'people': people,
                'new_people': new_people,
-               'need_teams': need_teams.all(),
+               'need_teams': need_teams.order_by('id').all(),
                'have_teams': have_teams.all(),
                'offsite_teams': offsite_teams.all(),
                }
