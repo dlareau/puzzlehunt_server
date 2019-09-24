@@ -105,10 +105,15 @@ BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
 
+
+# Shibboleth options
 USE_SHIBBOLETH = True
 
 SHIB_ATTRIBUTE_MAP = {
-    "Shib-Identity-Provider": (True, "idp"), "eppn": (True, "eppn"), "givenName": (False, "givenName"), "sn": (False, "sn"), 
+    "Shib-Identity-Provider": (True, "idp"),
+    "eppn": (True, "eppn"),
+    "givenName": (False, "givenName"),
+    "sn": (False, "sn")
 }
 
 SHIB_USERNAME = "eppn"
@@ -116,6 +121,7 @@ SHIB_EMAIL = "eppn"
 SHIB_FIRST_NAME = "givenName"
 SHIB_LAST_NAME = "sn"
 
+# Logging options
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -125,14 +131,25 @@ LOGGING = {
             'class': 'logging.NullHandler',
         },
     },
+    'loggers': {},
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
 }
+
+# Email options
+CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
 
 #Comment out for production.
 #EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 #EMAIL_FILE_PATH = '/tmp/test_folder'
 
-CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
-
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
+

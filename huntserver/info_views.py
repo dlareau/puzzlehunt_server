@@ -8,6 +8,9 @@ from .utils import team_from_user_hunt
 from .models import Hunt, Team
 from .forms import UserForm, PersonForm, ShibUserForm
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def index(request):
     """ Main landing page view, mostly static with the exception of hunt info """
@@ -48,6 +51,7 @@ def registration(request):
                 team = Team.objects.create(team_name=request.POST.get("team_name"), hunt=curr_hunt, 
                                            location=request.POST.get("need_room"), join_code=join_code)
                 request.user.person.teams.add(team)
+                logger.info("User %s created team %s" % (str(request.user), str(team)))
             else:
                 error = "Your team name must contain at least one alphanumeric character."
         elif(request.POST["form_type"] == "join_team" and team is None):
@@ -60,20 +64,29 @@ def registration(request):
                 team = None
             else:
                 request.user.person.teams.add(team)
+                logger.info("User %s joined team %s" % (str(request.user), str(team)))
         elif(request.POST["form_type"] == "leave_team"):
             request.user.person.teams.remove(team)
+            logger.info("User %s left team %s" % (str(request.user), str(team)))
             if(team.person_set.count() == 0 and team.hunt.is_locked):
                 team.delete()
+                logger.info("Team %s was deleted because it was empty." % (str(team)))
             team = None
         elif(request.POST["form_type"] == "new_location" and team is not None):
             # TODO: add success message
+            old_location = team.location
             team.location = request.POST.get("team_location")
             team.save()
+            logger.info("User %s changed the location for team %s from %s to %s" %
+                        (str(request.user), str(team.team_name), old_location, team.location))
         elif(request.POST["form_type"] == "new_name" and team is not None and
                 not team.hunt.in_reg_lockdown):
             # TODO: add success message
+            old_name = team.team_name
             team.team_name = request.POST.get("team_name")
             team.save()
+            logger.info("User %s changed the location for team %s from %s to %s" %
+                        (str(request.user), str(team.team_name), old_name, team.team_name))
 
     if(team is not None):
         return render(request, "registration.html", {'registered_team': team})

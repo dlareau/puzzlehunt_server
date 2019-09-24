@@ -8,6 +8,9 @@ from huntserver.info_views import index
 from .models import Hunt
 from .forms import UserForm, PersonForm, ShibUserForm
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def login_selection(request):
     """ A mostly static view to render the login selection. Next url parameter is conserved. """
@@ -44,6 +47,7 @@ def create_account(request):
             person.user = user
             person.save()
             login(request, user)
+            logger.info("User created: %s" % (str(person)))
             return index(request)
         else:
             return render(request, "create_account.html", {'uf': uf, 'pf': pf, 'teams': teams})
@@ -100,6 +104,7 @@ def shib_login(request):
             person.is_shib_acct = True
             person.user = user
             person.save()
+            logger.info("User created: %s" % (str(person)))
         else:
             context = {'user_form': uf, 'person_form': pf, 'next': redirect_url, 'shib_attrs': attr}
             return render(request, "shib_register.html", context)
@@ -120,6 +125,7 @@ def shib_login(request):
 
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
+    logger.info("Shibboleth user logged in: %s" % (str(user)))
 
     # Redirect if nessecary
     if not redirect_url or '//' in redirect_url or ' ' in redirect_url:

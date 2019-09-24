@@ -7,6 +7,9 @@ import os
 from PyPDF2 import PdfFileReader
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 # Automatic submission response system
 # Takes a submission object and should return a string
@@ -28,6 +31,8 @@ def respond_to_submission(submission):
                 Solve.objects.create(puzzle=submission.puzzle,
                     team=submission.team, submission=submission)
                 unlock_puzzles(submission.team)
+        logger.info("Team %s correctly solved puzzle %s" %
+                    (str(submission.team.team_name), str(submission.puzzle.puzzle_id)))
         if(regex_response != ""):
             response = regex_response
         else:
@@ -38,6 +43,9 @@ def respond_to_submission(submission):
             response = regex_response
         else:
             response = ""
+        logger.info("Team %s incorrectly guessed %s for puzzle %s" %
+                    (str(submission.team.team_name), str(submission.submission_text),
+                     str(submission.puzzle.puzzle_id)))
 
     # After the hunt is over, if it's not right it's wrong.
     if(submission.puzzle.hunt.is_public):
@@ -73,12 +81,15 @@ def unlock_puzzles(team):
     for puzzle in puzzles:
         if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
             if(puzzle not in team.unlocked.all()):
+                logger.info("Team %s unlocked puzzle %s" % (str(team.team_name), str(puzzle.puzzle_id)))
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
 
 
 def download_zip(directory, filename, url):
     if(url == ""):
         return
+
+    logger.info("Attempting to download zip %s to %s/%s" % (url, directory, filename))
 
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])
@@ -91,6 +102,8 @@ def download_zip(directory, filename, url):
 def download_pdf(directory, filename, url):
     if(url == ""):
         return
+
+    logger.info("Attempting to download pdf %s to %s/%s" % (url, directory, filename))
 
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])

@@ -18,6 +18,9 @@ from .forms import AnswerForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 from .info_views import current_hunt_info
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def protected_static(request, file_path):
     """
@@ -53,6 +56,8 @@ def protected_static(request, file_path):
         # This is what lets django access the normally restricted /media/
         response['X-Sendfile'] = smart_str(os.path.join(settings.MEDIA_ROOT, file_path))
         return response
+    else:
+        logger.info("User %s tried to access %s and failed." % (str(request.user), file_path))
 
     return HttpResponseNotFound('<h1>Page not found</h1>')
 
@@ -127,6 +132,7 @@ def prepuzzle(request, prepuzzle_num):
             if(puzzle.answer.lower() == user_answer.lower()):
                 is_correct = True
                 response = puzzle.response_string
+                logger.info("User %s solved prepuzzle %s." % (str(request.user), prepuzzle_num))
             else:
                 is_correct = False
                 response = ""
@@ -170,6 +176,7 @@ def puzzle_view(request, puzzle_id):
     render the basic per-puzzle pages.
     """
     if(getattr(request, 'limited', False)):
+        logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
         return HttpResponseForbidden()
 
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
