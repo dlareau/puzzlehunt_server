@@ -1,7 +1,7 @@
 {% for message in messages %}
   {% if message.is_response %}
-    <div class='admin-message' style='white-space:pre-wrap;'>Admin     : {{ message.text }}</div>
+    <div class='admin-message' style='white-space:pre-wrap;'><div  class='message_text'>Admin     : {{ message.text }}</div><div class='message_time'>{{message.time|date:"g:i a"}}</div></div>
   {% else %}
-    <div class='user-message' style='white-space:pre-wrap;'>{{ team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div>
+    <div class='user-message' style='white-space:pre-wrap;'><div class='message_text'>{{ team_name|slice:":10"|ljust:10 }}: {{ message.text }}</div><div class='message_time'>{{message.time|date:"g:i a"}}</div></div>
   {% endif %}
 {% endfor %}

@@ -12,6 +12,10 @@
   width:45%;
 }
 
+.active.chatselect {
+  background-color: DarkTurquoise;
+}
+
 .admin-message {
   color:red;
 }
@@ -32,4 +36,13 @@
 
 #sendbutton {
   height: 25px;
+}
+
+.message_text {
+  float: left;
+  clear: both;
+}
+
+.message_time {
+  float: right;
 }

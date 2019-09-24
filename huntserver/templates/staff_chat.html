@@ -19,13 +19,14 @@
     <div class="row">
       <div id="button_container" class="content col-sm-4 col-md-3">
         {% for team in teams %}
-          <button style="width:45%" data-id='{{ team.pk }}' class="chatselect">
+          <button style="width:45%" data-id='{{ team.pk }}' data-full_name="{{ team.team_name }}" class="chatselect">
             {{ team.team_name|truncatechars:12 }}
           </button>
 
         {% endfor %}
       </div>
       <div class="content col-sm-6 col-md-6">
+        <div><h3 id="team_label" style="margin-top: 0px;">Chatting with: Team Name</h3></div>
         <div id="chatcontainer">
           {% for team, dict in message_dict.items %}
             <div id='chat_{{ dict.pk }}' class="chatwindow">
