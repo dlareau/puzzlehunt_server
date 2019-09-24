@@ -22,7 +22,7 @@
             <td>{{ team.short_name }}</td>
             <td>
               <input class="loc_need"
-                     name="team_name"
+                     name="location"
                      value="{{ team.location }}"
                      data-team="{{ team.id }}"
                      type="text">
@@ -40,7 +40,7 @@
             <td>{{ team.short_name }}</td>
             <td>
               <input class="loc_have"
-                     name="team_name"
+                     name="location"
                      value="{{ team.location }}"
                      data-team="{{ team.id }}"
                      type="text">
@@ -58,7 +58,7 @@
             <td>{{ team.short_name }}</td>
             <td>
               <input class="loc_offsite"
-                     name="team_name"
+                     name="location"
                      value="{{ team.location }}"
                      data-team="{{ team.id }}"
                      type="text">
@@ -88,11 +88,15 @@
 
   <script type="text/javascript">
     function send_changes(team_class) {
-      changes = [];
+      var changes = [];
       $(team_class).each(function() {
-        changes.push({'id': $(this).data("team"), 'name': $(this).val()});
+        changes.push({'id': $(this).data("team"), 'location': $(this).val()});
       })
-      console.log(changes);
+      var json_data = JSON.stringify(changes);
+      $.post("", {"json_data": json_data, "csrfmiddlewaretoken": "{{csrf_token}}"},
+        function(data){
+          window.location.href = window.location.href;
+        });
     }
   </script>
 {% endblock content %}

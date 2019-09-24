@@ -3,6 +3,7 @@ from dateutil import tz
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
@@ -377,29 +378,42 @@ def hunt_info(request):
     """ A view to render the hunt info page, which contains room and allergy information """
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    teams = curr_hunt.real_teams
-    people = []
-    new_people = []
-    for team in teams:
-        people = people + list(team.person_set.all())
-    try:
-        old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
-        new_people = [p for p in people if p.user.date_joined > old_hunt.start_date]
-    except:
-        new_people = people
+    if request.method == 'POST':
+        if "json_data" in request.POST:
+            team_data = json.loads(request.POST.get("json_data"))
+            for pair in team_data:
+                try:
+                    team = Team.objects.get(id=pair['id'])
+                    if(team.hunt == curr_hunt):
+                        team.location = pair["location"]
+                        team.save()
+                except ObjectDoesNotExist:
+                    return HttpResponse('bad data')
+        return HttpResponse('teams updated!')
+    else:
+        teams = curr_hunt.real_teams
+        people = []
+        new_people = []
+        for team in teams:
+            people = people + list(team.person_set.all())
+        try:
+            old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
+            new_people = [p for p in people if p.user.date_joined > old_hunt.start_date]
+        except:
+            new_people = people
 
-    need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
-    have_teams = teams.exclude(location="need_a_room").exclude(location="needs_a_room").exclude(location="off_campus")
-    offsite_teams = teams.filter(location="off_campus")
+        need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
+        have_teams = teams.exclude(location="need_a_room").exclude(location="needs_a_room").exclude(location="off_campus")
+        offsite_teams = teams.filter(location="off_campus")
 
-    context = {'curr_hunt': curr_hunt,
-               'people': people,
-               'new_people': new_people,
-               'need_teams': need_teams.order_by('id').all(),
-               'have_teams': have_teams.all(),
-               'offsite_teams': offsite_teams.all(),
-               }
-    return render(request, 'staff_hunt_info.html', add_apps_to_context(context, request))
+        context = {'curr_hunt': curr_hunt,
+                   'people': people,
+                   'new_people': new_people,
+                   'need_teams': need_teams.order_by('id').all(),
+                   'have_teams': have_teams.all(),
+                   'offsite_teams': offsite_teams.all(),
+                   }
+        return render(request, 'staff_hunt_info.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
