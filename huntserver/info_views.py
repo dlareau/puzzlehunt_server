@@ -69,8 +69,8 @@ def registration(request):
             request.user.person.teams.remove(team)
             logger.info("User %s left team %s" % (str(request.user), str(team)))
             if(team.person_set.count() == 0 and team.hunt.is_locked):
-                team.delete()
                 logger.info("Team %s was deleted because it was empty." % (str(team)))
+                team.delete()
             team = None
         elif(request.POST["form_type"] == "new_location" and team is not None):
             # TODO: add success message
