@@ -1,4 +1,4 @@
-Django==1.11.20
+Django==1.11.23
 decorator==4.1.2
 bootstrap-admin==0.4.*
 django-debug-toolbar==1.8
