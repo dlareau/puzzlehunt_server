@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 from huntserver import models, forms, templatetags
 from django.contrib.auth.models import User, AnonymousUser
@@ -289,6 +289,7 @@ class InfoTests(TestCase):
         response = get_and_check_page(self, 'huntserver:contact_us', 200)
 
 
+@override_settings(RATELIMIT_ENABLE=False)
 class HuntTests(TestCase):
     fixtures = ["basic_hunt"]
 
@@ -371,6 +372,7 @@ class HuntTests(TestCase):
                                     **{'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'})
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(RATELIMIT_ENABLE=True)
     def test_puzzle_ratelimit(self):
         "Test that users are properly ratelimited"
         login(self, 'user2')
@@ -414,6 +416,7 @@ class HuntTests(TestCase):
         login(self, 'user6')
         response = get_and_check_page(self, 'huntserver:unlockables', 200)  
         self.assertTemplateUsed(response, 'access_error.html')      
+
 
 class AuthTests(TestCase):
     fixtures = ["basic_hunt"]
@@ -522,6 +525,7 @@ class AuthTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
+@override_settings(RATELIMIT_ENABLE=False)
 class StaffTests(TestCase):
     fixtures = ["basic_hunt"]
 
