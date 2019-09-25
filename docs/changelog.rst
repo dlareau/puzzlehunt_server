@@ -5,6 +5,26 @@ Changelog
 Version 3
 *********
 
+v3.5.0
+======
+
+New:
+   - Teams can now no longer change their name within 2 days of the hunt
+   - It is now possible to easily assign rooms to many teams from the info page
+   - Added basic informational logging to the huntserver app
+
+Updates:
+   - Nicer pages and messages displayed when a user doesn't have access to an area
+   - Many code changes made to allow easier deployment of a generic version
+   - Single puzzle unlock now has a confirmation popup
+   - Added some look/feel features to staff chat to improve clarity
+   - Ratelimits have been stacked and tightened down to a more reasonable level
+   - Server now supports 5 digit puzzle IDs
+
+Bugfixes:
+   - Fixed ability to log into dev server using shibboleth
+   - Fixed bug that meant solutions could only be downloaded for the current hunt
+
 v3.4.0
 ======
 
