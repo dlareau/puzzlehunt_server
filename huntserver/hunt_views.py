@@ -169,7 +169,8 @@ def current_prepuzzle(request):
     return hunt_prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 
-@ratelimit(key='user', rate='10/m', method='POST')
+@ratelimit(key='user', rate='2/10s', method='POST')
+@ratelimit(key='user', rate='5/m', method='POST')
 def puzzle_view(request, puzzle_id):
     """
     A view to handle answer submissions via POST, handle response update requests via AJAX, and
