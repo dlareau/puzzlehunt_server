@@ -85,8 +85,8 @@ def registration(request):
             old_name = team.team_name
             team.team_name = request.POST.get("team_name")
             team.save()
-            logger.info("User %s changed the location for team %s from %s to %s" %
-                        (str(request.user), str(team.team_name), old_name, team.team_name))
+            logger.info("User %s renamed team %s to %s" %
+                        (str(request.user), old_name, team.team_name))
 
     if(team is not None):
         return render(request, "registration.html", {'registered_team': team})
