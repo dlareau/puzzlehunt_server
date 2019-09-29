@@ -141,10 +141,14 @@ class UserProxyObject(User):
         verbose_name = User._meta.verbose_name
         verbose_name_plural = User._meta.verbose_name_plural
 
+class UserProxyAdmin(admin.ModelAdmin):
+    search_fields = ['email', 'username', 'first_name', 'last_name']
+
+
 admin.site.unregister(User)
 admin.site.unregister(Group)
 
-admin.site.register(UserProxyObject)
+admin.site.register(UserProxyObject, UserProxyAdmin)
 admin.site.register(models.Hunt, HuntAdmin)
 admin.site.register(models.Puzzle, PuzzleAdmin)
 admin.site.register(models.Prepuzzle, PrepuzzleAdmin)
