@@ -89,10 +89,10 @@ def registration(request):
                         (str(request.user), old_name, team.team_name))
 
     if(team is not None):
-        return render(request, "registration.html", {'registered_team': team})
+        return render(request, "registration.html", {'registered_team': team, 'curr_hunt': curr_hunt})
     else:
         teams = curr_hunt.real_teams
-        return render(request, "registration.html", {'teams': teams, 'error': error})
+        return render(request, "registration.html", {'teams': teams, 'error': error, 'curr_hunt': curr_hunt})
 
 
 @login_required

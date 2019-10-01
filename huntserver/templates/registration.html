@@ -22,7 +22,7 @@
     <p>
       <div>
         <span> <b> Team Name: </b> {{ registered_team.team_name }} </span>
-        {% if not registered_team.hunt.in_reg_lockdown %}
+        {% if not curr_hunt.in_reg_lockdown %}
         <a href='#' class='edit_button'>[Change Name]</a>
         <form method="Post" class="" style="display: none;">
           {% csrf_token %}
@@ -80,7 +80,7 @@
       {% endif %}
       <div class="row">
         <div class="col-md-6">
-          <div class="container col-md-12" style="height:300px">
+          <div class="container col-md-12" style="height:320px">
             <h2>Create New Team</h2>
             <hr style="border-width:2px; border-color: black;">
             <form method="Post">
@@ -90,12 +90,23 @@
               <input name="team_name" type="text">
               <br>
               <br>
+              {% if not curr_hunt.in_reg_lockdown %}
               Does your team need a room for the hunt?
               <select name="need_room">
                 <option value="need_a_room">Yes</option>
-                <option value="has_a_room">The team has a room</option>
-                <option value="off_campus">The team is off-campus</option>
+                <option value="has_a_room">Our team has a room</option>
+                <option value="off_campus">Our team is off-campus</option>
               </select>
+              {% else %}
+              Rooms have already been assigned for this hunt.
+              <br>
+              Please indicate if you are solving remotely:
+              <br>
+              <select name="need_room">
+                <option value="has_a_room">Our team is on campus and has a room</option>
+                <option value="off_campus">Our team is off-campus</option>
+              </select>
+              {% endif %}
               <br>
               <br>
               <input type="submit" value="Create and Join Team">
@@ -103,7 +114,7 @@
           </div>
         </div>
         <div class="col-md-6">
-          <div class="container col-md-12" style="height:300px">
+          <div class="container col-md-12" style="height:320px">
             <h2>Join Existing Team</h2>
             <hr style="border-width:2px; border-color: black;">
             <form method="Post">
