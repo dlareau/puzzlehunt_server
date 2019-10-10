@@ -123,7 +123,7 @@ def download_puzzle(puzzle):
     puzzle.save()
 
     download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
-    download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id), puzzle.solution_link)
+    download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id) + "_sol.pdf", puzzle.solution_link)
 
 
 def parse_attributes(META):
