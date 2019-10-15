@@ -6,8 +6,14 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 
-import SimpleHTTPServer
-import SocketServer
+try:
+    from SimpleHTTPServer import SimpleHTTPRequestHandler
+except ImportError:
+    from http.server import SimpleHTTPRequestHandler
+try:
+    from SocketServer import TCPServer as HTTPServer
+except ImportError:
+    from http.server import HTTPServer
 from threading import Thread
 
 #python manage.py dumpdata --indent=4  --exclude=contenttypes --exclude=sessions --exclude=admin --exclude=auth.permission
@@ -595,8 +601,12 @@ class StaffTests(TestCase):
 
     def test_staff_control(self):
         "Test the staff control view"
-        server = SocketServer.TCPServer(("localhost", 8898),
-                    SimpleHTTPServer.SimpleHTTPRequestHandler)
+
+        class NoLogHandler(SimpleHTTPRequestHandler):
+            def log_message(self, format, *args):
+                return
+
+        server = HTTPServer(("localhost", 8898), NoLogHandler)
 
         mock_server_thread = Thread(target=server.serve_forever)
         mock_server_thread.setDaemon(True)

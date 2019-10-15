@@ -2,7 +2,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import Solve, Unlock, Person, Team
 from django.utils import timezone
-from subprocess import call
+from subprocess import call, STDOUT
 import os
 from PyPDF2 import PdfFileReader
 import re
@@ -95,8 +95,10 @@ def download_zip(directory, filename, url):
         call(["mkdir", directory])
 
     file_str = directory + "/" + filename + ".zip"
-    call(["wget", "--max-redirect=20", url, "-O", file_str])
-    call(["unzip", "-o", "-d", directory + "/" + filename, file_str])
+    FNULL = open(os.devnull, 'w')
+    call(["wget", "--max-redirect=20", url, "-O", file_str], stdout=FNULL, stderr=STDOUT)
+    call(["unzip", "-o", "-d", directory + "/" + filename, file_str], stdout=FNULL, stderr=STDOUT)
+    FNULL.close()
 
 
 def download_pdf(directory, filename, url):
@@ -108,11 +110,13 @@ def download_pdf(directory, filename, url):
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])
 
+    FNULL = open(os.devnull, 'w')
     file_str = directory + "/" + filename + ".pdf"
-    call(["wget", url, "-O", file_str])
+    call(["wget", url, "-O", file_str], stdout=FNULL, stderr=STDOUT)
     with open(file_str, "rb") as f:
         num_pages = PdfFileReader(f).getNumPages()
-    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"])
+    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"], stdout=FNULL, stderr=STDOUT)
+    FNULL.close()
     return num_pages
 
 
