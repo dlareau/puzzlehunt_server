@@ -1,17 +1,23 @@
 import sys
 import functools
 from fabric import Connection, task
-from invoke import Responder
-from fabric.config import Config
+from invoke.config import merge_dicts, DataProxy
 
 REPO_URL = 'https://github.com/dlareau/puzzlehunt_server.git'
-INSTALL_FOLDER = "/home/hunt/"
+
+LOCAL_DEFAULTS = {
+    'user': 'hunt',
+    'host': 'localhost',
+    'install_folder': '../',
+    'project_name': 'puzzlehunt_server',
+    'connect_kwargs': None
+}
 
 
 # ===== Connection wrappers/helpers =====
 def get_connection(ctx):
     try:
-        with Connection(ctx.host, ctx.user, connect_kwargs=ctx.connect_kwargs) as conn:
+        with Connection(ctx.host.host, ctx.host.user, connect_kwargs=ctx.host.connect_kwargs) as conn:
             return conn
     except:
         return None
@@ -19,21 +25,27 @@ def get_connection(ctx):
 
 def connect(func):
     @functools.wraps(func)
-    def wrapper(ctx):
-        if isinstance(ctx, Connection):
+    def wrapper(ctx, host=None):
+        if host is None or host == "local" or isinstance(ctx, Connection):
+            # If the destination is local or not specified, populate local
+            # config but do not make any connection
+            local_defaults = DataProxy.from_data(LOCAL_DEFAULTS)
+            if("local" in ctx.config.hosts):
+                ctx.host = merge_dicts(local_defaults, ctx.config.hosts["local"])
+            else:
+                ctx.host = local_defaults
             conn = ctx
         else:
-            conn = get_connection(ctx)
+            # If the destination is remote and this isn't a connection object
+            # populate the config and make the connection
+            if host in ctx.config.hosts:
+                ctx.host = ctx.config.hosts[host]
+                conn = get_connection(ctx)
+            else:
+                print("Specified host not found in config file.")
+                sys.exit(0)
         func(conn)
     return wrapper
-
-
-# ===== Environments =====
-@task
-def development(ctx):
-    ctx.user = "hunt"
-    ctx.host = "puzzlehunt.club.cc.cmu.edu"
-    ctx.project_name = "puzzlehunt_server"
 
 
 # ===== Private helper functions =====
@@ -70,7 +82,7 @@ def collect_static_files(ctx, clear=False):
 @task
 @connect
 def restart(ctx, full=False):
-    with ctx.cd(INSTALL_FOLDER + ctx.project_name):
+    with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
         if(full):
             ctx.sudo("service apache2 restart")
         else:
@@ -84,10 +96,13 @@ def install(ctx):
 
 
 @task
+@connect
 def release(ctx):
     # Checks:
-    test(ctx)
+    with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
+        test(ctx)
 
+    #ctx.run("cp foo bar")
     pass
 
 
