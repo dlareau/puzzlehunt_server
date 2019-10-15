@@ -1,4 +1,5 @@
 import sys
+import six
 import functools
 from fabric import Connection, task
 from invoke.config import merge_dicts, DataProxy
@@ -25,7 +26,7 @@ def get_connection(ctx):
 
 def connect(func):
     @functools.wraps(func)
-    def wrapper(ctx, host=None):
+    def wrapper(ctx, host=None, *args, **kwargs):
         if host is None or host == "local" or isinstance(ctx, Connection):
             # If the destination is local or not specified, populate local
             # config but do not make any connection
@@ -44,7 +45,7 @@ def connect(func):
             else:
                 print("Specified host not found in config file.")
                 sys.exit(0)
-        func(conn)
+        func(conn, **kwargs)
     return wrapper
 
 
@@ -97,10 +98,23 @@ def install(ctx):
 
 @task
 @connect
-def release(ctx):
+def release(ctx, vname):
+    if("version" not in ctx.config):
+        print("No version argument given. Exiting.")
+        sys.exit(0)
+
     # Checks:
     with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
         test(ctx)
+
+        # Make sure all changes are committed
+        git_status = ctx.run("git diff-index --quiet HEAD --", warn=True)
+        if(git_status.failed):
+            result = six.moves.input("You have uncommitted changes, do you want to continue? (y/n)")
+            if(result.lower() != "y"):
+                print("Aborting.")
+                sys.exit(0)
+
 
     #ctx.run("cp foo bar")
     pass
