@@ -6,6 +6,10 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 
+import SimpleHTTPServer
+import SocketServer
+from threading import Thread
+
 #python manage.py dumpdata --indent=4  --exclude=contenttypes --exclude=sessions --exclude=admin --exclude=auth.permission
 
 # Users: admin, user1, user2, user3, user4, user5, user6
@@ -56,6 +60,7 @@ def solve_puzzle_from_admin(test):
     test.client.logout()
     login(test, 'admin')
 
+
 class nonWebTests(TestCase):
     fixtures = ["basic_hunt"]
 
@@ -63,9 +68,6 @@ class nonWebTests(TestCase):
         puzzle = models.Puzzle.objects.get(pk=5)
         team = models.Team.objects.get(pk=2)
 
-        # Gotta add the anonymous person and a huntAssetFile
-
-        #models.Person.objects.create(user=, is_shib_acct=False)
         models.Submission.objects.create(team=team, submission_time=timezone.now(),
             submission_text="foobar", puzzle=puzzle, modified_date=timezone.now())
         models.Solve.objects.create(puzzle=puzzle, team=team, 
@@ -75,7 +77,6 @@ class nonWebTests(TestCase):
             time=timezone.now())
         models.Unlockable.objects.create(puzzle=puzzle, content_type="TXT", 
             content="foobar")
-        #models.HuntAssetFile.objects.create()
 
     def test_unicode(self):
         rv = str(models.Hunt.objects.all()[0])
@@ -594,6 +595,13 @@ class StaffTests(TestCase):
 
     def test_staff_control(self):
         "Test the staff control view"
+        server = SocketServer.TCPServer(("localhost", 8898),
+                    SimpleHTTPServer.SimpleHTTPRequestHandler)
+
+        mock_server_thread = Thread(target=server.serve_forever)
+        mock_server_thread.setDaemon(True)
+        mock_server_thread.start()
+
         login(self, 'admin')
         post_context = {'action': "initial"}
         response = self.client.post(reverse('huntserver:control'), post_context)
