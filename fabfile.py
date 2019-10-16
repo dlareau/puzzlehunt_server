@@ -26,7 +26,7 @@ def get_connection(ctx):
 
 def connect(func):
     @functools.wraps(func)
-    def wrapper(ctx, host=None, *args, **kwargs):
+    def wrapper(ctx, host=None):
         if host is None or host == "local" or isinstance(ctx, Connection):
             # If the destination is local or not specified, populate local
             # config but do not make any connection
@@ -45,7 +45,7 @@ def connect(func):
             else:
                 print("Specified host not found in config file.")
                 sys.exit(0)
-        func(conn, **kwargs)
+        func(conn)
     return wrapper
 
 
@@ -97,7 +97,7 @@ def install(ctx):
 
 
 @task
-@connect
+@task
 def release(ctx, vname):
     if("version" not in ctx.config):
         print("No version argument given. Exiting.")
@@ -137,6 +137,20 @@ def prod_to_dev(ctx):
 def deploy(ctx):
     pass
 """
+2 scenarios:
+
+task(connect(func)):
+    - Fails because connect doesn't have the right arguments
+    - Needs:
+        - The task to know about the correct arguments:
+    - Solution:
+        - Make the task know about the arguments somehow
+            - Maybe a third wrapper that modifies the returned task?
+
+
+connect(task(func)):
+    - Fails because the task isn't registered properly
+
 Still need:
     - Backup DB
     - Update config files
