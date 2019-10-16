@@ -1,8 +1,12 @@
+#!/usr/local/bin/python
+
 import sys
 import six
 import functools
-from fabric import Connection, task
+from fabric import Connection, task, Config
+from fabric.main import Fab
 from invoke.config import merge_dicts, DataProxy
+from invoke import Argument, Collection
 
 REPO_URL = 'https://github.com/dlareau/puzzlehunt_server.git'
 
@@ -13,6 +17,42 @@ LOCAL_DEFAULTS = {
     'project_name': 'puzzlehunt_server',
     'connect_kwargs': None
 }
+
+
+# ===== Program setup =====
+class TesterConfig(Config):
+    prefix = "fabric"
+
+    @staticmethod
+    def global_defaults():
+        their_defaults = Config.global_defaults()
+        my_defaults = {
+            'run': {
+                'echo': True,
+            },
+        }
+        return merge_dicts(their_defaults, my_defaults)
+
+
+class PuzzlehuntManager(Fab):
+    def core_args(self):
+        core_args = super(PuzzlehuntManager, self).core_args()
+        extra_args = [
+            Argument(names=('remote',), help="Use remote host from settings file")
+        ]
+        return core_args + extra_args
+
+    def update_config(self):
+        super(Fab, self).update_config(merge=False)
+        public_data = self.config._load_yaml("hosts_public.yaml")
+        private_data = self.config._load_yaml("hosts_private.yaml")
+        merge_dicts(public_data, private_data)
+
+        remote = self.args["remote"].value
+        if remote:
+            public_data['remote'] = remote
+        self.config.load_overrides(public_data)
+        print(self.config)
 
 
 # ===== Connection wrappers/helpers =====
@@ -26,7 +66,7 @@ def get_connection(ctx):
 
 def connect(func):
     @functools.wraps(func)
-    def wrapper(ctx, host=None):
+    def wrapper(ctx, host=None, vname=None, **kwargs):
         if host is None or host == "local" or isinstance(ctx, Connection):
             # If the destination is local or not specified, populate local
             # config but do not make any connection
@@ -45,7 +85,7 @@ def connect(func):
             else:
                 print("Specified host not found in config file.")
                 sys.exit(0)
-        func(conn)
+        func(conn, **kwargs)
     return wrapper
 
 
@@ -97,8 +137,7 @@ def install(ctx):
 
 
 @task
-@task
-def release(ctx, vname):
+def release(ctx, version=None):
     if("version" not in ctx.config):
         print("No version argument given. Exiting.")
         sys.exit(0)
@@ -121,8 +160,8 @@ def release(ctx, vname):
 
 
 @task
-@connect
 def deploy(ctx):
+    ctx.run("ls")
     pass
 
 
@@ -132,10 +171,12 @@ def prod_to_dev(ctx):
     pass
 
 
-@task
-@connect
-def deploy(ctx):
-    pass
+if __name__ == '__main__':
+    local_collection = Collection.from_module(sys.modules[__name__])
+    program = PuzzlehuntManager(config_class=TesterConfig,
+                                namespace=local_collection,
+                                version='1.0.0')
+    program.run()
 """
 2 scenarios:
 
@@ -150,6 +191,8 @@ task(connect(func)):
 
 connect(task(func)):
     - Fails because the task isn't registered properly
+        - Because it isn't a task
+        - Wrapping it as a task again would mean the whole wrong arguments thing
 
 Still need:
     - Backup DB

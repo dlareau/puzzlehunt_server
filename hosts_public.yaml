@@ -1,0 +1,9 @@
+hosts:
+  foo:
+    user: "hunt"
+    host: "puzzlehunt.club.cc.cmu.edu"
+    install_folder: "/home/hunt/"
+    project_name: "dev_puzzlehunt_server"
+    connect_kwargs: null
+  bar:
+    host: "test"

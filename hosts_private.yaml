@@ -1,6 +1,3 @@
-run:
-  echo: True
-
 hosts:
   development:
     user: "hunt"
