@@ -4,7 +4,7 @@ import six
 from fabric import task, Config, Executor, Connection
 from fabric.main import Fab
 from fabric.tasks import ConnectionCall
-from invoke.config import merge_dicts
+from invoke.config import merge_dicts, DataProxy
 from invoke import Collection
 
 REPO_URL = 'https://github.com/dlareau/puzzlehunt_server.git'
@@ -18,20 +18,26 @@ LOCAL_DEFAULTS = {
 }
 
 
-# ===== Program setup =====
+# ===== Program setup (Overriding Fabric to use host files) =====
 class PuzzlehuntManager(Fab):
-    # Adds in my opinions (run:echo) and the settings from the hosts files
+    # Adds in my opinions (run:echo=True) and the settings from the hosts files
     def update_config(self):
-        defaults = Config.global_defaults()
-        my_defaults = {'run': {'echo': True}}
-        merge_dicts(defaults, my_defaults)
-        self.config.load_defaults(defaults)
-
         super(PuzzlehuntManager, self).update_config()
         public_data = self.config._load_yaml("hosts_public.yaml")
         private_data = self.config._load_yaml("hosts_private.yaml")
-        merge_dicts(public_data, private_data)
-        self.config.load_overrides(public_data)
+        hosts = dict(hosts=merge_dicts(public_data, private_data))
+        self.config.load_overrides(hosts)
+
+        defaults = Config.global_defaults()
+        local_default = DataProxy.from_data(LOCAL_DEFAULTS)
+        if("local" in public_data):
+            merge_dicts(local_default, public_data["local"])
+        my_defaults = {
+            'run': {'echo': True},
+            'host': local_default
+        }
+        merge_dicts(defaults, my_defaults)
+        self.config.load_defaults(defaults)
 
 
 class ConfigConnectionCall(ConnectionCall):
@@ -58,7 +64,10 @@ class FileConfigExecutor(Executor):
             if not isinstance(value, dict):
                 value = dict()
             value['host'] = file_hosts[short_host]['host']
-            value['user'] = file_hosts[short_host]['user']
+            value['user'] = file_hosts[short_host].get('user', None)
+            file_kwargs = file_hosts[short_host].get('connect_kwargs', {})
+            existing_kwargs = value.get('connect_kwargs', {})
+            value['connect_kwargs'] = merge_dicts(existing_kwargs, file_kwargs)
             value['config'] = dict(host=file_hosts[short_host])
             new_hosts.append(value)
         return new_hosts
@@ -84,7 +93,7 @@ def migrate(ctx):
 
 
 def test(ctx):
-    return ctx.run("./venv/bin/python manage.py test")
+    return ctx.run("./venv/bin/python manage.py test --noinput")
 
 
 def install_dependencies(ctx):
@@ -116,30 +125,42 @@ def install(ctx):
 
 @task
 def release(ctx, version=None):
-    if("version" not in ctx.config):
+    if(version is None):
         print("No version argument given. Exiting.")
         sys.exit(0)
 
-    # Checks:
     with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
+        # Run django test suite
         test(ctx)
 
         # Make sure all changes are committed
         git_status = ctx.run("git diff-index --quiet HEAD --", warn=True)
         if(git_status.failed):
-            result = six.moves.input("You have uncommitted changes, do you want to continue? (y/n)")
+            result = six.moves.input("You have uncommitted changes, do you want to continue? (y/n): ")
             if(result.lower() != "y"):
                 print("Aborting.")
                 sys.exit(0)
 
+        # Make sure we have some release notes
+        git_status = ctx.run("grep v{} docs/changelog.rst".format(version), warn=True)
+        if(git_status.failed):
+            result = six.moves.input("There is nothing in the changelog for this version, do you want to continue? (y/n): ")
+            if(result.lower() != "y"):
+                print("Aborting.")
+                sys.exit(0)
 
-    #ctx.run("cp foo bar")
+        # Create the release tag
+        ctx.run('git tag -a -f v{} -m "v{}"'.format(version, version))
+
+        # Check for sentry and do the sentry stuff here
+
+        ctx.run("git push origin v{}".format(version))
+
     pass
 
 
 @task
 def deploy(ctx):
-    print(ctx.config.host)
     ctx.run("ls")
     pass
 
@@ -157,9 +178,10 @@ if __name__ == '__main__':
                                 version='1.0.0')
     program.run()
 """
-Todo:
-    - Set a reasonable local default
-    - Figure out sane SSH defaults (ask for password?)
+TODO:
+    - Include sentry and fabric in requirements.txt
+    - Put sentry stuff in release task
+    - Figure out how to put apache config in
 
 Still need:
     - Backup DB
@@ -173,14 +195,6 @@ Create:
  - Install packages
  - Enable apache mods
  - Create database
-
-Release:
- - Run tests
- - Create git tag
- - Create sentry version
- - Associate commits with sentry version
- - Updates version in files
-
 
 Deploy:
  - Run tests
@@ -197,22 +211,4 @@ Deploy:
     - restart nicely
     - force deployment (use tip and/or test check)
     - choose deployment environment
-
-
-List of environment non-secrets
- - Version #
- - Environment name
- - sql_db_name
- - sql_db_username
- - allowed_hosts?
- - email_user
- - logging details
- - apache config
-
-List of environment secrets
- - sql_db_password
- - internal_ips
- - email_password
- - secret key
-
 """
