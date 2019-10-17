@@ -1,12 +1,11 @@
 #!/usr/local/bin/python
-
 import sys
 import six
-import functools
-from fabric import Connection, task, Config
+from fabric import task, Config, Executor, Connection
 from fabric.main import Fab
-from invoke.config import merge_dicts, DataProxy
-from invoke import Argument, Collection
+from fabric.tasks import ConnectionCall
+from invoke.config import merge_dicts
+from invoke import Collection
 
 REPO_URL = 'https://github.com/dlareau/puzzlehunt_server.git'
 
@@ -20,73 +19,54 @@ LOCAL_DEFAULTS = {
 
 
 # ===== Program setup =====
-class TesterConfig(Config):
-    prefix = "fabric"
-
-    @staticmethod
-    def global_defaults():
-        their_defaults = Config.global_defaults()
-        my_defaults = {
-            'run': {
-                'echo': True,
-            },
-        }
-        return merge_dicts(their_defaults, my_defaults)
-
-
 class PuzzlehuntManager(Fab):
-    def core_args(self):
-        core_args = super(PuzzlehuntManager, self).core_args()
-        extra_args = [
-            Argument(names=('remote',), help="Use remote host from settings file")
-        ]
-        return core_args + extra_args
-
+    # Adds in my opinions (run:echo) and the settings from the hosts files
     def update_config(self):
-        super(Fab, self).update_config(merge=False)
+        defaults = Config.global_defaults()
+        my_defaults = {'run': {'echo': True}}
+        merge_dicts(defaults, my_defaults)
+        self.config.load_defaults(defaults)
+
+        super(PuzzlehuntManager, self).update_config()
         public_data = self.config._load_yaml("hosts_public.yaml")
         private_data = self.config._load_yaml("hosts_private.yaml")
         merge_dicts(public_data, private_data)
-
-        remote = self.args["remote"].value
-        if remote:
-            public_data['remote'] = remote
         self.config.load_overrides(public_data)
-        print(self.config)
 
 
-# ===== Connection wrappers/helpers =====
-def get_connection(ctx):
-    try:
-        with Connection(ctx.host.host, ctx.host.user, connect_kwargs=ctx.host.connect_kwargs) as conn:
-            return conn
-    except:
-        return None
+class ConfigConnectionCall(ConnectionCall):
+    # Same as parent but doesn't stomp on config values
+    def make_context(self, config):
+        kwargs = self.init_kwargs
+        kwargs["config"] = merge_dicts(config, kwargs["config"])
+        return Connection(**kwargs)
 
 
-def connect(func):
-    @functools.wraps(func)
-    def wrapper(ctx, host=None, vname=None, **kwargs):
-        if host is None or host == "local" or isinstance(ctx, Connection):
-            # If the destination is local or not specified, populate local
-            # config but do not make any connection
-            local_defaults = DataProxy.from_data(LOCAL_DEFAULTS)
-            if("local" in ctx.config.hosts):
-                ctx.host = merge_dicts(local_defaults, ctx.config.hosts["local"])
+class FileConfigExecutor(Executor):
+    # Normalizes hosts using settings from host files
+    def normalize_hosts(self, hosts):
+        new_hosts = []
+        file_hosts = self.config.hosts
+        for value in hosts or []:
+            if isinstance(value, dict):
+                short_host = value['host']
             else:
-                ctx.host = local_defaults
-            conn = ctx
-        else:
-            # If the destination is remote and this isn't a connection object
-            # populate the config and make the connection
-            if host in ctx.config.hosts:
-                ctx.host = ctx.config.hosts[host]
-                conn = get_connection(ctx)
-            else:
-                print("Specified host not found in config file.")
+                short_host = value
+            if(short_host not in file_hosts):
+                print("Given host does not have any configuration information.")
                 sys.exit(0)
-        func(conn, **kwargs)
-    return wrapper
+            if not isinstance(value, dict):
+                value = dict()
+            value['host'] = file_hosts[short_host]['host']
+            value['user'] = file_hosts[short_host]['user']
+            value['config'] = dict(host=file_hosts[short_host])
+            new_hosts.append(value)
+        return new_hosts
+
+    # Same as parent but uses ConfigConnectionCall
+    def parameterize(self, call, connection_init_kwargs):
+        new_call_kwargs = dict(init_kwargs=connection_init_kwargs)
+        return call.clone(into=ConfigConnectionCall, with_=new_call_kwargs)
 
 
 # ===== Private helper functions =====
@@ -121,7 +101,6 @@ def collect_static_files(ctx, clear=False):
 
 # ===== Public routines =====
 @task
-@connect
 def restart(ctx, full=False):
     with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
         if(full):
@@ -131,7 +110,6 @@ def restart(ctx, full=False):
 
 
 @task
-@connect
 def install(ctx):
     pass
 
@@ -161,38 +139,27 @@ def release(ctx, version=None):
 
 @task
 def deploy(ctx):
+    print(ctx.config.host)
     ctx.run("ls")
     pass
 
 
 @task
-@connect
 def prod_to_dev(ctx):
     pass
 
 
 if __name__ == '__main__':
     local_collection = Collection.from_module(sys.modules[__name__])
-    program = PuzzlehuntManager(config_class=TesterConfig,
+    program = PuzzlehuntManager(config_class=Config,
                                 namespace=local_collection,
+                                executor_class=FileConfigExecutor,
                                 version='1.0.0')
     program.run()
 """
-2 scenarios:
-
-task(connect(func)):
-    - Fails because connect doesn't have the right arguments
-    - Needs:
-        - The task to know about the correct arguments:
-    - Solution:
-        - Make the task know about the arguments somehow
-            - Maybe a third wrapper that modifies the returned task?
-
-
-connect(task(func)):
-    - Fails because the task isn't registered properly
-        - Because it isn't a task
-        - Wrapping it as a task again would mean the whole wrong arguments thing
+Todo:
+    - Set a reasonable local default
+    - Figure out sane SSH defaults (ask for password?)
 
 Still need:
     - Backup DB
