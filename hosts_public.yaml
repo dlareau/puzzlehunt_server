@@ -1,9 +1,19 @@
-hosts:
-  foo:
-    user: "hunt"
-    host: "puzzlehunt.club.cc.cmu.edu"
-    install_folder: "/home/hunt/"
-    project_name: "dev_puzzlehunt_server"
-    connect_kwargs: null
-  bar:
-    host: "test"
+development:
+  # Git stuff
+  branch: "master"
+
+  # SSH stuff
+  user: "hunt"
+  host: "puzzlehunt.club.cc.cmu.edu"
+
+  # Server stuff
+  install_folder: "/home/hunt/"
+  project_name: "dev_puzzlehunt_server"
+  mysql_db_name: "puzzlehunt_db"
+  allowed_hosts_string: "[\"*\"]"
+  log_file_location: "/var/log/django/django.log"
+
+  # Somehow include apache config
+
+local:
+  host: "localhost"

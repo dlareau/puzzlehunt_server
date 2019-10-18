@@ -96,8 +96,8 @@ def download_zip(directory, filename, url):
 
     file_str = directory + "/" + filename + ".zip"
     FNULL = open(os.devnull, 'w')
-    call(["wget", "--max-redirect=20", url, "-O", file_str], stdout=FNULL, stderr=STDOUT)
-    call(["unzip", "-o", "-d", directory + "/" + filename, file_str], stdout=FNULL, stderr=STDOUT)
+    call(["wget", "--max-redirect=20", url, "-O", file_str], stdout=FNULL, stderr=STDOUT, shell=True)
+    call(["unzip", "-o", "-d", directory + "/" + filename, file_str], stdout=FNULL, stderr=STDOUT, shell=True)
     FNULL.close()
 
 
@@ -112,10 +112,10 @@ def download_pdf(directory, filename, url):
 
     FNULL = open(os.devnull, 'w')
     file_str = directory + "/" + filename + ".pdf"
-    call(["wget", url, "-O", file_str])
+    call(["wget", url, "-O", file_str], shell=True)
     with open(file_str, "rb") as f:
         num_pages = PdfFileReader(f).getNumPages()
-    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"])
+    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"], shell=True)
     FNULL.close()
     return num_pages
 
