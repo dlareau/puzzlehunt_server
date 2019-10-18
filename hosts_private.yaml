@@ -6,6 +6,7 @@ development:
 
   mysql_user_name: "hunt"
   mysql_user_password: "mysqlPassword"
+  mysql_root_password: "mysqlRootPassword"
 
   mail_user_name: "puzzlehuntCMU"
   mail_user_password: "emailPassword"

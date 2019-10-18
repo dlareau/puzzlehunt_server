@@ -120,6 +120,69 @@ def restart(ctx, full=False):
 
 @task
 def install(ctx):
+    # Need git to kick off the process
+    ctx.sudo('apt-get update')
+    ctx.sudo('apt-get install -y git')
+
+    # Set up stuff for mysql installation
+    prefix = 'debconf-set-selections <<< "mysql-server mysql-server'
+    env = {'DEBIAN_FRONTEND': 'noninteractive'}
+
+    # Install mysql and related
+    with ctx.prefix('{}/root_password password {}"'.format(prefix, ctx.host.mysql_root_password)):
+        with ctx.prefix('{}/root_password_again password {}"'.format(prefix, ctx.host.mysql_root_password)):
+            ctx.sudo('apt-get install -y mysql-client mysql-server libmysqlclient-dev', env=env)
+
+    # Install python related
+    ctx.sudo('apt-get install -y python-dev python-mysqldb python-pip')
+
+    # Install apache and related
+    ctx.sudo('apt-get install -y apache2 libapache2-mod-xsendfile libapache2-mod-wsgi')
+    # Apache hosting setup
+    ctx.sudo('a2enmod proxy')
+    ctx.sudo('a2enmod proxy_http')
+    ctx.sudo('a2enmod proxy_html')
+    ctx.sudo('a2enmod xsendfile')
+    ctx.sudo('a2enmod wsgi')
+    ctx.sudo("rm /etc/apache2/sites-enabled/*")
+
+    # Install random other requirements
+    ctx.sudo('apt-get install -y imagemagick unzip')
+
+    # Sometimes this fails (which is apparently fine), so we do it separately
+    ctx.sudo('apt-get install -y libapache2-mod-proxy-html', warn=True)
+
+    # Set up MYSQL user and database
+    mysql_login = "mysql -uroot -p{} -e".format(ctx.host.mysql_root_password)
+
+    ctx.run('{} "CREATE DATABASE IF NOT EXISTS {}"'.format(mysql_login, ctx.host.mysql_db_name))
+    ctx.run('{} "grant all privileges on {}.* to \'{}\'@\'localhost\' identified by \'{}\'"'.format(
+        mysql_login, ctx.host.mysql_db_name, ctx.host.mysql_user_name, mysql_user_password))
+    ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
+        mysql_login, ctx.host.mysql_db_name, ctx.host.mysql_user_name))
+
+    # Make local_settings
+    file_contents = ""
+    file_contents += "from .base_settings import *\n"
+    file_contents += "DEBUG=False\n"
+    file_contents += "SECRET_KEY = {}\n".format(ctx.host.server_secret_key)
+    file_contents += "DATABASES = {\n"
+    file_contents += "    'default': {\n"
+    file_contents += "        'ENGINE': 'django.db.backends.mysql',\n"
+    file_contents += "        'NAME': '{}',\n".format(ctx.host.mysql_db_name)
+    file_contents += "        'HOST': 'localhost',\n"
+    file_contents += "        'PORT': '3306',\n"
+    file_contents += "        'USER': '{}',\n".format(ctx.host.mysql_user_name)
+    file_contents += "        'PASSWORD': '{}',\n".format(ctx.host.mysql_user_password)
+    file_contents += "        'OPTIONS': {'charset': 'utf8mb4'},\n"
+    file_contents += "    }\n"
+    file_contents += "}\n"
+    file_contents += "INTERNAL_IPS = '{}'\n".format(ctx.host.server_internal_ips)
+    file_contents += "EMAIL_HOST_USER = '{}'\n".format(ctx.host.mail_user_name)
+    file_contents += "EMAIL_HOST_PASSWORD = '{}'\n".format(ctx.host.mail_user_password)
+    file_contents += "ALLOWED_HOSTS = {}\n".format(ctx.host.allowed_hosts_string)
+
+    # TODO: Write file_contents to file
     pass
 
 
@@ -161,12 +224,42 @@ def release(ctx, version=None):
 
 @task
 def deploy(ctx):
-    ctx.run("ls")
+    with ctx.cd(ctx.host.install_folder):
+        ctx.run("git clone {} {}".format(REPO_URL, ctx.host.project_name))
+        with ctx.cd(ctx.host.project_name):
+            ctx.run('git checkout {}'.format(ctx.host.branch))
+
+    # Get all python dependencies and setup virtual environment
+    ctx.run('pip install virtualenv')
+    ctx.run('./venv/bin/pip install -r requirements.txt')
+
+    # Run application setup commands
+    with ctx.cd(ctx.host.install_folder):
+        with ctx.cd(ctx.host.project_name):
+            ctx.run('mkdir -p ./media/puzzles')
+            ctx.run('mkdir -p ./media/prepuzzles')
+            ctx.run('./venv/bin/python manage.py migrate')
+            ctx.run('./venv/bin/python manage.py collectstatic --noinput')
+            ctx.run('./venv/bin/python manage.py loaddata initial_hunt')
+
+            ctx.run('chgrp -R www-data ./media')
+            ctx.run('chmod -R go+r .')
+            ctx.run('chmod -R og+rw ./media')
+
+    # TODO: Update this
+    # modify and copy configuration
+    ctx.run('sed "s/vagrant/$USERNAME/g" config/puzzlehunt_generic.conf > /etc/apache2/sites-enabled/puzzlehunt_generic.conf')
+    ctx.run('service apache2 restart')
     pass
 
 
 @task
-def prod_to_dev(ctx):
+def backup_db(ctx):
+    pass
+
+
+@task
+def status(ctx):
     pass
 
 
@@ -183,19 +276,6 @@ TODO:
     - Put sentry stuff in release task
     - Figure out how to put apache config in
 
-Still need:
-    - Backup DB
-    - Update config files
-    - Status
-
-Other Thoughts:
-Create:
- - Create user
- - Install git
- - Install packages
- - Enable apache mods
- - Create database
-
 Deploy:
  - Run tests
  - pull specified version from server
@@ -203,10 +283,11 @@ Deploy:
  - Update secret settings
  - migrate
  - copy static files
+ - Update config files
  - restart server
  - Update apache files
  - Status checks on everything
- - tell Sentry that we've deployed
+ - tell Senctx.run('that we've deployed')
  - options:
     - restart nicely
     - force deployment (use tip and/or test check)
