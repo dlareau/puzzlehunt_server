@@ -96,8 +96,10 @@ def download_zip(directory, filename, url):
 
     file_str = directory + "/" + filename + ".zip"
     FNULL = open(os.devnull, 'w')
-    call(["wget", "--max-redirect=20", url, "-O", file_str], stdout=FNULL, stderr=STDOUT, shell=True)
-    call(["unzip", "-o", "-d", directory + "/" + filename, file_str], stdout=FNULL, stderr=STDOUT, shell=True)
+    command_str = "wget --max-redirect=20 {} -O {}".format(url, file_str)
+    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
+    command_str = "unzip -o -d {}/{} {}".format(directory, filename, file_str)
+    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
     FNULL.close()
 
 
@@ -112,10 +114,12 @@ def download_pdf(directory, filename, url):
 
     FNULL = open(os.devnull, 'w')
     file_str = directory + "/" + filename + ".pdf"
-    call(["wget", url, "-O", file_str], shell=True)
+    command_str = "wget {} -O {}".format(url, file_str)
+    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
     with open(file_str, "rb") as f:
         num_pages = PdfFileReader(f).getNumPages()
-    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"], shell=True)
+    command_str = "convert -density 200 {} {}/{}.png".format(file_str, directory, filename)
+    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
     FNULL.close()
     return num_pages
 
