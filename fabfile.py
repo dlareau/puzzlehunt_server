@@ -14,7 +14,16 @@ LOCAL_DEFAULTS = {
     'host': 'localhost',
     'install_folder': '../',
     'project_name': 'puzzlehunt_server',
-    'connect_kwargs': None
+    'connect_kwargs': None,
+    'server_secret_key': 'foobar',
+    'mysql_db_name': 'test 1',
+    'mysql_user_name': 'test 1',
+    'mysql_user_password': 'test 2',
+    'mysql_root_password': 'test 3',
+    'mail_user_name': 'test 4',
+    'mail_user_password': 'test 5',
+    'allowed_hosts_string': '["*"]',
+    'server_internal_ips': 'test 7',
 }
 
 
@@ -111,7 +120,7 @@ def collect_static_files(ctx, clear=False):
 # ===== Public routines =====
 @task
 def restart(ctx, full=False):
-    with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
+    with ctx.cd(ctx.config.host.install_folder + ctx.config.host.project_name):
         if(full):
             ctx.sudo("service apache2 restart")
         else:
@@ -129,8 +138,8 @@ def install(ctx):
     env = {'DEBIAN_FRONTEND': 'noninteractive'}
 
     # Install mysql and related
-    with ctx.prefix('{}/root_password password {}"'.format(prefix, ctx.host.mysql_root_password)):
-        with ctx.prefix('{}/root_password_again password {}"'.format(prefix, ctx.host.mysql_root_password)):
+    with ctx.prefix('{}/root_password password {}"'.format(prefix, ctx.config.host.mysql_root_password)):
+        with ctx.prefix('{}/root_password_again password {}"'.format(prefix, ctx.config.host.mysql_root_password)):
             ctx.sudo('apt-get install -y mysql-client mysql-server libmysqlclient-dev', env=env)
 
     # Install python related
@@ -153,37 +162,36 @@ def install(ctx):
     ctx.sudo('apt-get install -y libapache2-mod-proxy-html', warn=True)
 
     # Set up MYSQL user and database
-    mysql_login = "mysql -uroot -p{} -e".format(ctx.host.mysql_root_password)
+    mysql_login = "mysql -uroot -p{} -e".format(ctx.config.host.mysql_root_password)
 
-    ctx.run('{} "CREATE DATABASE IF NOT EXISTS {}"'.format(mysql_login, ctx.host.mysql_db_name))
+    ctx.run('{} "CREATE DATABASE IF NOT EXISTS {}"'.format(mysql_login, ctx.config.host.mysql_db_name))
     ctx.run('{} "grant all privileges on {}.* to \'{}\'@\'localhost\' identified by \'{}\'"'.format(
-        mysql_login, ctx.host.mysql_db_name, ctx.host.mysql_user_name, mysql_user_password))
+        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name, mysql_user_password))
     ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
-        mysql_login, ctx.host.mysql_db_name, ctx.host.mysql_user_name))
+        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name))
 
     # Make local_settings
     file_contents = ""
     file_contents += "from .base_settings import *\n"
-    file_contents += "DEBUG=False\n"
-    file_contents += "SECRET_KEY = {}\n".format(ctx.host.server_secret_key)
+    file_contents += "DEBUG = False\n"
+    file_contents += "SECRET_KEY = {}\n".format(ctx.config.host.server_secret_key)
     file_contents += "DATABASES = {\n"
     file_contents += "    'default': {\n"
     file_contents += "        'ENGINE': 'django.db.backends.mysql',\n"
-    file_contents += "        'NAME': '{}',\n".format(ctx.host.mysql_db_name)
+    file_contents += "        'NAME': '{}',\n".format(ctx.config.host.mysql_db_name)
     file_contents += "        'HOST': 'localhost',\n"
     file_contents += "        'PORT': '3306',\n"
-    file_contents += "        'USER': '{}',\n".format(ctx.host.mysql_user_name)
-    file_contents += "        'PASSWORD': '{}',\n".format(ctx.host.mysql_user_password)
+    file_contents += "        'USER': '{}',\n".format(ctx.config.host.mysql_user_name)
+    file_contents += "        'PASSWORD': '{}',\n".format(ctx.config.host.mysql_user_password)
     file_contents += "        'OPTIONS': {'charset': 'utf8mb4'},\n"
     file_contents += "    }\n"
     file_contents += "}\n"
-    file_contents += "INTERNAL_IPS = '{}'\n".format(ctx.host.server_internal_ips)
-    file_contents += "EMAIL_HOST_USER = '{}'\n".format(ctx.host.mail_user_name)
-    file_contents += "EMAIL_HOST_PASSWORD = '{}'\n".format(ctx.host.mail_user_password)
-    file_contents += "ALLOWED_HOSTS = {}\n".format(ctx.host.allowed_hosts_string)
+    file_contents += "INTERNAL_IPS = '{}'\n".format(ctx.config.host.server_internal_ips)
+    file_contents += "EMAIL_HOST_USER = '{}'\n".format(ctx.config.host.mail_user_name)
+    file_contents += "EMAIL_HOST_PASSWORD = '{}'\n".format(ctx.config.host.mail_user_password)
+    file_contents += "ALLOWED_HOSTS = {}\n".format(ctx.config.host.allowed_hosts_string)
 
-    # TODO: Write file_contents to file
-    pass
+    ctx.run("cat << EOS > new_file\n" + file_contents + "EOS", echo=False)
 
 
 @task
@@ -192,7 +200,7 @@ def release(ctx, version=None):
         print("No version argument given. Exiting.")
         sys.exit(0)
 
-    with ctx.cd(ctx.host.install_folder + ctx.host.project_name):
+    with ctx.cd(ctx.config.host.install_folder + ctx.config.host.project_name):
         # Run django test suite
         test(ctx)
 
@@ -224,18 +232,18 @@ def release(ctx, version=None):
 
 @task
 def deploy(ctx):
-    with ctx.cd(ctx.host.install_folder):
-        ctx.run("git clone {} {}".format(REPO_URL, ctx.host.project_name))
-        with ctx.cd(ctx.host.project_name):
-            ctx.run('git checkout {}'.format(ctx.host.branch))
+    with ctx.cd(ctx.config.host.install_folder):
+        ctx.run("git clone {} {}".format(REPO_URL, ctx.config.host.project_name))
+        with ctx.cd(ctx.config.host.project_name):
+            ctx.run('git checkout {}'.format(ctx.config.host.branch))
 
     # Get all python dependencies and setup virtual environment
     ctx.run('pip install virtualenv')
     ctx.run('./venv/bin/pip install -r requirements.txt')
 
     # Run application setup commands
-    with ctx.cd(ctx.host.install_folder):
-        with ctx.cd(ctx.host.project_name):
+    with ctx.cd(ctx.config.host.install_folder):
+        with ctx.cd(ctx.config.host.project_name):
             ctx.run('mkdir -p ./media/puzzles')
             ctx.run('mkdir -p ./media/prepuzzles')
             ctx.run('./venv/bin/python manage.py migrate')
@@ -275,6 +283,7 @@ TODO:
     - Include sentry and fabric in requirements.txt
     - Put sentry stuff in release task
     - Figure out how to put apache config in
+    - Check install for debian based host before proceeding
 
 Deploy:
  - Run tests
