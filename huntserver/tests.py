@@ -606,7 +606,7 @@ class StaffTests(TestCase):
             def log_message(self, format, *args):
                 return
 
-        server = HTTPServer(("localhost", 8898), SimpleHTTPRequestHandler)
+        server = HTTPServer(("localhost", 8898), NoLogHandler)
 
         mock_server_thread = Thread(target=server.serve_forever)
         mock_server_thread.setDaemon(True)
