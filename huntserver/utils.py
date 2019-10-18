@@ -112,10 +112,10 @@ def download_pdf(directory, filename, url):
 
     FNULL = open(os.devnull, 'w')
     file_str = directory + "/" + filename + ".pdf"
-    call(["wget", url, "-O", file_str], stdout=FNULL, stderr=STDOUT)
+    call(["wget", url, "-O", file_str])
     with open(file_str, "rb") as f:
         num_pages = PdfFileReader(f).getNumPages()
-    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"], stdout=FNULL, stderr=STDOUT)
+    call(["convert", "-density", "200", file_str, directory + "/" + filename + ".png"])
     FNULL.close()
     return num_pages
 
