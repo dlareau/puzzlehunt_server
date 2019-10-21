@@ -133,14 +133,20 @@ def install(ctx):
     ctx.sudo('apt-get update')
     ctx.sudo('apt-get install -y git')
 
-    # Set up stuff for mysql installation
-    prefix = 'debconf-set-selections <<< "mysql-server mysql-server'
-    env = {'DEBIAN_FRONTEND': 'noninteractive'}
+    # Install mariadb (mysql) and related
+    ctx.sudo('apt-get install -y mariadb-client mariadb-server libmariadbclient-dev')
 
-    # Install mysql and related
-    with ctx.prefix('{}/root_password password {}"'.format(prefix, ctx.config.host.mysql_root_password)):
-        with ctx.prefix('{}/root_password_again password {}"'.format(prefix, ctx.config.host.mysql_root_password)):
-            ctx.sudo('apt-get install -y mysql-client mysql-server libmysqlclient-dev', env=env)
+    # Configure mariadb (mysql). Same as running mysql_secure_installation
+    mysql_base = "mysql -uroot -p{} -e ".format(ctx.config.host.mysql_root_password)
+
+    ctx.sudo(mysql_base + "\"UPDATE mysql.user SET Password=PASSWORD('{}') WHERE User='root'\"".format(ctx.config.host.mysql_root_password))
+    ctx.sudo(mysql_base + "\"UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root'\"")
+    ctx.sudo(mysql_base + "\"DELETE FROM mysql.user WHERE User=''\"")
+    ctx.sudo(mysql_base + "\"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')\"")
+    ctx.sudo(mysql_base + "\"DROP DATABASE IF EXISTS test\"")
+    ctx.sudo(mysql_base + "\"DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'\"")
+    ctx.sudo(mysql_base + "\"FLUSH PRIVILEGES\"")
+    ctx.sudo("service mariadb restart")
 
     # Install python related
     ctx.sudo('apt-get install -y python-dev python-mysqldb python-pip')
@@ -166,7 +172,7 @@ def install(ctx):
 
     ctx.run('{} "CREATE DATABASE IF NOT EXISTS {}"'.format(mysql_login, ctx.config.host.mysql_db_name))
     ctx.run('{} "grant all privileges on {}.* to \'{}\'@\'localhost\' identified by \'{}\'"'.format(
-        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name, mysql_user_password))
+        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name, ctx.config.host.mysql_user_password))
     ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
         mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name))
 
