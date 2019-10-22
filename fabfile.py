@@ -128,53 +128,17 @@ def restart(ctx, full=False):
 
 
 @task
-def install(ctx):
-    # Need git to kick off the process
-    ctx.sudo('apt-get update')
-    ctx.sudo('apt-get install -y git')
+def deploy(ctx):
+    install_folder = ctx.config.host.install_folder
+    project_name = ctx.config.host.project_name
+    project_folder = install_folder + project_name
 
-    # Install mariadb (mysql) and related
-    ctx.sudo('apt-get install -y mariadb-client mariadb-server libmariadbclient-dev')
-
-    # Configure mariadb (mysql). Same as running mysql_secure_installation
-    mysql_base = "mysql -uroot -p{} -e ".format(ctx.config.host.mysql_root_password)
-
-    ctx.sudo(mysql_base + "\"UPDATE mysql.user SET Password=PASSWORD('{}') WHERE User='root'\"".format(ctx.config.host.mysql_root_password))
-    ctx.sudo(mysql_base + "\"UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root'\"")
-    ctx.sudo(mysql_base + "\"DELETE FROM mysql.user WHERE User=''\"")
-    ctx.sudo(mysql_base + "\"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')\"")
-    ctx.sudo(mysql_base + "\"DROP DATABASE IF EXISTS test\"")
-    ctx.sudo(mysql_base + "\"DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'\"")
-    ctx.sudo(mysql_base + "\"FLUSH PRIVILEGES\"")
-    ctx.sudo("service mariadb restart")
-
-    # Install python related
-    ctx.sudo('apt-get install -y python-dev python-mysqldb python-pip')
-
-    # Install apache and related
-    ctx.sudo('apt-get install -y apache2 libapache2-mod-xsendfile libapache2-mod-wsgi')
-    # Apache hosting setup
-    ctx.sudo('a2enmod proxy')
-    ctx.sudo('a2enmod proxy_http')
-    ctx.sudo('a2enmod proxy_html')
-    ctx.sudo('a2enmod xsendfile')
-    ctx.sudo('a2enmod wsgi')
-    ctx.sudo("rm /etc/apache2/sites-enabled/*")
-
-    # Install random other requirements
-    ctx.sudo('apt-get install -y imagemagick unzip')
-
-    # Sometimes this fails (which is apparently fine), so we do it separately
-    ctx.sudo('apt-get install -y libapache2-mod-proxy-html', warn=True)
-
-    # Set up MYSQL user and database
-    mysql_login = "mysql -uroot -p{} -e".format(ctx.config.host.mysql_root_password)
-
-    ctx.run('{} "CREATE DATABASE IF NOT EXISTS {}"'.format(mysql_login, ctx.config.host.mysql_db_name))
-    ctx.run('{} "grant all privileges on {}.* to \'{}\'@\'localhost\' identified by \'{}\'"'.format(
-        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name, ctx.config.host.mysql_user_password))
-    ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
-        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name))
+    directory_check = ctx.run('[ -d {} ]'.format(project_folder))
+    if(directory_check.failed):
+        ctx.sudo("mkdir -p {}".format(install_folder))
+        ctx.sudo("chown $USER: {}".format(install_folder))
+        with ctx.cd(ctx.config.host.install_folder):
+            ctx.run("git clone {} {}".format(REPO_URL, project_name))
 
     # Make local_settings
     file_contents = ""
@@ -197,7 +161,81 @@ def install(ctx):
     file_contents += "EMAIL_HOST_PASSWORD = '{}'\n".format(ctx.config.host.mail_user_password)
     file_contents += "ALLOWED_HOSTS = {}\n".format(ctx.config.host.allowed_hosts_string)
 
-    ctx.run("cat << EOS > new_file\n" + file_contents + "EOS", echo=False)
+    # Run application setup commands
+    with ctx.cd(project_folder):
+        with ctx.cd("puzzlehunt_server/settings"):
+            ctx.run("cat << EOS > local_settings.py\n" + file_contents + "EOS", echo=False)
+        ctx.run('git checkout {}'.format(ctx.config.host.branch))
+        with ctx.prefix("source venv/bin/activate"):
+            ctx.run('pip install -r requirements.txt')
+            ctx.run('python manage.py migrate')
+            ctx.run('python manage.py collectstatic --noinput')
+            ctx.run('python manage.py loaddata initial_hunt')
+
+        ctx.run('mkdir -p ./media/puzzles')
+        ctx.run('mkdir -p ./media/prepuzzles')
+        ctx.run('chgrp -R www-data ./media')
+        ctx.run('chmod -R go+r .')
+        ctx.run('chmod -R og+rw ./media')
+
+        # Populate and put apache config file in place
+        apache_path = "/etc/apache2/sites-enabled/{}.conf".format(project_name)
+        ctx.sudo('sed "s/vagrant/{}/g" config/puzzlehunt_generic.conf > {}').format(ctx.config.host.user, apache_path)
+    ctx.sudo('service apache2 restart')
+    pass
+
+
+@task
+def install(ctx):
+    # Need git to kick off the process
+    ctx.sudo('apt-get update')
+    ctx.sudo('apt-get install -y git')
+
+    # Install mariadb (mysql) and related
+    ctx.sudo('apt-get install -y mariadb-client mariadb-server libmariadbclient-dev')
+
+    # Configure mariadb (mysql). Same as running mysql_secure_installation
+    mysql_base = "mysql -uroot -p{} -e ".format(ctx.config.host.mysql_root_password)
+
+    ctx.sudo(mysql_base + "\"UPDATE mysql.user SET Password=PASSWORD('{}') WHERE User='root'\"".format(ctx.config.host.mysql_root_password))
+    ctx.sudo(mysql_base + "\"UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root'\"")
+    ctx.sudo(mysql_base + "\"DELETE FROM mysql.user WHERE User=''\"")
+    ctx.sudo(mysql_base + "\"DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')\"")
+    ctx.sudo(mysql_base + "\"DROP DATABASE IF EXISTS test\"")
+    ctx.sudo(mysql_base + "\"DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'\"")
+    ctx.sudo(mysql_base + "\"FLUSH PRIVILEGES\"")
+    ctx.sudo("service mariadb restart")
+
+    # Install python related
+    ctx.sudo('apt-get install -y python-dev python-mysqldb python-pip')
+    ctx.sudo('pip install virtualenv')
+
+    # Install apache and related
+    ctx.sudo('apt-get install -y apache2 libapache2-mod-xsendfile libapache2-mod-wsgi')
+    # Apache hosting setup
+    ctx.sudo('a2enmod proxy')
+    ctx.sudo('a2enmod proxy_http')
+    ctx.sudo('a2enmod proxy_html')
+    ctx.sudo('a2enmod xsendfile')
+    ctx.sudo('a2enmod wsgi')
+    ctx.sudo("rm -f /etc/apache2/sites-enabled/*")
+
+    # Install random other requirements
+    ctx.sudo('apt-get install -y imagemagick unzip')
+
+    # Sometimes this fails (which is apparently fine), so we do it separately
+    ctx.sudo('apt-get install -y libapache2-mod-proxy-html', warn=True)
+
+    # Set up MYSQL user and database
+    mysql_login = "mysql -uroot -p{} -e".format(ctx.config.host.mysql_root_password)
+
+    ctx.run('{} "CREATE DATABASE IF NOT EXISTS {}"'.format(mysql_login, ctx.config.host.mysql_db_name))
+    ctx.run('{} "grant all privileges on {}.* to \'{}\'@\'localhost\' identified by \'{}\'"'.format(
+        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name, ctx.config.host.mysql_user_password))
+    ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
+        mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name))
+
+    deploy(ctx)
 
 
 @task
@@ -233,37 +271,6 @@ def release(ctx, version=None):
 
         ctx.run("git push origin v{}".format(version))
 
-    pass
-
-
-@task
-def deploy(ctx):
-    with ctx.cd(ctx.config.host.install_folder):
-        ctx.run("git clone {} {}".format(REPO_URL, ctx.config.host.project_name))
-        with ctx.cd(ctx.config.host.project_name):
-            ctx.run('git checkout {}'.format(ctx.config.host.branch))
-
-    # Get all python dependencies and setup virtual environment
-    ctx.run('pip install virtualenv')
-    ctx.run('./venv/bin/pip install -r requirements.txt')
-
-    # Run application setup commands
-    with ctx.cd(ctx.config.host.install_folder):
-        with ctx.cd(ctx.config.host.project_name):
-            ctx.run('mkdir -p ./media/puzzles')
-            ctx.run('mkdir -p ./media/prepuzzles')
-            ctx.run('./venv/bin/python manage.py migrate')
-            ctx.run('./venv/bin/python manage.py collectstatic --noinput')
-            ctx.run('./venv/bin/python manage.py loaddata initial_hunt')
-
-            ctx.run('chgrp -R www-data ./media')
-            ctx.run('chmod -R go+r .')
-            ctx.run('chmod -R og+rw ./media')
-
-    # TODO: Update this
-    # modify and copy configuration
-    ctx.run('sed "s/vagrant/$USERNAME/g" config/puzzlehunt_generic.conf > /etc/apache2/sites-enabled/puzzlehunt_generic.conf')
-    ctx.run('service apache2 restart')
     pass
 
 
