@@ -180,7 +180,7 @@ def deploy(ctx):
 
         # Populate and put apache config file in place
         apache_path = "/etc/apache2/sites-enabled/{}.conf".format(project_name)
-        ctx.sudo('sed "s/vagrant/{}/g" config/puzzlehunt_generic.conf > {}').format(ctx.config.host.user, apache_path)
+        ctx.sudo('sed "s/replacepath/{}/g" config/puzzlehunt_generic.conf > {}').format(project_folder, apache_path)
     ctx.sudo('service apache2 restart')
     pass
 
