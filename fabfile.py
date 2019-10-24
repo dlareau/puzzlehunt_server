@@ -69,7 +69,7 @@ class FileConfigExecutor(Executor):
                 short_host = value
             if(short_host not in file_hosts):
                 print("Given host does not have any configuration information.")
-                sys.exit(0)
+                sys.exit(1)
             if not isinstance(value, dict):
                 value = dict()
             value['host'] = file_hosts[short_host]['host']
@@ -170,6 +170,10 @@ def deploy(ctx, initial=False):
 @task
 def install(ctx):
     # Need git to kick off the process
+    apt_check = ctx.sudo('apt --version', warn=True)
+    if(apt_check.failed):
+        print("This task only works on systems with apt based package management")
+        sys.exit(1)
     ctx.sudo('apt-get update')
     ctx.sudo('apt-get install -y git')
 
@@ -224,7 +228,7 @@ def install(ctx):
 def release(ctx, version=None):
     if(version is None):
         print("No version argument given. Exiting.")
-        sys.exit(0)
+        sys.exit(1)
 
     with ctx.cd(ctx.config.host.install_folder + ctx.config.host.project_name):
         # Run django test suite
@@ -278,7 +282,6 @@ TODO:
     - Include sentry and fabric in requirements.txt
     - Put sentry stuff in release task
     - Modify deploy to use cmu apache config
-    - Check install for debian based host before proceeding
     - Include shibboleth in deploy and install tasks
     - Add checks to deploy to make sure we're not deploying broken code
     - Write backup-db and status
