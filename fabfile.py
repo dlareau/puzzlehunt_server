@@ -88,34 +88,8 @@ class FileConfigExecutor(Executor):
 
 
 # ===== Private helper functions =====
-def clone(ctx):
-    ls_result = ctx.run("ls").stdout
-    ls_result = ls_result.split("\n")
-    if ctx.project_name in ls_result:
-        print("Project already exists")
-        return
-    return ctx.run("git clone {} {}".format(REPO_URL, ctx.project_name))
-
-
-def migrate(ctx):
-    return ctx.run("./venv/bin/python manage.py migrate")
-
-
 def test(ctx):
     return ctx.run("./venv/bin/python manage.py test --noinput")
-
-
-def install_dependencies(ctx):
-    return ctx.run("./venv/bin/pip -r requirements.txt")
-
-
-def collect_static_files(ctx, clear=False):
-    if(clear):
-        clear_flag = "--clear"
-    else:
-        clear_flag = ""
-    return ctx.run("./venv/bin/python manage.py collectstatic --noinput " + clear_flag)
-
 
 # ===== Public routines =====
 @task
@@ -128,12 +102,12 @@ def restart(ctx, full=False):
 
 
 @task
-def deploy(ctx):
+def deploy(ctx, initial=False):
     install_folder = ctx.config.host.install_folder
     project_name = ctx.config.host.project_name
     project_folder = install_folder + project_name
 
-    directory_check = ctx.run('[ -d {} ]'.format(project_folder))
+    directory_check = ctx.run('[ -d {} ]'.format(project_folder), warn=True)
     if(directory_check.failed):
         ctx.sudo("mkdir -p {}".format(install_folder))
         ctx.sudo("chown $USER: {}".format(install_folder))
@@ -144,7 +118,7 @@ def deploy(ctx):
     file_contents = ""
     file_contents += "from .base_settings import *\n"
     file_contents += "DEBUG = False\n"
-    file_contents += "SECRET_KEY = {}\n".format(ctx.config.host.server_secret_key)
+    file_contents += "SECRET_KEY = '{}'\n".format(ctx.config.host.server_secret_key)
     file_contents += "DATABASES = {\n"
     file_contents += "    'default': {\n"
     file_contents += "        'ENGINE': 'django.db.backends.mysql',\n"
@@ -163,26 +137,34 @@ def deploy(ctx):
 
     # Run application setup commands
     with ctx.cd(project_folder):
+        ctx.run("git pull")
         with ctx.cd("puzzlehunt_server/settings"):
             ctx.run("cat << EOS > local_settings.py\n" + file_contents + "EOS", echo=False)
         ctx.run('git checkout {}'.format(ctx.config.host.branch))
+        ctx.run("virtualenv venv")
         with ctx.prefix("source venv/bin/activate"):
             ctx.run('pip install -r requirements.txt')
             ctx.run('python manage.py migrate')
             ctx.run('python manage.py collectstatic --noinput')
-            ctx.run('python manage.py loaddata initial_hunt')
+            if(initial):
+                ctx.run('python manage.py loaddata initial_hunt')
 
         ctx.run('mkdir -p ./media/puzzles')
         ctx.run('mkdir -p ./media/prepuzzles')
-        ctx.run('chgrp -R www-data ./media')
-        ctx.run('chmod -R go+r .')
-        ctx.run('chmod -R og+rw ./media')
+    ctx.sudo('chgrp -R www-data {}/media'.format(project_folder))
+    ctx.sudo('chmod -R go+r {}'.format(project_folder))
+    ctx.sudo('chmod -R og+rw {}/media'.format(project_folder))
 
-        # Populate and put apache config file in place
-        apache_path = "/etc/apache2/sites-enabled/{}.conf".format(project_name)
-        ctx.sudo('sed "s/replacepath/{}/g" config/puzzlehunt_generic.conf > {}').format(project_folder, apache_path)
+    # Populate and put apache config file in place
+    apache_path = "/etc/apache2/sites-enabled/{}.conf".format(project_name)
+    ctx.sudo('sh -c \'sed "s#replacepath#{}#g" {}/config/puzzlehunt_generic.conf > {}\''.format(
+        project_folder, project_folder, apache_path))
     ctx.sudo('service apache2 restart')
-    pass
+
+    with ctx.cd(project_folder):
+        test(ctx)
+
+    # Tell sentry that we deployed
 
 
 @task
@@ -295,23 +277,9 @@ if __name__ == '__main__':
 TODO:
     - Include sentry and fabric in requirements.txt
     - Put sentry stuff in release task
-    - Figure out how to put apache config in
+    - Modify deploy to use cmu apache config
     - Check install for debian based host before proceeding
-
-Deploy:
- - Run tests
- - pull specified version from server
- - Update dependencies
- - Update secret settings
- - migrate
- - copy static files
- - Update config files
- - restart server
- - Update apache files
- - Status checks on everything
- - tell Senctx.run('that we've deployed')
- - options:
-    - restart nicely
-    - force deployment (use tip and/or test check)
-    - choose deployment environment
+    - Include shibboleth in deploy and install tasks
+    - Add checks to deploy to make sure we're not deploying broken code
+    - Write backup-db and status
 """
