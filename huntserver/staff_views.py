@@ -173,7 +173,7 @@ def progress(request):
 
             # Basic team information for row headers
             # The last element ('cells') is an array of the row's data
-            sol_array.append({'team': team, 'num': len(solved), 'cells': []})
+            sol_array.append({'team': team, 'cells': []})
             # What goes in each cell (item in "cells") is based on puzzle status
             for puzzle in puzzles:
                 # Solved => solve object and puzzle id

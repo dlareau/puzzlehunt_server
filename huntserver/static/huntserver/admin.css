@@ -82,13 +82,13 @@ table.table.table-condensed > tbody > tr > td {
 
 .sort_select {
   display: inline;
-  width: 160px;
-  margin-bottom: 10px;
+  width: 150px;
+  margin-bottom: 5px;
   -webkit-appearance: menulist;
 }
 
 .sort_label {
-  margin-left: 30px;
+  margin-left: 20px;
 }
 
 select {

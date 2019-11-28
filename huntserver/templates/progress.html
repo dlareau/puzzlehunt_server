@@ -15,44 +15,35 @@
   <h1>Puzzle Progress</h1>
   <span>
   <input type="checkbox" class="form-check-input" id="sort_check">
-  <label class="form-check-label" for="sort_check">Sort rows?</label>
-  <label class="sort_label" for="sort_select1">Sort by</label>
+  <label class="form-check-label" for="sort_check">Sort?</label>
+  <label class="sort_label" for="sort_select1">Sort 1:</label>
   <select class="form-control sort_select" id="sort_select1">
     <option># Meta Solves</option>
     <option></option>
     <option># Puzzle Solves</option>
-    <option>Last Meta Time</option>
-    <option>Last Puzzle Time</option>
+    <option>Last Solve Time</option>
   </select>
-  <label class="sort_label" for="sort_select2">Then by</label>
+  <label class="sort_label" for="sort_select2">2:</label>
   <select class="form-control sort_select" id="sort_select2">
     <option># Puzzle Solves</option>
     <option></option>
     <option># Meta Solves</option>
-    <option>Last Meta Time</option>
-    <option>Last Puzzle Time</option>
+    <option>Last Solve Time</option>
   </select>
-  <label class="sort_label" for="sort_select3">Then by</label>
+  <label class="sort_label" for="sort_select3">3:</label>
   <select class="form-control sort_select" id="sort_select3">
-    <option>Last Puzzle Time</option>
+    <option>Last Solve Time</option>
     <option></option>
     <option># Meta Solves</option>
     <option># Puzzle Solves</option>
-    <option>Last Meta Time</option>
-  </select>
-  <label class="sort_label" for="sort_select4">Then by</label>
-  <select class="form-control sort_select" id="sort_select4">
-    <option></option>
-    <option># Meta Solves</option>
-    <option># Puzzle Solves</option>
-    <option>Last Meta Time</option>
-    <option>Last Puzzle Time</option>
   </select>
   </span>
   <table id='progress' class="table table-bordered table-condensed">
     <thead>
       <tr>
         <td class="actions">All teams:</td>
+        <td class="actions"></td>
+        <td class="actions"></td>
         <td class="actions"></td>
         {% for puzzle in puzzle_list %}
           <td class="actions">
@@ -69,7 +60,9 @@
       </tr>
       <tr>
         <th>Team</th>
-        <th>#</th>
+        <th>#</br>M</th>
+        <th>#</br>P</th>
+        <th>Last&nbsp;Time</th>
         {% for puzzle in puzzle_list %}
           <th {% if puzzle.is_meta %} class="metapuzzle" {% endif %} data-id='{{ puzzle.puzzle_id }}'>
             {{ puzzle.puzzle_name }}
@@ -83,7 +76,9 @@
           <td data-id={{row.team.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
             {{ row.team.team_name|truncatechars:40 }}
           </td>
-          <td class='num'>{{ row.num }}</td>
+          <td class='num_metas'></td>
+          <td class='num_puzzles'></td>
+          <td class='last_time'></td>
           {% for cell in row.cells %}
           {% if cell.0 == "locked"%}
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='unavailable' 
