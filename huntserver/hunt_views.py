@@ -1,7 +1,7 @@
 from datetime import datetime
 from dateutil import tz
 from django.conf import settings
-from ratelimit.decorators import ratelimit
+from ratelimit.utils import is_ratelimited
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
@@ -169,19 +169,25 @@ def current_prepuzzle(request):
     return hunt_prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
 
-@ratelimit(key='user', rate='2/10s', method='POST')
-@ratelimit(key='user', rate='5/m', method='POST')
+def get_ratelimit_key(group, request):
+    return request.ratelimit_key
+
+
 def puzzle_view(request, puzzle_id):
     """
     A view to handle answer submissions via POST, handle response update requests via AJAX, and
     render the basic per-puzzle pages.
     """
+    puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
+    team = team_from_user_hunt(request.user, puzzle.hunt)
+    request.ratelimit_key = team.team_name
+
+    is_ratelimited(request, fn=puzzle_view, key='user', rate='2/10s', method='POST', increment=True)
+    is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m', method='POST', increment=True)
+
     if(getattr(request, 'limited', False)):
         logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
         return HttpResponseForbidden()
-
-    puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
-    team = team_from_user_hunt(request.user, puzzle.hunt)
 
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on utils.respond_to_submission for automatic responses.
