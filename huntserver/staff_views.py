@@ -273,14 +273,6 @@ def charts(request):
             tmp[teams.index(solve.team) + 1] += 1
             solve_points.append(tmp[:])
 
-    # Submissions after solve
-    after_subs = []
-    for solve in solves:
-        oversubs = Submission.objects.filter(team=solve.team).filter(puzzle=solve.puzzle).filter(submission_time__gt=solve.submission.submission_time)
-        for sub in oversubs:
-            if(solve.submission.submission_text.lower() != sub.submission_text.lower()):
-                after_subs.append({'solve':solve, 'sub':sub})
-
     # Info Table
     table_dict = {}
     for puzzle in puzzles:
@@ -298,8 +290,7 @@ def charts(request):
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
-               'table_dict': sorted(iter(table_dict.items()), key=lambda x:x[1]['first_time']),
-               'after_subs': after_subs}
+               'table_dict': sorted(iter(table_dict.items()), key=lambda x:x[1]['first_time'])}
     return render(request, 'charts.html', add_apps_to_context(context, request))
 
 
