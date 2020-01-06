@@ -40,7 +40,8 @@
         {% endif %}
       {% endif %}
     </div>
-    <div class="col-md-4 col-md-offset-1">
+    {% if puzzle.hunt.is_public or not puzzle in team.solved.all %}
+    <div id='submit_container' class="col-md-4 col-md-offset-1">
       <fieldset id='submit'>
         <legend>Submit an answer</legend>
         <form id='sub_form' action="/puzzle/{{ puzzle.puzzle_id }}/" method='post'>
@@ -52,7 +53,8 @@
         </form>
       </fieldset>
     </div>
-    <div class="col-md-6">
+    {% endif %}
+    <div id='answer_container' class="col-md-6">
       <br>
     {% if puzzle.hunt.is_public %}
       <p style="width: 80%; margin: auto;"> We are sorry, previous guess viewing is not available in old puzzlehunts </p>
