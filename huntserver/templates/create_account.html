@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load crispy_forms_tags %}
 {% block title %}Registration{% endblock title %}
 
 {% block includes %}
@@ -9,25 +10,10 @@
   <div class="container">
     <h1>Registration</h1>
     <form method="POST" action="">
-      <table>
       {% csrf_token %}
-      {% for field in uf %}
-        <tr class="required">
-          <th>
-            {{ field.label_tag }}
-          </th>
-          <td>
-            {{ field }}
-            <br>
-            <div class="help_text">{{ field.help_text }}</div>
-            <div class="field_errors">{{ field.errors }}</div>
-          </td>
-        </tr>
-      {% endfor %}
-      <tr><th></th><td><br></td></tr>
-      {{pf.as_table}}
-      <tr><td><input type="submit"></td></tr>
-      </table>
+      {{uf|crispy}}
+      {{pf|crispy}}
+      <input class="btn btn-primary" type="submit">
     </form>
   </div>
 {% endblock content %}

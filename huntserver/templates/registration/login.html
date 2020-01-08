@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load crispy_forms_tags %}
 {% load i18n %}
 
 {% block content %}
@@ -7,9 +8,9 @@
     <p>Please enter your puzzlehuntCMU username and password:<p>
     <form method="post" action="/accounts/login/">
       {% csrf_token %}
-      {{ form.as_p }}
+      {{ form|crispy }}
 
-      <input type="submit" value="{% trans 'Log in' %}" />
+      <input class="btn btn-default" type="submit" value="{% trans 'Log in' %}" />
       <input type="hidden" name="next" value="{{ next }}" />
     </form>
   </div>

@@ -1,4 +1,5 @@
 {% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
 {% block title %}Email{% endblock title %}
 
 {% block includes %}
@@ -7,11 +8,11 @@
     border: none;
   }
   #id_subject {
-    width: 400px;
+    width: 500px;
   }
   #id_message {
-    width: 400px;
-    height: 200px;
+    width: 500px;
+    height: 300px;
   }
 </style>
 {% endblock includes %}
@@ -21,11 +22,9 @@
   <h3> Send email to all hunt competitors: </h3>
   <form method="POST" action="/staff/emails/">
     {% csrf_token %}
-    <table>
-      {{ email_form.as_table }}
-    </table>
+    {{ email_form|crispy }}
     <div class="submit-row">
-      <input type="submit" value="Send Email" onclick="return confirm('Are you sure?')">
+      <input class="btn btn-primary" type="submit" value="Send Email" onclick="return confirm('Are you sure?')">
     </div>
   </form>
 

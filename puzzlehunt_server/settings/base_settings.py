@@ -24,6 +24,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'huntserver',
     'django_nose',
+    'crispy_forms',
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -31,6 +32,8 @@ NOSE_ARGS = [
     '--cover-package=huntserver',
     '--cover-erase',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -104,7 +107,6 @@ BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
 
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
-
 
 # Shibboleth options
 USE_SHIBBOLETH = True

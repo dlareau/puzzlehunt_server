@@ -45,6 +45,14 @@ input[type="email"] {
     width:300px;
 }
 
+input[type="password"] {
+    width:300px;
+}
+
+#room_select {
+    width: auto;
+}
+
 input[readonly] {
     background: #dddddd;
     opacity: 0.8;
