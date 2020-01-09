@@ -108,6 +108,9 @@ BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
 PROTECTED_URL = '/protected/'
 LOGIN_URL = '/login-selection/'
 
+# Hint options
+DEFAULT_HINT_LOCKOUT = 60  # 60 Minutes
+
 # Shibboleth options
 USE_SHIBBOLETH = True
 

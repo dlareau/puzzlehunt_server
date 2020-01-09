@@ -37,6 +37,7 @@ urlpatterns = [
 
     # Hunt Pages
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_view, name='puzzle'),
+    url(r'^hints/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_hint, name='puzzle_hint'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
     url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/prepuzzle/$', hunt_views.hunt_prepuzzle, name='hunt_prepuzzle'),
@@ -57,6 +58,7 @@ urlpatterns = [
         url(r'^puzzles/$', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
         url(r'^emails/$', staff_views.emails, name='emails'),
         url(r'^management/$', staff_views.hunt_management, name='hunt_management'),
+        url(r'^hints/$', staff_views.staff_hints, name='staff_hints'),
         url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
         url(r'^depgraph/$', staff_views.depgraph, name='depgraph'),
     ])),

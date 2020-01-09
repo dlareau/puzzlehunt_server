@@ -9,14 +9,17 @@ from django.utils.safestring import mark_safe
 # Register your models here.
 from . import models
 
+
 class UnlockableInline(admin.TabularInline):
     model = models.Unlockable
     extra = 1
+
 
 class ResponseInline(admin.TabularInline):
     model = models.Response
     extra = 1
 #    template = "admin/tabular_custom.html"
+
 
 class UnlockInline(admin.TabularInline):
     model = models.Puzzle.unlocks.through
@@ -36,6 +39,7 @@ class UnlockInline(admin.TabularInline):
                 pass
         return super(UnlockInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+
 class PuzzleAdmin(admin.ModelAdmin):
     def get_object(self, request, object_id, to_field):
         # Hook obj for use in formfield_for_manytomany
@@ -52,13 +56,16 @@ class PuzzleAdmin(admin.ModelAdmin):
               'answer', 'extra_data', 'num_pages', 'num_required_to_unlock')
     inlines = (UnlockInline, ResponseInline)
 
+
 class PrepuzzleAdminForm(forms.ModelForm):
     model = models.Prepuzzle
+
     class Meta:
         fields = '__all__'
         widgets = {
             'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
         }
+
 
 class PrepuzzleAdmin(admin.ModelAdmin):
     form = PrepuzzleAdminForm
@@ -114,21 +121,26 @@ class TeamAdminForm(forms.ModelForm):
 
         return team
 
+
 class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
     list_filter = ('hunt',)
+
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'is_shib_acct',)
     search_fields = ['user__email', 'user__username', 'user__first_name', 'user__last_name']
 
+
 class HuntAdminForm(forms.ModelForm):
     model = models.Hunt
+
     class Meta:
         fields = '__all__'
         widgets = {
             'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
         }
+
 
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
@@ -140,6 +152,7 @@ class UserProxyObject(User):
         app_label = 'huntserver'
         verbose_name = User._meta.verbose_name
         verbose_name_plural = User._meta.verbose_name_plural
+
 
 class UserProxyAdmin(admin.ModelAdmin):
     search_fields = ['email', 'username', 'first_name', 'last_name']
@@ -160,3 +173,4 @@ admin.site.register(models.Unlock)
 admin.site.register(models.Message)
 admin.site.register(models.Response)
 admin.site.register(models.Unlockable)
+admin.site.register(models.Hint)

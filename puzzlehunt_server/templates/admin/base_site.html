@@ -67,7 +67,7 @@
     {% else %}
       <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
     {% endif %}
-    {% if "progress" in request.path or "queue" in request.path or "chat" in request.path or "management" in request.path or "emails" in request.path or "charts" in request.path or "info" in request.path %}
+    {% if "progress" in request.path or "queue" in request.path or "chat" in request.path or "management" in request.path or "emails" in request.path or "charts" in request.path or "info" in request.path or "hints" in request.path %}
         <ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
     {% else %}
         <ul class="nav nav-sidebar app-staffpages module">
@@ -85,6 +85,9 @@
             </li>
             <li {% if "chat" in current_url %}class="active"{% endif %}>
               <a href="/staff/chat">Chat</a>
+            </li>
+            <li {% if "hints" in current_url %}class="active"{% endif %}>
+              <a href="/staff/hints">Hints</a>
             </li>
             <li {% if "management" in current_url %}class="active"{% endif %}>
               <a href="/staff/management">Management</a>

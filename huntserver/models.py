@@ -403,6 +403,29 @@ class Response(models.Model):
         return self.regex + " => " + self.text
 
 
+@python_2_unicode_compatible
+class Hint(models.Model):
+    """ A class to represent a hint to a puzzle """
+
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE,
+        help_text="The puzzle that this hint is related to")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE,
+        help_text="The team that requested the hint")
+    request = models.CharField(max_length=400,
+        help_text="The text of the request for the hint")
+    request_time = models.DateTimeField(
+        help_text="Hint request time")
+    response = models.CharField(max_length=400, blank=True,
+        help_text="The text of the response to the hint request")
+    response_time = models.DateTimeField(null=True, blank=True,
+        help_text="Hint response time")
+    last_modified_time = models.DateTimeField(
+        help_text="Last time of modification")
+
+    def __str__(self):
+        return self.team.team_name + ": " + self.puzzle.puzzle_name + " (" + str(self.request_time) + ")"
+
+
 class OverwriteStorage(FileSystemStorage):
     def get_available_name(self, name):
         # If the filename already exists, remove it as if it was a true file system

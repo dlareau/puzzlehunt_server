@@ -1,0 +1,110 @@
+{% extends "staff_base.html" %}
+{% block title %}Hint Management{% endblock title %}
+
+{% block includes %}
+  <script src="{{ STATIC_URL }}js.cookie.js"></script>
+  <script>
+    last_date = '{{last_date}}';
+    puzzle_id = '{{puzzle_id}}';
+    team_id = '{{team_id}}';
+  </script>
+  <script src="{{ STATIC_URL }}huntserver/staff_hints.js"></script>
+{% endblock includes %}
+
+{% block content %}
+<h1>Hint Requests</h1>
+
+<div class="row puzzle content">
+  <div class='col-sm-4 col-md-3'>
+    <table class="table table-bordered table-condensed table-responsive">
+      {% for team in hunt.team_set.all %}
+        <tr>
+          <td>{{ team.short_name }}</td>
+          <td width="140px">
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-number" data-type="minus" data-field="count_{{team.pk}}">
+                  <span class="glyphicon glyphicon-minus"></span>
+                </button>
+              </span>
+              <input type="text" name="count_{{team.pk}}" class="form-control input-number" value="{{ team.hint_set.count }}" min="0" max="100" disabled>
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="count_{{team.pk}}">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </button>
+              </span>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class='col-sm-8 col-md-9'>
+    <form method="GET" action="" class="form-inline">
+      <select name="team_id" style="width: 200px;" class="form-control">
+        <option></option>
+        {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
+          <option value="{{team.pk}}" {% if team.pk == team_id %} selected {% endif %}>
+            {{team.team_name|truncatechars:30}}
+          </option>
+        {% endfor %}
+      </select>
+      <select name="puzzle_id" style="width: 200px;" class="form-control">
+        <option></option>
+        {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
+          <option value="{{puzzle.pk}}" {% if puzzle.pk == puzzle_id %} selected {% endif %}>
+            {{puzzle.puzzle_name}} ({{puzzle.puzzle_number}})
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit" value="Filter" class="btn btn-default"> Filter </button>
+    </form>
+
+    <table id='hints' class="table table-condensed">
+      <tbody id='sub_table'>
+        {% for hint in hint_list %}
+          {{ hint }}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <br>
+
+    <div class="pages">
+      {% if page_info.has_other_pages %}
+        <ul class="pagination">
+
+        {% if page_info.has_previous %}
+          <li><a href="/staff/hints/?page_num={{ page_info.previous_page_number }}{{arg_string}}">&laquo;</a></li>
+        {% else %}
+          <li><a>&laquo;</a></li>
+        {% endif %}
+
+        {% for i in page_info.paginator.page_range %}
+          {% if page_info.number > 3 and forloop.first %}
+            <li><a href="/staff/hints/?page_num=1{{arg_string}}">1</a></li>
+            <li><a>⋯</a></li>
+          {% endif %}
+          {% if page_info.number == i %}
+            <li class="active"><a href="/staff/hints/?page_num={{ i }}{{arg_string}}">{{ i }}</a></li>
+          {% elif i > page_info.number|add:'-3' and i < page_info.number|add:'3' %}
+            <li><a href="/staff/hints/?page_num={{ i }}{{arg_string}}">{{ i }}</a></li>
+          {% endif %}
+          {% if page_info.paginator.num_pages > page_info.number|add:'3' and forloop.last %}
+            <li><a>⋯</a></li>
+            <li><a href="/staff/hints/?page_num={{ page_info.paginator.num_pages }}{{arg_string}}">{{ page_info.paginator.num_pages }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_info.has_next %}
+          <li><a href="/staff/hints/?page_num={{ page_info.next_page_number }}{{arg_string}}">&raquo;</a></li>
+        {% else %}
+          <li><a>&raquo;</a></li>
+        {% endif %}
+
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

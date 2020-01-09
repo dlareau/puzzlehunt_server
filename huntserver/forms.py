@@ -1,19 +1,22 @@
 from django import forms
 from .models import Person
-from django.conf import settings
 from django.contrib.auth.models import User
 import re
 
+
 class AnswerForm(forms.Form):
     answer = forms.CharField(max_length=100, label='Answer')
+
 
 class SubmissionForm(forms.Form):
     response = forms.CharField(max_length=400, label='response', initial="Wrong Answer")
     sub_id = forms.CharField(label='sub_id')
 
+
 class UnlockForm(forms.Form):
     team_id = forms.CharField(label='team_id')
     puzzle_id = forms.CharField(label='puzzle_id')
+
 
 class PersonForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -25,6 +28,7 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = ['phone', 'allergies']
+
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -46,8 +50,8 @@ class UserForm(forms.ModelForm):
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        if(re.match("^[a-zA-Z0-9]+([_-]?[a-zA-Z0-9])*$", username) == None):
-            raise forms.ValidationError("Username must contain only letters, digits, or '-' or '_' ")
+        if(re.match("^[a-zA-Z0-9]+([_-]?[a-zA-Z0-9])*$", username) is None):
+            raise forms.ValidationError("Username must contain only letters, digits, or '-' or '_'")
         return username
 
     def clean_confirm_password(self):
@@ -65,6 +69,7 @@ class UserForm(forms.ModelForm):
             'username': "Required. 30 characters or fewer. Letters, digits and '-' or '_' only.",
         }
 
+
 class ShibUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ShibUserForm, self).__init__(*args, **kwargs)
@@ -75,9 +80,9 @@ class ShibUserForm(forms.ModelForm):
     def clean_username(self):
         instance = getattr(self, 'instance', None)
         if instance and instance.id:
-          return instance.username
+            return instance.username
         else:
-          return self.cleaned_data['username']
+            return self.cleaned_data['username']
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -86,11 +91,23 @@ class ShibUserForm(forms.ModelForm):
             raise forms.ValidationError('Someone is already using that email address.')
         return email
 
-
     class Meta:
-        model = User 
+        model = User
         fields = ['first_name', 'last_name', 'username', 'email']
-        
+
+
 class EmailForm(forms.Form):
     subject = forms.CharField(label='Subject')
-    message = forms.CharField(label='Message', widget = forms.Textarea)
+    message = forms.CharField(label='Message', widget=forms.Textarea)
+
+
+class HintRequestForm(forms.Form):
+    request = forms.CharField(max_length=400, label='Hint Request Text', widget=forms.Textarea,
+                              help_text="Please describe your progress on the puzzle, and where you feel you are stuck. Max length 400 characters.")
+
+
+class HintResponseForm(forms.Form):
+    response = forms.CharField(max_length=400, label='Hint Response Text',
+                               widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}),
+                               help_text="Max length 400 characters.")
+    hint_id = forms.CharField(label='hint_id', widget=forms.HiddenInput())

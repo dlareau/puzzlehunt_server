@@ -13,8 +13,8 @@ import json
 import os
 import re
 
-from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle
-from .forms import AnswerForm
+from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle, Hint
+from .forms import AnswerForm, HintRequestForm
 from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
 from .info_views import current_hunt_info
 
@@ -277,6 +277,76 @@ def puzzle_view(request, puzzle_id):
                    'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
                    'last_date': last_date, 'team': team}
         return render(request, 'puzzle.html', context)
+
+
+@login_required
+def puzzle_hint(request, puzzle_id):
+    """
+    A view to handle hint requests via POST, handle response update requests via AJAX, and
+    render the basic puzzle-hint pages.
+    """
+    puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
+    team = team_from_user_hunt(request.user, puzzle.hunt)
+
+    if request.method == 'POST':
+        # If the hunt isn't public and you aren't signed in, please stop...
+        if(team is None):
+            return HttpResponse('fail')
+
+        # Normal answer responses for a signed in user in an ongoing hunt
+        form = HintRequestForm(request.POST)
+        if form.is_valid():
+            h = Hint.objects.create(request=form.cleaned_data['request'], puzzle=puzzle, team=team,
+                                    request_time=timezone.now(), last_modified_time=timezone.now())
+
+        # Render response to HTML
+        hint_list = [render_to_string('hint_row.html', {'hint': h})]
+
+        try:
+            last_hint = Hint.objects.latest('last_modified_time')
+            last_date = last_hint.last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except Hint.DoesNotExist:
+            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+        # Send back rendered response for display
+        context = {'hint_list': hint_list, 'last_date': last_date}
+        return HttpResponse(json.dumps(context))
+
+    # Will return HTML rows for all submissions the user does not yet have
+    elif request.is_ajax():
+        if(team is None):
+            return HttpResponseNotFound('access denied')
+
+        # Find which objects the user hasn't seen yet and render them to HTML
+        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
+        hints = Hint.objects.filter(last_modified_time__gt=last_date)
+        hints = hints.filter(team=team, puzzle=puzzle)
+        hint_list = [render_to_string('hint_row.html', {'hint': hint}) for hint in hints]
+
+        try:
+            last_hint = Hint.objects.latest('last_modified_time')
+            last_date = last_hint.last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except Hint.DoesNotExist:
+            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+        context = {'hint_list': hint_list, 'last_date': last_date}
+        return HttpResponse(json.dumps(context))
+
+    else:
+        if(team is None or puzzle not in team.unlocked.all()):
+            return render(request, 'access_error.html', {'reason': "puzzle"})
+
+        form = HintRequestForm()
+        hints = team.hint_set.filter(puzzle=puzzle).order_by('pk')
+        try:
+            last_hint = Hint.objects.latest('last_modified_time')
+            last_date = last_hint.last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except Hint.DoesNotExist:
+            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
+                   'hint_list': hints, 'last_date': last_date, 'team': team}
+        return render(request, 'puzzle_hint.html', context)
 
 
 @login_required

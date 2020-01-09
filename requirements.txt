@@ -13,3 +13,4 @@ sphinx_rtd_theme
 django-ratelimit==1.1.0
 django-nose==1.4.5
 coverage==4.5.1
+django-crispy-forms==1.8.1
