@@ -180,7 +180,9 @@ def puzzle_view(request, puzzle_id):
     """
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
-    request.ratelimit_key = team.team_name
+
+    if(team is not None):
+        request.ratelimit_key = team.team_name
 
     is_ratelimited(request, fn=puzzle_view, key='user', rate='2/10s', method='POST', increment=True)
     is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m', method='POST', increment=True)
