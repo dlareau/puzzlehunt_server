@@ -39,6 +39,9 @@ class Hunt(models.Model):
         help_text="A misc. field for any extra data to be stored with the hunt.")
     template = models.TextField(default="",
         help_text="The template string to be rendered to HTML on the hunt page")
+    hint_lockout = models.IntegerField(default=settings.DEFAULT_HINT_LOCKOUT)
+
+
 
     # A bit of custom logic in clean and save to ensure exactly one hunt's
     # is_current_hunt is true at any time. It makes sure you can never un-set the
@@ -200,6 +203,7 @@ class Team(models.Model):
         help_text="A boolean to indicate if the team is a playtest team and will get early access")
     last_seen_message = models.IntegerField(default=0)
     last_received_message = models.IntegerField(default=0)
+    num_available_hints = models.IntegerField(default=0)
 
     @property
     def is_playtester_team(self):
