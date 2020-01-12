@@ -27,6 +27,7 @@ LOCAL_DEFAULTS = {
 }
 
 
+
 # ===== Program setup (Overriding Fabric to use host files) =====
 class PuzzlehuntManager(Fab):
     # Adds in my opinions (run:echo=True) and the settings from the hosts files
@@ -89,7 +90,7 @@ class FileConfigExecutor(Executor):
 
 # ===== Private helper functions =====
 def test(ctx):
-    return ctx.run("./venv/bin/python manage.py test --noinput")
+    return ctx.run("./venv/bin/python3 manage.py test --noinput")
 
 # ===== Public routines =====
 @task
@@ -143,11 +144,11 @@ def deploy(ctx, initial=False):
         ctx.run('git checkout {}'.format(ctx.config.host.branch))
         ctx.run("virtualenv venv")
         with ctx.prefix("source venv/bin/activate"):
-            ctx.run('pip install -r requirements.txt')
-            ctx.run('python manage.py migrate')
-            ctx.run('python manage.py collectstatic --noinput')
+            ctx.run('pip3 install -r requirements.txt')
+            ctx.run('python3 manage.py migrate')
+            ctx.run('python3 manage.py collectstatic --noinput')
             if(initial):
-                ctx.run('python manage.py loaddata initial_hunt')
+                ctx.run('python3 manage.py loaddata initial_hunt')
 
         ctx.run('mkdir -p ./media/puzzles')
         ctx.run('mkdir -p ./media/prepuzzles')
@@ -193,11 +194,11 @@ def install(ctx):
     ctx.sudo("service mariadb restart")
 
     # Install python related
-    ctx.sudo('apt-get install -y python-dev python-mysqldb python-pip')
-    ctx.sudo('pip install virtualenv')
+    ctx.sudo('apt-get install -y python3-dev python3-mysqldb python3-pip')
+    ctx.sudo('pip3 install virtualenv')
 
     # Install apache and related
-    ctx.sudo('apt-get install -y apache2 libapache2-mod-xsendfile libapache2-mod-wsgi')
+    ctx.sudo('apt-get install -y apache2 libapache2-mod-xsendfile libapache2-mod-wsgi-py3')
     # Apache hosting setup
     ctx.sudo('a2enmod proxy')
     ctx.sudo('a2enmod proxy_http')

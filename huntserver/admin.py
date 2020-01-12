@@ -128,7 +128,7 @@ class TeamAdmin(admin.ModelAdmin):
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'is_shib_acct',)
+    list_display = ('__str__', 'is_shib_acct',)
     search_fields = ['user__email', 'user__username', 'user__first_name', 'user__last_name']
 
 
