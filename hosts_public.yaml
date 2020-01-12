@@ -13,7 +13,7 @@ development:
   allowed_hosts_string: "[\"*\"]"
   log_file_location: "/var/log/django/django.log"
 
-  # Somehow include apache config
+  apache_file: "puzzlehunt_generic.conf"
 
 local:
   host: "localhost"

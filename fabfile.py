@@ -24,9 +24,8 @@ LOCAL_DEFAULTS = {
     'mail_user_password': 'test 5',
     'allowed_hosts_string': '["*"]',
     'server_internal_ips': 'test 7',
+    'apache_file': 'puzzlehunt_generic.conf'
 }
-
-
 
 # ===== Program setup (Overriding Fabric to use host files) =====
 class PuzzlehuntManager(Fab):
@@ -103,10 +102,14 @@ def restart(ctx, full=False):
 
 
 @task
-def deploy(ctx, initial=False):
+def deploy(ctx, initial=False, ssl=False):
     install_folder = ctx.config.host.install_folder
     project_name = ctx.config.host.project_name
     project_folder = install_folder + project_name
+    hostname = ctx.config.host.host
+    apache_file = ctx.config.host.apache_file
+    # Safe to assume gmail for now because smtp.gmail.com is hardcoded into base_settings.py
+    contact_email = ctx.config.host.mail_user_name + "@gmail.com"
 
     directory_check = ctx.run('[ -d {} ]'.format(project_folder), warn=True)
     if(directory_check.failed):
@@ -158,8 +161,11 @@ def deploy(ctx, initial=False):
 
     # Populate and put apache config file in place
     apache_path = "/etc/apache2/sites-enabled/{}.conf".format(project_name)
-    ctx.sudo('sh -c \'sed "s#replacepath#{}#g" {}/config/puzzlehunt_generic.conf > {}\''.format(
-        project_folder, project_folder, apache_path))
+    ctx.sudo('sh -c \'sed "s#replacepath#{}#g;s#replacename#{}#g" {}/config/{} > {}\''.format(
+        project_folder, hostname, project_folder, apache_file, apache_path))
+    if(ssl):
+        ctx.sudo("certbot --apache -n --agree-tos --email {} --domains {}".format(
+            contact_email, hostname))
     ctx.sudo('service apache2 restart')
 
     with ctx.cd(project_folder):
@@ -169,7 +175,7 @@ def deploy(ctx, initial=False):
 
 
 @task
-def install(ctx):
+def install(ctx, ssl=False):
     # Need git to kick off the process
     apt_check = ctx.sudo('apt --version', warn=True)
     if(apt_check.failed):
@@ -207,6 +213,10 @@ def install(ctx):
     ctx.sudo('a2enmod wsgi')
     ctx.sudo("rm -f /etc/apache2/sites-enabled/*")
 
+    # Set up a certificate using lets-encrypt
+    if(ssl):
+        ctx.sudo('apt-get install -y certbot python-certbot-apache')
+
     # Install random other requirements
     ctx.sudo('apt-get install -y imagemagick unzip')
 
@@ -222,7 +232,7 @@ def install(ctx):
     ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
         mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name))
 
-    deploy(ctx)
+    deploy(ctx, ssl=ssl)
 
 
 @task
@@ -282,8 +292,9 @@ if __name__ == '__main__':
 TODO:
     - Include sentry and fabric in requirements.txt
     - Put sentry stuff in release task
-    - Modify deploy to use cmu apache config
-    - Include shibboleth in deploy and install tasks
+    - Modify deploy to use any apache config
+    - Include shibboleth in deploy and install tasks 
+    - Include ssl certs in install task 
     - Add checks to deploy to make sure we're not deploying broken code
     - Write backup-db and status
 """
