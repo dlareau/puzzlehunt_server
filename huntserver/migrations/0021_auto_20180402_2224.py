@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='message',
             name='team',
-            field=models.ForeignKey(help_text=b'The team that this message is being sent to/from', to='huntserver.Team'),
+            field=models.ForeignKey(help_text=b'The team that this message is being sent to/from', to='huntserver.Team', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='message',
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='puzzle',
             name='hunt',
-            field=models.ForeignKey(help_text=b'The hunt that this puzzle is a part of', to='huntserver.Hunt'),
+            field=models.ForeignKey(help_text=b'The hunt that this puzzle is a part of', to='huntserver.Hunt', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='puzzle',
@@ -140,7 +140,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='response',
             name='puzzle',
-            field=models.ForeignKey(help_text=b'The puzzle that this automated response is related to', to='huntserver.Puzzle'),
+            field=models.ForeignKey(help_text=b'The puzzle that this automated response is related to', to='huntserver.Puzzle', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='response',
@@ -155,17 +155,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='solve',
             name='puzzle',
-            field=models.ForeignKey(help_text=b'The puzzle that this is a solve for', to='huntserver.Puzzle'),
+            field=models.ForeignKey(help_text=b'The puzzle that this is a solve for', to='huntserver.Puzzle', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='solve',
             name='submission',
-            field=models.ForeignKey(blank=True, to='huntserver.Submission', help_text=b'The submission object that the team submitted to solve the puzzle'),
+            field=models.ForeignKey(blank=True, to='huntserver.Submission', help_text=b'The submission object that the team submitted to solve the puzzle', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='solve',
             name='team',
-            field=models.ForeignKey(help_text=b'The team that this solve is from', to='huntserver.Team'),
+            field=models.ForeignKey(help_text=b'The team that this solve is from', to='huntserver.Team', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='submission',
@@ -175,7 +175,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='submission',
             name='puzzle',
-            field=models.ForeignKey(help_text=b'The puzzle that this submission is in response to', to='huntserver.Puzzle'),
+            field=models.ForeignKey(help_text=b'The puzzle that this submission is in response to', to='huntserver.Puzzle', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='submission',
@@ -185,12 +185,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='submission',
             name='team',
-            field=models.ForeignKey(help_text=b'The team that made the submission', to='huntserver.Team'),
+            field=models.ForeignKey(help_text=b'The team that made the submission', to='huntserver.Team', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='team',
             name='hunt',
-            field=models.ForeignKey(help_text=b'The hunt that the team is a part of', to='huntserver.Hunt'),
+            field=models.ForeignKey(help_text=b'The hunt that the team is a part of', to='huntserver.Hunt', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='team',
@@ -230,12 +230,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='unlock',
             name='puzzle',
-            field=models.ForeignKey(help_text=b'The puzzle that this is an unlock for', to='huntserver.Puzzle'),
+            field=models.ForeignKey(help_text=b'The puzzle that this is an unlock for', to='huntserver.Puzzle', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='unlock',
             name='team',
-            field=models.ForeignKey(help_text=b'The team that this unlocked puzzle is for', to='huntserver.Team'),
+            field=models.ForeignKey(help_text=b'The team that this unlocked puzzle is for', to='huntserver.Team', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='unlock',
@@ -255,6 +255,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='unlockable',
             name='puzzle',
-            field=models.ForeignKey(help_text=b'The puzzle that needs to be solved to unlock this object', to='huntserver.Puzzle'),
+            field=models.ForeignKey(help_text=b'The puzzle that needs to be solved to unlock this object', to='huntserver.Puzzle', on_delete=models.CASCADE),
         ),
     ]
