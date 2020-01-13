@@ -19,6 +19,8 @@ from django.contrib.auth import views as base_auth_views
 from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
 
+app_name = "huntserver"
+
 urlpatterns = [
     # Auth and Accounts
     url(r'^accounts/create/$', auth_views.create_account, name='create_account'),
@@ -63,6 +65,6 @@ urlpatterns = [
         url(r'^depgraph/$', staff_views.depgraph, name='depgraph'),
     ])),
 
-    url(r'^Shibboleth.sso/Logout', base_auth_views.logout, name='logout', kwargs={'next_page': '/'}),
-    url(r'^Shibboleth.sso/Login', base_auth_views.login),
+    url(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView, name='logout', kwargs={'next_page': '/'}),
+    url(r'^Shibboleth.sso/Login', base_auth_views.LoginView),
 ]
