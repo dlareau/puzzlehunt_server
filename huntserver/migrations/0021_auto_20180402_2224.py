@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='person',
             name='user',
-            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, help_text=b'The corresponding user to this person'),
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, help_text=b'The corresponding user to this person', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='puzzle',
