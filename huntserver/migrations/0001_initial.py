@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('phone', models.CharField(max_length=20, blank=True)),
                 ('comments', models.CharField(max_length=400, blank=True)),
                 ('year', models.IntegerField(null=True, blank=True)),
-                ('login_info', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('login_info', models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('answer', models.CharField(max_length=100)),
                 ('link', models.URLField()),
                 ('num_required_to_unlock', models.IntegerField(default=1)),
-                ('hunt', models.ForeignKey(to='huntserver.Hunt')),
+                ('hunt', models.ForeignKey(to='huntserver.Hunt', on_delete=models.CASCADE)),
                 ('unlocks', models.ManyToManyField(to='huntserver.Puzzle', blank=True)),
             ],
         ),
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
             name='Solve',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('puzzle', models.ForeignKey(to='huntserver.Puzzle')),
+                ('puzzle', models.ForeignKey(to='huntserver.Puzzle', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
                 ('submission_time', models.DateTimeField()),
                 ('submission_text', models.CharField(max_length=100)),
                 ('response_text', models.CharField(max_length=400, blank=True)),
-                ('puzzle', models.ForeignKey(to='huntserver.Puzzle')),
+                ('puzzle', models.ForeignKey(to='huntserver.Puzzle', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('team_name', models.CharField(max_length=200)),
                 ('location', models.CharField(max_length=80, blank=True)),
-                ('hunt', models.ForeignKey(to='huntserver.Hunt')),
+                ('hunt', models.ForeignKey(to='huntserver.Hunt', on_delete=models.CASCADE)),
                 ('solved', models.ManyToManyField(related_name='solved_for', through='huntserver.Solve', to='huntserver.Puzzle', blank=True)),
             ],
         ),
@@ -91,8 +91,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('time', models.DateTimeField()),
-                ('puzzle', models.ForeignKey(to='huntserver.Puzzle')),
-                ('team', models.ForeignKey(to='huntserver.Team')),
+                ('puzzle', models.ForeignKey(to='huntserver.Puzzle', on_delete=models.CASCADE)),
+                ('team', models.ForeignKey(to='huntserver.Team', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('content_type', models.CharField(default=b'TXT', max_length=3, choices=[(b'IMG', b'Image'), (b'PDF', b'PDF'), (b'TXT', b'Text'), (b'WEB', b'Link')])),
                 ('content', models.CharField(max_length=500)),
-                ('puzzle', models.ForeignKey(to='huntserver.Puzzle')),
+                ('puzzle', models.ForeignKey(to='huntserver.Puzzle', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AddField(
@@ -117,17 +117,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='submission',
             name='team',
-            field=models.ForeignKey(to='huntserver.Team'),
+            field=models.ForeignKey(to='huntserver.Team', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='solve',
             name='submission',
-            field=models.ForeignKey(to='huntserver.Submission', blank=True),
+            field=models.ForeignKey(to='huntserver.Submission', blank=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='solve',
             name='team',
-            field=models.ForeignKey(to='huntserver.Team'),
+            field=models.ForeignKey(to='huntserver.Team', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='person',
@@ -137,6 +137,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='message',
             name='team',
-            field=models.ForeignKey(to='huntserver.Team'),
+            field=models.ForeignKey(to='huntserver.Team', on_delete=models.CASCADE),
         ),
     ]

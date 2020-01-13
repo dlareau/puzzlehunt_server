@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('regex', models.CharField(max_length=400)),
                 ('text', models.CharField(max_length=400)),
-                ('puzzle', models.ForeignKey(to='huntserver.Puzzle')),
+                ('puzzle', models.ForeignKey(to='huntserver.Puzzle', on_delete=models.CASCADE)),
             ],
         ),
     ]
