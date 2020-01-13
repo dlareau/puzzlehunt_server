@@ -1,5 +1,5 @@
 from django.test import TestCase, override_settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from huntserver import models, forms, templatetags
 from django.contrib.auth.models import User, AnonymousUser
 from django.utils import timezone
