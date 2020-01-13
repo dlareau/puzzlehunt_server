@@ -16,8 +16,8 @@ before_install:
   - export DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.travis_settings"
 
 install:
-  - pip install -q Django==$DJANGO
   - pip install -r requirements.txt
+  - pip install -q Django==$DJANGO
   - pip install coveralls
   - pip freeze
   - mkdir -p ./media/puzzles
