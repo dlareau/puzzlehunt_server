@@ -3,7 +3,6 @@ decorator==4.1.2
 bootstrap-admin==0.4.*
 django-debug-toolbar==1.8
 mysqlclient
-networkx==2.0
 PyPDF2==1.26.0
 python-dateutil==2.6.1
 six==1.11.0

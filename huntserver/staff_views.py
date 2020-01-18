@@ -12,7 +12,6 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 import itertools
 import json
-import networkx as nx
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
@@ -554,17 +553,3 @@ def emails(request):
         email_form = EmailForm()
     context = {'email_list': (', ').join(email_list), 'email_form': email_form}
     return render(request, 'email.html', add_apps_to_context(context, request))
-
-
-@staff_member_required
-def depgraph(request):
-    """ A view to generate and render the puzzle dependency graph visualization """
-
-    hunt = Hunt.objects.get(is_current_hunt=True)
-    G = nx.DiGraph()
-    for puzzle in hunt.puzzle_set.all():
-        for unlock in puzzle.unlocks.all():
-            G.add_edge(unlock.puzzle_number, puzzle.puzzle_number)
-    edges = [line.split(' ') for line in nx.generate_edgelist(G, data=False)]
-    context = {'puzzles': hunt.puzzle_set.all(), 'edges': edges}
-    return render(request, 'depgraph.html', add_apps_to_context(context, request))
