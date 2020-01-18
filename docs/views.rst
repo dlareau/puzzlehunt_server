@@ -35,7 +35,6 @@ Staff Views
 .. autofunction:: huntserver.staff_views.hunt_info(request)
 .. autofunction:: huntserver.staff_views.control(request)
 .. autofunction:: huntserver.staff_views.emails(request)
-.. autofunction:: huntserver.staff_views.depgraph(request)
 
 Auth Views
 ==========

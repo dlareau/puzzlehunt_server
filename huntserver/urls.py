@@ -62,7 +62,6 @@ urlpatterns = [
         url(r'^management/$', staff_views.hunt_management, name='hunt_management'),
         url(r'^hints/$', staff_views.staff_hints, name='staff_hints'),
         url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
-        url(r'^depgraph/$', staff_views.depgraph, name='depgraph'),
     ])),
 
     url(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView, name='logout', kwargs={'next_page': '/'}),
