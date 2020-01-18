@@ -651,11 +651,6 @@ class StaffTests(TestCase):
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:hunt_info', 200)
 
-    def test_staff_depgraph(self):
-        "Test the staff depgraph view"
-        login(self, 'admin')
-        response = get_and_check_page(self, 'huntserver:depgraph', 200)
-
     def test_staff_chat(self):
         "Test the staff progress view"
         login(self, 'admin')
