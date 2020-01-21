@@ -1,4 +1,4 @@
-from locust import HttpLocust, TaskSet, TaskSequence
+from locust import HttpLocust, TaskSet, TaskSequence, between, constant
 from bs4 import BeautifulSoup, SoupStrainer
 from string import ascii_lowercase
 import random
@@ -148,16 +148,16 @@ def apply_poller(task_set, poller):
     return task_set
 
 
-def page_and_subpages(main_function, action_set, poller=None, wait_time=None):
+def page_and_subpages(main_function, action_set, poller=None, time=None):
     class ActionSet(TaskSet):
         tasks = action_set
-        if(wait_time):
-            wait_function = lambda self: wait_time
+        if(time):
+            wait_time = constant(time)
 
     class ts(TaskSequence):
         tasks = [main_function, apply_poller(ActionSet, poller), stop]
         if(poller):
-            wait_function = lambda self: 1
+            wait_time = constant(1)
 
     return ts
 
@@ -713,16 +713,14 @@ class HunterSet(TaskSequence):
 # Staff user
 class StaffLocust(HttpLocust):
     task_set = StaffSet
-    min_wait = 100000
-    max_wait = 140000
+    wait_time = between(100, 140)
     weight = 10
 
 
 # Regular user
 class HunterLocust(HttpLocust):
     task_set = HunterSet
-    min_wait = 20000
-    max_wait = 40000
+    wait_time = between(20, 40)
     weight = 240
 
 # ========== END USERS CODE ==========
