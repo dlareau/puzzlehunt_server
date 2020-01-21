@@ -17,7 +17,7 @@ kill_list = []
 user_ids = range(285) + range(285)
 staff_ids = range(300, 310) + range(300, 310)
 
-USER_PASSWORD = "tup"
+USER_PASSWORD = "password"
 
 
 def get_status(greenlets):
@@ -212,7 +212,7 @@ def ensure_login(session, input_response, static=True):
         session.client.headers['Referer'] = session.client.base_url
         store_CSRF(session, response)
         args = {"username": "test_user_" + str(session.locust.user_id),
-                "password": USER_PASSWORD
+                "password": USER_PASSWORD + str(session.locust.user_id)
         }
 
         response = store_CSRF(session, CSRF_post(session, next_url, args))
@@ -232,6 +232,7 @@ def store_CSRF(session, response):
     if(response.cookies and 'csrftoken' in response.cookies):
         session.locust.client.cookies.set('csrftoken', None)
         session.locust.client.cookies.set('csrftoken', response.cookies['csrftoken'])
+        session.locust.templateCSRF = session.locust.client.cookies['csrftoken']
         #sys.stdout.write("|    COOKIE:   " + session.locust.client.cookies['csrftoken'])
 
     search_results = re.search(r"csrf_token = '(.*?)';", response.text)
