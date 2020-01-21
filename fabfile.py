@@ -102,7 +102,7 @@ def restart(ctx, full=False):
 
 
 @task
-def deploy(ctx, initial=False, ssl=False):
+def deploy(ctx, fixture="", ssl=False):
     install_folder = ctx.config.host.install_folder
     project_name = ctx.config.host.project_name
     project_folder = install_folder + project_name
@@ -150,8 +150,8 @@ def deploy(ctx, initial=False, ssl=False):
             ctx.run('pip3 install -r requirements.txt')
             ctx.run('python3 manage.py migrate')
             ctx.run('python3 manage.py collectstatic --noinput')
-            if(initial):
-                ctx.run('python3 manage.py loaddata initial_hunt')
+            if(fixture != ""):
+                ctx.run('python3 manage.py loaddata {}'.format(fixture))
 
         ctx.run('mkdir -p ./media/puzzles')
         ctx.run('mkdir -p ./media/prepuzzles')
@@ -175,7 +175,7 @@ def deploy(ctx, initial=False, ssl=False):
 
 
 @task
-def install(ctx, ssl=False):
+def install(ctx, ssl=False, fixture=""):
     # Need git to kick off the process
     apt_check = ctx.sudo('apt --version', warn=True)
     if(apt_check.failed):
@@ -232,7 +232,7 @@ def install(ctx, ssl=False):
     ctx.run('{} "grant all privileges on test_{}.* to \'{}\'@\'localhost\'"'.format(
         mysql_login, ctx.config.host.mysql_db_name, ctx.config.host.mysql_user_name))
 
-    deploy(ctx, ssl=ssl)
+    deploy(ctx, ssl=ssl, fixture=fixture)
 
 
 @task
