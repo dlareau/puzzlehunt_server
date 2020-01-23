@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: mysql
+    image: mariadb
     restart: always
     ports:
       - "3306:3306"
@@ -10,6 +10,7 @@ services:
       MYSQL_DATABASE: puzzlehunt_db
       MYSQL_USER: hunt
       MYSQL_PASSWORD: sample_password
+      MYSQL_ROOT_PASSWORD: test
 
   web:
     build: .
