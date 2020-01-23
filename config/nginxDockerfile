@@ -1,0 +1,8 @@
+FROM nginx
+
+RUN rm /etc/nginx/conf.d/*
+
+COPY puzzlehunt_nginx.conf /etc/nginx/conf.d/puzzlehunt.conf
+
+RUN mkdir -p /user/share/nginx/html/static
+RUN mkdir -p /user/share/nginx/html/media

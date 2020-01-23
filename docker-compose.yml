@@ -13,11 +13,15 @@ services:
       MYSQL_ROOT_PASSWORD: test
 
   web:
-    build: .
+    build:
+      context: .
     restart: always
     command: gunicorn --workers=2 --bind=0.0.0.0:8000 puzzlehunt_server.wsgi:application
     volumes:
       - .:/code
+      - static:/static
+      - media:/media
+
     ports:
       - "8000:8000"
     environment:
@@ -26,3 +30,21 @@ services:
       MYSQL_PASSWORD: sample_password
     depends_on:
       - db
+
+  nginx:
+    restart: always
+    container_name: nginx_server
+    build:
+      context: ./config/
+      dockerfile: nginxDockerfile
+    depends_on:
+      - web
+    volumes:
+      - static:/static
+      - media:/media
+    ports:
+      - "0.0.0.0:80:80"
+
+volumes:
+  static:
+  media:
