@@ -12,6 +12,7 @@ codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else Non
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 # Application definition
+SITE_TITLE = "Puzzlehunt CMU"
 
 INSTALLED_APPS = (
     'bootstrap_admin',
@@ -27,13 +28,6 @@ INSTALLED_APPS = (
     'crispy_forms',
 )
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--cover-package=huntserver',
-    '--cover-erase',
-]
-
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -69,48 +63,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'puzzlehunt_server.wsgi.application'
 
+# Testing settings
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = [
+    '--cover-package=huntserver',
+    '--cover-erase',
+]
 
-# Database information now in file not tracked by git
-
-# Login redirect override from /accounts/profile/ to /
-
+# URL settings
 LOGIN_REDIRECT_URL = '/'
+PROTECTED_URL = '/protected/'
+LOGIN_URL = 'login_selection'
+
+# Random settings
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
+DEFAULT_HINT_LOCKOUT = 60  # 60 Minutes
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/New_York'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-SITE_TITLE = "Puzzlehunt CMU"
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
-
+# Static/Media files settings
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = '/media/'
 
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
-BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
-
-PROTECTED_URL = '/protected/'
-LOGIN_URL = '/login-selection/'
-
-# Hint options
-DEFAULT_HINT_LOCKOUT = 60  # 60 Minutes
-
-# Shibboleth options
+# Shibboleth settings
 USE_SHIBBOLETH = True
 
 SHIB_ATTRIBUTE_MAP = {
@@ -120,12 +105,7 @@ SHIB_ATTRIBUTE_MAP = {
     "sn": (False, "sn")
 }
 
-SHIB_USERNAME = "eppn"
-SHIB_EMAIL = "eppn"
-SHIB_FIRST_NAME = "givenName"
-SHIB_LAST_NAME = "sn"
-
-# Logging options
+# Logging settings
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -146,14 +126,18 @@ LOGGING = {
     },
 }
 
-# Email options
+# Email settings
 CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
-
-#Comment out for production.
-#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-#EMAIL_FILE_PATH = '/tmp/test_folder'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 
+# Environment variable overrides
+if os.environ.get("ENABLE_DEBUG_EMAIL"):
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = '/tmp/test_folder'
+
+if os.environ.get("ENABLE_DEBUG_TOOLBAR"):
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE

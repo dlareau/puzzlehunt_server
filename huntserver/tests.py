@@ -485,25 +485,16 @@ class AuthTests(TestCase):
 
         # Bad shib setup, should fail
         META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',
-                "eppn": "user@andrew.cmu.edu", "givenName": "Test",
-                "sn": "User"}
-        with self.settings(SHIB_USERNAME="foobar"):
-            response = self.client.get(reverse('huntserver:new_shib_account'), **META)
-            self.assertTemplateUsed(response, 'attribute_error.html')
-            self.assertEqual(response.status_code, 200)
+                "givenName": "Test", "sn": "User"}
+        response = self.client.get(reverse('huntserver:new_shib_account'), **META)
+        self.assertTemplateUsed(response, 'attribute_error.html')
+        self.assertEqual(response.status_code, 200)
 
-        # Bad shib setup, should fail
+        # Missing name, should be fine
         META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',
-                "eppn": "user@andrew.cmu.edu", "givenName": "",
-                "sn": "User"}
-        with self.settings(SHIB_USERNAME="givenName"):
-            response = self.client.get(reverse('huntserver:new_shib_account'), **META)
-            self.assertTemplateUsed(response, 'attribute_error.html')
-            self.assertEqual(response.status_code, 200)
-
-        with self.settings(SHIB_FIRST_NAME="foobar"):
-            response = self.client.get(reverse('huntserver:new_shib_account'), **META)
-            self.assertEqual(response.status_code, 200)
+                "eppn": "user@andrew.cmu.edu", "givenName": "", "sn": "User"}
+        response = self.client.get(reverse('huntserver:new_shib_account'), **META)
+        self.assertEqual(response.status_code, 200)
 
         # Proper shib response, should succeed
         META = {"Shib-Identity-Provider": 'https://login.cmu.edu/idp/shibboleth',

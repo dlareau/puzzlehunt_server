@@ -84,12 +84,12 @@ def shib_login(request):
 
     # Attempt to get username out of attr
     try:
-        eppn = attr[settings.SHIB_USERNAME]
+        eppn = attr["eppn"]
     except:
         return render(request, 'attribute_error.html', context)
 
     # Make sure username exists
-    if not attr[settings.SHIB_USERNAME] or attr[settings.SHIB_USERNAME] == '':
+    if not eppn or eppn == '':
         return render(request, 'attribute_error.html', context)
 
     # For form submission
@@ -114,8 +114,8 @@ def shib_login(request):
     except User.DoesNotExist:
         existing_context = {"username": eppn, "email": eppn}
         try:
-            existing_context['first_name'] = attr[settings.SHIB_FIRST_NAME]
-            existing_context['last_name'] = attr[settings.SHIB_LAST_NAME]
+            existing_context['first_name'] = attr["givenName"]
+            existing_context['last_name'] = attr["sn"]
         except:
             pass
         user_form = ShibUserForm(initial=existing_context)
