@@ -23,7 +23,7 @@ def login_selection(request):
     if(settings.USE_SHIBBOLETH):
         return render(request, "login_selection.html", context)
     else:
-        return views.login(request)
+        return views.LoginView.as_view()(request)
 
 
 def create_account(request):
@@ -65,7 +65,7 @@ def account_logout(request):
         additional_url = request.GET['next']
     else:
         additional_url = ""
-    return redirect("/Shibboleth.sso/Logout?return=https://" + request.get_host() + additional_url)
+    return redirect("/Shibboleth.sso/Logout?next=https://" + request.get_host() + additional_url)
 
 
 def shib_login(request):
