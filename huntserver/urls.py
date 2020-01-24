@@ -64,6 +64,6 @@ urlpatterns = [
         url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
     ])),
 
-    url(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView, name='logout', kwargs={'next_page': '/'}),
-    url(r'^Shibboleth.sso/Login', base_auth_views.LoginView),
+    url(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView.as_view(), name='logout', kwargs={'next_page': '/'}),
+    url(r'^Shibboleth.sso/Login', base_auth_views.LoginView.as_view()),
 ]
