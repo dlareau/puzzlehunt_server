@@ -28,6 +28,8 @@ services:
       MYSQL_DATABASE: puzzlehunt_db
       MYSQL_USER: hunt
       MYSQL_PASSWORD: sample_password
+      DJANGO_SECRET_KEY: somesecretkeythatisprobablylongerandbetterthanthis
+      DJANGO_SETTINGS_MODULE: puzzlehunt_server.settings.env_settings
     depends_on:
       - db
 
