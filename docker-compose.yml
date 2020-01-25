@@ -12,7 +12,7 @@ services:
       MYSQL_PASSWORD: sample_password
       MYSQL_ROOT_PASSWORD: test
 
-  web:
+  app:
     build:
       context: .
     restart: always
@@ -33,19 +33,21 @@ services:
     depends_on:
       - db
 
-  nginx:
+  web:
     restart: always
-    container_name: nginx_server
+    container_name: web_server
     build:
-      context: ./config/
+      context: ./docker/
       dockerfile: nginxDockerfile
+      # dockerfile: apacheDockerfile
     depends_on:
-      - web
+      - app
     volumes:
       - static:/static
       - media:/media
     ports:
       - "0.0.0.0:80:80"
+    tty: true
 
 volumes:
   static:

@@ -1,0 +1,17 @@
+FROM debian:9
+
+RUN apt-get update
+RUN apt-get install -y apache2 libapache2-mod-xsendfile
+RUN a2enmod proxy proxy_http proxy_html xsendfile 
+
+RUN rm /etc/apache2/sites-enabled/*
+
+COPY puzzlehunt_apache.conf /etc/apache2/sites-available/puzzlehunt.conf
+
+RUN a2ensite puzzlehunt
+
+RUN mkdir -p /user/share/nginx/html/static
+RUN mkdir -p /user/share/nginx/html/media
+
+ENTRYPOINT ["/usr/sbin/apache2ctl"]
+CMD ["-D", "FOREGROUND"]
