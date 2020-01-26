@@ -6,12 +6,12 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get("MYSQL_DATABASE"),
+        'NAME': os.environ.get("DJANGO_DB_NAME"),
         'HOST': 'db',
-        'PORT': '3306',
-        'USER': os.environ.get("MYSQL_USER"),
-        'PASSWORD': os.environ.get("MYSQL_PASSWORD"),
-        'OPTIONS': {'charset': 'utf8mb4'},
+        'PORT': '',
+        'USER': os.environ.get("DJANGO_DB_USER"),
+        'PASSWORD': os.environ.get("DJANGO_DB_PASSWORD"),
+        #'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 INTERNAL_IPS = ['127.0.0.1', 'localhost',]

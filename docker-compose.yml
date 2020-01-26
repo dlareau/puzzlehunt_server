@@ -12,6 +12,16 @@ services:
       MYSQL_PASSWORD: sample_password
       MYSQL_ROOT_PASSWORD: test
 
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_DB: puzzlehunt_db
+  #     POSTGRES_USER: hunt
+  #     POSTGRES_PASSWORD: sample_password
+
   app:
     build:
       context: .
@@ -25,9 +35,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      MYSQL_DATABASE: puzzlehunt_db
-      MYSQL_USER: hunt
-      MYSQL_PASSWORD: sample_password
+      DJANGO_DB_NAME: puzzlehunt_db
+      DJANGO_DB_USER: hunt
+      DJANGO_DB_PASSWORD: sample_password
       DJANGO_SECRET_KEY: somesecretkeythatisprobablylongerandbetterthanthis
       DJANGO_SETTINGS_MODULE: puzzlehunt_server.settings.env_settings
     depends_on:

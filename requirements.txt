@@ -14,3 +14,4 @@ git+git://github.com/dlareau/django-nose@django2.x-loaddata-fix#egg=django-nose
 coverage==4.5.1
 django-crispy-forms==1.8.1
 gunicorn
+psycopg2
