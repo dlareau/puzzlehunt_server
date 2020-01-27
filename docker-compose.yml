@@ -2,25 +2,19 @@ version: '3'
 
 services:
   db:
-    image: mariadb
+    image: ${DB_TYPE}
     restart: always
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:${DB_PORT}"
     environment:
-      MYSQL_DATABASE: puzzlehunt_db
-      MYSQL_USER: hunt
-      MYSQL_PASSWORD: sample_password
-      MYSQL_ROOT_PASSWORD: test
-
-  # db:
-  #   image: postgres
-  #   restart: always
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     POSTGRES_DB: puzzlehunt_db
-  #     POSTGRES_USER: hunt
-  #     POSTGRES_PASSWORD: sample_password
+      # Bot sets of variables here for flexibility
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
   app:
     build:
@@ -35,11 +29,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DJANGO_DB_NAME: puzzlehunt_db
-      DJANGO_DB_USER: hunt
-      DJANGO_DB_PASSWORD: sample_password
       DJANGO_SECRET_KEY: somesecretkeythatisprobablylongerandbetterthanthis
       DJANGO_SETTINGS_MODULE: puzzlehunt_server.settings.env_settings
+      DATABASE_URL: ${DB_TYPE}://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
     depends_on:
       - db
 
