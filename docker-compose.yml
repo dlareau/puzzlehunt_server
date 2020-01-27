@@ -2,16 +2,12 @@ version: '3'
 
 services:
   db:
-    image: ${DB_TYPE}
+    image: ${DB_IMAGE}
     restart: always
-    ports:
-      - "${DB_PORT}:${DB_PORT}"
     environment:
       # Bot sets of variables here for flexibility
       MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -19,6 +15,10 @@ services:
   app:
     build:
       context: .
+      args:
+        http_proxy:
+        https_proxy:
+        no_proxy:
     restart: always
     command: gunicorn --workers=2 --bind=0.0.0.0:8000 puzzlehunt_server.wsgi:application
     volumes:
@@ -29,9 +29,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DJANGO_SECRET_KEY: somesecretkeythatisprobablylongerandbetterthanthis
-      DJANGO_SETTINGS_MODULE: puzzlehunt_server.settings.env_settings
-      DATABASE_URL: ${DB_TYPE}://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+      - DJANGO_SECRET_KEY
+      - DJANGO_ENABLE_DEBUG
+      - DJANGO_EMAIL_USER
+      - DJANGO_EMAIL_PASSWORD
+      - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
+      - DATABASE_URL=${DB_TYPE}://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
     depends_on:
       - db
 
