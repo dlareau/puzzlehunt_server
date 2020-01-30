@@ -34,4 +34,5 @@ after_script:
 
 after_success:
   - pip install coveralls
+  - coverage combine
   - coveralls
