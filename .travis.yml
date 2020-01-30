@@ -21,10 +21,10 @@ before_install:
 
 install:
   - docker-compose build
-  - docker-compose up
+  - docker-compose up -d
 
 script:
-  - docker-compose python3 /code/manage.py test
+  - docker-compose exec app python3 /code/manage.py test
 
 after_script:
   - docker-compose stop
