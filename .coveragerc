@@ -1,9 +1,4 @@
-[run]
-source = puzzlehunt_server/huntserver
-
-parallel = True
-
 [paths]
 source =
-  puzzlehunt_server/huntserver
-  /code/puzzlehunt_server/huntserver
+  puzzlehunt_server
+  /code/puzzlehunt_server
