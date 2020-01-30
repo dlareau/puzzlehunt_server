@@ -33,5 +33,5 @@ after_script:
   - docker-compose rm -f
 
 after_success:
-  - pip install coveralls
+  - pip install coveralls==4.5.4
   - coveralls

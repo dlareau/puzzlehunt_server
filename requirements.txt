@@ -11,7 +11,7 @@ sphinx
 sphinx_rtd_theme
 django-ratelimit==1.1.0
 git+git://github.com/dlareau/django-nose@django2.x-loaddata-fix#egg=django-nose
-coverage
+coverage==4.5.4
 django-crispy-forms==1.8.1
 gunicorn
 psycopg2
