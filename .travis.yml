@@ -34,5 +34,6 @@ after_script:
 
 after_success:
   - pip install coveralls
-  - coverage combine --append
+  - cp .coverage .coverage.extra
+  - coverage combine
   - coveralls
