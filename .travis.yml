@@ -24,6 +24,9 @@ install:
 
 script:
   - docker-compose exec app python3 /code/manage.py test
+  - docker-compose exec app ls
+  - ls
+  - docker-compose exec app cat .coverage
 
 after_script:
   - docker-compose stop
