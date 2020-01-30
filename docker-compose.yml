@@ -2,13 +2,10 @@ version: '3'
 
 services:
   db:
-    image: ${DB_IMAGE}
+    image: postgres
     restart: always
     environment:
-      # Bot sets of variables here for flexibility
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: puzzlehunt_db
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
@@ -34,7 +31,7 @@ services:
       - DJANGO_EMAIL_USER
       - DJANGO_EMAIL_PASSWORD
       - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
-      - DATABASE_URL=${DB_TYPE}://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/puzzlehunt_db
     depends_on:
       - db
 
