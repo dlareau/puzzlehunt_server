@@ -1,6 +1,6 @@
 [run]
 command_line = 
-  python3 manage.py test
+  manage.py test
 
 source = 
   huntserver
