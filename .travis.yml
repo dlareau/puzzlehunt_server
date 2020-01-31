@@ -23,7 +23,8 @@ install:
   - docker-compose up -d
 
 script:
-  - docker-compose exec app python3 /code/manage.py test
+  - docker-compose exec app coverage run python3 /code/manage.py test
+  - docker-compose exec app coverage report
 
 after_script:
   - docker-compose stop

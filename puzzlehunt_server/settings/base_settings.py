@@ -24,7 +24,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'huntserver',
-    'django_nose',
     'crispy_forms',
 )
 
@@ -62,13 +61,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'puzzlehunt_server.wsgi.application'
-
-# Testing settings
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--cover-package=huntserver',
-    '--cover-erase',
-]
 
 # URL settings
 LOGIN_REDIRECT_URL = '/'

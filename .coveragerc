@@ -1,3 +1,14 @@
+[run]
+command_line = 
+  python3 manage.py test
+
+source = 
+  huntserver
+
+omit = 
+  */tests/*
+  */migrations/*
+
 [paths]
 source =
   ./huntserver
