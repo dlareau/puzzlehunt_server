@@ -10,8 +10,8 @@ COPY puzzlehunt_apache.conf /etc/apache2/sites-available/puzzlehunt.conf
 
 RUN a2ensite puzzlehunt
 
-RUN mkdir -p /user/share/nginx/html/static
-RUN mkdir -p /user/share/nginx/html/media
+RUN mkdir -p /static
+RUN mkdir -p /media
 
 ENTRYPOINT ["/usr/sbin/apache2ctl"]
 CMD ["-D", "FOREGROUND"]
