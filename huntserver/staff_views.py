@@ -430,6 +430,8 @@ def control(request):
                 team.solved.clear()
                 team.solve_set.all().delete()
                 team.submission_set.all().delete()
+                team.num_available_hints = 0
+                team.save()
             return redirect('huntserver:hunt_management')
 
         if(request.POST["action"] == "getpuzzles"):

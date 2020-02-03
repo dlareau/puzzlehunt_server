@@ -27,7 +27,7 @@
                   <span class="glyphicon glyphicon-minus"></span>
                 </button>
               </span>
-              <input type="text" name="count_{{team.pk}}" class="form-control input-number" value="{{ team.hint_set.count }}" min="0" max="100" disabled>
+              <input type="text" name="count_{{team.pk}}" class="form-control input-number" value="{{ team.num_available_hints }}" min="0" max="100" disabled>
               <span class="input-group-btn">
                 <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="count_{{team.pk}}">
                   <span class="glyphicon glyphicon-plus"></span>

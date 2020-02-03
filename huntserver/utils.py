@@ -1,11 +1,12 @@
 from django.conf import settings
-from django.shortcuts import get_object_or_404, render, redirect
-from .models import Solve, Unlock, Person, Team
+from django.shortcuts import get_object_or_404
+from .models import Solve, Unlock, Person, Team, HintUnlockPlan
 from django.utils import timezone
 from subprocess import call, STDOUT
 import os
 from PyPDF2 import PdfFileReader
 import re
+from django.db.models import F
 
 import logging
 logger = logging.getLogger(__name__)
@@ -29,7 +30,8 @@ def respond_to_submission(submission):
         if(not submission.puzzle.hunt.is_public):
             if(submission.puzzle not in submission.team.solved.all()):
                 Solve.objects.create(puzzle=submission.puzzle,
-                    team=submission.team, submission=submission)
+                                     team=submission.team,
+                                     submission=submission)
                 unlock_puzzles(submission.team)
         logger.info("Team %s correctly solved puzzle %s" %
                     (str(submission.team.team_name), str(submission.puzzle.puzzle_id)))
@@ -73,8 +75,17 @@ def unlock_puzzles(team):
         numbers.append(puzzle.puzzle_number)
     # make an array for how many points a team has towards unlocking each puzzle
     mapping = [0 for i in range(max(numbers)+1)]
+    solves = team.solved.all()
+
+    # Increment the team's number of hints if appropriate
+    # Currently done here to reduce the duplicate fetch of team.solved.all
+    num_hints = team.hunt.hintunlockplan_set.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
+                                                    unlock_parameter=len(solves)).count()
+    team.num_available_hints = F('num_available_hints') + num_hints
+    team.save()
+
     # go through each solved puzzle and add to the list for each puzzle it unlocks
-    for puzzle in team.solved.all():
+    for puzzle in solves:
         for other in puzzle.unlocks.all():
             mapping[other.puzzle_number] = mapping[other.puzzle_number]+1
     # See if the number of points is enough to unlock any given puzzle
