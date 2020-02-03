@@ -7,6 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from dateutil import tz
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.utils.safestring import mark_safe
 import os
 import re
 
@@ -428,6 +429,43 @@ class Hint(models.Model):
 
     def __str__(self):
         return self.team.team_name + ": " + self.puzzle.puzzle_name + " (" + str(self.request_time) + ")"
+
+
+@python_2_unicode_compatible
+class HintUnlockPlan(models.Model):
+    """ A class to represent when Teams are given hints """
+    hunt = models.ForeignKey(Hunt, on_delete=models.CASCADE,
+        help_text="The hunt that this hint unlock plan refers to")
+
+    TIMED_UNLOCK = 'TIM'
+    INTERVAL_UNLOCK = 'INT'
+    SOLVES_UNLOCK = 'SOL'
+
+    hint_unlock_type_choices = [
+        (TIMED_UNLOCK, 'Exact Time Unlock'),
+        (INTERVAL_UNLOCK, 'Interval Based Unlock'),
+        (SOLVES_UNLOCK, 'Solves Based Unlock'),
+    ]
+
+    unlock_type = models.CharField(
+        max_length=3,
+        choices=hint_unlock_type_choices,
+        default=TIMED_UNLOCK,
+        blank=False,
+        help_text="The type of hint unlock plan"
+    )
+
+    unlock_parameter = models.IntegerField(
+        help_text="Parameter (Time / Interval / Solves)")
+
+    num_triggered = models.IntegerField(
+        help_text="Number of times this Unlock Plan has given a hint")
+
+    def reset_plan(self):
+        self.num_triggered = 0
+
+    def __str__(self):
+        return "Nope"
 
 
 class OverwriteStorage(FileSystemStorage):

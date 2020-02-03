@@ -18,7 +18,6 @@ class UnlockableInline(admin.TabularInline):
 class ResponseInline(admin.TabularInline):
     model = models.Response
     extra = 1
-#    template = "admin/tabular_custom.html"
 
 
 class UnlockInline(admin.TabularInline):
@@ -27,7 +26,6 @@ class UnlockInline(admin.TabularInline):
     fk_name = 'to_puzzle'
     verbose_name = "Puzzle that counts towards unlocking this puzzle"
     verbose_name_plural = "Puzzles that count towards this puzzle"
-#    template = "admin/tabular_custom.html"
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "from_puzzle":
@@ -38,6 +36,25 @@ class UnlockInline(admin.TabularInline):
             except IndexError:
                 pass
         return super(UnlockInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class HintUnlockPlanForm(forms.ModelForm):
+    class Meta:
+        model = models.HintUnlockPlan
+        fields = ('unlock_type', 'unlock_parameter')
+        labels = {
+            "unlock_type": "Unlock Type",
+            "unlock_parameter": mark_safe("Unlock parameter:<div style='font-size: 8pt;'>" +
+                  "Exact time: Number of minutes after hunt start</br>" +
+                  "Interval: Number of minutes in the unlock interval</br>" +
+                  "Solves: Number of puzzles to unlock a hint.</div>"),
+        }
+
+
+class HintUnlockPLanInline(admin.TabularInline):
+    model = models.HintUnlockPlan
+    extra = 2
+    form = HintUnlockPlanForm
 
 
 class PuzzleAdmin(admin.ModelAdmin):
@@ -51,8 +68,8 @@ class PuzzleAdmin(admin.ModelAdmin):
             kwargs["queryset"] = models.Puzzle.objects.filter(hunt=self.obj.hunt).order_by('puzzle_id')
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
-    fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'is_meta', 
-              'is_html_puzzle', 'resource_link', 'link', 'solution_link', 
+    fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'is_meta',
+              'is_html_puzzle', 'resource_link', 'link', 'solution_link',
               'answer', 'extra_data', 'num_pages', 'num_required_to_unlock')
     inlines = (UnlockInline, ResponseInline)
 
@@ -101,7 +118,8 @@ class TeamAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Team
-        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location', 'join_code', 'playtester']
+        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location',
+                  'join_code', 'playtester', 'num_available_hints']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)
@@ -144,6 +162,7 @@ class HuntAdminForm(forms.ModelForm):
 
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
+    inlines = (HintUnlockPLanInline,)
 
 
 class UserProxyObject(User):
