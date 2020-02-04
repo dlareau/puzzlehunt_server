@@ -529,7 +529,7 @@ def staff_hint_text(request):
 
 
 @staff_member_required
-def staff_hint_text(request):
+def staff_hints_control(request):
     """
     A view to handle the incrementing, decrementing, and updating the team hint counts on
     the hints staff page.
@@ -548,41 +548,9 @@ def staff_hint_text(request):
                     pass  # Maybe a 4XX or 5XX in the future
 
     elif request.is_ajax():
-        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
-        last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
-        hints = Hint.objects.filter(last_modified_time__gt=last_date)
+        return HttpResponse(json.dumps(Team.objects.values_list('pk', 'num_available_hints')))
 
-    else:
-        page_num = request.GET.get("page_num")
-        hunt = Hunt.objects.get(is_current_hunt=True)
-        hints = Hint.objects.filter(puzzle__hunt=hunt)
-        hints = hints.select_related('team', 'puzzle').order_by('-pk')
-        pages = Paginator(hints, 10)
-        try:
-            hints = pages.page(page_num)
-        except PageNotAnInteger:
-            hints = pages.page(1)
-        except EmptyPage:
-            hints = pages.page(pages.num_pages)
-
-    try:
-        last_date = Hint.objects.latest('last_modified_time').last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    except Hint.DoesNotExist:
-        last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-
-    hint_list = []
-    for hint in hints:
-        form = HintResponseForm(initial={"response": hint.response, "hint_id": hint.pk})
-        hint_list.append(render_to_string('hint_row.html', {'hint': hint, "response_form": form},
-                                          request=request))
-
-    if request.is_ajax() or request.method == 'POST':
-        context = {'hint_list': hint_list, 'last_date': last_date}
-        return HttpResponse(json.dumps(context))
-    else:
-        context = {'page_info': hints, 'hint_list': hint_list,
-                   'last_date': last_date, 'hunt': hunt}
-        return render(request, 'staff_hints.html', add_apps_to_context(context, request))
+    return HttpResponse("Incorrect usage of hint control page")
 
 
 @staff_member_required
