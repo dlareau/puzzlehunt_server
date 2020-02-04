@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.db.models import F
 import itertools
 import json
 
@@ -472,7 +473,7 @@ def control(request):
 
 
 @staff_member_required
-def staff_hints(request):
+def staff_hint_text(request):
     """
     A view to handle hint response updates via POST, handle hint request update requests via AJAX,
     and render the hint page. Hints are pre-rendered for standard and AJAX requests.
@@ -488,6 +489,63 @@ def staff_hints(request):
         h.last_modified_time = timezone.now()
         h.save()
         hints = [h]
+
+    elif request.is_ajax():
+        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
+        hints = Hint.objects.filter(last_modified_time__gt=last_date)
+
+    else:
+        page_num = request.GET.get("page_num")
+        hunt = Hunt.objects.get(is_current_hunt=True)
+        hints = Hint.objects.filter(puzzle__hunt=hunt)
+        hints = hints.select_related('team', 'puzzle').order_by('-pk')
+        pages = Paginator(hints, 10)
+        try:
+            hints = pages.page(page_num)
+        except PageNotAnInteger:
+            hints = pages.page(1)
+        except EmptyPage:
+            hints = pages.page(pages.num_pages)
+
+    try:
+        last_date = Hint.objects.latest('last_modified_time').last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    except Hint.DoesNotExist:
+        last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+    hint_list = []
+    for hint in hints:
+        form = HintResponseForm(initial={"response": hint.response, "hint_id": hint.pk})
+        hint_list.append(render_to_string('hint_row.html', {'hint': hint, "response_form": form},
+                                          request=request))
+
+    if request.is_ajax() or request.method == 'POST':
+        context = {'hint_list': hint_list, 'last_date': last_date}
+        return HttpResponse(json.dumps(context))
+    else:
+        context = {'page_info': hints, 'hint_list': hint_list,
+                   'last_date': last_date, 'hunt': hunt}
+        return render(request, 'staff_hints.html', add_apps_to_context(context, request))
+
+
+@staff_member_required
+def staff_hint_text(request):
+    """
+    A view to handle the incrementing, decrementing, and updating the team hint counts on
+    the hints staff page.
+    """
+
+    if request.method == 'POST':
+        if("action" in request.POST and "value" in request.POST and "team_pk" in request.POST):
+            if(request.POST.get("action") == "update"):
+                try:
+                    update_value = int(request.POST.get("value"))
+                    team_pk = int(request.POST.get("team_pk"))
+                    team = Team.objects.get(pk=team_pk)
+                    team.num_available_hints = F('num_available_hints') + update_value
+                    team.save()
+                except ValueError:
+                    pass  # Maybe a 4XX or 5XX in the future
 
     elif request.is_ajax():
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
