@@ -38,6 +38,11 @@
         {% else %}
           <h3 style="float: right;">Published solution not available</h3>
         {% endif %}
+      {% else %}
+        <br>
+        <h3><a href='/hints/{{ puzzle.puzzle_id }}/'>
+            Click here to request a hint
+        </a></h3>
       {% endif %}
     </div>
     {% if puzzle.hunt.is_public or not puzzle in team.solved.all %}
