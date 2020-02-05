@@ -149,9 +149,19 @@ def progress(request):
                 results.append(submissions[i].serialize_for_ajax())
 
         if(len(results) > 0):
-            update_info = [Solve.objects.latest('id').id]
-            update_info.append(Unlock.objects.latest('id').id)
-            update_info.append(Submission.objects.latest('id').id)
+            try:
+                last_solve_pk = Solve.objects.latest('id').id
+            except Solve.DoesNotExist:
+                last_solve_pk = 0
+            try:
+                last_unlock_pk = Unlock.objects.latest('id').id
+            except Unlock.DoesNotExist:
+                last_unlock_pk = 0
+            try:
+                last_submission_pk = Submission.objects.latest('id').id
+            except Submission.DoesNotExist:
+                last_submission_pk = 0
+            update_info = [last_solve_pk, last_unlock_pk, last_submission_pk]
         response = json.dumps({'messages': results, 'update_info': update_info})
         return HttpResponse(response)
 
