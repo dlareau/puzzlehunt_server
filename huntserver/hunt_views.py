@@ -9,6 +9,7 @@ from django.template import Template, RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import smart_str
+from django.db.models import F
 import json
 import os
 import re
@@ -301,7 +302,8 @@ def puzzle_hint(request, puzzle_id):
         if form.is_valid():
             h = Hint.objects.create(request=form.cleaned_data['request'], puzzle=puzzle, team=team,
                                     request_time=timezone.now(), last_modified_time=timezone.now())
-
+            team.num_available_hints = F('num_available_hints') - 1
+            team.save()
         # Render response to HTML
         hint_list = [render_to_string('hint_row.html', {'hint': h})]
 
