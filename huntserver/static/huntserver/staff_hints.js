@@ -15,24 +15,17 @@ $(document).ready(function() {
 
   $('.btn-number').click(function(e){
     e.preventDefault();
-
-    fieldName = $(this).attr('data-field');
-    type      = $(this).attr('data-type');
-    var input = $("input[name='"+fieldName+"']");
-    var currentVal = parseInt(input.val());
-    if (!isNaN(currentVal)) {
-      if(type == 'minus') {
-        if(currentVal > input.attr('min')) {
-          input.val(currentVal - 1).change();
-        }
-      } else if(type == 'plus') {
-        if(currentVal < input.attr('max')) {
-          input.val(currentVal + 1).change();
+    team  = $(this).attr('data-team');
+    value = $(this).attr('data-value');
+    $.post("/staff/hints/control/", 
+      {action:'update', 'team_pk': team, value: value, csrfmiddlewaretoken: csrf_token}, 
+      function( data ) {
+        var response = JSON.parse(data);
+        for (var i = 0; i < response.length; i++) {
+          $('input[data-team=' + response[i][0] + ']').val(response[i][1]);
         }
       }
-    } else {
-      input.val(0);
-    }
+    );
   });
 
   /* flash the title if necessary */
@@ -49,6 +42,7 @@ $(document).ready(function() {
   }, 1000);
 
   var get_posts = function() {
+    // Hint texts:
     $.ajax({
       type: 'get',
       url: "/staff/hints/",
@@ -58,9 +52,34 @@ $(document).ready(function() {
         messages = response.hint_list;
         if(messages.length > 0){
           for (var i = 0; i < messages.length; i++) {
-            receiveMessage(messages[i]);
+            var submission = $(messages[i]);
+            pk = submission.data('id');
+            if ($('tr[data-id=' + pk + ']').length == 0) {
+              submission.prependTo("#sub_table");
+              if($('#sub_table tr').length >= 10){
+                $('#sub_table tr:last').remove();
+              }
+            } else {
+              $('tr[data-id=' + pk + ']').replaceWith(submission);
+            }
+            $('.sub_form').on('submit', formListener);
           };
           last_date = response.last_date;
+        }
+      },
+      error: function (html) {
+        console.log(html);
+      }
+    });
+
+    // Available hints:
+    $.ajax({
+      type: 'get',
+      url: "/staff/hints/control/",
+      success: function (response) {
+        var response = JSON.parse(response);
+        for (var i = 0; i < response.length; i++) {
+          $('input[data-team=' + response[i][0] + ']').val(response[i][1]);
         }
       },
       error: function (html) {
@@ -82,25 +101,12 @@ $(document).ready(function() {
         response = JSON.parse(response);
         old_row.replaceWith($(response.hint_list[0]));
         $('.sub_form').on('submit', formListener);
+        last_date = response.last_date;
       },
       error: function (jXHR, textStatus, errorThrown) {
         console.log(jXHR);
       }
     });
-  }
-
-  function receiveMessage(submission) {
-    submission = $(submission);
-    pk = submission.data('id');
-    if ($('tr[data-id=' + pk + ']').length == 0) {
-      submission.prependTo("#sub_table");
-      if($('#sub_table tr').length >= 10){
-        $('#sub_table tr:last').remove();
-      }
-    } else {
-      $('tr[data-id=' + pk + ']').replaceWith(submission);
-    }
-    $('.sub_form').on('submit', formListener);
   }
 
   /* open a text box for submitting an email */

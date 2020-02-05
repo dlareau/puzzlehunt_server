@@ -473,7 +473,7 @@ def control(request):
 
 
 @staff_member_required
-def staff_hint_text(request):
+def staff_hints_text(request):
     """
     A view to handle hint response updates via POST, handle hint request update requests via AJAX,
     and render the hint page. Hints are pre-rendered for standard and AJAX requests.
@@ -535,7 +535,7 @@ def staff_hints_control(request):
     the hints staff page.
     """
 
-    if request.method == 'POST':
+    if request.is_ajax():
         if("action" in request.POST and "value" in request.POST and "team_pk" in request.POST):
             if(request.POST.get("action") == "update"):
                 try:
@@ -546,11 +546,10 @@ def staff_hints_control(request):
                     team.save()
                 except ValueError:
                     pass  # Maybe a 4XX or 5XX in the future
+    else:
+        return HttpResponse("Incorrect usage of hint control page")
 
-    elif request.is_ajax():
-        return HttpResponse(json.dumps(Team.objects.values_list('pk', 'num_available_hints')))
-
-    return HttpResponse("Incorrect usage of hint control page")
+    return HttpResponse(json.dumps(list(Team.objects.values_list('pk', 'num_available_hints'))))
 
 
 @staff_member_required

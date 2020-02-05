@@ -5,8 +5,7 @@
   <script src="{{ STATIC_URL }}js.cookie.js"></script>
   <script>
     last_date = '{{last_date}}';
-    puzzle_id = '{{puzzle_id}}';
-    team_id = '{{team_id}}';
+    csrf_token = '{{csrf_token}}';
   </script>
   <script src="{{ STATIC_URL }}huntserver/staff_hints.js"></script>
 {% endblock includes %}
@@ -23,13 +22,13 @@
           <td width="140px">
             <div class="input-group">
               <span class="input-group-btn">
-                <button type="button" class="btn btn-default btn-number" data-type="minus" data-field="count_{{team.pk}}">
+                <button type="button" class="btn btn-default btn-number" data-value="-1" data-team="{{team.pk}}">
                   <span class="glyphicon glyphicon-minus"></span>
                 </button>
               </span>
-              <input type="text" name="count_{{team.pk}}" class="form-control input-number" value="{{ team.num_available_hints }}" min="0" max="100" disabled>
+              <input type="text" data-team="{{team.pk}}" class="form-control input-number" value="{{ team.num_available_hints }}" disabled>
               <span class="input-group-btn">
-                <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="count_{{team.pk}}">
+                <button type="button" class="btn btn-default btn-number" data-value="1" data-team="{{team.pk}}">
                   <span class="glyphicon glyphicon-plus"></span>
                 </button>
               </span>

@@ -61,7 +61,7 @@ urlpatterns = [
         url(r'^emails/$', staff_views.emails, name='emails'),
         url(r'^management/$', staff_views.hunt_management, name='hunt_management'),
         url(r'^hints/$', staff_views.staff_hints_text, name='staff_hints_text'),
-        url(r'^hints/control$', staff_views.staff_hints_control, name='staff_hints_control'),
+        url(r'^hints/control/$', staff_views.staff_hints_control, name='staff_hints_control'),
         url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
     ])),
 

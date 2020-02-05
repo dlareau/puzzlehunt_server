@@ -134,7 +134,7 @@ class TeamAdminForm(forms.ModelForm):
             team.save()
 
         if team.pk:
-            team.person_set = self.cleaned_data['persons']
+            team.person_set.set(self.cleaned_data['persons'])
             self.save_m2m()
 
         return team

@@ -33,6 +33,15 @@ def respond_to_submission(submission):
                                      team=submission.team,
                                      submission=submission)
                 unlock_puzzles(submission.team)
+
+                # Allocate appropriate hints for a number of solves
+                team = submission.team
+                solves = team.solved.all()
+                num_hints = team.hunt.hintunlockplan_set.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
+                                                                unlock_parameter=len(solves)).count()
+                team.num_available_hints = F('num_available_hints') + num_hints
+                team.save()
+
         logger.info("Team %s correctly solved puzzle %s" %
                     (str(submission.team.team_name), str(submission.puzzle.puzzle_id)))
         if(regex_response != ""):
@@ -74,18 +83,10 @@ def unlock_puzzles(team):
     for puzzle in puzzles:
         numbers.append(puzzle.puzzle_number)
     # make an array for how many points a team has towards unlocking each puzzle
-    mapping = [0 for i in range(max(numbers)+1)]
-    solves = team.solved.all()
-
-    # Increment the team's number of hints if appropriate
-    # Currently done here to reduce the duplicate fetch of team.solved.all
-    num_hints = team.hunt.hintunlockplan_set.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
-                                                    unlock_parameter=len(solves)).count()
-    team.num_available_hints = F('num_available_hints') + num_hints
-    team.save()
+    mapping = [0 for i in range(max(numbers) + 1)]
 
     # go through each solved puzzle and add to the list for each puzzle it unlocks
-    for puzzle in solves:
+    for puzzle in team.solved.all():
         for other in puzzle.unlocks.all():
             mapping[other.puzzle_number] = mapping[other.puzzle_number]+1
     # See if the number of points is enough to unlock any given puzzle
