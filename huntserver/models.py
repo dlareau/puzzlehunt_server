@@ -225,6 +225,17 @@ class Team(models.Model):
     def has_waiting_messages(self):
         return max(self.last_received_message - self.last_seen_message, 0)
 
+    def hints_open_for_puzzle(self, puzzle):
+        if(self.num_available_hints > 0 or self.hint_set.count() > 0):
+            try:
+                unlock = Unlock.objects.get(team=self, puzzle=puzzle)
+            except Unlock.DoesNotExist:
+                return False
+
+            return (timezone.now() - unlock.time).total_seconds() > 60 * self.hunt.hint_lockout
+        else:
+            return False
+
     def __str__(self):
         return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name
 

@@ -289,13 +289,14 @@ def puzzle_hint(request, puzzle_id):
     """
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = team_from_user_hunt(request.user, puzzle.hunt)
+    if(team is None):
+        return render(request, 'access_error.html', {'reason': "team"})
 
     if request.method == 'POST':
-        # If the hunt isn't public and you aren't signed in, please stop...
-        if(team is None):
-            return HttpResponse('fail')
+        # Can't request a hint if there aren't any left
+        if(team.num_available_hints == 0):
+            return HttpResponseForbidden()
 
-        # Normal answer responses for a signed in user in an ongoing hunt
         form = HintRequestForm(request.POST)
         if form.is_valid():
             h = Hint.objects.create(request=form.cleaned_data['request'], puzzle=puzzle, team=team,
@@ -316,8 +317,6 @@ def puzzle_hint(request, puzzle_id):
 
     # Will return HTML rows for all submissions the user does not yet have
     elif request.is_ajax():
-        if(team is None):
-            return HttpResponseNotFound('access denied')
 
         # Find which objects the user hasn't seen yet and render them to HTML
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -336,7 +335,7 @@ def puzzle_hint(request, puzzle_id):
         return HttpResponse(json.dumps(context))
 
     else:
-        if(team is None or puzzle not in team.unlocked.all()):
+        if(puzzle not in team.unlocked.all()):
             return render(request, 'access_error.html', {'reason': "puzzle"})
 
         form = HintRequestForm()

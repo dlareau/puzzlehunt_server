@@ -1,4 +1,5 @@
 {% extends "hunt_base.html" %}
+{% load hunt_tags %}
 {% block title %}Puzzle - {{ puzzle.puzzle_name }}{% endblock title %}
 
 {% block includes %}
@@ -39,10 +40,13 @@
           <h3 style="float: right;">Published solution not available</h3>
         {% endif %}
       {% else %}
-        <br>
-        <h3><a href='/hints/{{ puzzle.puzzle_id }}/'>
-            Click here to request a hint
-        </a></h3>
+        {% hints_open team puzzle as show_hint_link %}
+        {% if show_hint_link %}
+          <br>
+          <h3><a href='/hints/{{ puzzle.puzzle_id }}/'>
+              Click here to request a hint
+          </a></h3>
+        {% endif %}
       {% endif %}
     </div>
     {% if puzzle.hunt.is_public or not puzzle in team.solved.all %}
