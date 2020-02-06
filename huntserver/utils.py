@@ -41,6 +41,7 @@ def respond_to_submission(submission):
                                                                 unlock_parameter=len(solves)).count()
                 team.num_available_hints = F('num_available_hints') + num_hints
                 team.save()
+                team.refresh_from_db()
 
         logger.info("Team %s correctly solved puzzle %s" %
                     (str(submission.team.team_name), str(submission.puzzle.puzzle_id)))

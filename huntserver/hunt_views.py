@@ -304,6 +304,7 @@ def puzzle_hint(request, puzzle_id):
                                     request_time=timezone.now(), last_modified_time=timezone.now())
             team.num_available_hints = F('num_available_hints') - 1
             team.save()
+            team.refresh_from_db()
         # Render response to HTML
         hint_list = [render_to_string('hint_row.html', {'hint': h})]
 
@@ -314,7 +315,8 @@ def puzzle_hint(request, puzzle_id):
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
         # Send back rendered response for display
-        context = {'hint_list': hint_list, 'last_date': last_date}
+        context = {'hint_list': hint_list, 'last_date': last_date,
+                   'num_available_hints': team.num_available_hints}
         return HttpResponse(json.dumps(context))
 
     # Will return HTML rows for all submissions the user does not yet have
@@ -333,7 +335,8 @@ def puzzle_hint(request, puzzle_id):
         except Hint.DoesNotExist:
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        context = {'hint_list': hint_list, 'last_date': last_date}
+        context = {'hint_list': hint_list, 'last_date': last_date,
+                   'num_available_hints': team.num_available_hints}
         return HttpResponse(json.dumps(context))
 
     else:

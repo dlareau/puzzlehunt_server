@@ -14,6 +14,9 @@ jQuery(document).ready(function($) {
     return true;
   }
 
+  var string_start = "You currently have ";
+  var string_mid = " available hint";
+  var string_end =" for this hunt";
 
   // get_posts is set to be called every 3 seconds.
   // Each time get_posts does not receive any data, the time till the next call
@@ -45,6 +48,8 @@ jQuery(document).ready(function($) {
               ajax_delay = 120;
             }
           }
+          $("#num_available_hints").html(string_start + response.num_available_hints + 
+            string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end)
         },
         error: function (html) {
           console.log(html);
@@ -68,13 +73,8 @@ jQuery(document).ready(function($) {
       type: "POST",
       data: $(this).serialize(),
       error: function (jXHR, textStatus, errorThrown) {
-        if(jXHR.status == 403){
-          error = "Submission rejected due to exessive guessing."
-          $("<tr><td colspan = 3><i>" + error +"</i></td></tr>").prependTo("#sub_table");
-        } else {
-          console.log(jXHR.responseText);
-          alert(errorThrown);
-        }
+        console.log(jXHR.responseText);
+        alert(errorThrown);
       },
       success: function (response) {
         clearTimeout(ajax_timeout);
@@ -82,6 +82,9 @@ jQuery(document).ready(function($) {
         ajax_timeout = setTimeout(get_posts, ajax_delay*1000);
         response = JSON.parse(response);
         receiveMessage(response.hint_list[0]);
+        last_date = response.last_date;
+        $("#num_available_hints").html(string_start + response.num_available_hints + 
+          string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end)
       }
     });
     $('#id_request').val('');
