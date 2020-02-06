@@ -38,7 +38,9 @@ $(document).ready(function() {
       var last = 0;
       var last_str = "";
       $(this).find(".solved").each(function(sub_index) {
-        if($(this).closest("table").find("th").eq($(this).index()).hasClass("metapuzzle")) {
+        if($(this).closest("table").find("th").eq($(this).index()).hasClass("nocount")) {
+          //pass
+        } else if($(this).closest("table").find("th").eq($(this).index()).hasClass("metapuzzle")) {
           meta_result = meta_result + 1;
         } else {
           result = result + 1;

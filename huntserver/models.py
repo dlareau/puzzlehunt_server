@@ -143,6 +143,9 @@ class Puzzle(models.Model):
         help_text="Is this puzzle a meta-puzzle?")
     is_html_puzzle = models.BooleanField(default=False,
         help_text="Does this puzzle use an HTML folder as it's source?")
+    doesnt_count = models.BooleanField(default=False,
+        help_text="Should this puzzle not count towards scoring?")
+
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
