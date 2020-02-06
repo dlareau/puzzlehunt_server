@@ -1,12 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render
 import random
 import re
 
 from .utils import team_from_user_hunt
 from .models import Hunt, Team
-from .forms import UserForm, PersonForm, ShibUserForm
+from .forms import PersonForm, ShibUserForm
 
 import logging
 logger = logging.getLogger(__name__)
@@ -47,9 +46,10 @@ def registration(request):
             if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
                 error = "The team name you have provided already exists."
             elif(re.match(".*[A-Za-z0-9].*", request.POST.get("team_name"))):
-                join_code = ''.join(random.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(5))
-                team = Team.objects.create(team_name=request.POST.get("team_name"), hunt=curr_hunt, 
-                                           location=request.POST.get("need_room"), join_code=join_code)
+                join_code = ''.join(random.choice("ACDEFGHJKMNPRSTUVWXYZ2345679") for _ in range(5))
+                team = Team.objects.create(team_name=request.POST.get("team_name"), hunt=curr_hunt,
+                                           location=request.POST.get("need_room"),
+                                           join_code=join_code)
                 request.user.person.teams.add(team)
                 logger.info("User %s created team %s" % (str(request.user), str(team)))
             else:
@@ -89,10 +89,12 @@ def registration(request):
                         (str(request.user), old_name, team.team_name))
 
     if(team is not None):
-        return render(request, "registration.html", {'registered_team': team, 'curr_hunt': curr_hunt})
+        return render(request, "registration.html",
+                      {'registered_team': team, 'curr_hunt': curr_hunt})
     else:
         teams = curr_hunt.real_teams
-        return render(request, "registration.html", {'teams': teams, 'error': error, 'curr_hunt': curr_hunt})
+        return render(request, "registration.html",
+                      {'teams': teams, 'error': error, 'curr_hunt': curr_hunt})
 
 
 @login_required

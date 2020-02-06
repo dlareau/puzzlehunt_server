@@ -1,5 +1,6 @@
 from django import forms
 
+
 class HtmlEditor(forms.Textarea):
     def __init__(self, *args, **kwargs):
         super(HtmlEditor, self).__init__(*args, **kwargs)

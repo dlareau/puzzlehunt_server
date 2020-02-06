@@ -37,8 +37,9 @@ def respond_to_submission(submission):
                 # Allocate appropriate hints for a number of solves
                 team = submission.team
                 solves = team.solved.all()
-                num_hints = team.hunt.hintunlockplan_set.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
-                                                                unlock_parameter=len(solves)).count()
+                plans = team.hunt.hintunlockplan_set
+                num_hints = plans.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
+                                         unlock_parameter=len(solves)).count()
                 team.num_available_hints = F('num_available_hints') + num_hints
                 team.save()
                 team.refresh_from_db()
@@ -94,7 +95,8 @@ def unlock_puzzles(team):
     for puzzle in puzzles:
         if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
             if(puzzle not in team.unlocked.all()):
-                logger.info("Team %s unlocked puzzle %s" % (str(team.team_name), str(puzzle.puzzle_id)))
+                logger.info("Team %s unlocked puzzle %s" % (str(team.team_name),
+                            str(puzzle.puzzle_id)))
                 Unlock.objects.create(team=team, puzzle=puzzle, time=timezone.now())
 
 
@@ -144,7 +146,8 @@ def download_puzzle(puzzle):
     puzzle.save()
 
     download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
-    download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id) + "_sol", puzzle.solution_link)
+    download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id) + "_sol",
+                 puzzle.solution_link)
 
 
 def parse_attributes(META):

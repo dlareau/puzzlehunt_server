@@ -27,6 +27,7 @@ LOCAL_DEFAULTS = {
     'apache_file': 'puzzlehunt_generic.conf'
 }
 
+
 # ===== Program setup (Overriding Fabric to use host files) =====
 class PuzzlehuntManager(Fab):
     # Adds in my opinions (run:echo=True) and the settings from the hosts files

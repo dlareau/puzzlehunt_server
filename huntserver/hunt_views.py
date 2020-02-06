@@ -127,7 +127,7 @@ def prepuzzle(request, prepuzzle_num):
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
-            user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+            user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
 
             # Compare against correct answer
             if(puzzle.answer.lower() == user_answer.lower()):
@@ -165,7 +165,7 @@ def hunt_prepuzzle(request, hunt_num):
 
 def current_prepuzzle(request):
     """
-    A simple view that locates the correct prepuzzle for the current hunt and redirects there if it exists.
+    A simple view that locates the correct prepuzzle for the current hunt and redirects to there.
     """
     return hunt_prepuzzle(request, Hunt.objects.get(is_current_hunt=True).hunt_number)
 
@@ -186,7 +186,8 @@ def puzzle_view(request, puzzle_id):
         request.ratelimit_key = team.team_name
 
     is_ratelimited(request, fn=puzzle_view, key='user', rate='2/10s', method='POST', increment=True)
-    is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m', method='POST', increment=True)
+    is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m',
+                   method='POST', increment=True)
 
     if(getattr(request, 'limited', False)):
         logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
@@ -200,17 +201,17 @@ def puzzle_view(request, puzzle_id):
             form = AnswerForm(request.POST)
             team = dummy_team_from_hunt(puzzle.hunt)
             if form.is_valid():
-                user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
-                s = Submission.objects.create(submission_text=user_answer,
-                    puzzle=puzzle, submission_time=timezone.now(), team=team)
+                user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+                s = Submission.objects.create(submission_text=user_answer, team=team,
+                                              puzzle=puzzle, submission_time=timezone.now())
                 response = respond_to_submission(s)
                 is_correct = s.is_correct
             else:
                 response = "Invalid Submission"
                 is_correct = None
             context = {'form': form, 'pages': list(range(puzzle.num_pages)),
-                      'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
-                      'response': response, 'is_correct': is_correct}
+                       'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
+                       'response': response, 'is_correct': is_correct}
             return render(request, 'puzzle.html', context)
 
         # If the hunt isn't public and you aren't signed in, please stop...
@@ -220,17 +221,18 @@ def puzzle_view(request, puzzle_id):
         # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
         if form.is_valid():
-            user_answer = re.sub("[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
-            s = Submission.objects.create(submission_text=user_answer,
-                puzzle=puzzle, submission_time=timezone.now(), team=team)
+            user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+            s = Submission.objects.create(submission_text=user_answer, team=team,
+                                          puzzle=puzzle, submission_time=timezone.now())
             response = respond_to_submission(s)
 
         # Render response to HTML
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': s})]
 
         try:
-            last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        except:
+            date_query = Submission.objects.latest('modified_date').modified_date
+            last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except Submission.DoesNotExist:
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
         # Send back rendered response for display
@@ -247,11 +249,13 @@ def puzzle_view(request, puzzle_id):
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         submissions = Submission.objects.filter(modified_date__gt=last_date)
         submissions = submissions.filter(team=team, puzzle=puzzle)
-        submission_list = [render_to_string('puzzle_sub_row.html', {'submission': submission}) for submission in submissions]
+        submission_list = [render_to_string('puzzle_sub_row.html', {'submission': submission})
+                           for submission in submissions]
 
         try:
-            last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        except:
+            date_query = Submission.objects.latest('modified_date').modified_date
+            last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except Submission.DoesNotExist:
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
         context = {'submission_list': submission_list, 'last_date': last_date}
@@ -273,8 +277,9 @@ def puzzle_view(request, puzzle_id):
         submissions = puzzle.submission_set.filter(team=team).order_by('pk')
         form = AnswerForm()
         try:
-            last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        except:
+            date_query = Submission.objects.latest('modified_date').modified_date
+            last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        except Submission.DoesNotExist:
             last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
                    'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
@@ -381,7 +386,7 @@ def chat(request):
 
     # The whole message_dict format is for ajax/template uniformity
     rendered_messages = render_to_string('chat_messages.html',
-        {'messages': messages, 'team_name': team.team_name})
+                                         {'messages': messages, 'team_name': team.team_name})
     message_dict = {team.team_name: {'pk': team.pk, 'messages': rendered_messages}}
     try:
         last_pk = Message.objects.latest('id').id
