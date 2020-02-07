@@ -45,7 +45,8 @@ def queue(request):
     elif request.is_ajax():
         last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
-        submissions = Submission.objects.filter(modified_date__gt = last_date).exclude(team__location="DUMMY")
+        submissions = Submission.objects.filter(modified_date__gt=last_date)
+        submissions = submissions.exclude(team__location="DUMMY")
         team_id = request.GET.get("team_id")
         puzzle_id = request.GET.get("puzzle_id")
         if(team_id and team_id != "None"):
@@ -79,18 +80,21 @@ def queue(request):
 
     form = SubmissionForm()
     try:
-        last_date = Submission.objects.latest('modified_date').modified_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    except:
+        date_query = Submission.objects.latest('modified_date').modified_date
+        last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    except Submission.DoesNotExist:
         last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-    submission_list = [render_to_string('queue_row.html', {'submission': submission}, request=request) for submission in submissions]
+    submission_list = [render_to_string('queue_row.html', {'submission': submission},
+                                        request=request)
+                       for submission in submissions]
 
     if request.is_ajax() or request.method == 'POST':
         context = {'submission_list': submission_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))
     else:
         context = {'form': form, 'page_info': submissions, 'arg_string': arg_string,
-        'submission_list': submission_list, 'last_date': last_date, 'hunt': hunt,
-        'puzzle_id': puzzle_id, 'team_id': team_id}
+                   'submission_list': submission_list, 'last_date': last_date, 'hunt': hunt,
+                   'puzzle_id': puzzle_id, 'team_id': team_id}
         return render(request, 'queue.html', add_apps_to_context(context, request))
 
 
@@ -115,13 +119,13 @@ def progress(request):
                     else:
                         return HttpResponse(status=200)
             if request.POST.get("action") == "unlock_all":
-                    p = Puzzle.objects.get(pk=request.POST.get('puzzle_id'))
-                    response = []
-                    for team in p.hunt.team_set.all():
-                        if(p not in team.unlocked.all()):
-                            u = Unlock.objects.create(team=team, puzzle=p, time=timezone.now())
-                            response.append(u.serialize_for_ajax())
-                    return HttpResponse(json.dumps(response))
+                p = Puzzle.objects.get(pk=request.POST.get('puzzle_id'))
+                response = []
+                for team in p.hunt.team_set.all():
+                    if(p not in team.unlocked.all()):
+                        u = Unlock.objects.create(team=team, puzzle=p, time=timezone.now())
+                        response.append(u.serialize_for_ajax())
+                return HttpResponse(json.dumps(response))
         return HttpResponse(status=400)
 
     elif request.is_ajax():
@@ -188,8 +192,8 @@ def progress(request):
             for puzzle in puzzles:
                 # Solved => solve object and puzzle id
                 if puzzle in solved:
-                    sol_array[-1]['cells'].append([solves.get(puzzle=puzzle).submission.submission_time,
-                                                   puzzle.puzzle_id])
+                    solve_time = solves.get(puzzle=puzzle).submission.submission_time
+                    sol_array[-1]['cells'].append([solve_time, puzzle.puzzle_id])
                 # Unlocked => Identify as unlocked, puzzle id, and unlock time
                 elif puzzle in unlocked:
                     unlock_time = unlocks.get(puzzle=puzzle).time
@@ -198,7 +202,8 @@ def progress(request):
                         last_sub_time = puzzle_submissions.latest('id').submission_time
                     else:
                         last_sub_time = None
-                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id, unlock_time, last_sub_time])
+                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id,
+                                                   unlock_time, last_sub_time])
                 # Locked => Identify as locked and puzzle id
                 else:
                     sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
@@ -230,10 +235,21 @@ def charts(request):
     puzzle_info_dict1 = []
     puzzle_info_dict2 = []
     for puzzle in puzzles:
-        team_count = curr_hunt.team_set.exclude(location="DUMMY").exclude(location="off_campus").count()
-        unlocked_count = puzzle.unlocked_for.exclude(location="DUMMY").exclude(location="off_campus").filter(hunt=curr_hunt).count()
-        solved_count = puzzle.solved_for.exclude(location="DUMMY").exclude(location="off_campus").filter(hunt=curr_hunt).count()
-        submission_count = puzzle.submission_set.exclude(team__location="DUMMY").exclude(team__location="off_campus").filter(puzzle__hunt=curr_hunt).count()
+        team_count = (curr_hunt.team_set.exclude(location="DUMMY")
+                                        .exclude(location="off_campus")
+                                        .count())
+        unlocked_count = (puzzle.unlocked_for.exclude(location="DUMMY")
+                                             .exclude(location="off_campus")
+                                             .filter(hunt=curr_hunt)
+                                             .count())
+        solved_count = (puzzle.solved_for.exclude(location="DUMMY")
+                                         .exclude(location="off_campus")
+                                         .filter(hunt=curr_hunt)
+                                         .count())
+        submission_count = (puzzle.submission_set.exclude(team__location="DUMMY")
+                                                 .exclude(team__location="off_campus")
+                                                 .filter(puzzle__hunt=curr_hunt)
+                                                 .count())
         puzzle_info_dict1.append({
             "name": puzzle.puzzle_name,
             "locked": team_count - unlocked_count,
@@ -250,23 +266,28 @@ def charts(request):
     # Chart 3
     time_zone = tz.gettz(settings.TIME_ZONE)
     subs = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission_time")
-    grouped = itertools.groupby(subs, lambda x:x.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
+    grouped = itertools.groupby(subs, lambda x: x.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
     submission_hours = []
     for group, matches in grouped:
         matches = list(matches)
         amount = len(matches)
         # TODO: change this to be based on hunt date
-        if(matches[0].puzzle.hunt.start_date < matches[0].submission_time < matches[0].puzzle.hunt.end_date):
+        if(matches[0].puzzle.hunt.start_date < matches[0].submission_time and
+           matches[0].submission_time < matches[0].puzzle.hunt.end_date):
             submission_hours.append({"hour": group, "amount": amount})
 
     # Chart 4
-    solves = Solve.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission__submission_time")
-    grouped = itertools.groupby(solves, lambda x:x.submission.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
+    solves = (Solve.objects.filter(puzzle__hunt=curr_hunt).all()
+                           .order_by("submission__submission_time"))
+    grouped = itertools.groupby(solves, lambda x: x.submission.submission_time
+                                                              .astimezone(time_zone)
+                                                              .strftime("%x - %H:00"))
     solve_hours = []
     for group, matches in grouped:
         matches = list(matches)
         amount = len(matches)
-        if(matches[0].puzzle.hunt.start_date < matches[0].submission.submission_time < matches[0].puzzle.hunt.end_date):
+        if(matches[0].puzzle.hunt.start_date < matches[0].submission.submission_time and
+           matches[0].submission.submission_time < matches[0].puzzle.hunt.end_date):
             solve_hours.append({"hour": group, "amount": amount})
 
     # Chart 5
@@ -287,27 +308,29 @@ def charts(request):
     table_dict = {}
     for puzzle in puzzles:
         try:
-            solve_set = puzzle.solve_set.exclude(team__location="DUMMY").exclude(team__location="off_campus")
+            solve_set = (puzzle.solve_set.exclude(team__location="DUMMY")
+                                         .exclude(team__location="off_campus"))
             solve = solve_set.order_by("submission__submission_time")[:1].get()
             table_dict[puzzle.puzzle_name] = {'first_team': solve.team.team_name,
                                               'first_time': solve.submission.submission_time,
                                               'num_solves': solve_set.count()}
-        except:
+        except Solve.DoesNotExist:
+            max_time = datetime.max.replace(tzinfo=tz.gettz('UTC'))
             table_dict[puzzle.puzzle_name] = {'first_team': None,
-                                              'first_time': datetime.max.replace(tzinfo=tz.gettz('UTC')),
+                                              'first_time': max_time,
                                               'num_solves': puzzle.solve_set.count()}
 
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
-               'table_dict': sorted(iter(table_dict.items()), key=lambda x:x[1]['first_time'])}
+               'table_dict': sorted(iter(table_dict.items()), key=lambda x: x[1]['first_time'])}
     return render(request, 'charts.html', add_apps_to_context(context, request))
 
 
 @staff_member_required
 def admin_chat(request):
     """
-    A view to handle chat update requests via AJAX and render the staff chat 
+    A view to handle chat update requests via AJAX and render the staff chat
     page. Chat messages are pre-rendered for both standard and AJAX requests.
     """
 
@@ -320,13 +343,15 @@ def admin_chat(request):
             messages = []
             for team in curr_hunt.real_teams.all():
                 m = Message.objects.create(time=timezone.now(),
-                    text="[Announcement] " + request.POST.get('message'),
-                    is_response=(request.POST.get('is_response') == "true"), team=team)
+                                           text="[Announcement] " + request.POST.get('message'),
+                                           is_response=(request.POST.get('is_response') == "true"),
+                                           team=team)
                 messages.append(m)
         else:
             team = Team.objects.get(pk=request.POST.get('team_pk'))
             m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
-                is_response=(request.POST.get('is_response') == "true"), team=team)
+                                       is_response=(request.POST.get('is_response') == "true"),
+                                       team=team)
             team.last_received_message = m.pk
             team.save()
             messages = [m]
@@ -400,11 +425,13 @@ def hunt_info(request):
         try:
             old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
             new_people = [p for p in people if p.user.date_joined > old_hunt.start_date]
-        except:
+        except Hunt.DoesNotExist:
             new_people = people
 
         need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
-        have_teams = teams.exclude(location="need_a_room").exclude(location="needs_a_room").exclude(location="off_campus")
+        have_teams = (teams.exclude(location="need_a_room")
+                           .exclude(location="needs_a_room")
+                           .exclude(location="off_campus"))
         offsite_teams = teams.filter(location="off_campus")
 
         context = {'curr_hunt': curr_hunt,
@@ -461,14 +488,16 @@ def control(request):
         if(request.POST["action"] == "getprepuzzle"):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
                 puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
-                download_zip(settings.MEDIA_ROOT + "prepuzzles", str(puzzle.pk), puzzle.resource_link)
+                directory = settings.MEDIA_ROOT + "prepuzzles"
+                download_zip(directory, str(puzzle.pk), puzzle.resource_link)
 
             return redirect('huntserver:hunt_management')
 
         if(request.POST["action"] == "gethunt"):
             if("hunt_number" in request.POST and request.POST["hunt_number"]):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
-                download_zip(settings.MEDIA_ROOT + "hunt", str(hunt.hunt_number), hunt.resource_link)
+                directory = settings.MEDIA_ROOT + "hunt"
+                download_zip(directory, str(hunt.hunt_number), hunt.resource_link)
 
             return redirect('huntserver:hunt_management')
 
@@ -519,7 +548,8 @@ def staff_hints_text(request):
             hints = pages.page(pages.num_pages)
 
     try:
-        last_date = Hint.objects.latest('last_modified_time').last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        time_query = Hint.objects.latest('last_modified_time').last_modified_time
+        last_date = time_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     except Hint.DoesNotExist:
         last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 

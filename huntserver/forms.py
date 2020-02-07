@@ -103,7 +103,8 @@ class EmailForm(forms.Form):
 
 class HintRequestForm(forms.Form):
     request = forms.CharField(max_length=400, label='Hint Request Text', widget=forms.Textarea,
-                              help_text="Please describe your progress on the puzzle, and where you feel you are stuck. Max length 400 characters.")
+                              help_text="Please describe your progress on the puzzle, and where "
+                                        "you feel you are stuck. Max length 400 characters.")
 
 
 class HintResponseForm(forms.Form):

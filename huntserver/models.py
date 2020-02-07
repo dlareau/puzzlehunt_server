@@ -7,7 +7,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from dateutil import tz
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.utils.safestring import mark_safe
 import os
 import re
 
@@ -41,8 +40,6 @@ class Hunt(models.Model):
     template = models.TextField(default="",
         help_text="The template string to be rendered to HTML on the hunt page")
     hint_lockout = models.IntegerField(default=settings.DEFAULT_HINT_LOCKOUT)
-
-
 
     # A bit of custom logic in clean and save to ensure exactly one hunt's
     # is_current_hunt is true at any time. It makes sure you can never un-set the
@@ -145,7 +142,6 @@ class Puzzle(models.Model):
         help_text="Does this puzzle use an HTML folder as it's source?")
     doesnt_count = models.BooleanField(default=False,
         help_text="Should this puzzle not count towards scoring?")
-
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
@@ -442,7 +438,8 @@ class Hint(models.Model):
         help_text="Last time of modification")
 
     def __str__(self):
-        return self.team.team_name + ": " + self.puzzle.puzzle_name + " (" + str(self.request_time) + ")"
+        return (self.team.team_name + ": " + self.puzzle.puzzle_name +
+                " (" + str(self.request_time) + ")")
 
 
 @python_2_unicode_compatible

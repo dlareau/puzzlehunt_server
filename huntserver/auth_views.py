@@ -85,7 +85,7 @@ def shib_login(request):
     # Attempt to get username out of attr
     try:
         eppn = attr["eppn"]
-    except:
+    except KeyError:
         return render(request, 'attribute_error.html', context)
 
     # Make sure username exists
@@ -116,11 +116,12 @@ def shib_login(request):
         try:
             existing_context['first_name'] = attr["givenName"]
             existing_context['last_name'] = attr["sn"]
-        except:
+        except KeyError:
             pass
         user_form = ShibUserForm(initial=existing_context)
         person_form = PersonForm()
-        context = {'user_form': user_form, 'person_form': person_form, 'next': redirect_url, 'shib_attrs': attr}
+        context = {'user_form': user_form, 'person_form': person_form,
+                   'next': redirect_url, 'shib_attrs': attr}
         return render(request, "shib_register.html", context)
 
     user.backend = 'django.contrib.auth.backends.ModelBackend'

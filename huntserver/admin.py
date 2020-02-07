@@ -32,7 +32,8 @@ class UnlockInline(admin.TabularInline):
             try:
                 parent_obj_id = request.resolver_match.args[0]
                 puzzle = models.Puzzle.objects.get(id=parent_obj_id)
-                kwargs["queryset"] = models.Puzzle.objects.filter(hunt=puzzle.hunt).order_by('puzzle_id')
+                query = models.Puzzle.objects.filter(hunt=puzzle.hunt)
+                kwargs["queryset"] = query.order_by('puzzle_id')
             except IndexError:
                 pass
         return super(UnlockInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
@@ -44,10 +45,10 @@ class HintUnlockPlanForm(forms.ModelForm):
         fields = ('unlock_type', 'unlock_parameter')
         labels = {
             "unlock_type": "Unlock Type",
-            "unlock_parameter": mark_safe("Unlock parameter:<div style='font-size: 8pt;'>" +
-                  "Exact time: Number of minutes after hunt start</br>" +
-                  "Interval: Number of minutes in the unlock interval</br>" +
-                  "Solves: Number of puzzles to unlock a hint.</div>"),
+            "unlock_parameter": mark_safe("Unlock parameter:<div style='font-size: 8pt;'>"
+                                          "Exact time: Number of minutes after hunt start</br>"
+                                          "Interval: Number of minutes in the unlock interval</br>"
+                                          "Solves: Number of puzzles to unlock a hint.</div>"),
         }
 
 
@@ -65,7 +66,8 @@ class PuzzleAdmin(admin.ModelAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "unlocks" and getattr(self, 'obj', None):
-            kwargs["queryset"] = models.Puzzle.objects.filter(hunt=self.obj.hunt).order_by('puzzle_id')
+            query = models.Puzzle.objects.filter(hunt=self.obj.hunt)
+            kwargs["queryset"] = query.order_by('puzzle_id')
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
     list_filter = ('hunt',)
     fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'is_meta',
@@ -99,7 +101,8 @@ class PrepuzzleAdmin(admin.ModelAdmin):
         html += "var copyText = document.getElementById('puzzleURL'); "
         html += "copyText.select(); "
         html += "document.execCommand('copy'); } </script>"
-        html += "<input style='width: 400px;' type=\"text\" value=\"" + puzzle_url_str + "\" id=\"puzzleURL\">"
+        html += "<input style='width: 400px;' type=\"text\""
+        html += "value=\"" + puzzle_url_str + "\" id=\"puzzleURL\">"
         html += "<button onclick=\"myFunction()\" type=\"button\">Copy Puzzle URL</button>"
         return mark_safe(html)
 
