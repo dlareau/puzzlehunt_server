@@ -469,7 +469,7 @@ class HintUnlockPlan(models.Model):
     unlock_parameter = models.IntegerField(
         help_text="Parameter (Time / Interval / Solves)")
 
-    num_triggered = models.IntegerField(
+    num_triggered = models.IntegerField(default=0,
         help_text="Number of times this Unlock Plan has given a hint")
 
     def reset_plan(self):

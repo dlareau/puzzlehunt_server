@@ -40,22 +40,20 @@ class UnlockInline(admin.TabularInline):
 
 
 class HintUnlockPlanForm(forms.ModelForm):
-    class Meta:
-        model = models.HintUnlockPlan
-        fields = ('unlock_type', 'unlock_parameter')
-        labels = {
-            "unlock_type": "Unlock Type",
-            "unlock_parameter": mark_safe("Unlock parameter:<div style='font-size: 8pt;'>"
-                                          "Exact time: Number of minutes after hunt start</br>"
-                                          "Interval: Number of minutes in the unlock interval</br>"
-                                          "Solves: Number of puzzles to unlock a hint.</div>"),
-        }
+    def __init__(self, *args, **kwargs):
+        super(HintUnlockPlanForm, self).__init__(*args, **kwargs)
+        self.fields['unlock_parameter'].help_text = ("Exact time: Number of minutes after hunt "
+                                                     "start</br>Interval: Number of minutes in the "
+                                                     "unlock interval</br> Solves: Number of "
+                                                     "puzzles to unlock a hint.")
 
 
 class HintUnlockPLanInline(admin.TabularInline):
     model = models.HintUnlockPlan
     extra = 2
     form = HintUnlockPlanForm
+    fields = ['unlock_type', 'unlock_parameter']
+    radio_fields = {"unlock_type": admin.VERTICAL}
 
 
 class PuzzleAdmin(admin.ModelAdmin):
