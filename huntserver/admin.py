@@ -69,6 +69,7 @@ class PuzzleAdmin(admin.ModelAdmin):
             query = models.Puzzle.objects.filter(hunt=self.obj.hunt)
             kwargs["queryset"] = query.order_by('puzzle_id')
         return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
     list_filter = ('hunt',)
     fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'is_meta',
               'doesnt_count', 'is_html_puzzle', 'resource_link', 'link', 'solution_link',

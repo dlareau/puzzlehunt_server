@@ -266,7 +266,8 @@ def charts(request):
     # Chart 3
     time_zone = tz.gettz(settings.TIME_ZONE)
     subs = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission_time")
-    grouped = itertools.groupby(subs, lambda x: x.submission_time.astimezone(time_zone).strftime("%x - %H:00"))
+    grouped = itertools.groupby(subs, lambda x: x.submission_time.astimezone(time_zone)
+                                                                 .strftime("%x - %H:00"))
     submission_hours = []
     for group, matches in grouped:
         matches = list(matches)
