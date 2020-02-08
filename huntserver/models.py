@@ -166,6 +166,7 @@ class Puzzle(models.Model):
         help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
     is_meta = models.BooleanField(
         default=False,
+        verbose_name="Is a metapuzzle",
         help_text="Is this puzzle a meta-puzzle?")
     is_html_puzzle = models.BooleanField(
         default=False,
@@ -283,6 +284,10 @@ class Team(models.Model):
         return self.team_name[:30]
 
     @property
+    def size(self):
+        return self.person_set.count()
+
+    @property
     def has_waiting_messages(self):
         return max(self.last_received_message - self.last_seen_message, 0)
 
@@ -298,7 +303,7 @@ class Team(models.Model):
             return False
 
     def __str__(self):
-        return str(self.person_set.count()) + " (" + self.location + ") " + self.team_name
+        return str(self.size) + " (" + self.location + ") " + self.short_name
 
 
 @python_2_unicode_compatible
@@ -423,7 +428,7 @@ class Solve(models.Model):
         return message
 
     def __str__(self):
-        return self.team.team_name + " => " + self.puzzle.puzzle_name
+        return self.team.short_name + " => " + self.puzzle.puzzle_name
 
 
 @python_2_unicode_compatible
@@ -452,7 +457,7 @@ class Unlock(models.Model):
         return message
 
     def __str__(self):
-        return self.team.team_name + ": " + self.puzzle.puzzle_name
+        return self.team.short_name + ": " + self.puzzle.puzzle_name
 
 
 @python_2_unicode_compatible
@@ -472,7 +477,7 @@ class Message(models.Model):
         help_text="Message send time")
 
     def __str__(self):
-        return self.team.team_name + ": " + self.text
+        return self.team.short_name + ": " + self.text
 
 
 @python_2_unicode_compatible
@@ -550,7 +555,7 @@ class Hint(models.Model):
         help_text="Last time of modification")
 
     def __str__(self):
-        return (self.team.team_name + ": " + self.puzzle.puzzle_name +
+        return (self.team.short_name + ": " + self.puzzle.puzzle_name +
                 " (" + str(self.request_time) + ")")
 
 
