@@ -583,14 +583,17 @@ def staff_hints_control(request):
                     update_value = int(request.POST.get("value"))
                     team_pk = int(request.POST.get("team_pk"))
                     team = Team.objects.get(pk=team_pk)
-                    team.num_available_hints = F('num_available_hints') + update_value
-                    team.save()
+                    if(team.num_available_hints + update_value >= 0):
+                        team.num_available_hints = F('num_available_hints') + update_value
+                        team.save()
+
                 except ValueError:
                     pass  # Maybe a 4XX or 5XX in the future
     else:
         return HttpResponse("Incorrect usage of hint control page")
 
-    return HttpResponse(json.dumps(list(Team.objects.values_list('pk', 'num_available_hints'))))
+    hunt = Hunt.objects.get(is_current_hunt=True)
+    return HttpResponse(json.dumps(list(hunt.team_set.values_list('pk', 'num_available_hints'))))
 
 
 @staff_member_required

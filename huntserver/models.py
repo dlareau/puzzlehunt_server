@@ -49,7 +49,14 @@ class Hunt(models.Model):
         default="",
         help_text="The template string to be rendered to HTML on the hunt page")
     hint_lockout = models.IntegerField(
-        default=settings.DEFAULT_HINT_LOCKOUT)
+        default=settings.DEFAULT_HINT_LOCKOUT,
+        help_text="The number of minutes before a hint can be used on a newly unlocked puzzle")
+    points_per_minute = models.IntegerField(
+        default=0,
+        help_text="The number of points granted per minute during the hunt")
+    last_update_time = models.DateTimeField(
+        default=timezone.now,
+        help_text="The last time that the periodic update management command was ran")
 
     # A bit of custom logic in clean and save to ensure exactly one hunt's
     # is_current_hunt is true at any time. It makes sure you can never un-set the
@@ -122,11 +129,27 @@ class Hunt(models.Model):
 class Puzzle(models.Model):
     """ A class representing a puzzle within a hunt """
 
-    puzzle_number = models.IntegerField(
-        help_text="The number of the puzzle within the hunt, for sorting purposes")
+    SOLVES_UNLOCK = 'SOL'
+    POINTS_UNLOCK = 'POT'
+    EITHER_UNLOCK = 'ETH'
+    BOTH_UNLOCK = 'BTH'
+
+    puzzle_unlock_type_choices = [
+        (SOLVES_UNLOCK, 'Solves Based Unlock'),
+        (POINTS_UNLOCK, 'Points Based Unlock'),
+        (EITHER_UNLOCK, 'Either (OR) Unlocking Method'),
+        (BOTH_UNLOCK, 'Both (AND) Unlocking Methods'),
+    ]
+
+    hunt = models.ForeignKey(
+        Hunt,
+        on_delete=models.CASCADE,
+        help_text="The hunt that this puzzle is a part of")
     puzzle_name = models.CharField(
         max_length=200,
         help_text="The name of the puzzle as it will be seen by hunt participants")
+    puzzle_number = models.IntegerField(
+        help_text="The number of the puzzle within the hunt, for sorting purposes")
     puzzle_id = models.CharField(
         max_length=8,
         unique=True,  # hex only please
@@ -134,6 +157,16 @@ class Puzzle(models.Model):
     answer = models.CharField(
         max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
+    is_meta = models.BooleanField(
+        default=False,
+        verbose_name="Is a metapuzzle",
+        help_text="Is this puzzle a meta-puzzle?")
+    is_html_puzzle = models.BooleanField(
+        default=False,
+        help_text="Does this puzzle use an HTML folder as it's source?")
+    doesnt_count = models.BooleanField(
+        default=False,
+        help_text="Should this puzzle not count towards scoring?")
     link = models.URLField(
         max_length=200,
         blank=True,
@@ -146,6 +179,21 @@ class Puzzle(models.Model):
         max_length=200,
         blank=True,
         help_text="The full link (needs http://) to a publicly accessible PDF of the solution")
+    extra_data = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="A misc. field for any extra data to be stored with the puzzle.")
+    num_pages = models.IntegerField(
+        help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
+
+    # Unlocking:
+    unlock_type = models.CharField(
+        max_length=3,
+        choices=puzzle_unlock_type_choices,
+        default=SOLVES_UNLOCK,
+        blank=False,
+        help_text="The type of puzzle unlocking scheme"
+    )
     num_required_to_unlock = models.IntegerField(
         default=1,
         help_text="Number of prerequisite puzzles that need to be solved to unlock this puzzle")
@@ -154,26 +202,10 @@ class Puzzle(models.Model):
         blank=True,
         symmetrical=False,
         help_text="Puzzles that this puzzle is a possible prerequisite for")
-    hunt = models.ForeignKey(
-        Hunt,
-        on_delete=models.CASCADE,
-        help_text="The hunt that this puzzle is a part of")
-    extra_data = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="A misc. field for any extra data to be stored with the puzzle.")
-    num_pages = models.IntegerField(
-        help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
-    is_meta = models.BooleanField(
-        default=False,
-        verbose_name="Is a metapuzzle",
-        help_text="Is this puzzle a meta-puzzle?")
-    is_html_puzzle = models.BooleanField(
-        default=False,
-        help_text="Does this puzzle use an HTML folder as it's source?")
-    doesnt_count = models.BooleanField(
-        default=False,
-        help_text="Should this puzzle not count towards scoring?")
+    points_cost = models.IntegerField(
+        help_text="The number of points needed to unlock this puzzle.")
+    points_value = models.IntegerField(
+        help_text="The number of points this puzzle grants upon solving.")
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
@@ -266,7 +298,11 @@ class Team(models.Model):
     last_received_message = models.IntegerField(
         default=0)
     num_available_hints = models.IntegerField(
-        default=0)
+        default=0,
+        help_text="The number of hints the team has available to use")
+    num_unlock_points = models.IntegerField(
+        default=0,
+        help_text="The number of points the team has earned")
 
     @property
     def is_playtester_team(self):

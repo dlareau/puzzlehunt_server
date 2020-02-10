@@ -49,7 +49,6 @@ class HuntAdminForm(forms.ModelForm):
     model = models.Hunt
 
     class Meta:
-        fields = '__all__'
         widgets = {
             'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
         }
@@ -58,6 +57,9 @@ class HuntAdminForm(forms.ModelForm):
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
     inlines = (HintUnlockPLanInline,)
+    fields = ['hunt_name', 'hunt_number', 'is_current_hunt', 'team_size', 'location',
+              ('start_date', 'display_start_date'), ('end_date', 'display_end_date'),
+              'resource_link', 'points_per_minute', 'extra_data', 'template', 'hint_lockout']
     list_display = ['hunt_name', 'team_size', 'start_date', 'is_current_hunt']
 
 
@@ -73,6 +75,7 @@ class MessageAdmin(admin.ModelAdmin):
 class PersonAdmin(admin.ModelAdmin):
     list_display = ['user_full_name', 'user_username', 'is_shib_acct']
     search_fields = ['user__email', 'user__username', 'user__first_name', 'user__last_name']
+    filter_horizontal = ['teams']
 
     def user_full_name(self, person):
         return person.user.first_name + " " + person.user.last_name
@@ -143,26 +146,60 @@ class ResponseInline(admin.TabularInline):
     extra = 1
 
 
-class PuzzleAdmin(admin.ModelAdmin):
-    def get_object(self, request, object_id, to_field):
-        # Hook obj for use in formfield_for_manytomany
-        self.obj = super(PuzzleAdmin, self).get_object(request, object_id, to_field)
-        return self.obj
+class PuzzleAdminForm(forms.ModelForm):
+    reverse_unlocks = forms.ModelMultipleChoiceField(
+        models.Puzzle.objects.all(),
+        widget=admin.widgets.FilteredSelectMultiple('Puzzle', False),
+        required=False,
+    )
 
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "unlocks" and getattr(self, 'obj', None):
-            query = models.Puzzle.objects.filter(hunt=self.obj.hunt)
-            kwargs["queryset"] = query.order_by('puzzle_id')
-        return super(PuzzleAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(PuzzleAdminForm, self).__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.initial['reverse_unlocks'] = self.instance.puzzle_set.values_list('pk', flat=True)
+            self.fields['reverse_unlocks'].choices = self.instance.hunt.puzzle_set.values_list('pk', 'puzzle_name')
+
+    def save(self, *args, **kwargs):
+        instance = super(PuzzleAdminForm, self).save(*args, **kwargs)
+        if instance.pk:
+            instance.puzzle_set.clear()
+            instance.puzzle_set.add(*self.cleaned_data['reverse_unlocks'])
+        return instance
+
+    class Meta:
+        model = models.Puzzle
+        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
+              'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
+              'extra_data', 'num_required_to_unlock', 'unlock_type', 'points_cost', 'points_value')
+
+
+class PuzzleAdmin(admin.ModelAdmin):
+    class Media:
+        js = ("huntserver/admin_change_puzzle.js",)
+
+    form = PuzzleAdminForm
 
     list_filter = ('hunt',)
-    fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'is_meta',
-              'doesnt_count', 'is_html_puzzle', 'resource_link', 'link', 'solution_link',
-              'answer', 'extra_data', 'num_pages', 'num_required_to_unlock')
     list_display = ['combined_id', 'puzzle_name', 'hunt', 'is_meta']
     list_display_links = ['combined_id', 'puzzle_name']
     ordering = ['-hunt', 'puzzle_number']
-    inlines = (UnlockInline, ResponseInline)
+    inlines = (ResponseInline,)
+    radio_fields = {"unlock_type": admin.VERTICAL}
+    fieldsets = (
+        (None, {
+            'fields': ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
+              'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
+              'extra_data', 'unlock_type')
+        }),
+        ('Solve Unlocking', {
+            'classes': ('formset_border', 'solve_unlocking'),
+            'fields': ('reverse_unlocks', 'num_required_to_unlock')
+        }),
+        ('Points Unlocking', {
+            'classes': ('formset_border', 'points_unlocking'),
+            'fields': ('points_cost', 'points_value')
+        }),
+    )
 
     def combined_id(self, puzzle):
         return str(puzzle.puzzle_number) + "-" + puzzle.puzzle_id
@@ -203,8 +240,8 @@ class TeamAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Team
-        fields = ['team_name', 'unlocked', 'unlockables', 'hunt', 'location',
-                  'join_code', 'playtester', 'num_available_hints']
+        fields = ['team_name', 'unlocked', 'hunt', 'location',
+                  'join_code', 'playtester', 'num_available_hints', 'num_unlock_points', 'unlockables']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)

@@ -15,20 +15,20 @@
 
 <div class="row puzzle content">
   <div class='col-sm-4 col-md-3'>
-    <table class="table table-bordered table-condensed table-responsive">
-      {% for team in hunt.team_set.all %}
+    <table class="table table-condensed table-responsive" style="table-layout:fixed;">
+      {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
         <tr>
-          <td>{{ team.short_name }}</td>
-          <td width="140px">
+          <td width="200px" style="overflow-wrap: break-word; padding: 0px;">{{ team.short_name }}</td>
+          <td width="140px" style="padding: 0px;">
             <div class="input-group">
               <span class="input-group-btn">
-                <button type="button" class="btn btn-default btn-number" data-value="-1" data-team="{{team.pk}}">
+                <button type="button" class="btn btn-default btn-number" data-value="-1" data-team="{{team.pk}}" style="margin: 0px;">
                   <span class="glyphicon glyphicon-minus"></span>
                 </button>
               </span>
               <input type="text" data-team="{{team.pk}}" class="form-control input-number" value="{{ team.num_available_hints }}" disabled>
               <span class="input-group-btn">
-                <button type="button" class="btn btn-default btn-number" data-value="1" data-team="{{team.pk}}">
+                <button type="button" class="btn btn-default btn-number" data-value="1" data-team="{{team.pk}}" style="margin: 0px;">
                   <span class="glyphicon glyphicon-plus"></span>
                 </button>
               </span>
