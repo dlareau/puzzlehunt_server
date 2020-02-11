@@ -16,7 +16,7 @@ import re
 
 from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle, Hint
 from .forms import AnswerForm, HintRequestForm
-from .utils import respond_to_submission, team_from_user_hunt, dummy_team_from_hunt
+from .utils import team_from_user_hunt, dummy_team_from_hunt
 from .info_views import current_hunt_info
 
 import logging
@@ -122,8 +122,6 @@ def prepuzzle(request, prepuzzle_num):
 
     puzzle = Prepuzzle.objects.get(pk=prepuzzle_num)
 
-    # Dealing with answer submissions, proper procedure is to create a submission
-    # object and then rely on utils.respond_to_submission for automatic responses.
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
@@ -194,17 +192,18 @@ def puzzle_view(request, puzzle_id):
         return HttpResponseForbidden()
 
     # Dealing with answer submissions, proper procedure is to create a submission
-    # object and then rely on utils.respond_to_submission for automatic responses.
+    # object and then rely on Submission.respond for automatic responses.
     if request.method == 'POST':
         # Deal with answers from archived hunts
         if(puzzle.hunt.is_public):
             form = AnswerForm(request.POST)
             team = dummy_team_from_hunt(puzzle.hunt)
             if form.is_valid():
-                user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+                user_answer = form.cleaned_data['answer']
                 s = Submission.objects.create(submission_text=user_answer, team=team,
                                               puzzle=puzzle, submission_time=timezone.now())
-                response = respond_to_submission(s)
+                s.respond()
+                response = s.response_text
                 is_correct = s.is_correct
             else:
                 response = "Invalid Submission"
@@ -221,10 +220,10 @@ def puzzle_view(request, puzzle_id):
         # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
         if form.is_valid():
-            user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
+            user_answer = form.cleaned_data['answer']
             s = Submission.objects.create(submission_text=user_answer, team=team,
                                           puzzle=puzzle, submission_time=timezone.now())
-            response = respond_to_submission(s)
+            s.respond()
 
         # Render response to HTML
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': s})]

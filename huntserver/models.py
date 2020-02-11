@@ -10,6 +10,9 @@ from django.core.files.storage import FileSystemStorage
 import os
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 time_zone = tz.gettz(settings.TIME_ZONE)
 
 
@@ -203,8 +206,10 @@ class Puzzle(models.Model):
         symmetrical=False,
         help_text="Puzzles that this puzzle is a possible prerequisite for")
     points_cost = models.IntegerField(
+        default=0,
         help_text="The number of points needed to unlock this puzzle.")
     points_value = models.IntegerField(
+        default=0,
         help_text="The number of points this puzzle grants upon solving.")
 
     def serialize_for_ajax(self):
@@ -338,6 +343,35 @@ class Team(models.Model):
         else:
             return False
 
+    def unlock_puzzles(self):
+        puzzles = self.hunt.puzzle_set.all().order_by('puzzle_number')
+        numbers = []
+
+        numbers = puzzles.values_list('puzzle_number', flat=True)
+        # make an array for how many points a team has towards unlocking each puzzle
+        mapping = [0 for i in range(max(numbers) + 1)]
+
+        # go through each solved puzzle and add to the list for each puzzle it unlocks
+        for puzzle in self.solved.all():
+            for num in puzzle.unlocks.values_list('puzzle_number', flat=True):
+                mapping[num] += 1
+
+        # See if the number of points is enough to unlock any given puzzle
+        puzzles = puzzles.difference(self.unlocked.all())
+        for puzzle in puzzles:
+            if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
+                logger.info("Team %s unlocked puzzle %s" % (str(self.team_name),
+                                str(puzzle.puzzle_id)))
+                Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
+
+    def unlock_hints(self):
+        num_solved = self.solved.count()
+        plans = self.hunt.hintunlockplan_set
+        num_hints = plans.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
+                                 unlock_parameter=num_solved).count()
+        self.num_available_hints = models.F('num_available_hints') + num_hints
+        self.save()
+
     def __str__(self):
         return str(self.size) + " (" + self.location + ") " + self.short_name
 
@@ -421,6 +455,42 @@ class Submission(models.Model):
     def save(self, *args, **kwargs):
         self.modified_date = timezone.now()
         super(Submission, self).save(*args, **kwargs)
+
+    def create_solve(self):
+        Solve.objects.create(puzzle=self.puzzle, team=self.team, submission=self)
+        logger.info("Team %s correctly solved puzzle %s" % (str(self.team.team_name),
+                                                            str(self.puzzle.puzzle_id)))
+
+    # Automatic submission response system
+    # Returning an empty string means that huntstaff should respond via the queue
+    # Order of response importance: Regex, Defaults, Staff response.
+    def respond(self):
+        # Compare against correct answer
+        if(self.is_correct):
+            # Make sure we don't have duplicate or after hunt submission objects
+            if(not self.puzzle.hunt.is_public):
+                if(self.puzzle not in self.team.solved.all()):
+                    self.create_solve()
+                    self.team.unlock_puzzles()
+                    self.team.unlock_hints()
+
+        # Check against regexes
+        for resp in self.puzzle.response_set.all():
+            if(re.match(resp.regex, self.submission_text, re.IGNORECASE)):
+                response = resp.text
+                break
+        else:
+            if(self.is_correct):
+                response = "Correct"
+            else:
+                # Current philosphy is to auto-can wrong answers: If it's not right, it's wrong
+                response = "Wrong Answer."
+                logger.info("Team %s incorrectly guessed %s for puzzle %s" %
+                            (str(self.team.team_name), str(self.submission_text),
+                             str(self.puzzle.puzzle_id)))
+
+        self.response_text = response
+        self.save()
 
     def __str__(self):
         return self.submission_text

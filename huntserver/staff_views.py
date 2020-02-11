@@ -16,7 +16,7 @@ import json
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
-from .utils import unlock_puzzles, download_puzzle, download_zip
+from .utils import download_puzzle, download_zip
 
 
 def add_apps_to_context(context, request):
@@ -460,7 +460,7 @@ def control(request):
     if(request.method == 'POST' and "action" in request.POST):
         if(request.POST["action"] == "initial"):
             for team in teams:
-                unlock_puzzles(team)
+                team.unlock_puzzles()
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "reset"):
             for team in teams:

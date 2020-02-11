@@ -7,6 +7,9 @@ import re
 class AnswerForm(forms.Form):
     answer = forms.CharField(max_length=100, label='Answer')
 
+    def clean_answer(self):
+        return re.sub(r"[ _\-;:+,.!?]", "", self.cleaned_data.get('answer'))
+
 
 class SubmissionForm(forms.Form):
     response = forms.CharField(max_length=400, label='response', initial="Wrong Answer")
