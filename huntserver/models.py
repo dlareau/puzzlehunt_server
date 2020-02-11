@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.dateformat import DateFormat
@@ -121,11 +122,27 @@ class Hunt(models.Model):
     def real_teams(self):
         return self.team_set.exclude(location="DUMMY").all()
 
+    @property
+    def dummy_team(self):
+        try:
+            team = self.team_set.get(location="DUMMY")
+        except Team.DoesNotExist:
+            team = Team.objects.create(team_name=self.hunt_name + "_DUMMY", hunt=self,
+                                       location="DUMMY", join_code="WRONG")
+        return team
+
     def __str__(self):
         if(self.is_current_hunt):
             return self.hunt_name + " (c)"
         else:
             return self.hunt_name
+
+    # Takes a user and a hunt and returns either the user's team for that hunt or None
+    def team_from_user(self, user):
+        if(not user.is_authenticated):
+            return None
+        teams = get_object_or_404(Person, user=user).teams.filter(hunt=self)
+        return teams[0] if (len(teams) > 0) else None
 
 
 @python_2_unicode_compatible

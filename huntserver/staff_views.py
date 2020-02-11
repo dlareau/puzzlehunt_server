@@ -293,7 +293,7 @@ def charts(request):
 
     # Chart 5
     solves = solves.order_by("submission__submission_time")
-    teams = list(curr_hunt.team_set.exclude(location="DUMMY").exclude(location="off_campus"))
+    teams = list(curr_hunt.real_teams.exclude(location="off_campus"))
     num_puzzles = puzzles.count()
     solve_points = []
     tmp = [None]

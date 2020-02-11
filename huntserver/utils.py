@@ -1,6 +1,4 @@
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from .models import Person, Team
 from subprocess import call, STDOUT
 import os
 from PyPDF2 import PdfFileReader
@@ -78,21 +76,3 @@ def parse_attributes(META):
             if required:
                 error = True
     return shib_attrs, error
-
-
-# Takes a hunt and returns the "dummy" team for that hunt, making it if needed
-def dummy_team_from_hunt(hunt):
-    try:
-        team = Team.objects.get(hunt=hunt, location="DUMMY")
-    except Team.DoesNotExist:
-        team = Team.objects.create(team_name=hunt.hunt_name + "_DUMMY", hunt=hunt,
-                                   location="DUMMY", join_code="WRONG")
-    return team
-
-
-# Takes a user and a hunt and returns either the user's team for that hunt or None
-def team_from_user_hunt(user, hunt):
-    if(not user.is_authenticated):
-        return None
-    teams = get_object_or_404(Person, user=user).teams.filter(hunt=hunt)
-    return teams[0] if (len(teams) > 0) else None

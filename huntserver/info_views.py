@@ -3,7 +3,6 @@ from django.shortcuts import render
 import random
 import re
 
-from .utils import team_from_user_hunt
 from .models import Hunt, Team
 from .forms import PersonForm, ShibUserForm
 
@@ -39,7 +38,7 @@ def registration(request):
     """
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    team = team_from_user_hunt(request.user, curr_hunt)
+    team = curr_hunt.team_from_user(request.user)
     error = ""
     if(request.method == 'POST' and "form_type" in request.POST):
         if(request.POST["form_type"] == "new_team" and team is None):
