@@ -157,7 +157,8 @@ class PuzzleAdminForm(forms.ModelForm):
         super(PuzzleAdminForm, self).__init__(*args, **kwargs)
         if self.instance.pk:
             self.initial['reverse_unlocks'] = self.instance.puzzle_set.values_list('pk', flat=True)
-            self.fields['reverse_unlocks'].choices = self.instance.hunt.puzzle_set.values_list('pk', 'puzzle_name')
+            choices = self.instance.hunt.puzzle_set.values_list('pk', 'puzzle_name')
+            self.fields['reverse_unlocks'].choices = choices
 
     def save(self, *args, **kwargs):
         instance = super(PuzzleAdminForm, self).save(*args, **kwargs)
@@ -169,8 +170,9 @@ class PuzzleAdminForm(forms.ModelForm):
     class Meta:
         model = models.Puzzle
         fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
-              'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
-              'extra_data', 'num_required_to_unlock', 'unlock_type', 'points_cost', 'points_value')
+                  'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
+                  'extra_data', 'num_required_to_unlock', 'unlock_type', 'points_cost',
+                  'points_value')
 
 
 class PuzzleAdmin(admin.ModelAdmin):
@@ -188,8 +190,8 @@ class PuzzleAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
-              'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
-              'extra_data', 'unlock_type')
+                       'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
+                       'extra_data', 'unlock_type')
         }),
         ('Solve Unlocking', {
             'classes': ('formset_border', 'solve_unlocking'),
@@ -240,8 +242,8 @@ class TeamAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Team
-        fields = ['team_name', 'unlocked', 'hunt', 'location',
-                  'join_code', 'playtester', 'num_available_hints', 'num_unlock_points', 'unlockables']
+        fields = ['team_name', 'unlocked', 'hunt', 'location', 'join_code', 'playtester',
+                  'num_available_hints', 'num_unlock_points', 'unlockables']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)

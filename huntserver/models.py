@@ -361,7 +361,7 @@ class Team(models.Model):
         for puzzle in puzzles:
             if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
                 logger.info("Team %s unlocked puzzle %s" % (str(self.team_name),
-                                str(puzzle.puzzle_id)))
+                            str(puzzle.puzzle_id)))
                 Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
 
     def unlock_hints(self):
@@ -522,15 +522,9 @@ class Solve(models.Model):
         message = dict()
         message['puzzle'] = self.puzzle.serialize_for_ajax()
         message['team_pk'] = self.team.pk
-        try:
-            # Will fail if there is more than one solve per team/puzzle pair
-            # That should be impossible, but lets not crash because of it
-            time = self.submission.submission_time
-            df = DateFormat(time.astimezone(time_zone))
-            message['time_str'] = df.format("h:i a")
-        except:
-            message['time_str'] = "0:00 am"
-        message['status_type'] = "solve"
+        time = self.submission.submission_time
+        df = DateFormat(time.astimezone(time_zone))
+        message['time_str'] = df.format("h:i a")
         return message
 
     def __str__(self):

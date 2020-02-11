@@ -616,8 +616,7 @@ def emails(request):
             message = email_form.cleaned_data['message']
             email_to_chunks = [email_list[x: x + 80] for x in range(0, len(email_list), 80)]
             for to_chunk in email_to_chunks:
-                email = EmailMessage(subject, message, 'puzzlehuntcmu@gmail.com',
-                     [], to_chunk)
+                email = EmailMessage(subject, message, 'puzzlehuntcmu@gmail.com', [], to_chunk)
                 email.send()
             return HttpResponseRedirect('')
     else:

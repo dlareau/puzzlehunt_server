@@ -70,7 +70,7 @@ def parse_attributes(META):
             # If multiple attributes releases just care about the 1st one
             try:
                 value = values.split(';')[0]
-            except:
+            except IndexError:
                 value = values
 
         shib_attrs[name] = value
@@ -84,9 +84,9 @@ def parse_attributes(META):
 def dummy_team_from_hunt(hunt):
     try:
         team = Team.objects.get(hunt=hunt, location="DUMMY")
-    except:
+    except Team.DoesNotExist:
         team = Team.objects.create(team_name=hunt.hunt_name + "_DUMMY", hunt=hunt,
-                    location="DUMMY", join_code="WRONG")
+                                   location="DUMMY", join_code="WRONG")
     return team
 
 
