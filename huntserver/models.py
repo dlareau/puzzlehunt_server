@@ -389,6 +389,15 @@ class Team(models.Model):
         self.num_available_hints = models.F('num_available_hints') + num_hints
         self.save()
 
+    def reset(self):
+        self.unlocked.clear()
+        self.unlock_set.all().delete()
+        self.solved.clear()
+        self.solve_set.all().delete()
+        self.submission_set.all().delete()
+        self.num_available_hints = 0
+        self.save()
+
     def __str__(self):
         return str(self.size) + " (" + self.location + ") " + self.short_name
 
@@ -507,6 +516,11 @@ class Submission(models.Model):
                              str(self.puzzle.puzzle_id)))
 
         self.response_text = response
+        self.save()
+
+    def update_response(self, text):
+        self.response_text = text
+        self.modified_date = timezone.now()
         self.save()
 
     def __str__(self):

@@ -18,6 +18,8 @@ from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prep
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
 from .utils import download_puzzle, download_zip
 
+DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+
 
 def add_apps_to_context(context, request):
     context['available_apps'] = admin.site.get_app_list(request)
@@ -37,13 +39,11 @@ def queue(request):
             return HttpResponse(status=400)
         response = form.cleaned_data['response']
         s = Submission.objects.get(pk=form.cleaned_data['sub_id'])
-        s.response_text = response
-        s.modified_date = timezone.now()
-        s.save()
+        s.update_response(response)
         submissions = [s]
 
     elif request.is_ajax():
-        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         submissions = Submission.objects.filter(modified_date__gt=last_date)
         submissions = submissions.exclude(team__location="DUMMY")
@@ -80,10 +80,9 @@ def queue(request):
 
     form = SubmissionForm()
     try:
-        date_query = Submission.objects.latest('modified_date').modified_date
-        last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
     except Submission.DoesNotExist:
-        last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = timezone.now().strftime(DT_FORMAT)
     submission_list = [render_to_string('queue_row.html', {'submission': submission},
                                         request=request)
                        for submission in submissions]
@@ -464,13 +463,7 @@ def control(request):
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "reset"):
             for team in teams:
-                team.unlocked.clear()
-                team.unlock_set.all().delete()
-                team.solved.clear()
-                team.solve_set.all().delete()
-                team.submission_set.all().delete()
-                team.num_available_hints = 0
-                team.save()
+                team.reset()
             return redirect('huntserver:hunt_management')
 
         if(request.POST["action"] == "getpuzzles"):
@@ -531,7 +524,7 @@ def staff_hints_text(request):
         hints = [h]
 
     elif request.is_ajax():
-        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         hints = Hint.objects.filter(last_modified_time__gt=last_date)
 
@@ -550,9 +543,9 @@ def staff_hints_text(request):
 
     try:
         time_query = Hint.objects.latest('last_modified_time').last_modified_time
-        last_date = time_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = time_query.strftime(DT_FORMAT)
     except Hint.DoesNotExist:
-        last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = timezone.now().strftime(DT_FORMAT)
 
     hint_list = []
     for hint in hints:

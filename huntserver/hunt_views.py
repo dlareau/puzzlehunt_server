@@ -21,6 +21,8 @@ from .info_views import current_hunt_info
 import logging
 logger = logging.getLogger(__name__)
 
+DT_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+
 
 def protected_static(request, file_path):
     """
@@ -228,10 +230,9 @@ def puzzle_view(request, puzzle_id):
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': s})]
 
         try:
-            date_query = Submission.objects.latest('modified_date').modified_date
-            last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
-            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = timezone.now().strftime(DT_FORMAT)
 
         # Send back rendered response for display
         context = {'submission_list': submission_list, 'last_date': last_date}
@@ -243,7 +244,7 @@ def puzzle_view(request, puzzle_id):
             return HttpResponseNotFound('access denied')
 
         # Find which objects the user hasn't seen yet and render them to HTML
-        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         submissions = Submission.objects.filter(modified_date__gt=last_date)
         submissions = submissions.filter(team=team, puzzle=puzzle)
@@ -251,10 +252,9 @@ def puzzle_view(request, puzzle_id):
                            for submission in submissions]
 
         try:
-            date_query = Submission.objects.latest('modified_date').modified_date
-            last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
-            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = timezone.now().strftime(DT_FORMAT)
 
         context = {'submission_list': submission_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))
@@ -275,10 +275,9 @@ def puzzle_view(request, puzzle_id):
         submissions = puzzle.submission_set.filter(team=team).order_by('pk')
         form = AnswerForm()
         try:
-            date_query = Submission.objects.latest('modified_date').modified_date
-            last_date = date_query.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
-            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = timezone.now().strftime(DT_FORMAT)
         context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
                    'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
                    'last_date': last_date, 'team': team}
@@ -313,9 +312,9 @@ def puzzle_hint(request, puzzle_id):
 
         try:
             last_hint = Hint.objects.latest('last_modified_time')
-            last_date = last_hint.last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = last_hint.last_modified_time.strftime(DT_FORMAT)
         except Hint.DoesNotExist:
-            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = timezone.now().strftime(DT_FORMAT)
 
         # Send back rendered response for display
         context = {'hint_list': hint_list, 'last_date': last_date,
@@ -326,7 +325,7 @@ def puzzle_hint(request, puzzle_id):
     elif request.is_ajax():
 
         # Find which objects the user hasn't seen yet and render them to HTML
-        last_date = datetime.strptime(request.GET.get("last_date"), '%Y-%m-%dT%H:%M:%S.%fZ')
+        last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
         last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
         hints = Hint.objects.filter(last_modified_time__gt=last_date)
         hints = hints.filter(team=team, puzzle=puzzle)
@@ -334,9 +333,9 @@ def puzzle_hint(request, puzzle_id):
 
         try:
             last_hint = Hint.objects.latest('last_modified_time')
-            last_date = last_hint.last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = last_hint.last_modified_time.strftime(DT_FORMAT)
         except Hint.DoesNotExist:
-            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = timezone.now().strftime(DT_FORMAT)
 
         context = {'hint_list': hint_list, 'last_date': last_date,
                    'num_available_hints': team.num_available_hints}
@@ -350,9 +349,9 @@ def puzzle_hint(request, puzzle_id):
         hints = team.hint_set.filter(puzzle=puzzle).order_by('pk')
         try:
             last_hint = Hint.objects.latest('last_modified_time')
-            last_date = last_hint.last_modified_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = last_hint.last_modified_time.strftime(DT_FORMAT)
         except Hint.DoesNotExist:
-            last_date = timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            last_date = timezone.now().strftime(DT_FORMAT)
         context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
                    'hint_list': hints, 'last_date': last_date, 'team': team}
         return render(request, 'puzzle_hint.html', context)
