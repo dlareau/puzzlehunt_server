@@ -151,6 +151,7 @@ class PuzzleAdminForm(forms.ModelForm):
         models.Puzzle.objects.all(),
         widget=admin.widgets.FilteredSelectMultiple('Puzzle', False),
         required=False,
+        label="Puzzles that count towards this puzzle"
     )
 
     def __init__(self, *args, **kwargs):
