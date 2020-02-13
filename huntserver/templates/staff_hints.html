@@ -14,7 +14,7 @@
 <h1>Hint Requests</h1>
 
 <div class="row puzzle content">
-  <div class='col-sm-4 col-md-3'>
+  <div id="hint_counts" class='col-sm-12 col-md-5 col-lg-4 collapse'>
     <table class="table table-condensed table-responsive" style="table-layout:fixed;">
       {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
         <tr>
@@ -38,10 +38,13 @@
       {% endfor %}
     </table>
   </div>
-  <div class='col-sm-8 col-md-9'>
+  <div class='col-sm-12 col-md-7 col-lg-8'>
+    <button style="float: left; margin-right: 20px;" class="btn btn-default" type="button" data-toggle="collapse" data-target="#hint_counts" aria-expanded="false" aria-controls="collapseExample">
+      Show/Hide hint counts
+    </button>
     <form method="GET" action="" class="form-inline">
       <select name="team_id" style="width: 200px;" class="form-control">
-        <option></option>
+        <option value="">Filter by team</option>
         {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
           <option value="{{team.pk}}" {% if team.pk == team_id %} selected {% endif %}>
             {{team.team_name|truncatechars:30}}
@@ -49,7 +52,7 @@
         {% endfor %}
       </select>
       <select name="puzzle_id" style="width: 200px;" class="form-control">
-        <option></option>
+        <option value="">Filter by Puzzle</option>
         {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
           <option value="{{puzzle.pk}}" {% if puzzle.pk == puzzle_id %} selected {% endif %}>
             {{puzzle.puzzle_name}} ({{puzzle.puzzle_number}})
@@ -59,7 +62,7 @@
       <button type="submit" value="Filter" class="btn btn-default"> Filter </button>
     </form>
 
-    <table id='hints' class="table table-condensed">
+    <table id='hints' class="table table-condensed" style="margin-top: 10px;">
       <tbody id='sub_table'>
         {% for hint in hint_list %}
           {{ hint }}

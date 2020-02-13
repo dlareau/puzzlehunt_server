@@ -530,8 +530,19 @@ def staff_hints_text(request):
 
     else:
         page_num = request.GET.get("page_num")
+        team_id = request.GET.get("team_id")
+        puzzle_id = request.GET.get("puzzle_id")
         hunt = Hunt.objects.get(is_current_hunt=True)
         hints = Hint.objects.filter(puzzle__hunt=hunt)
+        arg_string = ""
+        if(team_id):
+            team_id = int(team_id)
+            hints = hints.filter(team__pk=team_id)
+            arg_string = arg_string + ("&team_id=%s" % team_id)
+        if(puzzle_id):
+            puzzle_id = int(puzzle_id)
+            hints = hints.filter(puzzle__pk=puzzle_id)
+            arg_string = arg_string + ("&puzzle_id=%s" % puzzle_id)
         hints = hints.select_related('team', 'puzzle').order_by('-pk')
         pages = Paginator(hints, 10)
         try:
@@ -557,8 +568,8 @@ def staff_hints_text(request):
         context = {'hint_list': hint_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))
     else:
-        context = {'page_info': hints, 'hint_list': hint_list,
-                   'last_date': last_date, 'hunt': hunt}
+        context = {'page_info': hints, 'hint_list': hint_list,  'arg_string': arg_string,
+                   'last_date': last_date, 'hunt': hunt, 'puzzle_id': puzzle_id, 'team_id': team_id}
         return render(request, 'staff_hints.html', add_apps_to_context(context, request))
 
 
