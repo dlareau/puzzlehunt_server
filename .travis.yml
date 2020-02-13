@@ -35,3 +35,4 @@ after_success:
   - cp .coverage .coverage.extra
   - coverage combine
   - coveralls
+  - flake8 huntserver
