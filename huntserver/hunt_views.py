@@ -40,7 +40,7 @@ def protected_static(request, file_path):
         if (hunt.is_public or user.is_staff):
             allowed = True
         else:
-            team = hunt.team_from_user_hunt(user)
+            team = hunt.team_from_user(user)
             if (team is not None and puzzle in team.unlocked.all()):
                 allowed = True
     elif(levels[0] == "solutions"):
@@ -71,7 +71,7 @@ def hunt(request, hunt_num):
     """
 
     hunt = get_object_or_404(Hunt, hunt_number=hunt_num)
-    team = hunt.team_from_user_hunt(request.user)
+    team = hunt.team_from_user(request.user)
 
     # Admins get all access, wrong teams/early lookers get an error page
     # real teams get appropriate puzzles, and puzzles from past hunts are public
@@ -179,7 +179,7 @@ def puzzle_view(request, puzzle_id):
     render the basic per-puzzle pages.
     """
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
-    team = puzzle.hunt.team_from_user_hunt(request.user)
+    team = puzzle.hunt.team_from_user(request.user)
 
     if(team is not None):
         request.ratelimit_key = team.team_name
@@ -291,7 +291,7 @@ def puzzle_hint(request, puzzle_id):
     render the basic puzzle-hint pages.
     """
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
-    team = puzzle.hunt.team_from_user_hunt(request.user)
+    team = puzzle.hunt.team_from_user(request.user)
     if(team is None):
         return render(request, 'access_error.html', {'reason': "team"})
 
@@ -363,7 +363,7 @@ def chat(request):
     A view to handle message submissions via POST, handle message update requests via AJAX, and
     render the hunt participant view of the chat.
     """
-    team = Hunt.objects.get(is_current_hunt=True).team_from_user_hunt(request.user)
+    team = Hunt.objects.get(is_current_hunt=True).team_from_user(request.user)
     if request.method == 'POST':
         # There is data in the post request, but we don't need anything but
         #   the message because normal users can't send as staff or other teams
@@ -402,7 +402,7 @@ def chat(request):
 @login_required
 def unlockables(request):
     """ A view to render the unlockables page for hunt participants. """
-    team = Hunt.objects.get(is_current_hunt=True).team_from_user_hunt(request.user)
+    team = Hunt.objects.get(is_current_hunt=True).team_from_user(request.user)
     if(team is None):
         return render(request, 'access_error.html', {'reason': "team"})
     unlockables = Unlockable.objects.filter(puzzle__in=team.solved.all())
