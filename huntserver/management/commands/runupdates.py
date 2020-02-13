@@ -5,7 +5,7 @@ from django.db.models import F
 from huntserver.models import Hunt, HintUnlockPlan
 
 
-class Command(BaseCommand):
+class RunUpdates(BaseCommand):
     help = 'Runs all time related updates for the huntserver app'
 
     def handle(self, *args, **options):
@@ -34,8 +34,5 @@ class Command(BaseCommand):
         if(diff_minutes >= 1):
             new_points = curr_hunt.points_per_minute * diff_minutes
             curr_hunt.team_set.all().update(num_unlock_points=F('num_unlock_points') + new_points)
-            # for team in curr_hunt.team_set.all():
-            #     unlockable_puzzles = curr_hunt.puzzle_set.exclude()
-            #     write function on puzzle that takes team and checks if it is/should be unlocked
-            #     filter out all puzzles that can't possibly be unlocked because time then run the
-            #     unlock function on each of them
+            for team in curr_hunt.team_set.all():
+                team.unlock_puzzles()

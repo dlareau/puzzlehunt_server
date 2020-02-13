@@ -376,11 +376,29 @@ class Team(models.Model):
         # See if the number of points is enough to unlock any given puzzle
         puzzles = puzzles.difference(self.unlocked.all())
         for puzzle in puzzles:
-            if(puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number]):
-                logger.info("Team %s unlocked puzzle %s" % (str(self.team_name),
+            s_unlock = (puzzle.num_required_to_unlock <= mapping[puzzle.puzzle_number])
+            p_unlock = (self.num_unlock_points >= puzzle.points_cost)
+
+            if(puzzle.unlock_type == Puzzle.SOLVES_UNLOCK and s_unlock):
+                logger.info("Team %s unlocked puzzle %s with solves" % (str(self.team_name),
+                            str(puzzle.puzzle_id)))
+                Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
+            elif(puzzle.unlock_type == Puzzle.POINTS_UNLOCK and p_unlock):
+                logger.info("Team %s unlocked puzzle %s with points" % (str(self.team_name),
+                            str(puzzle.puzzle_id)))
+                Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
+            elif(puzzle.unlock_type == Puzzle.EITHER_UNLOCK and (s_unlock or p_unlock)):
+                logger.info("Team %s unlocked puzzle %s with either" % (str(self.team_name),
+                            str(puzzle.puzzle_id)))
+                Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
+            elif(puzzle.unlock_type == Puzzle.BOTH_UNLOCK and (s_unlock and p_unlock)):
+                logger.info("Team %s unlocked puzzle %s with both" % (str(self.team_name),
                             str(puzzle.puzzle_id)))
                 Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
 
+    # The way this works currently sucks, it should only be called once per solve
+    # Right now that one place is Submission.respond()
+    # It also only does # of solves based unlocks. Time based unlocks are done in run_updates
     def unlock_hints(self):
         num_solved = self.solved.count()
         plans = self.hunt.hintunlockplan_set
@@ -497,8 +515,12 @@ class Submission(models.Model):
             if(not self.puzzle.hunt.is_public):
                 if(self.puzzle not in self.team.solved.all()):
                     self.create_solve()
-                    self.team.unlock_puzzles()
-                    self.team.unlock_hints()
+                    t = self.team
+                    t.num_unlock_points = models.F('num_unlock_points') + self.puzzle.points_value
+                    t.save()
+                    t.refresh_from_db()
+                    t.unlock_puzzles()
+                    t.unlock_hints()  # The one and only place to call unlock hints
 
         # Check against regexes
         for resp in self.puzzle.response_set.all():
