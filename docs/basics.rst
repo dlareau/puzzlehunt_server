@@ -48,7 +48,7 @@ The Apache configuration for this project includes protection like this already.
 
 Database
 --------
-As noted in setup, the default database for this project is a MySQL database.
+As noted in setup, the default database for this project is a Postgres or MySQL database.
 After setup, the database should never need to be modified by hand,
 additions or deletions should be done from the online admin GUI or if absolutely necessary, from the Django interactive shell.
 Modifications to the table structure should only be done by modifying models.py
