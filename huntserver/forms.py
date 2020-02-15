@@ -105,13 +105,13 @@ class EmailForm(forms.Form):
 
 
 class HintRequestForm(forms.Form):
-    request = forms.CharField(max_length=400, label='Hint Request Text', widget=forms.Textarea,
+    request = forms.CharField(max_length=1000, label='Hint Request Text', widget=forms.Textarea,
                               help_text="Please describe your progress on the puzzle, and where "
-                                        "you feel you are stuck. Max length 400 characters.")
+                                        "you feel you are stuck. Max length 1000 characters.")
 
 
 class HintResponseForm(forms.Form):
-    response = forms.CharField(max_length=400, label='Hint Response Text',
+    response = forms.CharField(max_length=1000, label='Hint Response Text',
                                widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}),
-                               help_text="Max length 400 characters.")
+                               help_text="Max length 1000 characters.")
     hint_id = forms.CharField(label='hint_id', widget=forms.HiddenInput())

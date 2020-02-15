@@ -691,13 +691,13 @@ class Hint(models.Model):
         Team,
         on_delete=models.CASCADE,
         help_text="The team that requested the hint")
-    request = models.CharField(
-        max_length=400,
+    request = models.TextField(
+        max_length=1000,
         help_text="The text of the request for the hint")
     request_time = models.DateTimeField(
         help_text="Hint request time")
-    response = models.CharField(
-        max_length=400,
+    response = models.TextField(
+        max_length=1000,
         blank=True,
         help_text="The text of the response to the hint request")
     response_time = models.DateTimeField(
