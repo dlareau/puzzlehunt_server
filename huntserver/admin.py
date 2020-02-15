@@ -57,9 +57,14 @@ class HuntAdminForm(forms.ModelForm):
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
     inlines = (HintUnlockPLanInline,)
-    fields = ['hunt_name', 'hunt_number', 'is_current_hunt', 'team_size', 'location',
-              ('start_date', 'display_start_date'), ('end_date', 'display_end_date'),
-              'resource_link', 'points_per_minute', 'extra_data', 'template', 'hint_lockout']
+    fieldsets = (
+        ('Basic Info', {'fields': ('hunt_name', 'hunt_number', 'team_size', 'location',
+                        ('start_date', 'display_start_date'), ('end_date', 'display_end_date'),
+                        'is_current_hunt')}),
+        ('Hunt Behaviour', {'fields': ('points_per_minute', 'hint_lockout')}),
+        ('Resources/Template', {'fields': ('resource_link', 'extra_data', 'template')}),
+    )
+
     list_display = ['hunt_name', 'team_size', 'start_date', 'is_current_hunt']
 
 
@@ -190,7 +195,7 @@ class PuzzleAdmin(admin.ModelAdmin):
     radio_fields = {"unlock_type": admin.VERTICAL}
     fieldsets = (
         (None, {
-            'fields': ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
+            'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'is_meta',
                        'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
                        'extra_data', 'unlock_type')
         }),

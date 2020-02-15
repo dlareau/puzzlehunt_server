@@ -24,3 +24,7 @@ td.original p {
 	padding-bottom: 0px;
 	margin-bottom: 15px;
 }
+
+.field-is_current_hunt {
+	margin-top: -20px;
+}

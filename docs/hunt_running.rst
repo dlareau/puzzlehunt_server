@@ -3,28 +3,45 @@ How to Run a Hunt
 
 So you want to run a puzzlehunt...
 
-Below are all of the steps you should need to take to run an already created puzzlehunt:
+Below are all of the steps you should need to take to run an already created
+puzzlehunt:
 
 Download Puzzles
 ================
 
-Before anybody can start playing your hunt, you have to download the puzzles. Head over to ``{server URL}/staff/management/``, and click "Puzzles" button next to your hunt. It will download all of the puzzles, and it take a few minutes, be patient.
+Before anybody can start playing your hunt, you have to download the puzzles.
+Sign into the staff part of the website located at ``{server URL}/staff`` and
+head over to the "Management" page located under the "Other Staff Pages" sidebar
+header. From there, click the "Puzzles" button next to the current hunt, which
+will download all of the puzzles. It take a few minutes, be patient.
 
-That should just work, if it doesn't, check your links, check your PDF accessibility and try again. (if you really think it is a bug, feel free to submit an issue)
+That should just work, if it doesn't, check your links, check your PDF
+accessibility and try again. (if you really think it is a bug, feel free to
+submit an issue)
+
+If any individual puzzle fails to download or you just want to redownload a
+single puzzle for some reason, you can un-collapse the hunt and click the
+download buttons for individual puzzles.
 
 Playtester Setup
 ================
 
-You probably want people to test your hunt before the actual event. This is easy using the puzzlehunt server. Just have the team of playtesters sign up like normal, then navigate to ``{server URL}/admin/huntserver/team/``, find the team, check the "Playtester" checkbox on their edit page, and save the team. They will then have access to the puzzlehunt as if it was open to them. 
+You probably want people to test your hunt before the actual event. This is easy
+using the puzzlehunt server. Just have the team of playtesters sign up like
+normal, then navigate to the "Teams" page on the sidebar, find the team,
+check the "Playtester" checkbox on their edit page, and save the team. They will
+then have access to the puzzlehunt as if it was open to them. 
 
-Note: To mimic the exact puzzle experience, they will only have access to puzzles that are unlocked for them, so make sure to head over to the progress page and make sure to unlock their starting puzzles. 
- 
-Like any other team, their progress will be visible on the progress page, their submissions on the queue page, and their messages on the chat page. 
+.. Note:: TODO: Note about how playtesters unlock puzzles like normal teams and
+    all of their interactions shows up on the normal pages
 
 Hunt Start
 ==========
 
-Okay, the hunt is almost ready to happen, you've downloaded all the puzzles, you've had people playtest the hunt, and now you're ready to turn it over to the public. Below is a short checklist of items to consider before and during the first few minutes of the event.
+Okay, the hunt is almost ready to happen, you've downloaded all the puzzles,
+you've had people playtest the hunt, and now you're ready to turn it over to the
+public. Below is a short checklist of items to consider before and during the
+first few minutes of the event.
 
 Before the hunt:
   - [ ] *Make sure the hunt start time is accurate*
@@ -33,8 +50,10 @@ Before the hunt:
   - [ ] Ensure all teams have room assignments
 
 Start of the hunt:
-  - [ ] When you want to release the puzzles, click "Release Initial Puzzles" from the management page
-  - [ ] Ensure that all teams show puzzles as unlocked on the progress page (may take a moment to update)
+  - [ ] When you want to release the puzzles, click "Release Initial Puzzles"
+  from the management page
+  - [ ] Ensure that all teams show puzzles as unlocked on the progress page (may
+  take a moment to update)
   - [ ] Have someone watching each of the staff pages (see below)
 
 Staff Pages / During the Hunt

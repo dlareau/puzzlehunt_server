@@ -6,15 +6,20 @@
 Welcome to PuzzlehuntCMU's Server documentation!
 ================================================
 
+If you're here as a user, start with the "How to Create a Hunt" and "How to Run
+a Hunt" sections. If you are here as a developer, start with the "Setup" and
+"Basics" sections.
+
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
+   hunt_creation
+   hunt_running
    setup
    basics
    models
    views
-   hunt_creation
-   hunt_running
    changelog
 
 Contribute
