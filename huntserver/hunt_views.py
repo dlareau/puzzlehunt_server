@@ -78,7 +78,7 @@ def hunt(request, hunt_num):
     if (hunt.is_public or request.user.is_staff):
         puzzle_list = hunt.puzzle_set.all()
 
-    elif(team and team.is_playtester_team):
+    elif(team and team.is_playtester_team and team.playtest_started):
         puzzle_list = team.unlocked.filter(hunt=hunt)
 
     # Hunt has not yet started
@@ -297,7 +297,7 @@ def puzzle_hint(request, puzzle_id):
 
     if request.method == 'POST':
         # Can't request a hint if there aren't any left
-        if(team.num_available_hints == 0):
+        if(team.num_available_hints <= 0):
             return HttpResponseForbidden()
 
         form = HintRequestForm(request.POST)

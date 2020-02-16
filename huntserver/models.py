@@ -315,6 +315,14 @@ class Team(models.Model):
     playtester = models.BooleanField(
         default=False,
         help_text="A boolean to indicate if the team is a playtest team and will get early access")
+    playtest_start_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The date/time at which a hunt will become visible to registered users")
+    playtest_end_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The date/time at which a hunt will be archived and available to the public")
     last_seen_message = models.IntegerField(
         default=0)
     last_received_message = models.IntegerField(
@@ -330,6 +338,25 @@ class Team(models.Model):
     def is_playtester_team(self):
         """ A boolean indicating whether or not the team is a playtesting team """
         return self.playtester
+
+    @property
+    def playtest_started(self):
+        """ A boolean indicating whether or not the team is currently allowed to be playtesting """
+        if(self.playtest_start_date is None and self.playtest_end_date is None):
+            return False
+        return (timezone.now() >= self.playtest_start_date)
+
+    @property
+    def playtest_over(self):
+        """ A boolean indicating whether or not the team's playtest slot has passed """
+        if(self.playtest_start_date is None and self.playtest_end_date is None):
+            return False
+        return timezone.now() >= self.playtest_end_date
+
+    @property
+    def playtest_happening(self):
+        """ A boolean indicating whether or not the team's playtest slot has passed """
+        return self.playtest_started and not self.playtest_over
 
     @property
     def is_normal_team(self):
