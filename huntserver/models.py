@@ -366,7 +366,10 @@ class Team(models.Model):
     @property
     def short_name(self):
         """ Team name shortened to 30 characters for more consistent display """
-        return self.team_name[:30]
+        if(len(self.team_name) > 30):
+            return self.team_name[:30] + "..."
+        else:
+            return self.team_name
 
     @property
     def size(self):
