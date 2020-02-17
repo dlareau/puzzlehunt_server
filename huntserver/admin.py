@@ -70,6 +70,7 @@ class HuntAdmin(admin.ModelAdmin):
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = [short_team_name, 'short_message']
+    search_fields = ['text']
 
     def short_message(self, message):
         return truncatechars(message.text, 60)
@@ -188,6 +189,7 @@ class PuzzleAdmin(admin.ModelAdmin):
     form = PuzzleAdminForm
 
     list_filter = ('hunt',)
+    search_fields = ['puzzle_id', 'puzzle_name']
     list_display = ['combined_id', 'puzzle_name', 'hunt', 'is_meta']
     list_display_links = ['combined_id', 'puzzle_name']
     ordering = ['-hunt', 'puzzle_number']
@@ -217,6 +219,7 @@ class PuzzleAdmin(admin.ModelAdmin):
 
 class ResponseAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'puzzle_just_name']
+    search_fields = ['regex', 'text']
     ordering = ['-puzzle']
 
     def puzzle_just_name(self, response):
@@ -233,6 +236,7 @@ class SolveAdmin(admin.ModelAdmin):
 
 
 class SubmissionAdmin(admin.ModelAdmin):
+    search_fields = ['submission_text']
     list_display = ['submission_text', short_team_name, 'submission_time']
 
 
@@ -272,6 +276,7 @@ class TeamAdminForm(forms.ModelForm):
 
 class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
+    search_fields = ['team_name']
     list_display = ['short_team_name', 'location', 'hunt', 'playtester']
     list_filter = ['hunt']
 
