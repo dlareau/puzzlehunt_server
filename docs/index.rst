@@ -20,7 +20,8 @@ a Hunt" sections. If you are here as a developer, start with the "Setup" and
    basics
    models
    views
-   changelog
+
+:doc:`Changelog Here <changelog>`
 
 Contribute
 ----------
