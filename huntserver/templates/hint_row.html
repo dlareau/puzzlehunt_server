@@ -5,7 +5,11 @@
             <tr>
                 <td width="70px">Request</td>
                 <td width="100px">{{ hint.request_time|time:"h:i a" }}</td>
-                <td>{{ hint.request }}</td>
+                <td>
+                    <b>Puzzle: {{hint.puzzle.puzzle_name}} | Team: {{hint.team.short_name}}</b>
+                    <br>
+                    {{ hint.request }}
+                </td>
             </tr>
             <tr>
                 <td width="70px">Response</td>
