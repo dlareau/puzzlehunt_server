@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def login_selection(request):
-    """ A mostly static view to render the login selection. Next url parameter is conserved. """
+    """ A mostly static view to render the login selection. Next url parameter is preserved. """
 
     if 'next' in request.GET:
         context = {'next': request.GET['next']}
@@ -132,7 +132,7 @@ def shib_login(request):
     login(request, user)
     logger.info("Shibboleth user logged in: %s" % (str(user)))
 
-    # Redirect if nessecary
+    # Redirect if necessary
     if not redirect_url or '//' in redirect_url or ' ' in redirect_url:
         redirect_url = settings.LOGIN_REDIRECT_URL
     return redirect(redirect_url)

@@ -118,7 +118,7 @@ def current_hunt(request):
 
 def prepuzzle(request, prepuzzle_num):
     """
-    A view to handle answer submissions via POST and render the basic prepuzzle page rendering.
+    A view to handle answer submissions via POST and render the prepuzzle's template.
     """
 
     puzzle = Prepuzzle.objects.get(pk=prepuzzle_num)

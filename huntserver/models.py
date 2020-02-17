@@ -62,10 +62,8 @@ class Hunt(models.Model):
         default=timezone.now,
         help_text="The last time that the periodic update management command was ran")
 
-    # A bit of custom logic in clean and save to ensure exactly one hunt's
-    # is_current_hunt is true at any time. It makes sure you can never un-set the
-    # value, and setting it anywhere else unsets all others.
     def clean(self, *args, **kwargs):
+        """ Overrides the standard clean method to ensure that only one hunt is the current hunt """
         if(not self.is_current_hunt):
             try:
                 old_instance = Hunt.objects.get(pk=self.pk)
@@ -78,6 +76,7 @@ class Hunt(models.Model):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
+        """ Overrides the standard save method to ensure that only one hunt is the current hunt """
         self.full_clean()
         if self.is_current_hunt:
             Hunt.objects.filter(is_current_hunt=True).update(is_current_hunt=False)
@@ -105,7 +104,7 @@ class Hunt(models.Model):
 
     @property
     def in_reg_lockdown(self):
-        """ A boolean indicating whether or not today is the day of the hunt """
+        """ A boolean indicating whether or not registration has locked for this hunt """
         return (self.start_date - timezone.now()).days <= settings.HUNT_REGISTRATION_LOCKOUT
 
     @property
@@ -120,10 +119,12 @@ class Hunt(models.Model):
 
     @property
     def real_teams(self):
+        """ A queryset of all non-dummy teams in the hunt """
         return self.team_set.exclude(location="DUMMY").all()
 
     @property
     def dummy_team(self):
+        """ The dummy team for the hunt """
         try:
             team = self.team_set.get(location="DUMMY")
         except Team.DoesNotExist:
@@ -137,8 +138,8 @@ class Hunt(models.Model):
         else:
             return self.hunt_name
 
-    # Takes a user and a hunt and returns either the user's team for that hunt or None
     def team_from_user(self, user):
+        """ Takes a user and a hunt and returns either the user's team for that hunt or None """
         if(not user.is_authenticated):
             return None
         teams = get_object_or_404(Person, user=user).teams.filter(hunt=self)
@@ -324,9 +325,11 @@ class Team(models.Model):
         blank=True,
         help_text="The date/time at which a hunt will be archived and available to the public")
     last_seen_message = models.IntegerField(
-        default=0)
+        default=0,
+        help_text="The PK of the last message the team has seen")
     last_received_message = models.IntegerField(
-        default=0)
+        default=0,
+        help_text="The PK of the last message the team has received")
     num_available_hints = models.IntegerField(
         default=0,
         help_text="The number of hints the team has available to use")
@@ -355,7 +358,7 @@ class Team(models.Model):
 
     @property
     def playtest_happening(self):
-        """ A boolean indicating whether or not the team's playtest slot has passed """
+        """ A boolean indicating whether or not the team's playtest slot is currently happening """
         return self.playtest_started and not self.playtest_over
 
     @property
@@ -373,13 +376,16 @@ class Team(models.Model):
 
     @property
     def size(self):
+        """ The number of people on the team """
         return self.person_set.count()
 
     @property
     def has_waiting_messages(self):
+        """ A boolean indicating whether or not the team has waiting chat messages """
         return max(self.last_received_message - self.last_seen_message, 0)
 
     def hints_open_for_puzzle(self, puzzle):
+        """ Takes a puzzle and returns whether or not the team may use hints on the puzzle """
         if(self.num_available_hints > 0 or self.hint_set.count() > 0):
             try:
                 unlock = Unlock.objects.get(team=self, puzzle=puzzle)
@@ -391,6 +397,7 @@ class Team(models.Model):
             return False
 
     def unlock_puzzles(self):
+        """ Unlocks all puzzles a team is currently supposed to have unlocked """
         puzzles = self.hunt.puzzle_set.all().order_by('puzzle_number')
         numbers = []
 
@@ -426,10 +433,11 @@ class Team(models.Model):
                             str(puzzle.puzzle_id)))
                 Unlock.objects.create(team=self, puzzle=puzzle, time=timezone.now())
 
-    # The way this works currently sucks, it should only be called once per solve
-    # Right now that one place is Submission.respond()
-    # It also only does # of solves based unlocks. Time based unlocks are done in run_updates
     def unlock_hints(self):
+        """ Gives teams the appropriate number of hints based on "Solves" HintUnlockPlans """
+        # The way this works currently sucks, it should only be called once per solve
+        # Right now that one place is Submission.respond()
+        # It also only does # of solves based unlocks. Time based unlocks are done in run_updates
         num_solved = self.solved.count()
         plans = self.hunt.hintunlockplan_set
         num_hints = plans.filter(unlock_type=HintUnlockPlan.SOLVES_UNLOCK,
@@ -438,6 +446,7 @@ class Team(models.Model):
         self.save()
 
     def reset(self):
+        """ Resets/deletes all of the team's progress """
         self.unlocked.clear()
         self.unlock_set.all().delete()
         self.solved.clear()
@@ -524,13 +533,16 @@ class Submission(models.Model):
 
     @property
     def convert_markdown_response(self):
+        """ The response with all markdown links converted to HTML links """
         return re.sub(r'\[(.*?)\]\((.*?)\)', '<a href="\\2">\\1</a>', self.response_text)
 
     def save(self, *args, **kwargs):
+        """ Overrides the default save function to update the modified date on save """
         self.modified_date = timezone.now()
         super(Submission, self).save(*args, **kwargs)
 
     def create_solve(self):
+        """ Creates a solve based on this submission """
         Solve.objects.create(puzzle=self.puzzle, team=self.team, submission=self)
         logger.info("Team %s correctly solved puzzle %s" % (str(self.team.team_name),
                                                             str(self.puzzle.puzzle_id)))
@@ -539,6 +551,8 @@ class Submission(models.Model):
     # Returning an empty string means that huntstaff should respond via the queue
     # Order of response importance: Regex, Defaults, Staff response.
     def respond(self):
+        """ Takes the submission's text and uses various methods to craft and populate a response.
+            If the response is correct a solve is created and the correct puzzles are unlocked """
         # Compare against correct answer
         if(self.is_correct):
             # Make sure we don't have duplicate or after hunt submission objects
@@ -571,6 +585,7 @@ class Submission(models.Model):
         self.save()
 
     def update_response(self, text):
+        """ Updates the response with the given text """
         self.response_text = text
         self.modified_date = timezone.now()
         self.save()
@@ -633,6 +648,7 @@ class Unlock(models.Model):
         unique_together = ('puzzle', 'team',)
 
     def serialize_for_ajax(self):
+        """ Serializes the puzzle, team, and status fields for ajax transmission """
         message = dict()
         message['puzzle'] = self.puzzle.serialize_for_ajax()
         message['team_pk'] = self.team.pk
@@ -776,6 +792,7 @@ class HintUnlockPlan(models.Model):
         help_text="Number of times this Unlock Plan has given a hint")
 
     def reset_plan(self):
+        """ Resets the HintUnlockPlan """
         self.num_triggered = 0
 
     def __str__(self):
@@ -783,6 +800,7 @@ class HintUnlockPlan(models.Model):
 
 
 class OverwriteStorage(FileSystemStorage):
+    """ A custom storage class that just overwrites existing files rather than erroring """
     def get_available_name(self, name):
         # If the filename already exists, remove it as if it was a true file system
         if self.exists(name):

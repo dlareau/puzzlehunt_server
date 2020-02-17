@@ -619,7 +619,7 @@ def staff_hints_control(request):
 @staff_member_required
 def emails(request):
     """
-    A view to send emails out to hunt participants upon recieveing a valid post request as well as
+    A view to send emails out to hunt participants upon receiving a valid post request as well as
     rendering the staff email form page
     """
 
