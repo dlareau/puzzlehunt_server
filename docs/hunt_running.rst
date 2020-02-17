@@ -81,7 +81,7 @@ Chat Page
 The chat page allows staff to chat with teams during the hunt. Every team in the
 hunt has a button on the lefthand side that will bring up the chat box for that
 team. The currently selected team will be shown in blue, and teams with unread
-messages will be shown in red. 
+messages will be shown in red.
 
 .. Attention:: Due to the technical limitations of the server, only messages
    that have arrived while the chat page is open will cause the teams' name to
@@ -97,8 +97,9 @@ Hints Page
 
 The hints page allows you to see hints that teams have requested and respond to
 them. Hints will appear one on top of another just like submissions on the queue
-page. Similarly to the queue page, there are team and puzzle filter boxes at the
-top of the page. 
+page. In addition to the puzzle and team filters like the ones on the queue
+page, the hint page also has a "Filter by Status" dropdown that lets you view
+only the answered or unanswered hints.
 
 Each hint that comes in will start with a space for you to type a response and
 hit submit. After hitting submit the response is sent to the team, but responses
@@ -109,7 +110,7 @@ Finally, there is a button at the top left of the page titled "Show/Hide hint
 counts". Clicking this button will bring up a list of all of the teams and the
 number of hints they currently have available to them. Clicking the plus and
 minus buttons next to the number of available hints will give or take away
-available hints from the team. 
+available hints from the team.
 
 .. Note:: There is a very small chance that the team naturally gains a hint in
    same time period that you click to give them a hint. The counter will tick up
@@ -119,7 +120,7 @@ Management Page
 ---------------
 
 The first of the situational pages, the management page allows you to manage the
-resources and the overall state of the hunt. 
+resources and the overall state of the hunt.
 
 The top portion of the page is list of hunts, one hunt per row. Each row has 3
 buttons:
@@ -171,7 +172,7 @@ Email Page
 
 The email page allows hunt staff to send an email out to all people registered
 for the hunt. To send an email, simply enter a subject, a body and hit send
-email. 
+email.
 
 If you want more customization or formatting than is available from the two
 simple textboxes, you can click the button at the bottom of the page to show the
@@ -216,7 +217,7 @@ using the puzzlehunt server. Just have the team of playtesters sign up like
 normal, then navigate to the "Teams" page on the sidebar, find the team,
 check the "Playtester" checkbox on their edit page, fill in the playtest start
 and end dates and save the team. They will then have access to the puzzlehunt as
-if it was open to them during the given dates. 
+if it was open to them during the given dates.
 
 .. Attention:: Playtest start and end dates are a new required part of having a
    team playtest as of version 4.0 due to the number of time based features now

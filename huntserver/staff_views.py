@@ -531,6 +531,7 @@ def staff_hints_text(request):
     else:
         page_num = request.GET.get("page_num")
         team_id = request.GET.get("team_id")
+        hint_status = request.GET.get("hint_status")
         puzzle_id = request.GET.get("puzzle_id")
         hunt = Hunt.objects.get(is_current_hunt=True)
         hints = Hint.objects.filter(puzzle__hunt=hunt)
@@ -543,6 +544,12 @@ def staff_hints_text(request):
             puzzle_id = int(puzzle_id)
             hints = hints.filter(puzzle__pk=puzzle_id)
             arg_string = arg_string + ("&puzzle_id=%s" % puzzle_id)
+        if(hint_status):
+            if(hint_status == "answered"):
+                hints = hints.exclude(response="")
+            elif(hint_status == "unanswered"):
+                hints = hints.filter(response="")
+            arg_string = arg_string + ("&hint_status=%s" % hint_status)
         hints = hints.select_related('team', 'puzzle').order_by('-pk')
         pages = Paginator(hints, 10)
         try:
@@ -569,7 +576,8 @@ def staff_hints_text(request):
         return HttpResponse(json.dumps(context))
     else:
         context = {'page_info': hints, 'hint_list': hint_list,  'arg_string': arg_string,
-                   'last_date': last_date, 'hunt': hunt, 'puzzle_id': puzzle_id, 'team_id': team_id}
+                   'last_date': last_date, 'hunt': hunt, 'puzzle_id': puzzle_id, 'team_id': team_id,
+                   'hint_status': hint_status}
         return render(request, 'staff_hints.html', add_apps_to_context(context, request))
 
 
