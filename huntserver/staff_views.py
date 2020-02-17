@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.contrib import messages
 from django.db.models import F
 import itertools
 import json
@@ -460,22 +461,26 @@ def control(request):
         if(request.POST["action"] == "initial"):
             for team in teams:
                 team.unlock_puzzles()
+            messages.success(request, "Initial puzzles released")
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "reset"):
             for team in teams:
                 team.reset()
+            messages.success(request, "Progress reset")
             return redirect('huntserver:hunt_management')
 
         if(request.POST["action"] == "getpuzzles"):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
-                puzzles = Puzzle.objects.filter(puzzle_id=int(request.POST["puzzle_id"]))
+                puzzles = Puzzle.objects.filter(puzzle_id=request.POST["puzzle_id"])
                 for puzzle in puzzles:
                     download_puzzle(puzzle)
+                messages.success(request, "Puzzle downloaded")
 
             elif("hunt_number" in request.POST and request.POST["hunt_number"]):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
                 for puzzle in hunt.puzzle_set.all():
                     download_puzzle(puzzle)
+                messages.success(request, "Puzzles downloaded")
 
             return redirect('huntserver:hunt_management')
 
@@ -484,6 +489,7 @@ def control(request):
                 puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
                 directory = settings.MEDIA_ROOT + "prepuzzles"
                 download_zip(directory, str(puzzle.pk), puzzle.resource_link)
+                messages.success(request, "Prepuzzle downloaded")
 
             return redirect('huntserver:hunt_management')
 
@@ -492,6 +498,7 @@ def control(request):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
                 directory = settings.MEDIA_ROOT + "hunt"
                 download_zip(directory, str(hunt.hunt_number), hunt.resource_link)
+                messages.success(request, "Hunt resources downloaded")
 
             return redirect('huntserver:hunt_management')
 
@@ -499,6 +506,7 @@ def control(request):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_number')))
             new_curr.is_current_hunt = True
             new_curr.save()
+            messages.success(request, "Set new current hunt")
             return redirect('huntserver:hunt_management')
 
         else:

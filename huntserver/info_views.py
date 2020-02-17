@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.contrib import messages
 import random
 import re
 
@@ -40,11 +41,10 @@ def registration(request):
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
     team = curr_hunt.team_from_user(request.user)
-    error = ""
     if(request.method == 'POST' and "form_type" in request.POST):
         if(request.POST["form_type"] == "new_team" and team is None):
             if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
-                error = "The team name you have provided already exists."
+                messages.error(request, "The team name you have provided already exists.")
             elif(re.match(".*[A-Za-z0-9].*", request.POST.get("team_name"))):
                 join_code = ''.join(random.choice("ACDEFGHJKMNPRSTUVWXYZ2345679") for _ in range(5))
                 team = Team.objects.create(team_name=request.POST.get("team_name"), hunt=curr_hunt,
@@ -53,14 +53,15 @@ def registration(request):
                 request.user.person.teams.add(team)
                 logger.info("User %s created team %s" % (str(request.user), str(team)))
             else:
-                error = "Your team name must contain at least one alphanumeric character."
+                messages.error(request,
+                               "Your team name must contain at least one alphanumeric character.")
         elif(request.POST["form_type"] == "join_team" and team is None):
             team = curr_hunt.team_set.get(team_name=request.POST.get("team_name"))
             if(len(team.person_set.all()) >= team.hunt.team_size):
-                error = "The team you have tried to join is already full."
+                messages.error(request, "The team you have tried to join is already full.")
                 team = None
             elif(team.join_code.lower() != request.POST.get("join_code").lower()):
-                error = "The team join code you have entered is incorrect."
+                messages.error(request, "The team join code you have entered is incorrect.")
                 team = None
             else:
                 request.user.person.teams.add(team)
@@ -72,21 +73,25 @@ def registration(request):
                 logger.info("Team %s was deleted because it was empty." % (str(team)))
                 team.delete()
             team = None
+            messages.success(request, "You have successfully left the team.")
         elif(request.POST["form_type"] == "new_location" and team is not None):
-            # TODO: add success message
             old_location = team.location
             team.location = request.POST.get("team_location")
             team.save()
             logger.info("User %s changed the location for team %s from %s to %s" %
                         (str(request.user), str(team.team_name), old_location, team.location))
+            messages.success(request, "Location successfully updated")
         elif(request.POST["form_type"] == "new_name" and team is not None and
                 not team.hunt.in_reg_lockdown):
-            # TODO: add success message
-            old_name = team.team_name
-            team.team_name = request.POST.get("team_name")
-            team.save()
-            logger.info("User %s renamed team %s to %s" %
-                        (str(request.user), old_name, team.team_name))
+            if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):
+                messages.error(request, "The team name you have provided already exists.")
+            else:
+                old_name = team.team_name
+                team.team_name = request.POST.get("team_name")
+                team.save()
+                logger.info("User %s renamed team %s to %s" %
+                            (str(request.user), old_name, team.team_name))
+                messages.success(request, "Team name successfully updated")
 
     if(team is not None):
         return render(request, "registration.html",
@@ -94,7 +99,7 @@ def registration(request):
     else:
         teams = curr_hunt.real_teams
         return render(request, "registration.html",
-                      {'teams': teams, 'error': error, 'curr_hunt': curr_hunt})
+                      {'teams': teams, 'curr_hunt': curr_hunt})
 
 
 @login_required
@@ -107,11 +112,11 @@ def user_profile(request):
         if uf.is_valid() and pf.is_valid():
             uf.save()
             pf.save()
+            messages.success(request, "User information successfully updated.")
         else:
             context = {'user_form': uf, 'person_form': pf}
             return render(request, "user_profile.html", context)
     user_form = ShibUserForm(instance=request.user)
     person_form = PersonForm(instance=request.user.person)
     context = {'user_form': user_form, 'person_form': person_form}
-    # TODO: add success message
     return render(request, "user_profile.html", context)

@@ -71,13 +71,6 @@
   {% else %}
     </div>
     <div class="container no_outline">
-      {% if error %}
-        <div class="row">
-          <div class="container col-md-12">
-            Error: {{error}}
-          </div>
-        </div>
-      {% endif %}
       <div class="row">
         <div class="col-md-6">
           <div class="container col-md-12" style="height:350px">
@@ -121,7 +114,7 @@
               Select a team to join:
               <select class="form-control" name="team_name" style="width: 200px;">
                 {% for team in teams %}
-                  <option value="{{team.team_name}}">{{team.team_name}}</option>
+                  <option value="{{team.team_name}}">{{team.short_name}}</option>
                 {% endfor %}
               </select>
               <br>
