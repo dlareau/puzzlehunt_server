@@ -30,7 +30,15 @@
     </strong></p>
     {% if not curr_hunt.is_public %}
     <p align="center">
-    <a href="{% url 'huntserver:registration' %}"><strong>Register Now!</strong></a>
+      <a href="{% url 'huntserver:registration' %}">
+        <strong>
+          {% if team %}
+            View Registration
+          {% else %}
+            Register Now!
+          {% endif %}
+        </strong>
+      </a>
     </p>
     {% endif %}
   </div>

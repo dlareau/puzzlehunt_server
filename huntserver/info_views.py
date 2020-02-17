@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 def index(request):
     """ Main landing page view, mostly static with the exception of hunt info """
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    return render(request, "index.html", {'curr_hunt': curr_hunt})
+    team = curr_hunt.team_from_user(request.user)
+    return render(request, "index.html", {'curr_hunt': curr_hunt, 'team': team})
 
 
 def current_hunt_info(request):
