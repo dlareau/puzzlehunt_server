@@ -89,7 +89,7 @@ MEDIA_ROOT = "/media/"
 MEDIA_URL = '/media/'
 
 # Shibboleth settings
-USE_SHIBBOLETH = True
+USE_SHIBBOLETH = os.getenv("DJANGO_USE_SHIBBOLETH", default="False").lower() == "true"
 
 SHIB_ATTRIBUTE_MAP = {
     "Shib-Identity-Provider": (True, "idp"),

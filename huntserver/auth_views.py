@@ -65,7 +65,11 @@ def account_logout(request):
         additional_url = request.GET['next']
     else:
         additional_url = ""
-    return redirect("/Shibboleth.sso/Logout?next=https://" + request.get_host() + additional_url)
+    if(settings.USE_SHIBBOLETH):
+        next_url = "https://" + request.get_host() + additional_url
+        return redirect("/Shibboleth.sso/Logout?next=" + next_url)
+    else:
+        return index(request)
 
 
 def shib_login(request):
