@@ -1,21 +1,22 @@
 FROM debian:10
 
-RUN apt update
-RUN apt install -y apache2 gnupg curl ntp
+RUN apt-get update
+RUN apt-get install -y apache2 gnupg curl ntp
 RUN cd /tmp
 RUN curl --fail --remote-name https://pkg.switch.ch/switchaai/debian/dists/buster/main/binary-all/misc/switchaai-apt-source_1.0.0_all.deb
-RUN apt install ./switchaai-apt-source_1.0.0_all.deb
+RUN apt-get install -y ./switchaai-apt-source_1.0.0_all.deb
 RUN rm ./switchaai-apt-source_1.0.0_all.deb
-RUN apt update
-RUN apt install --install-recommends shibboleth
-RUN apt install libapache2-mod-xsendfile libapache2-mod-shib
+RUN apt-get update
+RUN apt-get install -y --install-recommends shibboleth
+RUN apt-get install -y libapache2-mod-xsendfile libapache2-mod-shib
 RUN a2enmod proxy proxy_http proxy_html xsendfile shib
 
 RUN rm /etc/apache2/sites-enabled/*
 
 COPY configs/puzzlehunt_apache.conf /etc/apache2/sites-available/puzzlehunt.conf
-COPY configs/certs/sp-cert.pem /etc/shibboleth/sp-cert.pem
-COPY configs/certs/sp-key.pem /etc/shibboleth/sp-key.pem
+COPY --chown=_shibd:_shibd configs/certs/sp-cert.pem /etc/shibboleth/sp-cert.pem
+COPY --chown=_shibd:_shibd configs/certs/sp-key.pem /etc/shibboleth/sp-key.pem
+RUN chmod 644 /etc/shibboleth/sp-*
 COPY configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
 
 RUN a2ensite puzzlehunt
@@ -23,5 +24,7 @@ RUN a2ensite puzzlehunt
 RUN mkdir -p /static
 RUN mkdir -p /media
 
-ENTRYPOINT ["/usr/sbin/apache2ctl"]
-CMD ["-D", "FOREGROUND"]
+COPY apacheShibForeground /usr/local/bin/
+RUN chmod +x /usr/local/bin/apacheShibForeground
+
+CMD ["/usr/local/bin/apacheShibForeground"]

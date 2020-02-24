@@ -14,3 +14,4 @@ setup.cfg
 /cover/
 .coverage
 debug.log
+/docker/configs/certs/
