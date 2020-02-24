@@ -200,7 +200,7 @@ class InfoTests(TestCase):
         post_context = {"form_type": "leave_team"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(message_from_response(response), "")
+        self.assertNotEqual(message_from_response(response), "")
         hunt = models.Hunt.objects.get(is_current_hunt=True)
         self.assertEqual(len(response.context['user'].person.teams.filter(hunt=hunt)), 0)
         self.assertEqual(len(models.Team.objects.get(team_name="Team2-3").person_set.all()), 2)
@@ -211,7 +211,7 @@ class InfoTests(TestCase):
         post_context = {"form_type": "leave_team"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(message_from_response(response), "")
+        self.assertNotEqual(message_from_response(response), "")
         self.assertEqual(len(response.context['user'].person.teams.filter(hunt=hunt)), 0)
 
     def test_registration_post_change_location(self):
@@ -478,7 +478,7 @@ class AuthTests(TestCase):
     def test_account_logout(self):
         "Test the account logout view"
         login(self, 'user1')
-        response = get_and_check_page(self, 'huntserver:account_logout', 302)
+        response = get_and_check_page(self, 'huntserver:account_logout', 200)
         login(self, 'user1')
         response = self.client.get(reverse('huntserver:account_logout'), {'next': '/'})
         self.assertEqual(response.status_code, 302)
