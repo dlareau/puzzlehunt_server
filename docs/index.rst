@@ -26,9 +26,9 @@ a Hunt" sections. If you are here as a developer, start with the "Setup" and
 Contribute
 ----------
 
-Source Code: http://www.github.com/flybye22/puzzlehunt_server
+Source Code: http://www.github.com/dlareau/puzzlehunt_server
 
-Issue Tracker: http://www.github.com/flybye22/puzzlehunt_server/issues
+Issue Tracker: http://www.github.com/dlareau/puzzlehunt_server/issues
 
 If you are having issues, please let us know.
 Email dlareau@cmu.edu
