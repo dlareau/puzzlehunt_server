@@ -53,6 +53,12 @@ def ajax_and_check_page(test, page, code, args={}):
     test.assertEqual(response.status_code, code)
     return response
 
+def message_from_response(response):
+    messages = list(response.context['messages'])
+    if(len(messages) > 0):
+        return str(messages[0])
+    else:
+        return ""
 
 def solve_puzzle_from_admin(test):
     test.client.logout()
@@ -140,7 +146,7 @@ class InfoTests(TestCase):
     def test_registration1(self):
         "Test the registration page when not logged in"
         response = get_and_check_page(self, 'huntserver:registration', 200)
-        self.assertEqual(response.context['error'], "")
+        self.assertEqual(message_from_response(response), "")
 
     def test_registration2(self):
         "Test the registration page when logged in and on a team"
@@ -153,7 +159,7 @@ class InfoTests(TestCase):
         "Test the registration page when logged in and not on a team"
         login(self, 'user6')
         response = get_and_check_page(self, 'huntserver:registration', 200)
-        self.assertEqual(response.context['error'], "")
+        self.assertEqual(message_from_response(response), "")
         self.assertTrue('teams' in response.context)
         for hunt in response.context['teams']:
             self.assertTrue(isinstance(hunt, models.Team))
@@ -194,7 +200,7 @@ class InfoTests(TestCase):
         post_context = {"form_type": "leave_team"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['error'], "")
+        self.assertEqual(message_from_response(response), "")
         hunt = models.Hunt.objects.get(is_current_hunt=True)
         self.assertEqual(len(response.context['user'].person.teams.filter(hunt=hunt)), 0)
         self.assertEqual(len(models.Team.objects.get(team_name="Team2-3").person_set.all()), 2)
@@ -205,7 +211,7 @@ class InfoTests(TestCase):
         post_context = {"form_type": "leave_team"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['error'], "")
+        self.assertEqual(message_from_response(response), "")
         self.assertEqual(len(response.context['user'].person.teams.filter(hunt=hunt)), 0)
 
     def test_registration_post_change_location(self):
@@ -240,31 +246,31 @@ class InfoTests(TestCase):
         post_context = {"form_type": "new_team", "team_name": "team2-2",
                         "need_room": "need_a_room"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
-        self.assertNotEqual(response.context['error'], "")
+        self.assertNotEqual(message_from_response(response), "")
         self.assertEqual(response.status_code, 200)
 
         post_context = {"form_type": "new_team", "team_name": "    ",
                         "need_room": "need_a_room"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
-        self.assertNotEqual(response.context['error'], "")
+        self.assertNotEqual(message_from_response(response), "")
         self.assertEqual(response.status_code, 200)
 
         post_context = {"form_type": "join_team", "team_name": "Team2-3",
                         "join_code": "JOIN5"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
-        self.assertNotEqual(response.context['error'], "")
+        self.assertNotEqual(message_from_response(response), "")
         self.assertEqual(response.status_code, 200)
 
         post_context = {"form_type": "join_team", "team_name": "Team2-2",
                         "join_code": "JOIN0"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
-        self.assertNotEqual(response.context['error'], "")
+        self.assertNotEqual(message_from_response(response), "")
         self.assertEqual(response.status_code, 200)
 
         post_context = {"form_type": "join_team", "team_name": "Team2-3",
                         "join_code": "JOIN6"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
-        self.assertNotEqual(response.context['error'], "")
+        self.assertNotEqual(message_from_response(response), "")
         self.assertEqual(response.status_code, 200)
 
     def test_user_profile(self):
