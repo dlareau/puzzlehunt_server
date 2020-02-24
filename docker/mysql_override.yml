@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_DATABASE: puzzlehunt_db
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+
+  app:
+    environment:
+      - DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@db/puzzlehunt_db
