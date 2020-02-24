@@ -4,3 +4,8 @@ services:
   web:
     build:
       dockerfile: apacheShibDockerfile
+    volumes:
+      - ./docker/configs/certs/:/etc/shibboleth/certs/
+  app:
+    environment:
+      - DJANGO_USE_SHIBBOLETH=True

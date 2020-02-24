@@ -1,6 +1,10 @@
 #!/bin/bash
 
 rm -f /etc/apache2/run/httpd.pid /var/lock/subsys/shibd
+cp /etc/shibboleth/certs/sp-* /etc/shibboleth/
+chmod 644 /etc/shibboleth/sp-cert.pem
+chmod 600 /etc/shibboleth/sp-key.pem
+chown _shibd:_shibd /etc/shibboleth/sp-*
 
 service shibd start
 

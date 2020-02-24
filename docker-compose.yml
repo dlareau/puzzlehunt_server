@@ -5,7 +5,7 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_DB: puzzlehunt_db
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
@@ -17,14 +17,10 @@ services:
         https_proxy:
         no_proxy:
     restart: always
-    command: gunicorn --workers=2 --bind=0.0.0.0:8000 puzzlehunt_server.wsgi:application
     volumes:
-      - .:/code
+#      - .:/code  # Enables live modification of django files
       - static:/static
       - media:/media
-
-    ports:
-      - "8000:8000"
     environment:
       - DJANGO_SECRET_KEY
       - DJANGO_ENABLE_DEBUG
@@ -32,7 +28,7 @@ services:
       - DJANGO_EMAIL_PASSWORD
       - DJANGO_USE_SHIBBOLETH
       - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
-      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/puzzlehunt_db
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
     depends_on:
       - db
 
@@ -41,8 +37,11 @@ services:
     container_name: web_server
     build:
       context: ./docker/
-      # dockerfile: nginxDockerfile
       dockerfile: apacheDockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        no_proxy:
     depends_on:
       - app
     volumes:

@@ -1,17 +1,15 @@
 FROM debian:10
 
-RUN apt-get update
-RUN apt-get install -y apache2 libapache2-mod-xsendfile
-RUN a2enmod proxy proxy_http proxy_html xsendfile 
+RUN apt-get update && \
+    apt-get install -y apache2 libapache2-mod-xsendfile
 
-RUN rm /etc/apache2/sites-enabled/*
 
 COPY configs/puzzlehunt_apache.conf /etc/apache2/sites-available/puzzlehunt.conf
-
-RUN a2ensite puzzlehunt
-
-RUN mkdir -p /static
-RUN mkdir -p /media
+RUN rm /etc/apache2/sites-enabled/* && \
+    a2enmod proxy proxy_http proxy_html xsendfile && \
+    a2ensite puzzlehunt && \
+    mkdir -p /static && \
+    mkdir -p /media
 
 ENTRYPOINT ["/usr/sbin/apache2ctl"]
 CMD ["-D", "FOREGROUND"]
