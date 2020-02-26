@@ -7,7 +7,7 @@ chmod 600 /etc/shibboleth/sp-key.pem
 chown _shibd:_shibd /etc/shibboleth/sp-*
 
 service shibd start
-certbot --apache -n --agree-tos --staging --email dlareau@cmu.edu --domains puzzlehunt.club.cc.cmu.edu
+certbot --apache -n --agree-tos --staging --email $CONTACT_EMAIL --domains $DOMAIN
 a2enmod ssl
 service apache2 stop
 
