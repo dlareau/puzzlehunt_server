@@ -14,5 +14,6 @@ setup.cfg
 /cover/
 .coverage
 debug.log
-/docker/configs/certs/
+/docker/configs/ssl-certs/
+/docker/configs/shib-certs/
 *.env
