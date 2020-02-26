@@ -54,6 +54,8 @@ services:
     environment:
       - DOMAIN
       - CONTACT_EMAIL
+    args:
+      - DOMAIN=${DOMAIN}
     tty: true
 
 volumes:

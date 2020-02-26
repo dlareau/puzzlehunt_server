@@ -1,5 +1,7 @@
 FROM debian:10
 
+ARG DOMAIN
+
 # System setup
 RUN apt-get update && \
     apt-get install -y apache2 gnupg curl ntp && \
