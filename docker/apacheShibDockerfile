@@ -29,4 +29,6 @@ RUN rm /etc/apache2/sites-enabled/* && \
 COPY apacheShibForeground /usr/local/bin/
 RUN chmod +x /usr/local/bin/apacheShibForeground
 
+EXPOSE 80
+
 CMD ["/usr/local/bin/apacheShibForeground"]

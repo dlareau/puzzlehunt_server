@@ -63,6 +63,8 @@ def parse_attributes(META):
     for header, attr in list(settings.SHIB_ATTRIBUTE_MAP.items()):
         required, name = attr
         values = META.get(header, None)
+        if not values:
+            values = META.get("HTTP_" + (header.replace("-", "_")).upper(), None)
         value = None
         if values:
             # If multiple attributes releases just care about the 1st one

@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  db:
+    networks:
+      local:
+
+  app:
+    networks:
+      local:
+
+  web:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy-net"
+      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${PROJECT_NAME}.entrypoints=web"
+
+    networks:
+      local:
+      proxy-net:
+
+networks:
+  proxy-net:
+    external: true
+  local:

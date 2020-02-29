@@ -36,7 +36,6 @@ services:
 
   web:
     restart: always
-    container_name: web_server
     build:
       context: ./docker/
       dockerfile: apacheDockerfile
@@ -44,6 +43,7 @@ services:
         http_proxy:
         https_proxy:
         no_proxy:
+        DOMAIN: ${DOMAIN}
     depends_on:
       - app
     volumes:
@@ -54,8 +54,6 @@ services:
     environment:
       - DOMAIN
       - CONTACT_EMAIL
-    args:
-      - DOMAIN=${DOMAIN}
     tty: true
 
 volumes:
