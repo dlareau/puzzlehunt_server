@@ -24,6 +24,7 @@ services:
       - static:/static
       - media:/media
     environment:
+      - DOMAIN
       - DJANGO_SECRET_KEY
       - DJANGO_ENABLE_DEBUG
       - DJANGO_EMAIL_USER

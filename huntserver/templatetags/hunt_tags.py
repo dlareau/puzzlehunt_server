@@ -31,7 +31,7 @@ def shib_login_url(context, entityID, next_path):
         protocol = "https://"
     else:
         protocol = "http://"
-    shib_str = "https://puzzlehunt.club.cc.cmu.edu/Shibboleth.sso/Login"
+    shib_str = "https://" + settings.SHIB_DOMAIN + "/Shibboleth.sso/Login"
     entity_str = "entityID=" + entityID
     target_str = "target=" + protocol + context['request'].get_host() + "/shib/login"
     next_str = "next=" + next_path

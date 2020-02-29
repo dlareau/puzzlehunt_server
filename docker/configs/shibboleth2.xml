@@ -20,7 +20,7 @@
     -->
 
     <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
-    <ApplicationDefaults entityID="https://puzzlehunt.club.cc.cmu.edu/shibboleth"
+    <ApplicationDefaults entityID="https://REPLACE_DOMAIN_STR/shibboleth"
                          REMOTE_USER="eppn persistent-id targeted-id">
 
         <!--
@@ -34,8 +34,8 @@
         -->
         <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
                   checkAddress="false" handlerSSL="true"
-                  handlerURL="https://puzzlehunt.club.cc.cmu.edu/Shibboleth.sso" 
-                  cookieProps="; domain=puzzlehunt.club.cc.cmu.edu; path=/; secure">
+                  handlerURL="https://REPLACE_DOMAIN_STR/Shibboleth.sso"
+                  cookieProps="; domain=REPLACE_DOMAIN_STR; path=/; secure">
 	              
             <!--
             Configures SSO for a default IdP. To allow for >1 IdP, remove

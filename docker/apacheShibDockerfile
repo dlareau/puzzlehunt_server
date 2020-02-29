@@ -20,6 +20,7 @@ COPY configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
 COPY configs/puzzlehunt_apache_shib.conf /etc/apache2/sites-available/puzzlehunt.conf
 RUN rm /etc/apache2/sites-enabled/* && \
     sed -i -e "s/REPLACE_DOMAIN_STR/$DOMAIN/g" /etc/apache2/sites-available/puzzlehunt.conf && \
+    sed -i -e "s/REPLACE_DOMAIN_STR/$DOMAIN/g" /etc/shibboleth/shibboleth2.xml && \
     apt-get install -y libapache2-mod-xsendfile libapache2-mod-shib && \
     a2enmod proxy proxy_http proxy_html xsendfile shib && \
     a2ensite puzzlehunt && \
