@@ -15,6 +15,13 @@ services:
       - "traefik.docker.network=proxy-net"
       - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.${PROJECT_NAME}.entrypoints=web"
+      - "traefik.http.routers.${PROJECT_NAME}.service=${PROJECT_NAME}"
+      - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=80"
+      - "traefik.tcp.routers.${PROJECT_NAME}_secure.rule=HostSNI(`${DOMAIN}`)"
+      - "traefik.tcp.routers.${PROJECT_NAME}_secure.tls.passthrough=true"
+      - "traefik.tcp.routers.${PROJECT_NAME}_secure.entrypoints=web,websecure"
+      - "traefik.tcp.routers.${PROJECT_NAME}_secure.service=${PROJECT_NAME}_secure"
+      - "traefik.tcp.services.${PROJECT_NAME}_secure.loadbalancer.server.port=443"
 
     networks:
       local:
