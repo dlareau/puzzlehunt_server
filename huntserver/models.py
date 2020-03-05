@@ -63,9 +63,6 @@ class Hunt(models.Model):
     points_per_minute = models.IntegerField(
         default=0,
         help_text="The number of points granted per minute during the hunt")
-    last_update_time = models.DateTimeField(
-        default=timezone.now,
-        help_text="The last time that the periodic update management command was ran")
 
     def clean(self, *args, **kwargs):
         """ Overrides the standard clean method to ensure that only one hunt is the current hunt """

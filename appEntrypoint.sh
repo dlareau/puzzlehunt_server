@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start the first process
-python /code/manage.py run_huey &
+python /code/manage.py run_huey --quiet &
 status=$?
 if [ $status -ne 0 ]; then
   echo "Failed to start Huey: $status"
