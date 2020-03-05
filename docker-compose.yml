@@ -11,6 +11,12 @@ services:
     volumes:
       - ./docker/db_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - ./docker/redis_data:/data
+
   app:
     build:
       context: .

@@ -8,9 +8,12 @@ ENV DJANGO_SETTINGS_MODULE puzzlehunt_server.settings.env_settings
 RUN mkdir /code
 WORKDIR /code
 
-COPY requirements.txt ./
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+
 COPY . .
+COPY appEntrypoint.sh /appEntrypoint.sh
+RUN chmod +x /appEntrypoint.sh
 
 EXPOSE 8000
-CMD ["gunicorn", "--workers=2", "--bind=0.0.0.0:8000", "puzzlehunt_server.wsgi:application"]
+CMD ["/appEntrypoint.sh"]

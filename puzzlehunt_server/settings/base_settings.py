@@ -25,6 +25,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'huntserver',
     'crispy_forms',
+    'huey.contrib.djhuey',
 )
 
 
@@ -59,6 +60,29 @@ TEMPLATES = [
         },
     },
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "puzzlehunt"
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+
+HUEY = {
+    'connection': {
+        'host': 'redis',
+    },
+    'consumer': {
+        'workers': 2,
+    },
+}
+
 
 WSGI_APPLICATION = 'puzzlehunt_server.wsgi.application'
 

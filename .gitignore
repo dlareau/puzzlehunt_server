@@ -16,4 +16,5 @@ setup.cfg
 debug.log
 /docker/configs/ssl-certs/
 /docker/configs/shib-certs/
+/docker/redis_data/
 *.env
