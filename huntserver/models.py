@@ -25,6 +25,7 @@ class Hunt(models.Model):
         max_length=200,
         help_text="The name of the hunt as the public will see it")
     hunt_number = models.IntegerField(
+        db_index=True,
         unique=True,
         help_text="A number used internally for hunt sorting, must be unique")
     team_size = models.IntegerField()
@@ -172,6 +173,7 @@ class Puzzle(models.Model):
     puzzle_number = models.IntegerField(
         help_text="The number of the puzzle within the hunt, for sorting purposes")
     puzzle_id = models.CharField(
+        db_index=True,
         max_length=8,
         unique=True,  # hex only please
         help_text="A 3-5 character hex string that uniquely identifies the puzzle")
