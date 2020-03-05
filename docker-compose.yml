@@ -20,7 +20,7 @@ services:
         no_proxy:
     restart: always
     volumes:
-#      - .:/code  # Enables live modification of django files
+      - .:/code  # Enables live modification of django files
       - static:/static
       - media:/media
     environment:
@@ -32,6 +32,7 @@ services:
       - DJANGO_USE_SHIBBOLETH
       - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+      - ENABLE_DEBUG_TOOLBAR
     depends_on:
       - db
 
