@@ -21,11 +21,15 @@ time_zone = tz.gettz(settings.TIME_ZONE)
 class Hunt(models.Model):
     """ Base class for a hunt. Contains basic details about a puzzlehunt. """
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['hunt_number']),
+        ]
+
     hunt_name = models.CharField(
         max_length=200,
         help_text="The name of the hunt as the public will see it")
     hunt_number = models.IntegerField(
-        db_index=True,
         unique=True,
         help_text="A number used internally for hunt sorting, must be unique")
     team_size = models.IntegerField()
@@ -151,6 +155,11 @@ class Hunt(models.Model):
 class Puzzle(models.Model):
     """ A class representing a puzzle within a hunt """
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['puzzle_id']),
+        ]
+
     SOLVES_UNLOCK = 'SOL'
     POINTS_UNLOCK = 'POT'
     EITHER_UNLOCK = 'ETH'
@@ -173,7 +182,6 @@ class Puzzle(models.Model):
     puzzle_number = models.IntegerField(
         help_text="The number of the puzzle within the hunt, for sorting purposes")
     puzzle_id = models.CharField(
-        db_index=True,
         max_length=8,
         unique=True,  # hex only please
         help_text="A 3-5 character hex string that uniquely identifies the puzzle")
