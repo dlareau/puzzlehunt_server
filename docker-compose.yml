@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: postgres
+    image: postgres:12-alpine
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -12,7 +12,7 @@ services:
       - ./docker/db_data:/var/lib/postgresql/data
 
   redis:
-    image: redis
+    image: redis:5-alpine
     restart: always
     volumes:
       - ./docker/redis_data:/data
@@ -41,6 +41,7 @@ services:
       - ENABLE_DEBUG_TOOLBAR
     depends_on:
       - db
+      - redis
 
   web:
     restart: always
