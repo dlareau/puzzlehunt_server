@@ -7,6 +7,7 @@ sudo: required
 
 env:
   global:
+    - DB_NAME=puzzlehunt_db
     - DB_USER=hunt
     - DB_PASSWORD=test
     - DJANGO_SECRET_KEY=test_secret_key

@@ -211,8 +211,6 @@ class Puzzle(models.Model):
         max_length=200,
         blank=True,
         help_text="A misc. field for any extra data to be stored with the puzzle.")
-    num_pages = models.IntegerField(
-        help_text="Number of pages in the PDF for this puzzle. Set automatically upon download")
 
     # Unlocking:
     unlock_type = models.CharField(

@@ -323,7 +323,6 @@
 
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle1-1",
         "unlocks": [],
         "puzzle_number": 1,
@@ -338,7 +337,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle1-2",
         "unlocks": [3],
         "puzzle_number": 2,
@@ -353,7 +351,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle1-3",
         "unlocks": [],
         "puzzle_number": 3,
@@ -368,7 +365,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle2-1",
         "unlocks": [],
         "puzzle_number": 1,
@@ -383,7 +379,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle2-2",
         "unlocks": [6],
         "puzzle_number": 2,
@@ -398,7 +393,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle2-3",
         "unlocks": [],
         "puzzle_number": 3,
@@ -413,7 +407,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle3-1",
         "unlocks": [],
         "puzzle_number": 1,
@@ -428,7 +421,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle3-2",
         "unlocks": [],
         "puzzle_number": 2,
@@ -443,7 +435,6 @@
 },
 {
     "fields": {
-        "num_pages": 1,
         "puzzle_name": "Puzzle3-3",
         "unlocks": [9],
         "puzzle_number": 3,

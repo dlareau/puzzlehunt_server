@@ -209,8 +209,7 @@ def puzzle_view(request, puzzle_id):
             else:
                 response = "Invalid Submission"
                 is_correct = None
-            context = {'form': form, 'pages': list(range(puzzle.num_pages)),
-                       'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
+            context = {'form': form, 'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
                        'response': response, 'is_correct': is_correct}
             return render(request, 'puzzle.html', context)
 
@@ -278,9 +277,8 @@ def puzzle_view(request, puzzle_id):
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
             last_date = timezone.now().strftime(DT_FORMAT)
-        context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
-                   'submission_list': submissions, 'PROTECTED_URL': settings.PROTECTED_URL,
-                   'last_date': last_date, 'team': team}
+        context = {'form': form, 'submission_list': submissions,
+                   'PROTECTED_URL': settings.PROTECTED_URL, 'last_date': last_date, 'team': team}
         return render(request, 'puzzle.html', context)
 
 
@@ -352,8 +350,8 @@ def puzzle_hint(request, puzzle_id):
             last_date = last_hint.last_modified_time.strftime(DT_FORMAT)
         except Hint.DoesNotExist:
             last_date = timezone.now().strftime(DT_FORMAT)
-        context = {'form': form, 'pages': list(range(puzzle.num_pages)), 'puzzle': puzzle,
-                   'hint_list': hints, 'last_date': last_date, 'team': team}
+        context = {'form': form, 'puzzle': puzzle, 'hint_list': hints, 'last_date': last_date,
+                   'team': team}
         return render(request, 'puzzle_hint.html', context)
 
 

@@ -5,7 +5,6 @@ from huey import crontab
 from huey.contrib.djhuey import db_periodic_task
 from subprocess import call, STDOUT
 import os
-from PyPDF2 import PdfFileReader
 from django.core.cache import cache
 
 from .models import Hunt, HintUnlockPlan
@@ -46,20 +45,13 @@ def download_pdf(directory, filename, url):
     file_str = directory + "/" + filename + ".pdf"
     command_str = "wget {} -O {}".format(url, file_str)
     call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
-    with open(file_str, "rb") as f:
-        num_pages = PdfFileReader(f).getNumPages()
-    command_str = "convert -density 200 {} {}/{}.png".format(file_str, directory, filename)
-    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
     FNULL.close()
-    return num_pages
 
 
 def download_puzzle(puzzle):
     directory = settings.MEDIA_ROOT + "puzzles"
 
-    puzzle.num_pages = download_pdf(directory, str(puzzle.puzzle_id), puzzle.link)
-    puzzle.save()
-
+    download_pdf(directory, str(puzzle.puzzle_id), puzzle.link)
     download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
     download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id) + "_sol",
                  puzzle.solution_link)
@@ -109,11 +101,14 @@ def check_puzzles(hunt, new_points, teams):
 
 @db_periodic_task(crontab(minute='*/1'))
 def update_time_items():
-    hunt = Hunt.objects.get(is_current_hunt=True)
+    try:
+        hunt = Hunt.objects.get(is_current_hunt=True)
+    except Hunt.DoesNotExist:
+        return
 
     last_update_time = cache.get('last_update_time', timezone.now())
     last_update_time = last_update_time.replace(second=0, microsecond=0)
-    cache.set(timezone.now(), 30*60)
+    cache.set(timezone.now(), 30 * 60)
     diff_time = timezone.now().replace(second=0, microsecond=0) - last_update_time
     diff_minutes = diff_time.seconds / 60
 

@@ -92,6 +92,7 @@ PROTECTED_URL = '/protected/'
 LOGIN_URL = 'login_selection'
 
 # Random settings
+SILENCED_SYSTEM_CHECKS = ["urls.W005"] # silences admin url override warning
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 BOOTSTRAP_ADMIN_SIDEBAR_MENU = True

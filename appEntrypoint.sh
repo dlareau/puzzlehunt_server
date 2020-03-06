@@ -1,18 +1,25 @@
 #!/bin/bash
 
 # Start the first process
-python /code/manage.py run_huey --quiet &
-status=$?
-if [ $status -ne 0 ]; then
-  echo "Failed to start Huey: $status"
-  exit $status
-fi
-
-# Start the second process
 gunicorn --workers=2 --bind=0.0.0.0:8000 puzzlehunt_server.wsgi:application &
 status=$?
 if [ $status -ne 0 ]; then
   echo "Failed to start Gunicorn: $status"
+  exit $status
+fi
+
+python /code/manage.py migrate --no-input
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Failed to run migrations: $status"
+  exit $status
+fi
+
+# Start the second process
+python /code/manage.py run_huey --quiet &
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Failed to start Huey: $status"
   exit $status
 fi
 
