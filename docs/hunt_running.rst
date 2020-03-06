@@ -85,9 +85,9 @@ messages will be shown in red.
 
 .. Attention:: Due to the technical limitations of the server, only messages
    that have arrived while the chat page is open will cause the teams' name to
-   turn red, so try not to refresh the page too often after the hunt starts. Its
-   also not a bad idea to click around the teams every so often to make sure
-   something hasn't slipped through the cracks.
+   turn red, so try not to refresh the page too often after the hunt starts.
+   It's also not a bad idea to click around the teams every so often to make
+   sure something hasn't slipped through the cracks.
 
 It is possible to check the checkbox at the bottom to "Make the message an
 announcement". This will send the message to all teams in the hunt.
@@ -112,9 +112,9 @@ number of hints they currently have available to them. Clicking the plus and
 minus buttons next to the number of available hints will give or take away
 available hints from the team.
 
-.. Note:: There is a very small chance that the team naturally gains a hint in
-   same time period that you click to give them a hint. The counter will tick up
-   by two in that case, you probably didn't double click.
+.. Note:: There is a very small chance that the team will naturally gain a hint
+   in the same time period that you click to give them a hint. The counter will
+   tick up by two in that case, you probably didn't double click.
 
 Management Page
 ---------------
@@ -144,19 +144,19 @@ allows the downloading of resources for any chosen prepuzzle.
 Finally, there is a single button at the bottom of the page titled "Reset all
 progress". This button resets all team interaction that has happened so far with
 a hunt, all submissions, responses, unlocks, solves, hints, and chat messages
-are deleted. Normally only used once between playtesting and the start of the
-hunt.
+are deleted. This is normally only used once between playtesting and the start
+of the hunt.
 
 Info Page
 ---------
 
-The info page lists information about teams that are signed up for hunt and the
-people on them. Along the left is a list of all of the teams separated into 3
-categories: "Needs a room", "Has a room", and "Off Campus" with each team having
-a text box next to their name with their current location. You can bulk edit
-team locations, for example assigning rooms to "Need a room" teams, and then
-click the "Update Locations" button at the bottom to save all the edits for a
-certain section.
+The info page lists information about teams that are signed up for a hunt and
+the people on them. Along the left is a list of all of the teams separated into
+3 categories: "Needs a room", "Has a room", and "Off Campus" with each team
+having a text box next to their name with their current location. You can bulk
+edit team locations, for example assigning rooms to "Need a room" teams, and
+then click the "Update Locations" button at the bottom to save all the edits for
+a certain section.
 
 .. Note:: Teams are listed in signup order with the first team to sign up at the
    top so rooms can be assigned easily in sign up order.
@@ -199,11 +199,11 @@ Before anybody can start playing your hunt, you have to download the puzzles.
 Sign into the staff part of the website located at ``{server URL}/staff`` and
 head over to the "Management" page located under the "Other Staff Pages" sidebar
 header. From there, click the "Puzzles" button next to the current hunt, which
-will download all of the puzzles. It take a few minutes, be patient.
+will download all of the puzzles. It takes a few minutes, be patient.
 
-That should just work, if it doesn't, check your links, check your PDF
-accessibility and try again. (if you really think it is a bug, feel free to
-submit an issue)
+That should just work. If it doesn't, check your links and PDF accessibility and
+try again. (If you really think it is a bug, feel free to submit an issue on the
+github project)
 
 If any individual puzzle fails to download or you just want to re-download a
 single puzzle for some reason, remember that you can un-collapse the hunt and
@@ -214,7 +214,7 @@ Playtesting
 
 You probably want people to test your hunt before the actual event. This is easy
 using the puzzlehunt server. Just have the team of playtesters sign up like
-normal, then navigate to the "Teams" page on the sidebar, find the team,
+normal. Then navigate to the "Teams" page on the sidebar, find the team,
 check the "Playtester" checkbox on their edit page, fill in the playtest start
 and end dates and save the team. They will then have access to the puzzlehunt as
 if it was open to them during the given dates.
@@ -223,7 +223,7 @@ if it was open to them during the given dates.
    team playtest as of version 4.0 due to the number of time based features now
    available.
 
-All interactions with the playtest team should can be done as they normally
+All interactions with the playtest team should be done as they normally
 would be through the various staff pages described above. Things like the queue,
 the progress page, chat, puzzle unlocking, and hints should all work. The only
 feature currently not working for playtest teams is time released hints. If you
@@ -250,15 +250,12 @@ Before the hunt:
   - [ ] Ensure all puzzles have working PDFs and images
   - [ ] Ensure teams have been assigned rooms on the info page
 
-TODO: Fix: Ensure that all teams show puzzles as unlocked on the progress page 
-(now happening automatically)
-
 During the Hunt
 ---------------
 
 Hopefully your opening information session went well, the puzzles released
 flawlessly and people are now solving puzzles. Time to sit back and watch/make
-the magic happen. It is recommended to have open the progress, queue, chat and
+the magic happen. It is recommended to have the progress, queue, chat and
 hints pages open.
 
 With version 4.0, puzzles should now automatically release at the set hunt start
@@ -282,7 +279,7 @@ like telling them) that they can view their room assignments by clicking "View
 Registration" link on the front page.
 
 **What if I find a typo or other issue with a puzzle?**: Simply fix the puzzle,
-make sure the new version is uploaded to dropbox and click the download button
+make sure the new version is uploaded to Dropbox and click the download button
 for that puzzle from the management page.
 
 **What if I accidentally unlock a puzzle for a team I shouldn't have?:** You can

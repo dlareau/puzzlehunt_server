@@ -70,10 +70,10 @@ template field and then skip to "Hint Unlock Plans" below.
 
 Editing the Hunt Template
 -------------------------
-This is where we give the hunt it's look and feel. Before this point, navigating
+This is where we give the hunt its look and feel. Before this point, navigating
 to the hunt page would just give you a blank page. 
 
-Basic information
+Basic Information
 ^^^^^^^^^^^^^^^^^
 
 Everything typed into the "Template" form on the hunt editing page will be run
@@ -97,7 +97,7 @@ for use in the template:
 
 Since version 3.0, in order to reduce repository clutter, it is now against
 policy to commit files specific to a certain hunt to the repository. This means
-that you are no longer allowed load resource files directly onto the server.
+that you are no longer allowed to load resource files directly onto the server.
 
 To still allow the use of new static files in each hunt, there is now a field on
 each hunt's admin page for a resource URL. This URL should point to a publicly
@@ -111,7 +111,7 @@ resource directory. For example, putting the text
 ``{% hunt static %}myimage.png`` in the template would insert the URL to the
 file ``myimage.png``.
 
-Inheriting the base template
+Inheriting the Base Template
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is recommended to start your template out with the following code:
@@ -158,14 +158,14 @@ https://docs.djangoproject.com/en/2.2/ref/templates/language/#template-inheritan
    template to get nice features like the header bar, common style sheets,
    Google analytics, and graceful degradation when the hunt becomes public.
 
-Starter example
+Starter Example
 ^^^^^^^^^^^^^^^
 
 While you may now technically have all of the information you need, that
 doesn't mean you know what to do with it. Below is a simple example based one of
 our first hunts to use this server. It will show the puzzles, display the
-answer for any solved puzzles, and demonstrates how to insert a break a hunt
-into two rounds.
+answer for any solved puzzles, and demonstrates how to break a hunt into two
+rounds.
 
 .. code-block:: html
 
@@ -232,12 +232,12 @@ into two rounds.
   {% endblock content %}
 
 
-Template wrap up
+Template Wrap Up
 ^^^^^^^^^^^^^^^^
 
 That should be enough to get you started with template writing. Don't forget to
 download resources each time you update them and save often when editing the
-template as it won't save when if you close or leave the page for any reason.
+template as it won't save if you close or leave the page for any reason.
 
 .. Tip:: You can use ctrl-s/cmd-s to save the page and continue working 
 
@@ -246,7 +246,7 @@ Hint Unlock Plans
 -----------------
 
 The final section of the Hunt creation page is for determining if and when hints
-will automatically be become available to teams. If you do not want to use
+will automatically become available to teams. If you do not want to use
 automatic hints (or hints at all) in the current hunt, simply ignore this
 section. Manual hints can still be awarded from the "Hints" page under the
 "Other Staff Pages" sidebar header.
@@ -279,6 +279,11 @@ plans will trigger independently of each other.
    that the start date is actually when teams will start solving puzzles and not
    just when teams arrive for check in.
 
+.. Danger::
+   Changing a hint unlock plan after the hunt has started can have unexpected
+   results. Please take extra care to make sure that the hint plans are correct
+   before the hunt starts. 
+
 Hunt object creation wrap up
 ----------------------------
 
@@ -290,7 +295,7 @@ Create Puzzle Objects
 =====================
 
 Great, now we have a hunt template and we can view our hunt, but that's not good
-without any puzzles, so lets add some. 
+without any puzzles, so let's add some. 
 
 Start by going to the "Puzzles" section using the side navbar and clicking the
 blue "+" button in the upper right-hand corner to be brought to the puzzle
@@ -305,7 +310,7 @@ name and an answer.
 .. Tip:: Answers are not case sensitive
 
 Next, the puzzle must be given both a number and an ID. The number is for
-ordering withing the hunt, and controls the order of puzzle objects passed into
+ordering within the hunt, and controls the order of puzzle objects passed into
 the hunt template. The ID used as a unique identifier across all puzzles is used
 in the URL for the puzzle. 
 
@@ -344,11 +349,11 @@ Puzzle content is controlled by the following three links:
 "Resource link"
   The link to a publicly accessible ZIP file of the puzzle contents if the
   puzzle is an HTML puzzle. The ZIP file must contain a file named "index.html".
-  All links from the index file to other files in the ZIP file puzzle content
-  should be relative as the base URL of the final contents is not guaranteed.
+  All links from the index file to other files in the ZIP file should be 
+  relative links, as the base URL of the final contents is not guaranteed.
 
 "Solution link"
-  The link to a publicly accessible PDF of the puzzle solution. If this filed is
+  The link to a publicly accessible PDF of the puzzle solution. If this field is
   filled in, the solutions for each puzzle will be available on the puzzle page
   after the hunt is over.
 
@@ -365,7 +370,7 @@ now four options for puzzle unlocking:
 Solves Based Unlock:
   The puzzle will be unlocked once a certain number of puzzles from a chosen
   subset are solved. Use the puzzle chooser to indicate which puzzles count
-  towards unlocking this puzzle. Then enter the number of puzzle required to
+  towards unlocking this puzzle. Then enter the number of puzzles required to
   unlock this puzzle in the "Num required to unlock" field. Setting the number
   of required puzzles to zero means that this puzzle will automatically be
   unlocked when the hunt starts.
@@ -405,12 +410,12 @@ than one regex will result in undefined behavior.
 .. Tip:: Response text can contain links using markdown style format: 
    [foo](https://link.to.foo)
 
-Puzzle wrapup
+Puzzle Wrapup
 -------------
 
 After filling out everything on the puzzle creation page, hit "Save and add
-another"and continue to add puzzles until you have added all of the puzzles for
-the hunt. This will take a while, my recommendations are to be patient and have
+another" and continue to add puzzles until you have added all of the puzzles for
+the hunt. This will take a while; my recommendations are to be patient and have
 the unlocking graph on hand.
 
 
@@ -483,7 +488,7 @@ basic template, in this case the template name is ``prepuzzle.html``.
 
 The following blocks are available to override in the prepuzzle template:
 
-{%block title %}
+{% block title %}
   This block controls what title is in the web browser tab. The default value
   for this block is the puzzle name.
 
