@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start the first process
-gunicorn --workers=2 --bind=0.0.0.0:8000 puzzlehunt_server.wsgi:application &
+gunicorn --workers=5 --bind=0.0.0.0:8000 puzzlehunt_server.wsgi:application &
 status=$?
 if [ $status -ne 0 ]; then
   echo "Failed to start Gunicorn: $status"
