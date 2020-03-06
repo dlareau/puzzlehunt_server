@@ -53,12 +53,14 @@ def ajax_and_check_page(test, page, code, args={}):
     test.assertEqual(response.status_code, code)
     return response
 
+
 def message_from_response(response):
     messages = list(response.context['messages'])
     if(len(messages) > 0):
         return str(messages[0])
     else:
         return ""
+
 
 def solve_puzzle_from_admin(test):
     test.client.logout()
@@ -481,7 +483,7 @@ class AuthTests(TestCase):
         response = get_and_check_page(self, 'huntserver:account_logout', 200)
         login(self, 'user1')
         response = self.client.get(reverse('huntserver:account_logout'), {'next': '/'})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_shib_login(self):
         "Test the shib login view"
