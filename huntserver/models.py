@@ -324,11 +324,11 @@ class Team(models.Model):
     playtest_start_date = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="The date/time at which a hunt will become visible to registered users")
+        help_text="The date/time at which a hunt will become to the playtesters")
     playtest_end_date = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="The date/time at which a hunt will be archived and available to the public")
+        help_text="The date/time at which a hunt will no longer be available to playtesters")
     last_seen_message = models.IntegerField(
         default=0,
         help_text="The PK of the last message the team has seen")
@@ -452,12 +452,13 @@ class Team(models.Model):
 
     def reset(self):
         """ Resets/deletes all of the team's progress """
-        self.unlocked.clear()
         self.unlock_set.all().delete()
-        self.solved.clear()
+        self.unlocked.clear()
         self.solve_set.all().delete()
+        self.solved.clear()
         self.submission_set.all().delete()
         self.num_available_hints = 0
+        self.num_unlock_points = 0
         self.save()
 
     def __str__(self):
@@ -628,6 +629,7 @@ class Solve(models.Model):
         time = self.submission.submission_time
         df = DateFormat(time.astimezone(time_zone))
         message['time_str'] = df.format("h:i a")
+        message['status_type'] = "solve"
         return message
 
     def __str__(self):

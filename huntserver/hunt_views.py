@@ -277,7 +277,7 @@ def puzzle_view(request, puzzle_id):
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
             last_date = timezone.now().strftime(DT_FORMAT)
-        context = {'form': form, 'submission_list': submissions,
+        context = {'form': form, 'submission_list': submissions, 'puzzle': puzzle,
                    'PROTECTED_URL': settings.PROTECTED_URL, 'last_date': last_date, 'team': team}
         return render(request, 'puzzle.html', context)
 

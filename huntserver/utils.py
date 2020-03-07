@@ -27,6 +27,7 @@ def download_zip(directory, filename, url):
     FNULL = open(os.devnull, 'w')
     command_str = "wget --max-redirect=20 {} -O {}".format(url, file_str)
     call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
+
     command_str = "unzip -o -d {}/{} {}".format(directory, filename, file_str)
     call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
     FNULL.close()
@@ -92,9 +93,15 @@ def check_hints(hunt):
             hup.save()
 
 
-def check_puzzles(hunt, new_points, teams):
+def check_puzzles(hunt, new_points, teams, team_is_list=False):
     if(new_points > 0):
-        teams.update(num_unlock_points=F('num_unlock_points') + new_points)
+        if(team_is_list):
+            for team in teams:
+                team.num_unlock_points = team.num_unlock_points + new_points
+                team.save()
+        else:
+            teams.update(num_unlock_points=F('num_unlock_points') + new_points)
+
         for team in teams:
             team.unlock_puzzles()
 
@@ -106,16 +113,20 @@ def update_time_items():
     except Hunt.DoesNotExist:
         return
 
-    last_update_time = cache.get('last_update_time', timezone.now())
-    last_update_time = last_update_time.replace(second=0, microsecond=0)
-    cache.set(timezone.now(), 30 * 60)
-    diff_time = timezone.now().replace(second=0, microsecond=0) - last_update_time
-    diff_minutes = diff_time.seconds / 60
-
     if(hunt.is_open):
         check_hints(hunt)
 
+    last_update_time = cache.get('last_update_time')
+    if(last_update_time is None):
+        cache.set('last_update_time', timezone.now(), 30 * 60)
+        last_update_time = timezone.now()
+
+    last_update_time = last_update_time.replace(second=0, microsecond=0)
+    diff_time = timezone.now().replace(second=0, microsecond=0) - last_update_time
+    diff_minutes = diff_time.seconds / 60
+
     if(diff_minutes >= 1):
+        cache.set('last_update_time', timezone.now(), 30 * 60)
         new_points = hunt.points_per_minute * diff_minutes
 
         if(hunt.is_open):
@@ -124,4 +135,4 @@ def update_time_items():
             playtesters = hunt.team_set.filter(playtester=True).all()
             playtesters = [t for t in playtesters if t.playtest_happening]
             if(len(playtesters) > 0):
-                check_puzzles(hunt, new_points, playtesters)
+                check_puzzles(hunt, new_points, playtesters, True)

@@ -453,17 +453,18 @@ def control(request):
     """
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    if(curr_hunt.is_open):
-        teams = curr_hunt.team_set.all().order_by('team_name')
-    else:
-        teams = curr_hunt.team_set.filter(playtester=True).order_by('team_name')
     if(request.method == 'POST' and "action" in request.POST):
         if(request.POST["action"] == "initial"):
+            if(curr_hunt.is_open):
+                teams = curr_hunt.team_set.all().order_by('team_name')
+            else:
+                teams = curr_hunt.team_set.filter(playtester=True).order_by('team_name')
             for team in teams:
                 team.unlock_puzzles()
             messages.success(request, "Initial puzzles released")
             return redirect('huntserver:hunt_management')
         if(request.POST["action"] == "reset"):
+            teams = curr_hunt.team_set.all().order_by('team_name')
             for team in teams:
                 team.reset()
             messages.success(request, "Progress reset")
