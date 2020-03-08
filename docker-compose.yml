@@ -9,13 +9,13 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./docker/db_data:/var/lib/postgresql/data
+      - ./docker/volumes/db_data:/var/lib/postgresql/data
 
   redis:
     image: redis:5-alpine
     restart: always
     volumes:
-      - ./docker/redis_data:/data
+      - ./docker/volumes/redis_data:/data
 
   app:
     build:
@@ -24,11 +24,13 @@ services:
         http_proxy:
         https_proxy:
         no_proxy:
+    image: django_puzzlehunt  # Name image for use in huey
     restart: always
     volumes:
       - .:/code  # Enables live modification of django files
       - static:/static
       - media:/media
+      - ./docker/volumes/logs:/var/log/external
     environment:
       - DOMAIN
       - DJANGO_SECRET_KEY
@@ -42,6 +44,20 @@ services:
     depends_on:
       - db
       - redis
+
+  huey:
+    image: django_puzzlehunt # re-use above image
+    command: bash -c "python /code/manage.py migrate --no-input && python /code/manage.py run_huey --quiet"
+    restart: always
+    volumes:
+      - .:/code
+      - ./docker/volumes/logs:/var/log/external
+    environment:
+      - DJANGO_SECRET_KEY
+      - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+    depends_on:
+      - app
 
   web:
     restart: always

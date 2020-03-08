@@ -5,8 +5,8 @@ services:
     build:
       dockerfile: apacheShibDockerfile
     volumes:
-      - ./docker/configs/shib-certs/:/etc/shibboleth/certs/
-      - ./docker/configs/ssl-certs/:/etc/letsencrypt/
+      - ./docker/volumes/shib-certs/:/etc/shibboleth/certs/
+      - ./docker/volumes/ssl-certs/:/etc/letsencrypt/
     ports:
       - "443"
   app:

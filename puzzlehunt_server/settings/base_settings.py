@@ -92,7 +92,7 @@ PROTECTED_URL = '/protected/'
 LOGIN_URL = 'login_selection'
 
 # Random settings
-SILENCED_SYSTEM_CHECKS = ["urls.W005"] # silences admin url override warning
+SILENCED_SYSTEM_CHECKS = ["urls.W005"]  # silences admin url override warning
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
@@ -124,23 +124,26 @@ SHIB_ATTRIBUTE_MAP = {
     "sn": (False, "sn")
 }
 
-# Logging settings
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'noop': {
-            'level': 'WARNING',
-            'class': 'logging.NullHandler',
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/external/django.log',
         },
     },
-    'loggers': {},
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
+        'huntserver': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
         },
     },
 }
