@@ -256,7 +256,7 @@ class TeamAdminForm(forms.ModelForm):
         model = models.Team
         fields = ['team_name', 'hunt', 'location', 'join_code', 'playtester', 'playtest_start_date',
                   'playtest_end_date', 'num_available_hints', 'num_unlock_points', 'unlockables',
-                  'num_unlock_points',]
+                  'num_unlock_points']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)
