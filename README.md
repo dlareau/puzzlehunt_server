@@ -2,21 +2,20 @@
 [![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg)](https://coveralls.io/github/dlareau/puzzlehunt_server)
 
 # puzzlehunt_server
-Server for Puzzlehunt CMU's bi-annual puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting. 
+A server for running puzzlehunts. This project is mainly used by PuzzlehuntCMU to run their puzzlehunt, but is generic enough to be used for nearly any puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting.
 
 Documentation can be found at http://docs.puzzlehunt.club
 
-While there is fairly large amount of configuration making this specific to Puzzlehunt CMU, if you are interested in getting this running elsewhere, let me know. I'd be happy to help anyone who wants to get this up and running for their needs. 
-	
+If you are interested in getting this running elsewhere, let me (dlareau@cmu.edu) know. I'd be happy to help anyone who wants to get this up and running for their needs, and get help get you over any gaps in setup documentation.
+
 Please submit issues for any bugs reports or feature requests.
 
-### Super simple setup
-If you just want to get started developing or want to stand up a simple test server and don't care about security, you can follow the following steps:
+### Setup
+This project now uses docker-compose as it's main form of setup. You can use the following steps to get a sample server up and going
 
-1. Install [Virtualbox.](https://www.virtualbox.org/wiki/Downloads)
-2. Install [Vagrant.](https://www.vagrantup.com/downloads.html)
-3. Make a folder for the VM.
-4. Clone this repository into that folder. (such that the folder you made now contains only one folder named "puzzlehunt_server")
-5. Copy the Vagrantfile from the config folder within the puzzlehunt_server folder out into the folder that you made.
-6. Run "vagrant up" from the folder you made and wait for it to complete.
-7. You should now have the server running on a newly created VM, accessible via [http://localhost:8080](http://localhost:8080). The repository you cloned has been linked into the VM by vagrant, so any changes made to the repository on the host system should show up automatically. (A "vagrant reload" may be needed for some changes to take effect)
+1. Install [docker/docker-compose.](https://docs.docker.com/compose/install/)
+2. Clone this repository.
+3. Make a copy of ```sample.env``` named ```.env``` (yes, it starts with a dot).
+4. Edit the new ```.env``` file, filling in new values for the first block of uncommented lines. Other lines can be safely ignored as they only provide additional functionality.
+5. Run ```docker-compose up``` (possibly prepending ```sudo``` if needed)
+6. You should now have the server running on a newly created VM, accessible via [http://localhost](http://localhost). The repository you cloned has been linked into the VM by docker, so any changes made to the repository on the host system should show up automatically. (A ```docker-compose restart``` may be needed for some changes to take effect)
