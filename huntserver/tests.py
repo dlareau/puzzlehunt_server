@@ -441,6 +441,7 @@ class HuntTests(TestCase):
         self.assertTemplateUsed(response, 'access_error.html')
 
 
+@override_settings(USE_SHIBBOLETH=False)
 class AuthTests(TestCase):
     fixtures = ["basic_hunt"]
 
@@ -627,10 +628,10 @@ class StaffTests(TestCase):
         self.assertEqual(response.status_code, 302)
         post_context = {'action': "getpuzzles", "hunt_number": "1"}
         response = self.client.post(reverse('huntserver:control'), post_context)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         post_context = {'action': "getpuzzles", "puzzle_number": "1", "puzzle_id": "201"}
         response = self.client.post(reverse('huntserver:control'), post_context)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         post_context = {'action': "new_current_hunt", "hunt_number": "1"}
         response = self.client.post(reverse('huntserver:control'), post_context)
         self.assertEqual(response.status_code, 302)
