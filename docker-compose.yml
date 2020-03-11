@@ -51,6 +51,8 @@ services:
     restart: always
     volumes:
       - .:/code
+      - static:/static
+      - media:/media
       - ./docker/volumes/logs:/var/log/external
     environment:
       - DJANGO_SECRET_KEY

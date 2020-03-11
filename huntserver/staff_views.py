@@ -12,12 +12,13 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import F
+from huey.contrib.djhuey import result
 import itertools
 import json
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
-from .utils import download_puzzle, download_zip
+from .utils import download_puzzles_task, download_zip_task
 
 DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -453,6 +454,15 @@ def control(request):
     """
 
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    if(request.method == 'GET' and "action" in request.GET):
+        if(request.GET['action'] == "check_task"):
+            task_result = result(request.GET['task_id'])
+            if(task_result is None):
+                response = {"have_result": False, "result_text": ""}
+            else:
+                response = {"have_result": True, "result_text": task_result}
+            return HttpResponse(json.dumps(response))
+
     if(request.method == 'POST' and "action" in request.POST):
         if(request.POST["action"] == "initial"):
             if(curr_hunt.is_open):
@@ -471,37 +481,32 @@ def control(request):
             return redirect('huntserver:hunt_management')
 
         if(request.POST["action"] == "getpuzzles"):
+            task_id = -1
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
                 puzzles = Puzzle.objects.filter(puzzle_id=request.POST["puzzle_id"])
-                for puzzle in puzzles:
-                    download_puzzle(puzzle)
-                messages.success(request, "Puzzle downloaded")
+                task_id = download_puzzles_task(puzzles)
 
             elif("hunt_number" in request.POST and request.POST["hunt_number"]):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
-                for puzzle in hunt.puzzle_set.all():
-                    download_puzzle(puzzle)
-                messages.success(request, "Puzzles downloaded")
+                task_id = download_puzzles_task(hunt.puzzle_set.all())
 
-            return redirect('huntserver:hunt_management')
+            return HttpResponse(task_id.id)
 
         if(request.POST["action"] == "getprepuzzle"):
             if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
                 puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
                 directory = settings.MEDIA_ROOT + "prepuzzles"
-                download_zip(directory, str(puzzle.pk), puzzle.resource_link)
-                messages.success(request, "Prepuzzle downloaded")
+                task_id = download_zip_task(directory, str(puzzle.pk), puzzle.resource_link)
 
-            return redirect('huntserver:hunt_management')
+            return HttpResponse(task_id.id)
 
         if(request.POST["action"] == "gethunt"):
             if("hunt_number" in request.POST and request.POST["hunt_number"]):
                 hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
                 directory = settings.MEDIA_ROOT + "hunt"
-                download_zip(directory, str(hunt.hunt_number), hunt.resource_link)
-                messages.success(request, "Hunt resources downloaded")
+                task_id = download_zip_task(directory, str(hunt.hunt_number), hunt.resource_link)
 
-            return redirect('huntserver:hunt_management')
+            return HttpResponse(task_id.id)
 
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_number')))

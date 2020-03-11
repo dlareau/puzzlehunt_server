@@ -2,8 +2,8 @@ from django.conf import settings
 from django.db.models import F
 from django.utils import timezone
 from huey import crontab
-from huey.contrib.djhuey import db_periodic_task
-from subprocess import call, STDOUT
+from huey.contrib.djhuey import db_task, db_periodic_task
+from subprocess import call, check_output, CalledProcessError, STDOUT
 import os
 from django.core.cache import cache
 
@@ -12,11 +12,22 @@ from .models import Hunt, HintUnlockPlan
 
 import logging
 logger = logging.getLogger(__name__)
+wget_arguments = "--max-redirect=20 --show-progress --progress=bar:force:noscroll"
+
+
+def filter_wget_response(response):
+    lines = response.split("\n")
+    exclude_lines = ("Resolving", "Connecting", "Location", "Reusing")
+    lines = [l for l in lines if not l.startswith(exclude_lines)]
+    first_line = lines[0]
+    lines = [l for l in lines if not l.startswith("--")]
+    result = "\n".join([first_line] + lines)
+    return result
 
 
 def download_zip(directory, filename, url):
     if(url == ""):
-        return
+        return ""
 
     logger.info("Attempting to download zip %s to %s/%s" % (url, directory, filename))
 
@@ -24,38 +35,88 @@ def download_zip(directory, filename, url):
         call(["mkdir", directory])
 
     file_str = directory + "/" + filename + ".zip"
-    FNULL = open(os.devnull, 'w')
-    command_str = "wget --max-redirect=20 {} -O {}".format(url, file_str)
-    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
+    command_str = "wget {} {} -O {}".format(wget_arguments, url, file_str)
+    try:
+        result_wget = check_output(command_str, stderr=STDOUT, shell=True)
+    except CalledProcessError as exception:
+        result_wget = exception.output
 
-    command_str = "unzip -o -d {}/{} {}".format(directory, filename, file_str)
-    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
-    FNULL.close()
+    command_str = "unzip -o -d {}/{} {} -x /".format(directory, filename, file_str)
+    try:
+        result_unzip = check_output(command_str, stderr=STDOUT, shell=True)
+    except CalledProcessError as exception:
+        result_unzip = exception.output
+
+    return (filter_wget_response(result_wget.decode()) +
+            filter_wget_response(result_unzip.decode()) + "\n")
 
 
 def download_pdf(directory, filename, url):
     if(url == ""):
-        return
+        return ""
 
     logger.info("Attempting to download pdf %s to %s/%s" % (url, directory, filename))
 
     if(not os.path.isdir(directory)):
         call(["mkdir", directory])
 
-    FNULL = open(os.devnull, 'w')
     file_str = directory + "/" + filename + ".pdf"
-    command_str = "wget {} -O {}".format(url, file_str)
-    call(command_str, stdout=FNULL, stderr=STDOUT, shell=True)
-    FNULL.close()
+    command_str = "wget {} {} -O {}".format(wget_arguments, url, file_str)
+    try:
+        result = check_output(command_str, stderr=STDOUT, shell=True)
+    except CalledProcessError as exception:
+        result = exception.output
+
+    return filter_wget_response(result.decode())
 
 
 def download_puzzle(puzzle):
     directory = settings.MEDIA_ROOT + "puzzles"
 
-    download_pdf(directory, str(puzzle.puzzle_id), puzzle.link)
-    download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
-    download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id) + "_sol",
-                 puzzle.solution_link)
+    result = ""
+
+    tmp_result = download_pdf(directory, str(puzzle.puzzle_id), puzzle.link)
+    if(tmp_result == ""):
+        result += "No puzzle PDF URL\n"
+    else:
+        result += tmp_result
+
+    tmp_result = download_zip(directory, str(puzzle.puzzle_id), puzzle.resource_link)
+    if(tmp_result == ""):
+        result += "No puzzle resources URL\n\n"
+    else:
+        result += tmp_result
+
+    tmp_result = download_pdf(settings.MEDIA_ROOT + "solutions", str(puzzle.puzzle_id) + "_sol",
+                              puzzle.solution_link)
+    if(tmp_result == ""):
+        result += "No puzzle solution URL\n"
+    else:
+        result += tmp_result
+
+    return result
+
+
+@db_task()
+def download_puzzles_task(puzzles):
+    result = ""
+    for puzzle in puzzles:
+        result += "========================= " + puzzle.puzzle_name + " =========================\n"
+        result += download_puzzle(puzzle)
+    return result
+
+
+@db_task()
+def download_zip_task(directory, filename, url):
+    result = ""
+
+    tmp_result = download_zip(directory, filename, url)
+    if(tmp_result == ""):
+        result += "No resources URL\n"
+    else:
+        result += tmp_result
+
+    return result
 
 
 def parse_attributes(META):
