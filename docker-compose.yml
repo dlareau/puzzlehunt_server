@@ -41,6 +41,7 @@ services:
       - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
       - ENABLE_DEBUG_TOOLBAR
+      - SENTRY_DSN
     depends_on:
       - db
       - redis
@@ -58,6 +59,7 @@ services:
       - DJANGO_SECRET_KEY
       - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+      - SENTRY_DSN
     depends_on:
       - app
 

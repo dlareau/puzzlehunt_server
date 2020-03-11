@@ -163,3 +163,15 @@ if os.environ.get("ENABLE_DEBUG_EMAIL"):
 if os.environ.get("ENABLE_DEBUG_TOOLBAR"):
     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
     MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE
+
+if os.environ.get("SENTRY_DSN"):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=os.environ.get("SENTRY_DSN"),
+        integrations=[DjangoIntegration()],
+
+        # Sends which user caused the error
+        send_default_pii=True
+    )
