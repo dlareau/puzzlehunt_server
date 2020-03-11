@@ -15,6 +15,7 @@ RUN apt-get update && \
 # Shibboleth setup
 RUN mkdir /etc/shibboleth/certs
 COPY configs/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
+COPY configs/inc-md-cert-mdq.pem /etc/shibboleth/inc-md-cert-mdq.pem
 
 # Server setup
 COPY configs/puzzlehunt_apache_shib.conf /etc/apache2/sites-available/puzzlehunt.conf
