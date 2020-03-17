@@ -25,7 +25,7 @@
     </strong></p>
     <p align="center"><strong>
       {{curr_hunt.hunt_name}}<br>
-      {{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA" }} (Eastern Time)<br>
+      {{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}<br>
       Kickoff location is {{ curr_hunt.location }}
     </strong></p>
     {% if not curr_hunt.is_public %}

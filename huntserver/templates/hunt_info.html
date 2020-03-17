@@ -10,7 +10,7 @@
 
 <div class="container">
   <h1 class="title">{{curr_hunt.hunt_name}}</h1>
-  <h2 class="title">{{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA" }} (Eastern Time)<br>
+  <h2 class="title">{{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}<br>
       Kickoff location is {{ curr_hunt.location }}</h2>
   <div id='qa'>
     <h2>What are the puzzles like?</h2>
