@@ -14,14 +14,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
+from django.urls import path
 from huntserver import hunt_views, auth_views, info_views, staff_views
 from django.contrib.auth import views as base_auth_views
 from django.views.generic.base import RedirectView
-from django.views.generic import TemplateView
+from django.contrib.flatpages import views
 
 app_name = "huntserver"
 
 urlpatterns = [
+    # Pages made with flatpages
+    path('hunt-info/', views.flatpage, {'url': '/hunt-info/'}, name='current_hunt_info'),
+    path('contact-us/', views.flatpage, {'url': '/contact-us/'}, name='contact_us'),
+
+    # Info Flatpages
+    path('info/', include('django.contrib.flatpages.urls')),
+
     # Auth and Accounts
     url(r'^accounts/create/$', auth_views.create_account, name='create_account'),
     url(r'^login-selection/$', auth_views.login_selection, name='login_selection'),
@@ -30,10 +38,7 @@ urlpatterns = [
 
     # Info Pages
     url(r'^$', info_views.index, name='index'),
-    url(r'^hunt/info/$', info_views.current_hunt_info, name='current_hunt_info'),
     url(r'^previous-hunts/$', info_views.previous_hunts, name='previous_hunts'),
-    url(r'^resources/$', TemplateView.as_view(template_name="resources.html"), name='resources'),
-    url(r'^contact-us/$', TemplateView.as_view(template_name="contact_us.html"), name='contact_us'),
     url(r'^registration/$', info_views.registration, name='registration'),
     url(r'^user-profile/$', info_views.user_profile, name='user_profile'),
 

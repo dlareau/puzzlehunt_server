@@ -6,6 +6,10 @@ from huntserver.widgets import HtmlEditor
 from django.contrib.auth.models import User, Group
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatechars
+from django.contrib.sites.models import Site
+from django.contrib.flatpages.admin import FlatPageAdmin
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.flatpages.forms import FlatpageForm
 
 # Register your models here.
 from . import models
@@ -306,8 +310,53 @@ class UserProxyAdmin(admin.ModelAdmin):
     search_fields = ['email', 'username', 'first_name', 'last_name']
 
 
+class FlatPageProxyObject(FlatPage):
+    class Meta:
+        proxy = True
+        app_label = 'huntserver'
+        verbose_name = "info page"
+        verbose_name_plural = "info pages"
+
+
+class FlatpageProxyForm(FlatpageForm):
+    class Meta:
+        model = FlatPageProxyObject
+        fields = '__all__'
+
+
+# Define a new FlatPageAdmin
+class FlatPageProxyAdmin(FlatPageAdmin):
+    list_filter = []
+    fieldsets = (
+        (None, {'fields': ('url', 'title', 'content')}),
+        (None, {
+            'classes': ('hidden',),
+            'fields': ('sites',)
+        }),
+        ('Advanced options', {
+            'classes': ('collapse',),
+            'fields': (
+                'registration_required',
+                'template_name',
+            ),
+        }),
+    )
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['form'] = FlatpageProxyForm
+        form = super(FlatPageAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['sites'].initial = Site.objects.get(pk=1)
+        form.base_fields['content'].widget = HtmlEditor(attrs={'style': 'width:90%; height:400px;'})
+        form.base_fields['url'].help_text = ("Example: '/contact-us/' translates to " +
+                                             "/info/contact-us/. Make sure to have leading and " +
+                                             "trailing slashes.")
+        return form
+
+
 admin.site.unregister(User)
 admin.site.unregister(Group)
+admin.site.unregister(Site)
+admin.site.unregister(FlatPage)
 
 admin.site.register(models.Hint,       HintAdmin)
 admin.site.register(models.Hunt,       HuntAdmin)
@@ -322,3 +371,4 @@ admin.site.register(models.Team,       TeamAdmin)
 admin.site.register(models.Unlockable)
 admin.site.register(models.Unlock,     UnlockAdmin)
 admin.site.register(UserProxyObject,   UserProxyAdmin)
+admin.site.register(FlatPageProxyObject, FlatPageProxyAdmin)

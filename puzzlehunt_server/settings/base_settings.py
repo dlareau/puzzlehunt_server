@@ -23,11 +23,14 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'huntserver',
     'crispy_forms',
     'huey.contrib.djhuey',
 )
 
+SITE_ID = 1  # For flatpages
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',

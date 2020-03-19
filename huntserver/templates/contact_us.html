@@ -1,20 +1,11 @@
-{% extends "info_base.html" %}
-{% load hunt_tags %}
+<!-- <readme> This file is the source for the contact-us info page when creating the server. 
+              Don't edit this file after server creation, use the admin editor instead </readme> -->
 
-{% block includes %}
-  <script src="{{ STATIC_URL }}jquery.min.js"></script>
-{% endblock includes %}
-
-{% block content %}
-
-<div class="container">
-  <h1> Contact Us </h1>
-  <div id='qa'>
-    <p>
-      Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.
-    </p>
-    <p>Visit us on our <a href="https://www.facebook.com/groups/puzzlehuntCMU">Facebook Page</a>.
-	   You can also find us on <a href="https://thebridge.cmu.edu/organization/puzzlehuntcmu">The Bridge</a>.</p>
-  </div>
+<h1> Contact Us </h1>
+<div id='qa'>
+<p>
+  Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.
+</p>
+<p>Visit us on our <a href="https://www.facebook.com/groups/puzzlehuntCMU">Facebook Page</a>.
+   You can also find us on <a href="https://thebridge.cmu.edu/organization/puzzlehuntcmu">The Bridge</a>.</p>
 </div>
-{% endblock content %}

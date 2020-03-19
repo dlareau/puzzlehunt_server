@@ -7,13 +7,18 @@ from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
 urlpatterns = [
+    # Admin redirections/views
     url(r'^admin/$', RedirectView.as_view(url=reverse_lazy('admin:app_list',
                                           args=('huntserver',)))),
     url(r'^staff/$', RedirectView.as_view(url=reverse_lazy('admin:app_list',
                                           args=('huntserver',)))),
     url(r'^staff/', admin.site.urls),
     url(r'^admin/', admin.site.urls),
+
+    # All of the huntserver URLs
     url(r'^', include('huntserver.urls', namespace="huntserver")),
+
+    # User auth/password reset
     url(r'^accounts/logout/$', base_auth_views.LogoutView.as_view(),
         name='logout', kwargs={'next_page': '/'}),
     url(r'^accounts/login/$', base_auth_views.LoginView.as_view()),

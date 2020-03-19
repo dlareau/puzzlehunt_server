@@ -132,12 +132,6 @@ class InfoTests(TestCase):
         response = get_and_check_page(self, 'huntserver:index', 200)
         self.assertTrue(isinstance(response.context['curr_hunt'], models.Hunt))
 
-    def test_hunt_info(self):
-        "Test the hunt info page"
-        response = get_and_check_page(self, 'huntserver:current_hunt_info', 200)
-        self.assertTrue(response.context['curr_hunt'])
-        self.assertTrue(isinstance(response.context['curr_hunt'], models.Hunt))
-
     def test_previous_hunts(self):
         "Test the previous hunts page"
         response = get_and_check_page(self, 'huntserver:previous_hunts', 200)

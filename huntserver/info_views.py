@@ -18,12 +18,6 @@ def index(request):
     return render(request, "index.html", {'curr_hunt': curr_hunt, 'team': team})
 
 
-def current_hunt_info(request):
-    """ Information about the current hunt, mostly static with the exception of hunt info """
-    curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    return render(request, "hunt_info.html", {'curr_hunt': curr_hunt})
-
-
 def previous_hunts(request):
     """ A view to render the list of previous hunts, will show any hunt that is 'public' """
     old_hunts = []

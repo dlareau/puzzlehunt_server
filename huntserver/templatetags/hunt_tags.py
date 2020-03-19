@@ -1,5 +1,7 @@
 from django import template
 from django.conf import settings
+from django.template import Template, Context
+from huntserver.models import Hunt
 register = template.Library()
 
 
@@ -16,6 +18,11 @@ def site_title(context):
 @register.simple_tag(takes_context=True)
 def contact_email(context):
     return settings.CONTACT_EMAIL
+
+
+@register.filter()
+def render_with_context(value):
+    return Template(value).render(Context({'curr_hunt': Hunt.objects.get(is_current_hunt=True)}))
 
 
 @register.simple_tag()
