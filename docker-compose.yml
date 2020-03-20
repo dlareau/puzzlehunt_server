@@ -48,10 +48,7 @@ services:
 
   huey:
     image: django_puzzlehunt # re-use above image
-    command: >
-      bash -c "python /code/manage.py migrate sites --no-input && 
-      python /code/manage.py migrate --no-input && 
-      python /code/manage.py run_huey --quiet"
+    command: bash -c "python /code/manage.py migrate --no-input && python /code/manage.py run_huey --quiet"
     restart: always
     volumes:
       - .:/code

@@ -8,18 +8,22 @@ def setup_pages(apps, schema_editor):
     FlatPage = apps.get_model('flatpages', 'FlatPage')
     Site = apps.get_model('sites', 'Site')
 
-    source = get_template("contact_us.html").template.source.split("</readme> -->")[1]
-    fp = FlatPage.objects.create(url='/contact-us/', title='Contact Us', content=source)
-    fp.sites.add(Site.objects.get(pk=1))
+    try:
+        our_site = Site.objects.get(pk=1)
+    except:
+        our_site = Site.objects.create(domain="example.com", name="example.com")
 
-    source = get_template("resources.html").template.source.split("</readme> -->")[1]
-    fp = FlatPage.objects.create(url='/extra/resources/', title='Resources', content=source)
-    fp.sites.add(Site.objects.get(pk=1))
+        source = get_template("contact_us.html").template.source.split("</readme> -->")[1]
+        fp = FlatPage.objects.create(url='/contact-us/', title='Contact Us', content=source)
+        fp.sites.add(our_site)
 
-    source = get_template("hunt_info.html").template.source.split("</readme> -->")[1]
-    fp = FlatPage.objects.create(url='/hunt-info/', title='Current Hunt Info', content=source)
-    fp.sites.add(Site.objects.get(pk=1))
-    return
+        source = get_template("resources.html").template.source.split("</readme> -->")[1]
+        fp = FlatPage.objects.create(url='/extra/resources/', title='Resources', content=source)
+        fp.sites.add(our_site)
+
+        source = get_template("hunt_info.html").template.source.split("</readme> -->")[1]
+        fp = FlatPage.objects.create(url='/hunt-info/', title='Current Hunt Info', content=source)
+        fp.sites.add(our_site)
 
 
 def remove_pages(apps, schema_editor):
@@ -27,7 +31,6 @@ def remove_pages(apps, schema_editor):
     FlatPage.objects.filter(url='/contact-us/').delete()
     FlatPage.objects.filter(url='/extra/resources/').delete()
     FlatPage.objects.filter(url='/hunt-info/').delete()
-    return
 
 
 class Migration(migrations.Migration):
