@@ -2,23 +2,23 @@
 
 from django.db import migrations
 from django.template.loader import get_template
-from django.contrib.sites.models import Site
 
 
 def setup_pages(apps, schema_editor):
     FlatPage = apps.get_model('flatpages', 'FlatPage')
+    Site = apps.get_model('sites', 'Site')
 
     source = get_template("contact_us.html").template.source.split("</readme> -->")[1]
     fp = FlatPage.objects.create(url='/contact-us/', title='Contact Us', content=source)
-    fp.sites.add(1)
+    fp.sites.add(Site.objects.get(pk=1))
 
     source = get_template("resources.html").template.source.split("</readme> -->")[1]
     fp = FlatPage.objects.create(url='/extra/resources/', title='Resources', content=source)
-    fp.sites.add(1)
+    fp.sites.add(Site.objects.get(pk=1))
 
     source = get_template("hunt_info.html").template.source.split("</readme> -->")[1]
     fp = FlatPage.objects.create(url='/hunt-info/', title='Current Hunt Info', content=source)
-    fp.sites.add(1)
+    fp.sites.add(Site.objects.get(pk=1))
     return
 
 
