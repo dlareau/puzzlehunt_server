@@ -143,7 +143,7 @@ def prepuzzle(request, prepuzzle_num):
 
     else:
         if(not (puzzle.released or request.user.is_staff)):
-            return redirect('current_hunt_info')
+            return redirect('huntserver:current_hunt_info')
         form = AnswerForm()
         context = {'form': form, 'puzzle': puzzle}
         return HttpResponse(Template(puzzle.template).render(RequestContext(request, context)))
@@ -158,7 +158,7 @@ def hunt_prepuzzle(request, hunt_num):
         return prepuzzle(request, curr_hunt.prepuzzle.pk)
     else:
         # Maybe we can do something better, but for now, redirect to the main page
-        return redirect('current_hunt_info')
+        return redirect('huntserver:current_hunt_info')
 
 
 def current_prepuzzle(request):

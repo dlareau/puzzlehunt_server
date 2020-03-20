@@ -297,10 +297,6 @@ class InfoTests(TestCase):
         response = self.client.post(reverse('huntserver:user_profile'), post_context)
         self.assertEqual(response.status_code, 200)
 
-    def test_resources(self):
-        "Test the resources page"
-        get_and_check_page(self, 'huntserver:resources', 200)
-
     def test_contact_us(self):
         "Test the contact us page"
         get_and_check_page(self, 'huntserver:contact_us', 200)
@@ -328,8 +324,7 @@ class HuntTests(TestCase):
         login(self, 'user4')
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num": "1"})
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num": "2"})
-        response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num": "3"})
-        self.assertTemplateUsed(response, 'hunt_info.html')
+        response = get_and_check_page(self, 'huntserver:hunt', 302, {"hunt_num": "3"})
         login(self, 'admin')
         response = get_and_check_page(self, 'huntserver:hunt', 200, {"hunt_num": "2"})
         login(self, 'user3')
