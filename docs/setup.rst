@@ -13,37 +13,42 @@ following steps to get a sample server up and going
 2. Clone this repository.
 3. Make a copy of ``sample.env`` named ``.env`` (yes, it starts with a dot).
 4. Edit the new ``.env`` file, filling in new values for the first block of
-uncommented lines. Other lines can be safely ignored as they only provide
-additional functionality.
-5. Run ``docker-compose up`` (possibly prepending ``sudo`` if needed)
+   uncommented lines. Other lines can be safely ignored as they only provide
+   additional functionality.
+5. Run ``docker-compose up`` (possibly using ``sudo`` if needed)
 6. You should now have the server running on a newly created VM, accessible via
-[http://localhost](http://localhost). The repository you cloned has been linked
-into the VM by docker, so any changes made to the repository on the host system
-should show up automatically. (A ``docker-compose restart`` may be needed for
-some changes to take effect)
+   (http://localhost). The repository you cloned has been
+   linked into the VM by docker, so any changes made to the repository on the
+   host system should show up automatically. (A ``docker-compose restart`` may
+   be needed for some changes to take effect)
 
 Setup details
 -------------
 
 The basic instructions above bring up the following docker containers:
 
-- db: The postgres database with the settings specified in the .env file. Data
-    is retained across container restarts in ``docker/volumes/redis_data``.
-- redis: A redis server for caching and task management. Data is stored in
-    ``docker/volumes/redis_data``.
-- app: The Django application running using gunicorn on port 8000.
-- huey: A Huey consumer for scheduled tasks.
-- web: An apache server to proxy web requests to the "app" container and serve
-    the static files. By default, this container serves web requests using plain
-    HTTP over port 80. See the "Extra Setup Instructions" for details on
-    setting up SSL.
+- db
+   The postgres database with the settings specified in the .env file. Data
+   is retained across container restarts in ``docker/volumes/redis_data``.
+- redis
+   A redis server for caching and task management. Data is stored in
+   ``docker/volumes/redis_data``.
+- app
+   The Django application running using gunicorn on port 8000.
+- huey
+   A Huey consumer for scheduled tasks.
+- web
+   An apache server to proxy web requests to the "app" container and serve
+   the static files. By default, this container serves web requests using plain
+   HTTP over port 80. See the "Extra Setup Instructions" for details on
+   setting up SSL.
 
 .. Note::
    There are also 2 volumes shared by a number of the containers that hold
    static files and media files and will persist across docker restarts.
 
 Extra Setup Instructions
-=======================
+========================
 
 In addition to the basic instructions above, there are a few additional setup
 options available. These additional options are provided via "override files"
