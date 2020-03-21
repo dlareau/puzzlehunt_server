@@ -17,3 +17,14 @@ td.original p {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+
+.formset_border {
+	border: 1px solid lightgrey;
+	padding: 15px;
+	padding-bottom: 0px;
+	margin-bottom: 15px;
+}
+
+.field-is_current_hunt {
+	margin-top: -20px;
+}

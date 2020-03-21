@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.contrib.auth.models import User
 from huntserver.models import Person
-import six
+
 
 def printUser(user):
     print("Username: %s, Name: %s %s, Email: %s") % (user.username,
         user.first_name, user.last_name, user.email)
+
 
 def fix_accounts(apps, schema_editor):
     print("")
@@ -70,11 +71,11 @@ def fix_accounts(apps, schema_editor):
                 printUser(user)
                 unresolved_user = True
                 while(unresolved_user):
-                    new_password = six.moves.input("Please enter a new password " +
+                    new_password = input("Please enter a new password " +
                         "for this user or just press enter to leave the " +
                         "password unset (not recommended):\n")
                     if(new_password != ""):
-                        confirm_password = six.moves.input("Please confirm password:\n")
+                        confirm_password = input("Please confirm password:\n")
                         if(new_password == confirm_password):
                             user.set_password(new_password)
                             user.save()
@@ -82,6 +83,7 @@ def fix_accounts(apps, schema_editor):
                             print("Password updated.\n")
                     else:
                         print("User left with unusable password.\n")
+
 
 class Migration(migrations.Migration):
 

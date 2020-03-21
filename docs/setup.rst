@@ -1,103 +1,86 @@
 Setup
 *****
 
-Instructions on how to setup a machine to run this project. 
+Instructions on how to setup a machine to run this project.
 
-Development Instructions
+Basic Setup Instructions
 ========================
 
-If your only goal is to set up a working development or test environment, or if security really
-isn't a concern for some reason, this project does come with an easy development deployment option.
+This project now uses docker-compose as it's main form of setup. You can use the
+following steps to get a sample server up and going
 
-1. Install Virtualbox. (https://www.virtualbox.org/wiki/Downloads)
-2. Install Vagrant. (https://www.vagrantup.com/downloads.html)
-3. Make a folder for the VM.
-4. Clone this repository into that folder. (such that the folder you made now contains only one folder named "puzzlehunt_server")
-5. Copy the Vagrantfile from the config folder within the puzzlehunt_server folder out into the folder that you made.
-6. Run "vagrant up" from the folder you made and wait for it to complete.
-7. You should now have the server running on a newly created VM, accessible via http://localhost:8080. The repository you cloned has been linked into the VM by vagrant, so any changes made to the repository on the host system should show up automatically. (A "vagrant reload" may be needed for some changes to take effect)
+1. Install [docker/docker-compose.](https://docs.docker.com/compose/install/)
+2. Clone this repository.
+3. Make a copy of ``sample.env`` named ``.env`` (yes, it starts with a dot).
+4. Edit the new ``.env`` file, filling in new values for the first block of
+   uncommented lines. Other lines can be safely ignored as they only provide
+   additional functionality.
+5. Run ``docker-compose up`` (possibly using ``sudo`` if needed)
+6. You should now have the server running on a newly created VM, accessible via
+   (http://localhost). The repository you cloned has been
+   linked into the VM by docker, so any changes made to the repository on the
+   host system should show up automatically. (A ``docker-compose restart`` may
+   be needed for some changes to take effect)
 
-Production Instructions
-=======================
+Setup details
+-------------
 
-Setting up the application on a production server should be done with a bit more care than the
-vagrant script provides. The instructions below detail how to get mostly set up from a bare environment.
+The basic instructions above bring up the following docker containers:
 
-Environment setup
------------------
+- db
+   The postgres database with the settings specified in the .env file. Data
+   is retained across container restarts in ``docker/volumes/redis_data``.
+- redis
+   A redis server for caching and task management. Data is stored in
+   ``docker/volumes/redis_data``.
+- app
+   The Django application running using gunicorn on port 8000.
+- huey
+   A Huey consumer for scheduled tasks.
+- web
+   An apache server to proxy web requests to the "app" container and serve
+   the static files. By default, this container serves web requests using plain
+   HTTP over port 80. See the "Extra Setup Instructions" for details on
+   setting up SSL.
 
-Install the following packages: 
+.. Note::
+   There are also 2 volumes shared by a number of the containers that hold
+   static files and media files and will persist across docker restarts.
 
-- python 2.7
-- mysql-client
-- mysql-server
-- python-mysqldb
-- python-dev
-- imagemagick
-- libmysqlclient-dev
-- unzip
+Extra Setup Instructions
+========================
 
-Install the required python packages using:
-``pip install -r requirements.txt``
+In addition to the basic instructions above, there are a few additional setup
+options available. These additional options are provided via "override files"
+that override various parts of the docker compose logic. You can enable which
+override files are being used by setting the ``COMPOSE_FILE`` variable in the
+``.env`` file. By default only the ``local_override.yml`` file is enabled.
 
-
-Code Setup
-----------
-
-If you haven't already,
-clone the repository to a location that the user running the server will have access to. 
-
-Instantiate a copy of the local settings file by copying the local settings template::
-
-	cp puzzlehunt_server/settings/local_settings.py.template puzzlehunt_server/settings/local_settings.py
-
-Then replace the default settings such as the database login details  and secret key.
-(If needed, look up instructions on how to generate a new secret key)
-
-Database setup
+local_override
 --------------
 
-This project is configured to use a MySQL database.
-It can be configured to use a different type of database by modifying settings in local_settings.py,
-but those modifications are out of the scope of this setup.
+By default, the "web" docker container only "exposes" port 80. The local
+override file takes things one step further and maps the host port 80 to the
+web container port 80. This is done via an override because docker compose
+doesn't support unmapping ports and the proxy_override settings need to map
+the reverse proxy to host port 80.
 
-First we have to create the user and database that the application will use.
-To do so, log into the mysql client as a superuser and enter the following commands.
-(substituting your password and username)
+shib_override
+-------------
 
-::
+Enabling this override sets up shibboleth authentication on the apache server.
+To use pre-existing shibboleth certificates, place sp-cert.pem and sp-key.pem
+in ``docker/volumes/shib-certs``. This override file
+also uses LetsEncrypt to get a certificate for the site using the DOMAIN
+and CONTACT_EMAIL settings from the ``.env`` file. SSL certs are stored in
+``docker/volumes/ssl-certs``. Right now this is the only override that provides
+SSL capabilities. In the future there will likely be an SSL_override file that
+breaks out the LetsEncrypt functionality.
 
-	CREATE DATABASE puzzlehunt_db;
+proxy_override
+--------------
 
-	GRANT ALL PRIVILEGES ON puzzlehunt_db.* TO 'nottherealusername'@'localhost' IDENTIFIED BY 'nottherealpassword';
-
-Django setup
-------------
-
-Migrate the database by running ``python manage.py migrate``. 
-
-Create a superuser for the project by running ``python manage.py createsuperuser`` and following the instructions.
-
-Collect all of the static files by running ``python manage.py collectstatic``.
-
-At this point the server should be able to start up.
-
-Note: There are a few other steps before the server will function without error. For example the server expects at least one hunt object to exist. If you want some basic data to get started, you can run ``python manage.py loaddata initial_hunt``.
-
-Apache setup
-------------
-
-The full setup of an apache server is beyond this documentation, but an example configuration file that should be a good starting point is available in the /config directory of the repository. That particular configuration file requires:  
-
-- libapache2-mod-xsendfile
-- libapache2-mod-proxy-html
-- libapache2-mod-wsgi
-- libapache2-mod-shib2
-
-Part of the server and the apache configuration is the integration with Shibboleth for secure authentication of users. Again, this documentation couldn't possibly go over all aspects of setup. If you are setting this up from scratch, I recommend the following link:
-
-`CMU Shibboleth Setup Instructions`_
-
-.. _`CMU Shibboleth Setup Instructions`: http://www.cmu.edu/computing/services/security/identity-access/authentication/how-to/provider-shib.html
-
-However replace the CMU provided shibboleth2.xml with the shibboleth2.xml in the /config directory of the repository.
+Enabling this override file sets up a reverse proxy using Traefik. This
+functionality is in development and mostly untested. It currently only works
+with shib_override. It also requires an already created docker network named
+``proxy-net``

@@ -1,0 +1,52 @@
+{% extends "hunt_base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Hints for {{ puzzle.puzzle_name }}{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% if not puzzle.hunt.is_public %}
+<script type="text/javascript">
+    last_date = '{{last_date}}';
+    puzzle_url = '/hints/{{puzzle.puzzle_id}}/'
+</script>
+<script src="{{ STATIC_URL }}huntserver/hint.js"></script>
+{% endif %}
+{% endblock includes %}
+
+{% block content %}
+<div class="container">
+  <div class="row puzzle content">
+    <div class='col-md-12 info'>
+      <div class='leftinfo'>
+        <h1> Hints for P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
+        <h3 id="num_available_hints">You currently have {{team.num_available_hints}} available hint{{team.num_available_hints|pluralize}} for this hunt</h3>
+      </div>
+    </div>
+    <div id='submit_container' class="col-md-10 col-md-offset-1">
+      <fieldset id='submit'>
+        <legend>Request a Hint</legend>
+        <form id='sub_form' action="/hints/{{ puzzle.puzzle_id }}/" method='post'>
+          {% csrf_token %}
+          <div>
+            {{ form|crispy }}
+            <input class="btn btn-default" type='submit' value='Submit'/>
+          </div>
+        </form>
+      </fieldset>
+    </div>
+    <br>
+    <div class="col-md-12">
+      <h3>Previous Hint Requests: </h3>
+      {% if hint_list %}
+        <table id="hint_table" class="table">
+          {% for hint in hint_list reversed %}
+            {% include "hint_row.html" %}
+          {% endfor %}
+        </table>
+      {% else %}
+        <h4> You have not yet submitted any hint requests for this puzzle </h4>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

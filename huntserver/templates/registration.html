@@ -57,7 +57,7 @@
       <form method="Post">
         {% csrf_token %}
         <input type="hidden" name="form_type" value="leave_team">
-        <input type="submit" value="Remove me from this team" onclick="return confirm('Are you sure?')">
+        <input class="btn btn-danger" type="submit" value="Remove me from this team" onclick="return confirm('Are you sure?')">
       </form>
     </p>
     <script type="text/javascript">
@@ -71,28 +71,20 @@
   {% else %}
     </div>
     <div class="container no_outline">
-      {% if error %}
-        <div class="row">
-          <div class="container col-md-12">
-            Error: {{error}}
-          </div>
-        </div>
-      {% endif %}
       <div class="row">
         <div class="col-md-6">
-          <div class="container col-md-12" style="height:320px">
+          <div class="container col-md-12" style="height:350px">
             <h2>Create New Team</h2>
             <hr style="border-width:2px; border-color: black;">
             <form method="Post">
               {% csrf_token %}
               <input type="hidden" name="form_type" value="new_team">
               Please enter a new team name:
-              <input name="team_name" type="text">
-              <br>
+              <input class="form-control" name="team_name" type="text">
               <br>
               {% if not curr_hunt.in_reg_lockdown %}
               Does your team need a room for the hunt?
-              <select name="need_room">
+              <select id="room_select" class="form-control" name="need_room">
                 <option value="need_a_room">Yes</option>
                 <option value="has_a_room">Our team has a room</option>
                 <option value="off_campus">Our team is off-campus</option>
@@ -102,37 +94,34 @@
               <br>
               Please indicate if you are solving remotely:
               <br>
-              <select name="need_room">
+              <select id="room_select" class="form-control" name="need_room">
                 <option value="has_a_room">Our team is on campus and has a room</option>
                 <option value="off_campus">Our team is off-campus</option>
               </select>
               {% endif %}
               <br>
-              <br>
-              <input type="submit" value="Create and Join Team">
+              <input class="btn btn-primary" type="submit" value="Create and Join Team">
             </form>
           </div>
         </div>
         <div class="col-md-6">
-          <div class="container col-md-12" style="height:320px">
+          <div class="container col-md-12" style="height:330px">
             <h2>Join Existing Team</h2>
             <hr style="border-width:2px; border-color: black;">
             <form method="Post">
               {% csrf_token %}
               <input type="hidden" name="form_type" value="join_team">
               Select a team to join:
-              <select name="team_name" style="width: 200px;">
+              <select class="form-control" name="team_name" style="width: 200px;">
                 {% for team in teams %}
-                  <option value="{{team.team_name}}">{{team.team_name}}</option>
+                  <option value="{{team.team_name}}">{{team.short_name}}</option>
                 {% endfor %}
               </select>
               <br>
-              <br>
               Enter the team join code:
-              <input name="join_code" type="text" style="width:100px;" maxlength="5">
+              <input class="form-control" name="join_code" type="text" style="width:100px;" maxlength="5">
               <br>
-              <br>
-              <input type="submit" value="Join Team">
+              <input class="btn btn-primary" type="submit" value="Join Team">
             </form>
           </div>
         </div>

@@ -1,0 +1,13 @@
+{% extends "info_base.html" %}
+{% load hunt_tags %}
+
+{% block includes %}
+  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+{% endblock includes %}
+
+{% block content %}
+
+<div class="container">
+  {{ flatpage.content|render_with_context }}
+</div>
+{% endblock content %}

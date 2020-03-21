@@ -1,0 +1,54 @@
+{% load crispy_forms_tags %}
+<tr data-id='{{hint.pk}}'>
+    <td>
+        <table class="table table-bordered hint_table">
+            <tr>
+                <td width="70px">Request</td>
+                <td width="100px">{{ hint.request_time|time:"h:i a" }}</td>
+                <td>
+                    <b>Puzzle: {{hint.puzzle.puzzle_name}} | Team: {{hint.team.short_name}}</b>
+                    <br>
+                    {{ hint.request }}
+                </td>
+            </tr>
+            <tr>
+                <td width="70px">Response</td>
+                {% if response_form %}
+                    {% if hint.response %}
+                        <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
+                        <td>
+                            <div>
+                                <p>{{ hint.response }}</p>
+                                <a href='#' class='fix_link'>Edit Response</a>
+                                <form class='sub_form' action="/staff/hints/" method="post" style="display:none">
+                                    {% csrf_token %}
+                                    {{ response_form|crispy }}
+                                    <input class="btn btn-default" type='submit' value='Submit'/>
+                                </form>
+                            </div>
+                        </td>
+                    {% else %}
+                        <td width="100px"></td>
+                        <td>
+                            <div>
+                                <form class='sub_form' action="/staff/hints/" method="post">
+                                    {% csrf_token %}
+                                    {{ response_form|crispy }}
+                                    <input class="btn btn-default" type='submit' value='Submit'/>
+                                </form>
+                            </div>
+                        </td>
+                    {% endif %}
+                {% else %}
+                    {% if hint.response %}
+                        <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
+                        <td>{{ hint.response }}</td>
+                    {% else %}
+                        <td width="100px"></td>
+                        <td><b>No response yet.</b></td>
+                    {% endif %}
+                {% endif %}
+            </tr>
+        </table>
+    </td>
+</tr>

@@ -1,0 +1,15 @@
+[run]
+command_line = 
+  manage.py test
+
+source = 
+  huntserver
+
+omit = 
+  */tests/*
+  */migrations/*
+
+[paths]
+source =
+  ./huntserver
+  /code/huntserver

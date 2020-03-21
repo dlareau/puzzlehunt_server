@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def login_selection(request):
-    """ A mostly static view to render the login selection. Next url parameter is conserved. """
+    """ A mostly static view to render the login selection. Next url parameter is preserved. """
 
     if 'next' in request.GET:
         context = {'next': request.GET['next']}
@@ -23,7 +23,7 @@ def login_selection(request):
     if(settings.USE_SHIBBOLETH):
         return render(request, "login_selection.html", context)
     else:
-        return views.login(request)
+        return views.LoginView.as_view()(request)
 
 
 def create_account(request):
@@ -65,7 +65,11 @@ def account_logout(request):
         additional_url = request.GET['next']
     else:
         additional_url = ""
-    return redirect("/Shibboleth.sso/Logout?return=https://" + request.get_host() + additional_url)
+    if(settings.USE_SHIBBOLETH):
+        next_url = "https://" + request.get_host() + additional_url
+        return redirect("/Shibboleth.sso/Logout?next=" + next_url)
+    else:
+        return index(request)
 
 
 def shib_login(request):
@@ -84,12 +88,12 @@ def shib_login(request):
 
     # Attempt to get username out of attr
     try:
-        eppn = attr[settings.SHIB_USERNAME]
-    except:
+        eppn = attr["eppn"]
+    except KeyError:
         return render(request, 'attribute_error.html', context)
 
     # Make sure username exists
-    if not attr[settings.SHIB_USERNAME] or attr[settings.SHIB_USERNAME] == '':
+    if not eppn or eppn == '':
         return render(request, 'attribute_error.html', context)
 
     # For form submission
@@ -114,20 +118,21 @@ def shib_login(request):
     except User.DoesNotExist:
         existing_context = {"username": eppn, "email": eppn}
         try:
-            existing_context['first_name'] = attr[settings.SHIB_FIRST_NAME]
-            existing_context['last_name'] = attr[settings.SHIB_LAST_NAME]
-        except:
+            existing_context['first_name'] = attr["givenName"]
+            existing_context['last_name'] = attr["sn"]
+        except KeyError:
             pass
         user_form = ShibUserForm(initial=existing_context)
         person_form = PersonForm()
-        context = {'user_form': user_form, 'person_form': person_form, 'next': redirect_url, 'shib_attrs': attr}
+        context = {'user_form': user_form, 'person_form': person_form,
+                   'next': redirect_url, 'shib_attrs': attr}
         return render(request, "shib_register.html", context)
 
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
     logger.info("Shibboleth user logged in: %s" % (str(user)))
 
-    # Redirect if nessecary
+    # Redirect if necessary
     if not redirect_url or '//' in redirect_url or ' ' in redirect_url:
         redirect_url = settings.LOGIN_REDIRECT_URL
     return redirect(redirect_url)

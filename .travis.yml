@@ -1,32 +1,39 @@
 language: python
 
-python:
-  - 2.7
-  - 3.4
-  - 3.5
-  - 3.6
-
 services:
-  - mysql
+  - docker
+
+sudo: required
 
 env:
-  - DJANGO=1.11.* DB=mysql
-  
+  global:
+    - DB_NAME=puzzlehunt_db
+    - DB_USER=hunt
+    - DB_PASSWORD=test
+    - DJANGO_SECRET_KEY=test_secret_key
+    - DOCKER_COMPOSE_VERSION=1.23.2
+
 before_install:
-  - export DJANGO_SETTINGS_MODULE="puzzlehunt_server.settings.travis_settings"
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 install:
-  - pip install -q Django==$DJANGO
-  - pip install -r requirements.txt
-  - pip install coveralls
-  - pip freeze
-  - mkdir -p ./media/puzzles
-
-before_script:
-  - mysql -e 'create database puzzlehunt_db;' -u root
+  - pip install coveralls flake8
+  - docker-compose build
+  - docker-compose up -d
 
 script:
-  - python manage.py test
+  - docker-compose exec app coverage run
+  - docker-compose exec app coverage report
+  - flake8 huntserver
+
+after_script:
+  - docker-compose stop
+  - docker-compose rm -f
 
 after_success:
+  - cp .coverage .coverage.extra
+  - coverage combine
   - coveralls

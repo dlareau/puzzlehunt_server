@@ -1,57 +1,120 @@
 How to Create a Hunt
 ********************
 
-Below are all of the steps you should need to take to create a puzzlehunt and have it ready to run:
+.. contents:: Table of Contents
 
-Create Hunt Object
-==================
+This is a guide describing how to set up a new puzzlehunt on the PuzzlehuntCMU
+server. This guide assumes that the server itself is already set up and that you
+already have an account on the server with both "Staff" and "Superuser"
+permissions.
 
-You aren't going to get very far without a hunt object to attach all of this data to, so sign in with a staff account and navigate over to ``{server URL}/admin/huntserver/hunt/``
+Prepare the Hunt Content
+========================
 
-Click the "+" button at the top. 
+Before anything is done on the server you should decide on some basic details
+about the hunt. You can always come back and edit these details later if they
+change. Some things to think about:
 
-You will be brought to the hunt creation page, which you should fill out, keeping in mind the following points:
+  + Hunt Name
+  + Hunt Date
+  + Hunt duration
+  + Hunt starting location
+  + Max team size
+  + Number of puzzles in the hunt
+  + Unlocking structure for the puzzles in the hunt
 
-  - Make sure the start date is accuratej or at the very least in the future, otherwise people will be able to see your hunt immediately.
-  - Make sure the end date is **after** the start date.
-  - Do not check the "Is current hunt" box just yet
-  - See the section below before putting anything into the template editor.
+Those first 5 details are especially important because they will be visible on
+the front page as soon as you establish this hunt as the current hunt.
 
-Just to be safe, go ahead and click the "Save and continue editing" before moving onto the next section.
+Create the Hunt Object
+======================
 
-Edit Hunt Template
-==================
+You aren't going to get very far without a hunt object to attach all of this
+data to, so sign in with your staff account and navigate over to 
+``{server URL}/staff``. You should be greeted with a page like the one below:
 
-Basic information
------------------
-This is where we give the hunt it's look and feel. Before this point, navigating to /hunt/{hunt_number} would just give you a blank page. 
+.. image:: images/main_1.png
 
-Everything typed into the "Template" form on the hunt editing page will be run through django's templating engine and rendered as HTML. 
+Click on the "Hunts" label either in the center or on the left-hand sidebar.
 
-The following context will be passed to the renderer for use in the template: ``{'hunt': ... , 'puzzles': ... , 'team': ... , 'solved': ...}`` where 'hunt' is the current hunt object, 'puzzles' is the list of puzzle objects that the team has currently unlocked, 'team' is the team of the user that is viewing the page, and 'solved' is the list of puzzle objects that the team has currently solved. All of those are pretty self explanatory.
+Once on the hunts page, click the blue "+" button in the upper right-hand corner
+to create a new hunt object. The page should now look like the below image:
 
-**While you may use completely custom HTML, it is STRONGLY RECOMMENDED that you follow the instructions below on how to inherit the base template to get nice features like the header bar, common style sheets, google analytics, and graceful degradation when the hunt becomes public.**
+.. image:: images/hunt_1.png
 
-A note about static files
+Start by filling out everything in the "Basic Info" section.
+
+.. Caution:: Checking the "Is current hunt" box will make this hunt the hunt
+   visible on the front page of the website. Only do so if all of the public
+   facing details (everything in the "Basic Info" section) are correct.
+
+.. Important:: **There are two start and end dates.** 
+
+   "Start Date" and "End date" are for internal use and will control things
+   like when the puzzles become available to the players, when teams start
+   gaining points for point based hunts, and when the hunt will automatically
+   stop accepting answers.
+
+   "Display start date" and "Display end date" are the dates/times displayed on
+   the front page of the website and control nothing.
+
+   In general, set the display dates for when people should arrive and leave and
+   set the actual dates for when teams should be actively solving puzzles.
+
+Next, fill in the two fields in the "Hunt Behavior" section, the help texts
+should be pretty self explanatory.
+
+The next section covers the "Resources/Template" section. If you don't want to
+deal with making the hunt template right now just type anything you want in the
+template field and then skip to "Hint Unlock Plans" below.
+
+Editing the Hunt Template
 -------------------------
+This is where we give the hunt its look and feel. Before this point, navigating
+to the hunt page would just give you a blank page. 
 
-As of version 3.0.0, in order to reduce repository clutter, it is now against policy to commit files specific to a certain hunt to the respository. This means that you are no longer allowed to put images, fonts, and other files in ``/huntserver/static`` or ``/static``. 
+Basic Information
+^^^^^^^^^^^^^^^^^
 
-As of version 3.4.0, the "hunt asset" system has been deprecated in favor of the new "hunt resources" system.
+Everything typed into the "Template" form on the hunt editing page will be run
+through Django's templating engine and rendered as HTML on the hunt main page.
 
-To still allow the use of new static files in each hunt, there is now a field on each hunt's admin page for a resource URL. This URL should point to a publicly accessible zip file, which contains all static media needed for the main hunt page. The resources can be downloaded by clicking the "Resources" button next to the appropriate hunt on the Hunt Management page.
+You can find documentation about Django's template language here:
+https://docs.djangoproject.com/en/2.2/ref/templates/language/.
+I'd recommend reading the "Variables", "Filters", and "Tags" sections.
 
-After the resources have been downloaded, they will be accessible through the use of a special template tag: ``{% hunt static %}myimage.png``.
+Speaking of variables, the following variables will be passed to the renderer
+for use in the template:
 
+:hunt: The current hunt object
+:team: The team object for the team of the user currently visiting the page
+:puzzles: A list of puzzle objects that the team currently has unlocked, sorted
+  by puzzle number
+:solved: A list of puzzle objects that the team currently has solved, unsorted
 
-Inheriting the base template
-----------------------------
+.. Tip:: You can view the fields that are available to access on each of the
+   team, hunt and puzzle objects in the :doc:`models documentation <models>`.
 
-If you don't already know about how Django template inheritance and blocks work, you can go read up on them here: https://docs.djangoproject.com/en/1.8/ref/templates/language/#template-inheritance 
+Since version 3.0, in order to reduce repository clutter, it is now against
+policy to commit files specific to a certain hunt to the repository. This means
+that you are no longer allowed to load resource files directly onto the server.
 
-I promise it won't take too much time to read, isn't too hard to understand, and will make the content below understandable.
+To still allow the use of new static files in each hunt, there is now a field on
+each hunt's admin page for a resource URL. This URL should point to a publicly
+accessible zip file, which contains all static media needed for the main hunt
+page. The resources can be downloaded by clicking the "Resources" button next to
+the appropriate hunt on the Hunt Management page. After the resources have been
+downloaded, they will be accessible through the use of a special template tag.
 
-Now that you know about blocks and inheritance, You'll want to start with the following template code at a minimum:
+The ``{% hunt static %}`` template tag will insert the URL to the current hunt's
+resource directory. For example, putting the text 
+``{% hunt static %}myimage.png`` in the template would insert the URL to the
+file ``myimage.png``.
+
+Inheriting the Base Template
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is recommended to start your template out with the following code:
 
 .. code-block:: html
 
@@ -61,24 +124,48 @@ Now that you know about blocks and inheritance, You'll want to start with the fo
     Your content here
   {% endblock content %}
 
-That is the most basic example you can get and will look very bland. Here are some other blocks you can override to get additional custom behavior:
+The above code inherits the
+`hunt_base.html <https://github.com/dlareau/puzzlehunt_server/blob/master/huntserver/templates/hunt_base.html>`_
+template, which in turns inherits the 
+`base.html <https://github.com/dlareau/puzzlehunt_server/blob/master/huntserver/templates/base.html>`_
+template. You don't need to know the contents of those two files, just that they
+provide the basic functionality like the site header and they define the
+following blocks that you can override for additional custom behavior:
 
-title
-  Overriding the 'title' block with whatever content you want to show up in the tab title. The default value for this block is "Puzzlehunt!"
+{% block title %}
+  This block controls what title is in the web browser tab. The default value
+  for this block is "Puzzlehunt!"
 
-base_includes
-  Overriding the 'base_includes' block will insert content before the standard bootstrap and jquery imports allowing you to override unwanted boostrap styles. The default value for this block only imports hunt_base.css.
+{% block base_includes %}
+  This block controls what content will be sourced/included before the standard
+  Bootstrap and Jquery imports. This allows you to override unwanted bootstrap
+  styles. The default value for this block only imports hunt_base.css.
 
-includes
-  Overriding the 'includes' block will insert content after the standard bootstrap and jquery imports, for content that you want to use to extend those libraries, or content that relies on those libraries.
+{% block includes %}
+  This block controls what content will be sourced/included after the standard
+  Bootstrap and Jquery imports. This is for content that you want to use to
+  extend those libraries, or content that relies on those libraries.
 
-footer
-  Overriding the 'footer' block will insert content at the bottom of the page. The default value is links to our social media and bridge page. 
+{% block footer %}
+  This block controls what content will be inserted at the bottom of the page.
+  The default value is links to our social media and bridge page. 
 
-Starter example
----------------
+You can read more about Django template inheritance and blocks here:
+https://docs.djangoproject.com/en/2.2/ref/templates/language/#template-inheritance
 
-While you may have all of the information you need, that doesn't mean you know what to do with it. Below is a simple example based on our first hunt. It will show the puzzles, display the answer for any solved puzzles, and demonstrates how to insert a break a hunt into two rounds.
+.. Warning:: While you may use completely custom HTML, it is STRONGLY
+   RECOMMENDED that you follow the instructions below on how to inherit the base
+   template to get nice features like the header bar, common style sheets,
+   Google analytics, and graceful degradation when the hunt becomes public.
+
+Starter Example
+^^^^^^^^^^^^^^^
+
+While you may now technically have all of the information you need, that
+doesn't mean you know what to do with it. Below is a simple example based one of
+our first hunts to use this server. It will show the puzzles, display the
+answer for any solved puzzles, and demonstrates how to break a hunt into two
+rounds.
 
 .. code-block:: html
 
@@ -144,85 +231,312 @@ While you may have all of the information you need, that doesn't mean you know w
   </div>
   {% endblock content %}
 
+
+Template Wrap Up
+^^^^^^^^^^^^^^^^
+
+That should be enough to get you started with template writing. Don't forget to
+download resources each time you update them and save often when editing the
+template as it won't save if you close or leave the page for any reason.
+
+.. Tip:: You can use ctrl-s/cmd-s to save the page and continue working 
+
+
+Hint Unlock Plans
+-----------------
+
+The final section of the Hunt creation page is for determining if and when hints
+will automatically become available to teams. If you do not want to use
+automatic hints (or hints at all) in the current hunt, simply ignore this
+section. Manual hints can still be awarded from the "Hints" page under the
+"Other Staff Pages" sidebar header.
+
+If you do want to automatically award hints during the hunt, there are three
+possible unlock mechanisms for hints:
+
+Exact Time Unlock:
+  All teams will gain a single hint some amount of time into the hunt. Use the
+  unlock parameter field to indicate how many minutes into the hunt this hint
+  should be given out.
+
+Interval Based Unlock:
+  All teams will gain a hint every X minutes for the entire duration of the
+  hunt. Use the unlock parameter field to indicate the number of minutes between
+  hints. The first hint will be given out X minutes after the start of the hunt.
+
+Solves Based Unlock:
+  Each team will individually be given a hint when they reach a certain number
+  of puzzle solves. Use the unlock parameter field to indicate how many solves a
+  team needs to unlock this hint.
+
+You may add as many hint unlock plans as you want, using the "Add another Hint
+unlock plan" link at the bottom to add additional rows to the table. All hint
+plans will trigger independently of each other.
+
+.. Caution::
+   "Exact Time Unlock" and "Interval Based Unlock" hints are both calculated
+   against the "Start Date" field of the hunt, making it even more important
+   that the start date is actually when teams will start solving puzzles and not
+   just when teams arrive for check in.
+
+.. Danger::
+   Changing a hint unlock plan after the hunt has started can have unexpected
+   results. Please take extra care to make sure that the hint plans are correct
+   before the hunt starts. 
+
+Hunt object creation wrap up
+----------------------------
+
+After you've filled in everything make sure "Is current hunt" box is
+appropriately checked or unchecked and hit the blue "Save" button in the upper
+right.
+
 Create Puzzle Objects
 =====================
 
-Great, now we have a hunt template and we can view our hunt, but that's not good without any puzzles, so lets add some. 
+Great, now we have a hunt template and we can view our hunt, but that's not good
+without any puzzles, so let's add some. 
 
-Start by going to ``{server URL}/admin/huntserver/puzzle/`` and clicking the "+" button at the top. 
+Start by going to the "Puzzles" section using the side navbar and clicking the
+blue "+" button in the upper right-hand corner to be brought to the puzzle
+creation page.
 
-You will be brought to the puzzle creation page, which you should fill out, keeping in mind the following points:
+The Basics
+----------
 
-  - Puzzle number should ideally be incremental starting at 1, this will be used for ordering puzzles
-  - Puzzle ID should be unique across all puzzles ever made, and it is good practice to have the last two digits match the puzzle number
-  - Make sure to check the "Is meta" box if this puzzle is a metapuzzle. 
-  - You don't need to fill in num pages, the server will do that for you upon downloading the pdf
-  - Num required to unlock represents the number of puzzles in the below list that need to be solved to unlock this puzzle. Any puzzle with a '0' here will be considered part of the initial set
-  - Don't worry about "Responses" right now, we'll talk about that below.
-  - There are 3 link fields, all should be publicly accessible (no auth require) and include the full "https://":
-  
-    - "Link" should be a link to the PDF of the puzzle if this is not an HTML puzzle.
-    - "Resource Link" should be a link to a ZIP file if the puzzle has a non-pdf component. This content will be available at ``/protected/puzzles/{{puzzle_id}}/``. 
-    - "Solution Link" should be a link to the PDF of the solution for the puzzle. If populated, this PDF will be available on the puzzle page after the hunt ends.
-    - Note: checking the "Is html puzzle" box will ignore the PDF link, and redirect the puzzle link to the resources folder. This means that the unzipped resources folder must act as a complete web page (including an index.html page) and it is recommended to use all local URL references in your HTML.  
+Start by choosing which hunt the puzzle will belong to and giving the puzzle a
+name and an answer.
 
-After filling out the page, hit "Save and add another" and continue to add puzzles until you have added all of the puzzles for the hunt. This will take a while, my recommendations are to be patient and have the unlocking graph on hand.
+.. Tip:: Answers are not case sensitive
 
-Create Auto-Response Objects
-============================
+Next, the puzzle must be given both a number and an ID. The number is for
+ordering within the hunt, and controls the order of puzzle objects passed into
+the hunt template. The ID used as a unique identifier across all puzzles is used
+in the URL for the puzzle. 
 
-This section is completely optional, but will make your life easier once the hunt is running. At the moment, whenever a user has submitted a correct answer, the server will respond "Correct!" and whenever the user submits a wrong answer the server will respond "Wrong Answer". 
+.. Note::
+   The current trend for ID's is to have the same 3 digit prefix for all puzzles
+   in a hunt and to use the puzzle's number as the last 2 digits. This allows
+   easy visual grouping of puzzles by hunt, and an ordering over all puzzles.
 
-Often you will want additional customized responses that can do anything from tell the user how they are wrong to tell them to "Keep going!". All you have to do is to go back into the edit page for a specific puzzle and enter regexes and response texts in the response boxes at the bottom of the page. 
+Attributes
+----------
 
-Some notes about the responses:
+Next are three True/False puzzle properties, all of which default to False:
 
-  - Regexes are in python syntax
-  - You are allowed to regex upon the correct answer and override the default "Correct!" response, the puzzle will still be marked as solved
-  - Regexes are currently applied in no guaranteed order, answers that satisfy more than one regex will result in undefined behavior
-  - Response texts are allowed to contain markdown style links: [foo](https://link.to.foo)
+"Is a metapuzzle"
+  Controls which puzzles are marked as metapuzzles for the purpose of
+  scoring on the progress page.
+
+"Doesn't Count"
+  Controls whether or not the puzzle is discounted from scoring on the
+  progress page.
+
+"Is HTML puzzle"
+  Controls whether the puzzle is more than just a PDF. If this box is
+  checked, the puzzle page will not display a PDF, and instead display a link to
+  the HTML content from the "Resource link" discussed below.
+
+Content
+-------
+
+Puzzle content is controlled by the following three links:
+
+"Link"
+  The link to a publicly accessible PDF of the puzzle (if the puzzle is not an
+  HTML puzzle).
+
+"Resource link"
+  The link to a publicly accessible ZIP file of the puzzle contents if the
+  puzzle is an HTML puzzle. The ZIP file must contain a file named "index.html".
+  All links from the index file to other files in the ZIP file should be 
+  relative links, as the base URL of the final contents is not guaranteed.
+
+"Solution link"
+  The link to a publicly accessible PDF of the puzzle solution. If this field is
+  filled in, the solutions for each puzzle will be available on the puzzle page
+  after the hunt is over.
+
+.. Tip::
+   Linking an unzipped Dropbox folder for the resource link will also work.
+   Dropbox will automatically generate a zip file of the folder upon download.
+
+Unlocking the Puzzle
+--------------------
+
+Next is the matter of how the puzzle is unlocked. As of version 4.0, there are
+now four options for puzzle unlocking:
+
+Solves Based Unlock:
+  The puzzle will be unlocked once a certain number of puzzles from a chosen
+  subset are solved. Use the puzzle chooser to indicate which puzzles count
+  towards unlocking this puzzle. Then enter the number of puzzles required to
+  unlock this puzzle in the "Num required to unlock" field. Setting the number
+  of required puzzles to zero means that this puzzle will automatically be
+  unlocked when the hunt starts.
+
+Points Based Unlock:
+  The puzzle will be unlocked once a team has earned enough points. Use the
+  "Points cost" field to specify how many points a team needs to unlock this
+  puzzle and the "Points value" to specify how many points solving this puzzle
+  gives a team. Points will also be given according to the rate specified by the
+  "Points per minute" field in the hunt object. Setting the "Points cost" field
+  to zero means that this puzzle will automatically be unlocked when the hunt
+  starts.
+
+Either (OR) Unlocking:
+  Fill out both of the above field pairs and the puzzle will be unlocked when
+  either unlocking method's criteria is met.
+
+Both (AND) Unlocking:
+  Fill out both of the above field pairs and the puzzle will be unlocked when
+  both unlocking method's criteria are met.
+
+Auto-Response Objects
+---------------------
+
+At the moment, whenever a user submits a correct answer, the server will
+respond with "Correct!" and whenever the user submits a wrong answer the server
+will respond with "Wrong Answer". Often you will want additional customized
+responses that can do things like tell the user how they are wrong or to tell
+them to "Keep going!". 
+
+To create automatic responses, use the "Responses" section at the bottom of the
+puzzle creation form. The "Regex" field is a python-style regex checked against
+the answer and the "Text" field is the text that will be returned to the team.
+The regexes are not applied in any specific order, so answers that match more
+than one regex will result in undefined behavior.
+
+.. Tip:: Response text can contain links using markdown style format: 
+   [foo](https://link.to.foo)
+
+Puzzle Wrapup
+-------------
+
+After filling out everything on the puzzle creation page, hit "Save and add
+another" and continue to add puzzles until you have added all of the puzzles for
+the hunt. This will take a while; my recommendations are to be patient and have
+the unlocking graph on hand.
+
 
 Create Prepuzzle Objects
 ========================
 
-As of version 3.3.0, the server now supports prepuzzles. A prepuzzle is a simpler puzzle that exists outside of the normal set of puzzles for a hunt. Prepuzzles are different in a number of ways:
+As of version 3.3, the server now supports prepuzzles. A prepuzzle is a simpler
+puzzle that exists outside of the normal set of puzzles for a hunt. Prepuzzles
+are different in a number of ways:
 
 - Prepuzzles do not require users to sign in
-- Once published, prepuzzles are accessable before the hunt is open
-- Prepuzzle submissions only support auto-response and do not show up on the queue page
+- Once published, prepuzzles are accessible before the hunt is open
+- Prepuzzle submissions only support auto-response and do not show up on the
+  queue page
 - Prepuzzles can be, but do not need to be tied to any specific hunt.
 
-Like other above objects, to create a prepuzzle object, navigate to the prepuzzle section of the admin pages and click the "+" icon in the upper right.
+Like other above objects, to create a prepuzzle object, navigate to the
+prepuzzle section of the admin pages and click the blue "+" icon in the upper
+right.
 
-Fill out the following fields:
+Below is a quick summary of the fields, most of them are similar to other
+fields above:
 
-- Puzzle name: Pretty self descriptive
-- Released: Controls whether or not non-staff members can see the puzzle
-- Hunt: Select which hunt this prepuzzle is associated with, leave blank to not associate it with any hunt.
-- Answer: Pretty self explanatory
-- Template: See the "Prepuzzle Templating" section below
-- Resource link: Allows the optional inclusion of static files for the prepuzzle, must be a link to a ZIP file. See the "Prepuzzle Templating" section for details on how to reference the files.
-- Response string: The string that the server sends back to the prepuzzle page when the puzzle is solved. In the simple example, this string is just displayed to the user, but more complex templates could do anything they desire with this string. 
-- Puzzle URL: This isn't really a field but rather an easy way to copy out the prepuzzle URL because it isn't currently accessible from anywhere on the site. 
+Puzzle name:
+  The name the puzzle is given and shown to users
+Released:
+  Controls whether or not non-staff members can see the puzzle
+Hunt:
+  Select which hunt this prepuzzle is associated with, leave blank to not
+  associate it with any hunt.
+Answer:
+  The answer to the puzzle, not case sensitive.
+Template:
+  See the "Prepuzzle Templating" section below
+Resource link: 
+  Allows the optional inclusion of static files for the prepuzzle, must be a
+  link to a publicly accessible ZIP file. See the "Prepuzzle Templating" section
+  for details on how to reference the files.
+Response string:
+  The string that the server sends back to the prepuzzle page when the puzzle is
+  solved. In the simple example, this string is just displayed to the user, but
+  more complex templates could do anything they desire with this string. 
+Puzzle URL:
+  This isn't really a field but rather an easy way to copy out the prepuzzle URL
+  because it isn't currently accessible from anywhere on the site. 
 
 Prepuzzle Templating
 --------------------
 
-As with the hunt "Template" field, everything typed into the "Template" form on the hunt editing page will be run through django's templating engine and rendered as HTML. 
+As with the hunt "Template" field, everything typed into the "Template" form on
+the prepuzzle editing page will be run through Django's templating engine and
+rendered as HTML. 
 
-The following context will be passed to the renderer for use in the template: ``{'puzzle': ... }`` where 'puzzle' is the current prepuzzle object with the above accessible fields.
+Again, more information about Django's templating language is available here:
+https://docs.djangoproject.com/en/2.2/ref/templates/language/.
 
-**While you may use completely custom HTML, it is STRONGLY RECOMMENDED that you add onto the default prepuzzle template (which extends prepuzzle.html) to get nice features like the header bar, common style sheets, google analytics, and javascript helper functions.**
+Unlike the hunt template, the only variable that is passed to this template is a
+variable named "puzzle" containing the current prepuzzle object.
 
-A few notes about extending the default prepuzzle template:
+Just like the hunt template, it is recommended to use the below code to extend a
+basic template, in this case the template name is ``prepuzzle.html``.
 
-- Put all of your additions inside the "content" block unless specified otherwise below.
-- Do any style sheet or JS loading you need to do inside of an "includes" block as mentioned above in the hunt section.
-- If you want to have simple answer checking and response, just use ``{% include "prepuzzle_answerbox.html" %}`` which will insert a submission box (and associated javascript) into the page and display the response string when the correct answer is entered.
-- If you opt not to use the puzzle answerbox template, you can use the supplied javascript helper function "check_answer" which takes a callback that will be passed the response and the user's answer
-- If you have supplied a resource_link that links to a zip file, after downloading from the management page, the files inside the zip file will be accessible using the the prepuzzle static tag: ``{% prepuzzle_static %}file.png``
+.. code-block:: html
 
-Update Current Hunt Label
-=========================
+  {% extends "prepuzzle.html" %}
 
-Congratulations! You have finished creating a hunt, head over to ``{server URL}/staff/management/`` and click the "Set Current" button next to your new hunt. This will cause it to become the hunt shown on the staff pages such as the Progress and Queue pages, it will be displayed on the homepage as the "Upcoming hunt", and it will be open to team registration. If any of those sound like things you don't want yet, you can wait as long as you want to set the hunt as the current hunt.
+  {% block content %}
+    Your content here
+  {% endblock content %}
+
+The following blocks are available to override in the prepuzzle template:
+
+{% block title %}
+  This block controls what title is in the web browser tab. The default value
+  for this block is the puzzle name.
+
+{% block base_includes %}
+  This block controls what content will be sourced/included before the standard
+  Bootstrap and Jquery imports. This block contains the navbar formatting and
+  the javascript helper functions discussed below, so it is not recommended to
+  override this block without making a call to ``{{ block.super }}`` inside to
+  include the existing contents.
+
+{% block includes %}
+  This block controls what content will be sourced/included after the standard
+  Bootstrap and Jquery imports. This is for content that you want to use to
+  extend those libraries, or content that relies on those libraries.
+
+The prepuzzle template has some other special functionality added:
+
+{% prepuzzle_static %}
+  The ``{% prepuzzle_static %}`` tag allows access to the files from the
+  prepuzzle's resource URL. It works just like the "hunt_static" tag.
+
+check_answer(callback, answer)
+  The prepuzzle base template supplies a function called ``check_answer`` that
+  will deal with all of the server communication needed for answer checking. The
+  function takes a callback function and the user's answer. The answer is then
+  submitted to the server, and the the response from the server is then passed
+  to the given callback function. The server response is a dictionary in the
+  following form: ``{is_correct: True, response: "response string"}``, where
+  ``is_correct`` is a boolean indicating whether the answer matches the
+  prepuzzle's answer and ``response`` is just a string that is either empty if
+  the response was not correct, or the prepuzzle's given response string if the
+  answer was correct.
+
+{% include "prepuzzle_answerbox.html" %}
+  If you use this include statement it will insert a no-hassle answer submission
+  box that includes a spot for users to enter their answer, a submission button
+  and will display the prepuzzle's response text if the answer was correct.
+
+.. Warning:: Just like the hunt template, you may use completely custom HTML if
+   you want, but it is STRONGLY RECOMMENDED that you follow the instructions
+   below on how to inherit the base template to get nice features like the
+   header bar, common style sheets, Google analytics, and javascript helper
+   funcions.
+
+Hunt Creation Wrapup
+====================
+
+If you've been following along, you should now have created everything needed to
+run a puzzlehunt. Head over to section 2: :doc:`How to Run a Hunt
+<hunt_running>` for specific information on how to use the other parts of the
+staff site.

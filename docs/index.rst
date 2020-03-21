@@ -6,23 +6,29 @@
 Welcome to PuzzlehuntCMU's Server documentation!
 ================================================
 
+If you're here as a user, start with the "How to Create a Hunt" and "How to Run
+a Hunt" sections. If you are here as a developer, start with the "Setup" and
+"Basics" sections.
+
 .. toctree::
    :maxdepth: 2
+   :numbered:
 
+   hunt_creation
+   hunt_running
    setup
    basics
    models
    views
-   hunt_creation
-   hunt_running
-   changelog
+
+:doc:`Changelog Here <changelog>`
 
 Contribute
 ----------
 
-Source Code: http://www.github.com/flybye22/puzzlehunt_server
+Source Code: http://www.github.com/dlareau/puzzlehunt_server
 
-Issue Tracker: http://www.github.com/flybye22/puzzlehunt_server/issues
+Issue Tracker: http://www.github.com/dlareau/puzzlehunt_server/issues
 
 If you are having issues, please let us know.
 Email dlareau@cmu.edu

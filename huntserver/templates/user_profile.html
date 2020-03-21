@@ -1,4 +1,5 @@
 {% extends "info_base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <div class="container">
@@ -6,11 +7,11 @@
 <form method="POST">
   {% csrf_token %}
   <div>
-    {{ user_form.as_p }}
-    {{ person_form.as_p }}
+    {{ user_form|crispy }}
+    {{ person_form|crispy }}
   </div>
   <div class="submit-row">
-    <input type="submit" value="Update Info" class="default" />
+    <input class="btn btn-default" type="submit" value="Update Info" class="default" />
   </div>
 </form>
 </div>

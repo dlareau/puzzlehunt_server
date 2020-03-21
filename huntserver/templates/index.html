@@ -30,7 +30,15 @@
     </strong></p>
     {% if not curr_hunt.is_public %}
     <p align="center">
-    <a href="{% url 'huntserver:registration' %}"><strong>Register Now!</strong></a>
+      <a href="{% url 'huntserver:registration' %}">
+        <strong>
+          {% if team %}
+            View Registration
+          {% else %}
+            Register Now!
+          {% endif %}
+        </strong>
+      </a>
     </p>
     {% endif %}
   </div>
@@ -42,7 +50,7 @@
     </p>
     <h2>What is a Puzzlehunt?</h2>
     <p>
-      Very simply put, it's a full-day event where people get together to solve carefully designed puzzles which somehow link together on a larger scale.
+      Very simply put, it's an event where people get together to solve carefully designed puzzles which somehow link together on a larger scale.
       <br>
       A puzzlehunt is typically characterized by its structure. In addition to several normal puzzles, each round has a meta-puzzle, which requires teams to have solved most of the normal puzzles to even unlock, and often requires solvers to incorporate answers from that round's normal puzzles to make sense of.
       <br>

@@ -12,6 +12,7 @@ codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else Non
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 # Application definition
+SITE_TITLE = "Puzzlehunt CMU"
 
 INSTALLED_APPS = (
     'bootstrap_admin',
@@ -22,22 +23,20 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'huntserver',
-    'django_nose',
+    'crispy_forms',
+    'huey.contrib.djhuey',
 )
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--cover-package=huntserver',
-    '--cover-erase',
-]
+SITE_ID = 1  # For flatpages
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -65,49 +64,61 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "puzzlehunt"
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+
+HUEY = {
+    'connection': {
+        'host': 'redis',
+    },
+    'consumer': {
+        'workers': 2,
+    },
+}
+
+
 WSGI_APPLICATION = 'puzzlehunt_server.wsgi.application'
 
-
-# Database information now in file not tracked by git
-
-# Login redirect override from /accounts/profile/ to /
-
+# URL settings
 LOGIN_REDIRECT_URL = '/'
+PROTECTED_URL = '/protected/'
+LOGIN_URL = 'login_selection'
+
+# Random settings
+SILENCED_SYSTEM_CHECKS = ["urls.W005"]  # silences admin url override warning
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
+DEFAULT_HINT_LOCKOUT = 60  # 60 Minutes
+HUNT_REGISTRATION_LOCKOUT = 2  # 2 Days
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/New_York'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-SITE_TITLE = "Puzzlehunt CMU"
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
-
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+# Static/Media files settings
+STATIC_ROOT = "/static/"
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_ROOT = "/media/"
 MEDIA_URL = '/media/'
 
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
-BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
-
-PROTECTED_URL = '/protected/'
-LOGIN_URL = '/login-selection/'
-
-
-# Shibboleth options
-USE_SHIBBOLETH = True
+# Shibboleth settings
+USE_SHIBBOLETH = os.getenv("DJANGO_USE_SHIBBOLETH", default="False").lower() == "true"
+SHIB_DOMAIN = os.getenv("DOMAIN", default="")
 
 SHIB_ATTRIBUTE_MAP = {
     "Shib-Identity-Provider": (True, "idp"),
@@ -116,40 +127,54 @@ SHIB_ATTRIBUTE_MAP = {
     "sn": (False, "sn")
 }
 
-SHIB_USERNAME = "eppn"
-SHIB_EMAIL = "eppn"
-SHIB_FIRST_NAME = "givenName"
-SHIB_LAST_NAME = "sn"
-
-# Logging options
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'noop': {
-            'level': 'WARNING',
-            'class': 'logging.NullHandler',
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/external/django.log',
         },
     },
-    'loggers': {},
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
+        'huntserver': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
         },
     },
 }
 
-# Email options
+# Email settings
 CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
-
-#Comment out for production.
-#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-#EMAIL_FILE_PATH = '/tmp/test_folder'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 
+# Environment variable overrides
+if os.environ.get("ENABLE_DEBUG_EMAIL"):
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = '/tmp/test_folder'
+
+if os.environ.get("ENABLE_DEBUG_TOOLBAR"):
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE
+
+if os.environ.get("SENTRY_DSN"):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=os.environ.get("SENTRY_DSN"),
+        integrations=[DjangoIntegration()],
+
+        # Sends which user caused the error
+        send_default_pii=True
+    )

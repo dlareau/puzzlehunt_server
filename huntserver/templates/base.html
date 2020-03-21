@@ -56,6 +56,28 @@
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
+
+    {% if messages %}
+    <div class="col-md-6 col-md-offset-3" style="position: absolute; z-index: 10;">
+      {% for message in messages %}
+      <div class="alert alert-dismissible
+      {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+        alert-info
+      {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+        alert-success
+      {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+        alert-warning
+      {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        alert-danger
+      {% endif %}
+      ">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content_wrapper %}
     {% block content %} {% endblock content %}
     {% endblock content_wrapper %}

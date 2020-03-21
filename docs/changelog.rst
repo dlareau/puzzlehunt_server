@@ -2,6 +2,54 @@
 Changelog
 *********
 
+Version 4
+*********
+
+v4.0.0
+======
+
+New:
+   - Now requires Django 2.2 (and therefore requires Python 3)
+   - Added hints
+
+      - Staff can now set various rules for when to grant teams hint requests
+      - Once a team has a hint request, they can request a hint for a specific puzzle
+      - There are new pages for requesting, viewing, and answering hints
+   - Added the ability to unlock puzzles using points (time)
+
+      - Puzzles can now be unlocked through solves or points
+      - Points can be gotten by solving puzzles and/or over time (both settable via the admin interface)
+   - Information pages are now editable via the admin interface
+
+      - All "information pages" except for the homepage are now editable via the "info pages" admin section
+      - It is possible to add additional extra pages to the top navbar via the admin interface
+   - The download command output is now displayed when downloading puzzles and resources
+   - All of the main python files in the project are now PEP8/flake8 compliant
+   - Standard deployment is now all done through docker and docker compose
+   - Very large documentation update. Now has actually helpful docs for hunt creation and running
+
+Updates:
+   - Puzzle PDFs are now directly embedded in puzzle pages rather than using PNGs
+   - The progress page now sorts by last overall time rather than meta/non-meta time individually
+   - Almost all forms on both user and staff pages are now styled using bootstrap
+   - Many admin pages now support better searching, filtering and sorting of items
+   - Puzzle ID's can now be up to 5 hexadecimal digits (up from 3)
+   - Teams can now register in the 2 days before the hunt but cannot request a room
+   - Updated text on index and hunt info pages to work for multi-day hunts
+   - Due to points/time puzzles, playtest teams now must have a start and end date/time
+   - The submission box now goes away after a team submits a correct answer
+   - Removed the "submissions after solve" chart on the admin "Charts" page
+   - Removed the hidden "depgraph" staff page
+   - Tweaked ratelimits, they are now more restrictive
+   - The test suite no longer requires internet access to run
+   - Removed reliance on django-nose, six, and PyPDF libraries
+
+Bugfixes:
+   - Informational logs no longer cause an error when presented with a unicode character
+   - Media path bug fixed
+   - Fixed logout redirect when shibboleth is disabled
+   - Various typo, readability, and small bug fixes
+
 Version 3
 *********
 

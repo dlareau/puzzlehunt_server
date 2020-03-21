@@ -1,0 +1,20 @@
+#!/bin/bash
+
+rm -f /etc/apache2/run/httpd.pid /var/lock/subsys/shibd
+cp /etc/shibboleth/certs/sp-* /etc/shibboleth/
+chmod 644 /etc/shibboleth/sp-cert.pem
+chmod 600 /etc/shibboleth/sp-key.pem
+chown _shibd:_shibd /etc/shibboleth/sp-*
+
+echo "Starting shibd"
+service shibd start
+echo "Finished starting shibd"
+if [ "$(ls -A /etc/letsencrypt/live)" ]; then
+    echo "Found existing certificate, not running certbot and assuming ssl is already enabled."
+else
+    certbot --apache -n --agree-tos --staging --email $CONTACT_EMAIL --domains $DOMAIN
+fi
+a2enmod ssl
+service apache2 stop
+
+exec /usr/sbin/apache2ctl -D FOREGROUND

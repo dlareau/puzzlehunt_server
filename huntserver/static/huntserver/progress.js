@@ -28,8 +28,7 @@ $(document).ready(function() {
   sorting_dict = {
     "# Meta Solves": "meta_rank", 
     "# Puzzle Solves": "rank",
-    "Last Puzzle Time": "last",
-    "Last Meta Time": "meta_last",
+    "Last Solve Time": "last",
   }
 
   function update_values() {
@@ -37,25 +36,26 @@ $(document).ready(function() {
       var result = 0;
       var meta_result = 0;
       var last = 0;
-      var meta_last = 0;
+      var last_str = "";
       $(this).find(".solved").each(function(sub_index) {
-        if($(this).closest("table").find("th").eq($(this).index()).hasClass("metapuzzle")) {
+        if($(this).closest("table").find("th").eq($(this).index()).hasClass("nocount")) {
+          //pass
+        } else if($(this).closest("table").find("th").eq($(this).index()).hasClass("metapuzzle")) {
           meta_result = meta_result + 1;
-          if($(this).data("date") > meta_last) {
-            meta_last = $(this).data("date");
-          }
         } else {
           result = result + 1;
-          if($(this).data("date") > last) {
-            last = $(this).data("date");
-          }
+        }
+        if($(this).data("date") > last) {
+          last = $(this).data("date");
+          last_str = $(this).html();
         }
       })
-      $(this).find(".num").html(result+meta_result);
+      $(this).find(".num_metas").html(meta_result);
+      $(this).find(".num_puzzles").html(result);
+      $(this).find(".last_time").html(last_str);
       $(this).data("meta_rank", meta_result);
       $(this).data("rank", result);
       $(this).data("last", -1 * last); // allows consistent low->high sorting
-      $(this).data("meta_last", -1 * meta_last); 
       if($(this).data("index") == undefined){
         $(this).data("index", $(this).index());
       }
@@ -69,7 +69,6 @@ $(document).ready(function() {
       critera1 = sorting_dict[$("#sort_select1").val()]
       critera2 = sorting_dict[$("#sort_select2").val()]
       critera3 = sorting_dict[$("#sort_select3").val()]
-      critera4 = sorting_dict[$("#sort_select4").val()]
       sort1 = $(b).data(critera1) - $(a).data(critera1);
       if(sort1) {
         return sort1;
@@ -81,10 +80,6 @@ $(document).ready(function() {
       sort3 = $(b).data(critera3) - $(a).data(critera3);
       if(sort3) {
         return sort3;
-      }
-      sort4 = $(b).data(critera4) - $(a).data(critera4);
-      if(sort4) {
-        return sort4;
       }
       return $(a).data("index") - $(b).data("index");
     }).appendTo(tbody);
@@ -131,6 +126,7 @@ $(document).ready(function() {
     }
   }
   setInterval(get_posts, 3000);
+  update_values();
 
 
   $('.unlock_form').on('submit', function(e) {
