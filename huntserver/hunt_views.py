@@ -183,9 +183,11 @@ def puzzle_view(request, puzzle_id):
     if(team is not None):
         request.ratelimit_key = team.team_name
 
-    is_ratelimited(request, fn=puzzle_view, key='user', rate='2/10s', method='POST', increment=True)
-    is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m',
-                   method='POST', increment=True)
+        is_ratelimited(request, fn=puzzle_view, key='user', rate='2/10s', method='POST',
+                       increment=True)
+    if(not puzzle.hunt.is_public):
+        is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m', method='POST',
+                       increment=True)
 
     if(getattr(request, 'limited', False)):
         logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
