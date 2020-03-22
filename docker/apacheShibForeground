@@ -12,7 +12,8 @@ echo "Finished starting shibd"
 if [ "$(ls -A /etc/letsencrypt/live)" ]; then
     echo "Found existing certificate, not running certbot and assuming ssl is already enabled."
 else
-    certbot --apache -n --agree-tos --staging --email $CONTACT_EMAIL --domains $DOMAIN
+    #    certbot --apache -n --agree-tos --staging --email $CONTACT_EMAIL --domains $DOMAIN
+    certbot --apache -n --agree-tos --email $CONTACT_EMAIL --domains $DOMAIN
 fi
 a2enmod ssl
 service apache2 stop

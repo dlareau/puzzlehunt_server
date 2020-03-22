@@ -135,18 +135,24 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': '/var/log/external/django.log',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
         'huntserver': {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': True,
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
         },
     },
 }
