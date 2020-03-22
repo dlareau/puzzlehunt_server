@@ -1,0 +1,48 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request 
+# events but only for the master branch
+on:
+  push:
+    branches: [ master, development ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    env:
+      DB_NAME: puzzlehunt_db
+      DB_USER: hunt
+      DB_PASSWORD: test
+      DJANGO_SECRET_KEY: test_secret_key
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    # Runs a single command using the runners shell
+    - name: compose-build
+      run: docker-compose build
+
+    # Runs a single command using the runners shell
+    - name: compose-up
+      run: docker-compose up -d
+
+    # Runs a single command using the runners shell
+    - name: get-container-status
+      run: docker ps
+
+    # Runs a set of commands using the runners shell
+    - name: run-tests
+      run: docker-compose exec app coverage run
+
+    # Runs a set of commands using the runners shell
+    - name: get-results
+      run: docker-compose exec app coverage report
