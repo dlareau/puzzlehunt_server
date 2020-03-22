@@ -21,7 +21,6 @@ jobs:
       DB_USER: hunt
       DB_PASSWORD: test
       DJANGO_SECRET_KEY: test_secret_key
-      COMPOSE_INTERACTIVE_NO_CLI: "1"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -46,8 +45,8 @@ jobs:
 
     # Runs a set of commands using the runners shell
     - name: run-tests
-      run: docker-compose exec app coverage run
+      run: docker-compose exec -T app coverage run
 
     # Runs a set of commands using the runners shell
     - name: get-results
-      run: docker-compose exec app coverage report
+      run: docker-compose exec -T app coverage report
