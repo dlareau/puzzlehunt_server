@@ -8,6 +8,10 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     # Admin redirections/views
+    url(r'^admin/login/$', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL),
+                                                query_string=True)),
+    url(r'^staff/login/$', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL),
+                                                query_string=True)),
     url(r'^admin/$', RedirectView.as_view(url=reverse_lazy('admin:app_list',
                                           args=('huntserver',)))),
     url(r'^staff/$', RedirectView.as_view(url=reverse_lazy('admin:app_list',

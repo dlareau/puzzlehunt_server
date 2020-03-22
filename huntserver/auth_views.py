@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login, views
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
@@ -61,13 +62,14 @@ def account_logout(request):
     """ A view to logout the user and *hopefully* also logout out the shibboleth system. """
 
     logout(request)
+    messages.success(request, "Logout successful")
     if 'next' in request.GET:
         additional_url = request.GET['next']
     else:
         additional_url = ""
     if(settings.USE_SHIBBOLETH):
         next_url = "https://" + request.get_host() + additional_url
-        return redirect("/Shibboleth.sso/Logout?next=" + next_url)
+        return redirect("/Shibboleth.sso/Logout?return=" + next_url)
     else:
         return index(request)
 
