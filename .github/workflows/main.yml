@@ -21,7 +21,7 @@ jobs:
       DB_USER: hunt
       DB_PASSWORD: test
       DJANGO_SECRET_KEY: test_secret_key
-      COMPOSE_INTERACTIVE_NO_CLI: 1
+      COMPOSE_INTERACTIVE_NO_CLI: "1"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,6 +31,10 @@ jobs:
     # Runs a single command using the runners shell
     - name: compose-build
       run: docker-compose build
+
+    # Runs a single command using the runners shell
+    - name: compose-version
+      run: docker-compose --version
 
     # Runs a single command using the runners shell
     - name: compose-up
