@@ -303,7 +303,7 @@ def puzzle_main_page(l):
     if(search_results):
         last_date = search_results.group(1)
     else:
-        sys.stdout.write("puzzle_main_page could not find ajax: %s" % str(response.text))
+        sys.stdout.write("puzzle_main_page could not find ajax last date: %s" % str(response.text))
         sys.stdout.flush()
         last_date = ""
     set_ajax_args(l, "puzzle", {'last_date': last_date})
@@ -312,6 +312,9 @@ def puzzle_main_page(l):
 def puzzle_ajax(l):
     # make request to current puzzle object with current ajax number
     # store returned ajax number in locust object
+    if(get_ajax_args(l, "puzzle")['last_date'] == ""):
+        print("Cowardly refusing to send empty ajax last date")
+        return
     puzzle_id = l.locust.puzzle_id
     puzzle_url = "/puzzle/" + puzzle_id + "/"
     response = better_get(l, puzzle_url + "?last_date=" + get_ajax_args(l, "puzzle")['last_date'],
@@ -390,7 +393,7 @@ def chat_new_message(l):
 
 def info_main_page(l):
     # Load info page
-    url_all(l, better_get(l, "/hunt/info/"))
+    url_all(l, better_get(l, "/hunt-info/"))
 
 
 def registration_main_page(l):
@@ -409,7 +412,7 @@ def registration_update_info(l):
 
 def resources(l):
     # Load resources page
-    url_all(l, better_get(l, "/resources/"))
+    url_all(l, better_get(l, "/info/extra/resources/"))
 
 
 def previous_hunts_main_page(l):
