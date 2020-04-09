@@ -14,8 +14,8 @@ import re
 thread_list = []
 kill_list = []
 
-user_ids = range(285) + range(285)
-staff_ids = range(300, 310) + range(300, 310)
+user_ids = list(range(285)) + list(range(285))
+staff_ids = list(range(300, 310)) + list(range(300, 310))
 
 USER_PASSWORD = "password"
 
@@ -61,14 +61,14 @@ def random_string(n):
 
 
 def is_puzzle_link(link):
-        return link and "/puzzle/" in link
+    return link and "/puzzle/" in link
 
 
 only_puzzles = SoupStrainer(href=is_puzzle_link)
 
 
 def is_hunt_link(link):
-        return link and "/hunt/" in link
+    return link and "/hunt/" in link
 
 
 only_hunts = SoupStrainer(href=is_hunt_link)
@@ -78,17 +78,18 @@ ajax_headers = {'X-Requested-With': 'XMLHttpRequest'}
 
 
 def set_ajax_args(l, attr, val):
-    #sys.stdout.write("User-id: %d, setting: %s" % (l.locust.user_id, str(val)))
+    # sys.stdout.write("User-id: %d, setting: %s" % (l.locust.user_id, str(val)))
     l.locust.ajax_args[attr] = val
 
 
 def get_ajax_args(l, attr):
-    #sys.stdout.write("User-id: %d, getting: %s" % (l.locust.user_id, str(l.locust.ajax_args)))
+    # sys.stdout.write("User-id: %d, getting: %s" % (l.locust.user_id, str(l.locust.ajax_args)))
     return l.locust.ajax_args[attr]
 
 
 def better_get(l, url, **kwargs):
-    return l.client.get(url, **dict(timeout=None, **kwargs))
+    # return l.client.get(url, **dict(timeout=None, **kwargs))
+    return l.client.get(url, **kwargs)
 
 
 def gen_from_list(in_list):
@@ -108,7 +109,7 @@ def gevent_func(poller, l):
             a = next(poller.time_iter)
             gevent.sleep(a)
     except gevent.GreenletExit:
-        #sys.stdout.write("Got GreenletExit exception from %d" % l.locust.user_id)
+        # sys.stdout.write("Got GreenletExit exception from %d" % l.locust.user_id)
         return
 
 
@@ -130,16 +131,15 @@ def apply_poller(task_set, poller):
         poller.thread = gevent.spawn(gevent_func, poller, ts)
         thread_list.append(poller.thread)
         ts.locust.poller = poller
-        #sys.stdout.write("Started thread %d" % ts.locust.user_id)
-        sys.stdout.write(str(get_status(thread_list)))
-        sys.stdout.write("KILL:" + str(get_status(kill_list)))
-
+        # sys.stdout.write("Started thread %d" % ts.locust.user_id)
+        # sys.stdout.write(str(get_status(thread_list)))
+        # sys.stdout.write("KILL:" + str(get_status(kill_list)))
 
     def poller_on_stop(ts):
         kill_list.append(poller.thread)
         sys.stdout.write(str(len(kill_list)))
         poller.thread.kill(block=True)
-        #sys.stdout.write("Ended thread %d" % ts.locust.user_id)
+        # sys.stdout.write("Ended thread %d" % ts.locust.user_id)
 
     if(poller):
         task_set.on_start = poller_on_start
@@ -195,8 +195,7 @@ def ensure_login(session, input_response, static=True):
     # optional static arg determines if it should fetch login page static files
 
     if(input_response.url and
-       ("login-selection" in input_response.url or
-        "/staff/login/" in input_response.url)):
+       ("login-selection" in input_response.url or "/staff/login/" in input_response.url)):
         if("?next=" in input_response.url):
             next_param = input_response.url.split("?next=")[1]
             response = session.client.get("/accounts/login/?next=" + next_param)
@@ -213,7 +212,7 @@ def ensure_login(session, input_response, static=True):
         store_CSRF(session, response)
         args = {"username": "test_user_" + str(session.locust.user_id),
                 "password": USER_PASSWORD + str(session.locust.user_id)
-        }
+                }
 
         response = store_CSRF(session, CSRF_post(session, next_url, args))
 
@@ -233,7 +232,7 @@ def store_CSRF(session, response):
         session.locust.client.cookies.set('csrftoken', None)
         session.locust.client.cookies.set('csrftoken', response.cookies['csrftoken'])
         session.locust.templateCSRF = session.locust.client.cookies['csrftoken']
-        #sys.stdout.write("|    COOKIE:   " + session.locust.client.cookies['csrftoken'])
+        # sys.stdout.write("|    COOKIE:   " + session.locust.client.cookies['csrftoken'])
 
     search_results = re.search(r"csrf_token = '(.*?)';", response.text)
     if(search_results):
@@ -251,12 +250,13 @@ def CSRF_post(session, url, args):
     args['csrfmiddlewaretoken'] = session.locust.templateCSRF
     response = session.client.post(url, args,
                                    headers={"X-CSRFToken": session.locust.templateCSRF})
-    # if(response.status_code == 403):
-    #     sys.stdout.write("|403 FAILURE: " + response.url)
-    #     sys.stdout.write(str("|    COOKIE:   " + str(session.locust.client.cookies.items())))
-    #     sys.stdout.write(str("|    TEMPLATE: " + session.locust.templateCSRF))
-    #     sys.stdout.write(str("|    " + str(response.request.headers)))
-    #     sys.stdout.write(str("|    " + str(response.request.body)))
+    if(response.status_code == 403):
+        sys.stdout.write("|403 FAILURE: " + response.url)
+        sys.stdout.write(str("|    COOKIE:   " + str(session.locust.client.cookies.items())))
+        sys.stdout.write(str("|    TEMPLATE: " + session.locust.templateCSRF))
+        sys.stdout.write(str("|    " + str(response.request.headers)))
+        sys.stdout.write(str("|    " + str(response.request.body)))
+        sys.stdout.write(str("|    " + str(response.text)))
     return response
 
 
@@ -371,7 +371,7 @@ def chat_main_page(l):
 def chat_ajax(l):
     # Make ajax request with current ajax value and store new value
     response = better_get(l, "/chat/?last_pk=" + str(get_ajax_args(l, "chat")['last_pk']),
-                      headers=ajax_headers, name="/chat/ AJAX")
+                          headers=ajax_headers, name="/chat/ AJAX")
     try:
         set_ajax_args(l, "chat", {'last_pk': response.json()["last_pk"]})
     except:
@@ -531,6 +531,7 @@ def progress_unlock(l):
             "action": "unlock"
         }
         store_CSRF(l, CSRF_post(l, "/staff/progress/", message_data))
+
 
 def progress_ajax(l):
     response = better_get(l, "/staff/progress/?" +
