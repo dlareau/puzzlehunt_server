@@ -303,12 +303,13 @@ class UserProxyObject(User):
         app_label = 'huntserver'
         verbose_name = User._meta.verbose_name
         verbose_name_plural = User._meta.verbose_name_plural
+        ordering = ['-pk']
 
 
 class UserProxyAdmin(admin.ModelAdmin):
     list_display = ['username', 'first_name', 'last_name']
     search_fields = ['email', 'username', 'first_name', 'last_name']
-
+    
 
 class FlatPageProxyObject(FlatPage):
     class Meta:
