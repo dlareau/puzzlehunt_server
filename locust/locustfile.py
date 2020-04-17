@@ -14,8 +14,11 @@ import re
 thread_list = []
 kill_list = []
 
-user_ids = list(range(285)) + list(range(285))
-staff_ids = list(range(300, 310)) + list(range(300, 310))
+num_bots = 900
+num_staff = int(num_bots / 25)
+num_users = num_bots - num_staff
+user_ids = list(range(num_users))
+staff_ids = list(range(num_users, num_users + num_staff))
 
 USER_PASSWORD = "password"
 
