@@ -50,7 +50,6 @@ jQuery(document).ready(function($) {
           }
           $("#num_available_hints").html(string_start + response.num_available_hints +
             string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end);
-          $("#no_hint_message").hide();
         },
         error: function (html) {
           console.log(html);
@@ -86,7 +85,6 @@ jQuery(document).ready(function($) {
         last_date = response.last_date;
         $("#num_available_hints").html(string_start + response.num_available_hints +
           string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end);
-        $("#no_hint_message").hide();
       }
     });
     $('#id_request').val('');
@@ -94,6 +92,7 @@ jQuery(document).ready(function($) {
 
   // receive a message though the websocket from the server
   function receiveMessage(submission) {
+    $("#no_hint_message").hide();
     submission = $(submission);
     pk = submission.data('id');
     if ($('tr[data-id=' + pk + ']').length == 0) {
