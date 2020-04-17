@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import smart_str
 from django.db.models import F
+from django.urls import reverse_lazy
 import json
 import os
 import re
@@ -91,7 +92,7 @@ def hunt(request, hunt_num):
     elif(hunt.is_open):
         # see if the team does not belong to the hunt being accessed
         if (not request.user.is_authenticated):
-            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+            return redirect('%s?next=%s' % (reverse_lazy(settings.LOGIN_URL), request.path))
 
         elif(team is None or (team.hunt != hunt)):
             return render(request, 'access_error.html', {'reason': "team"})
@@ -263,7 +264,7 @@ def puzzle_view(request, puzzle_id):
         # Only allowed access if the hunt is public or if unlocked by team
         if(not puzzle.hunt.is_public):
             if(not request.user.is_authenticated):
-                return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+                return redirect('%s?next=%s' % (reverse_lazy(settings.LOGIN_URL), request.path))
 
             if (not request.user.is_staff):
                 if(team is None or puzzle not in team.unlocked.all()):
