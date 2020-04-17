@@ -37,15 +37,16 @@
     <br>
     <div class="col-md-12">
       <h3>Previous Hint Requests: </h3>
-      {% if hint_list %}
         <table id="hint_table" class="table">
+        {% if hint_list %}
           {% for hint in hint_list reversed %}
             {% include "hint_row.html" %}
           {% endfor %}
+        {% endif %}
         </table>
-      {% else %}
-        <h4> You have not yet submitted any hint requests for this puzzle </h4>
-      {% endif %}
+        {% if not hint_list %}
+          <h4> You have not yet submitted any hint requests for this puzzle </h4>
+        {% endif %}
     </div>
   </div>
 </div>

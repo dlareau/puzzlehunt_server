@@ -4,6 +4,7 @@
 /media/
 /huntserver/static/huntserver/*.pdf
 /huntserver/static/huntserver/puzzles/*
+/huntserver/fixtures/final*
 /puzzlehunt_server/settings/local_settings.py
 /puzzlehunt_server/settings/dev_settings.py
 /docs/_build/
