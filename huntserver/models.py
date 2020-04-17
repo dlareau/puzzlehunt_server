@@ -350,14 +350,14 @@ class Team(models.Model):
     @property
     def playtest_started(self):
         """ A boolean indicating whether or not the team is currently allowed to be playtesting """
-        if(self.playtest_start_date is None and self.playtest_end_date is None):
+        if(self.playtest_start_date is None or self.playtest_end_date is None):
             return False
         return (timezone.now() >= self.playtest_start_date)
 
     @property
     def playtest_over(self):
         """ A boolean indicating whether or not the team's playtest slot has passed """
-        if(self.playtest_start_date is None and self.playtest_end_date is None):
+        if(self.playtest_start_date is None or self.playtest_end_date is None):
             return False
         return timezone.now() >= self.playtest_end_date
 
