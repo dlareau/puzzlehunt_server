@@ -48,8 +48,8 @@ jQuery(document).ready(function($) {
               ajax_delay = 120;
             }
           }
-          $("#num_available_hints").html(string_start + response.num_available_hints + 
-            string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end)
+          $("#num_available_hints").html(string_start + response.num_available_hints +
+            string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end);
         },
         error: function (html) {
           console.log(html);
@@ -83,8 +83,8 @@ jQuery(document).ready(function($) {
         response = JSON.parse(response);
         receiveMessage(response.hint_list[0]);
         last_date = response.last_date;
-        $("#num_available_hints").html(string_start + response.num_available_hints + 
-          string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end)
+        $("#num_available_hints").html(string_start + response.num_available_hints +
+          string_mid + ((response.num_available_hints == 1) ? '' : 's') + string_end);
       }
     });
     $('#id_request').val('');
@@ -92,6 +92,7 @@ jQuery(document).ready(function($) {
 
   // receive a message though the websocket from the server
   function receiveMessage(submission) {
+    $("#no_hint_message").hide();
     submission = $(submission);
     pk = submission.data('id');
     if ($('tr[data-id=' + pk + ']').length == 0) {
