@@ -309,7 +309,7 @@ class UserProxyObject(User):
 class UserProxyAdmin(admin.ModelAdmin):
     list_display = ['username', 'first_name', 'last_name']
     search_fields = ['email', 'username', 'first_name', 'last_name']
-    
+
 
 class FlatPageProxyObject(FlatPage):
     class Meta:
