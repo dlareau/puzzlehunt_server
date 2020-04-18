@@ -400,6 +400,21 @@ def chat(request):
 
 
 @login_required
+def chat_status(request):
+    """
+    A view ajax requests for the status of waiting chat messages for a team.
+    """
+    team = Hunt.objects.get(is_current_hunt=True).team_from_user(request.user)
+    if request.method == 'GET' and request.is_ajax():
+        if(team is None):
+            return render(request, 'access_error.html', {'reason': "team"})
+        status = team.num_waiting_messages
+        return HttpResponse(json.dumps({"num_messages": status}))
+    else:
+        return HttpResponseNotFound()
+
+
+@login_required
 def unlockables(request):
     """ A view to render the unlockables page for hunt participants. """
     team = Hunt.objects.get(is_current_hunt=True).team_from_user(request.user)

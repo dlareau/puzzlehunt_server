@@ -385,8 +385,8 @@ class Team(models.Model):
         return self.person_set.count()
 
     @property
-    def has_waiting_messages(self):
-        """ A boolean indicating whether or not the team has waiting chat messages """
+    def num_waiting_messages(self):
+        """ A number indicating how many waiting chat messages a team has"""
         return max(self.last_received_message - self.last_seen_message, 0)
 
     def hints_open_for_puzzle(self, puzzle):
