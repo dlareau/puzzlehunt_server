@@ -80,6 +80,7 @@ services:
       - media:/media
     environment:
       - DOMAIN
+      - SSL_DOMAINS
       - CONTACT_EMAIL
     tty: true
 
