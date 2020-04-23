@@ -374,6 +374,8 @@ def chat(request):
     else:
         if(team is None):
             return render(request, 'access_error.html', {'reason': "team"})
+        if(team.hunt.is_locked):
+            return render(request, 'access_error.html', {'reason': "hunt"})
         if request.is_ajax():
             messages = Message.objects.filter(pk__gt=request.GET.get("last_pk"))
         else:

@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models.functions import Lower
 from django.shortcuts import render
 from django.contrib import messages
 import random
@@ -91,7 +92,7 @@ def registration(request):
         return render(request, "registration.html",
                       {'registered_team': team, 'curr_hunt': curr_hunt})
     else:
-        teams = curr_hunt.real_teams
+        teams = curr_hunt.real_teams.order_by(Lower('team_name'))
         return render(request, "registration.html",
                       {'teams': teams, 'curr_hunt': curr_hunt})
 
