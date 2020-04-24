@@ -369,12 +369,12 @@ def chat(request):
         #   the message because normal users can't send as staff or other teams
         m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
                                    is_response=False, team=team)
-        team.last_received_message = m.pk
+        team.num_waiting_messages = 0
         messages = [m]
     else:
         if(team is None):
             return render(request, 'access_error.html', {'reason': "team"})
-        if(team.hunt.is_locked):
+        if(team.hunt.is_locked and not team.is_playtester_team):
             return render(request, 'access_error.html', {'reason': "hunt"})
         if request.is_ajax():
             messages = Message.objects.filter(pk__gt=request.GET.get("last_pk"))
@@ -390,7 +390,7 @@ def chat(request):
         last_pk = Message.objects.latest('id').id
     except Message.DoesNotExist:
         last_pk = 0
-    team.last_seen_message = last_pk
+    team.num_waiting_messages = 0
 
     team.save()  # Save last_*_message vars
     context = {'message_dict': message_dict, 'last_pk': last_pk}

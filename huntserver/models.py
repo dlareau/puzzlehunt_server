@@ -329,12 +329,9 @@ class Team(models.Model):
         null=True,
         blank=True,
         help_text="The date/time at which a hunt will no longer be available to playtesters")
-    last_seen_message = models.IntegerField(
+    num_waiting_messages = models.IntegerField(
         default=0,
-        help_text="The PK of the last message the team has seen")
-    last_received_message = models.IntegerField(
-        default=0,
-        help_text="The PK of the last message the team has received")
+        help_text="The number of unseen messages a team has waiting")
     num_available_hints = models.IntegerField(
         default=0,
         help_text="The number of hints the team has available to use")
@@ -383,11 +380,6 @@ class Team(models.Model):
     def size(self):
         """ The number of people on the team """
         return self.person_set.count()
-
-    @property
-    def num_waiting_messages(self):
-        """ A number indicating how many waiting chat messages a team has"""
-        return max(self.last_received_message - self.last_seen_message, 0)
 
     def hints_open_for_puzzle(self, puzzle):
         """ Takes a puzzle and returns whether or not the team may use hints on the puzzle """

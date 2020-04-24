@@ -355,7 +355,7 @@ def admin_chat(request):
             m = Message.objects.create(time=timezone.now(), text=request.POST.get('message'),
                                        is_response=(request.POST.get('is_response') == "true"),
                                        team=team)
-            team.last_received_message = m.pk
+            team.num_waiting_messages = team.num_waiting_messages + 1
             team.save()
             messages = [m]
 
