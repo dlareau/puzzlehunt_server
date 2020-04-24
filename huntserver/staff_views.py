@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import F
+from django.db.models.functions import Lower
 from huey.contrib.djhuey import result
 import itertools
 import json
@@ -386,7 +387,7 @@ def admin_chat(request):
     if request.is_ajax() or request.method == 'POST':
         return HttpResponse(json.dumps(context))
     else:
-        teams = curr_hunt.team_set.order_by("team_name").all()
+        teams = curr_hunt.team_set.order_by(Lower("team_name")).all()
         context['teams'] = teams
         return render(request, 'staff_chat.html', add_apps_to_context(context, request))
 

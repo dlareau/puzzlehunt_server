@@ -17,9 +17,9 @@
   <h1> Staff Chat </h1>
   <div class="container">
     <div class="row">
-      <div id="button_container" class="content col-sm-4 col-md-3">
+      <div id="button_container" class="content col-sm-5 col-md-4">
         {% for team in teams %}
-          <button style="width:45%" data-id='{{ team.pk }}' data-full_name="{{ team.team_name }}" class="chatselect">
+          <button style="width:31%" data-id='{{ team.pk }}' data-full_name="{{ team.team_name }}" class="chatselect">
             {{ team.team_name|truncatechars:12 }}
           </button>
 
