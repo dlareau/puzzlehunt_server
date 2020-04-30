@@ -19,9 +19,12 @@
     <div class='col-md-12 info'>
       <div class='leftinfo'>
         <h1> Hints for P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
+	{% if not puzzle.hunt.is_public %}
         <h3 id="num_available_hints">You currently have {{team.num_available_hints}} available hint{{team.num_available_hints|pluralize}} for this hunt</h3>
+	{% endif %}
       </div>
     </div>
+    {% if not puzzle.hunt.is_public %}
     <div id='submit_container' class="col-md-10 col-md-offset-1">
       <fieldset id='submit'>
         <legend>Request a Hint</legend>
@@ -34,6 +37,7 @@
         </form>
       </fieldset>
     </div>
+    {% endif %}
     <br>
     <div class="col-md-12">
       <h3>Previous Hint Requests: </h3>
