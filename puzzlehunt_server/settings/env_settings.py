@@ -12,5 +12,6 @@ if(DATABASES['default']['ENGINE'] == 'django.db.backends.mysql'):
 INTERNAL_IPS = ['127.0.0.1', 'localhost']
 EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_PASSWORD")
+DOMAIN = os.getenv("DOMAIN", default="default.com")
 
 ALLOWED_HOSTS = ['*']
