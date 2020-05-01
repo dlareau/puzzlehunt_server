@@ -49,25 +49,6 @@
       {% endblock branding %}
       {% block filters %}{% endblock filters %}
 
-      {% if available_apps %}
-      {% for app in available_apps %}
-        <ul class="nav nav-sidebar app-{{ app.app_label }} module{% if app.app_url in request.path %} has-active-menu show-models{% endif %}">
-          <li {% if app.app_url == request.path %} class="active"{% endif %}>
-            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
-              {{ app.name }}
-              <span style="float: right; font-size:1.3em; margin-top: -1px; margin-right: 9px" class="glyphicon glyphicon-menu-hamburger"></span>
-            </a>
-          </li>
-          {% for model in app.models %}
-            <li {% if model.admin_url in request.path %}class="active"{% endif %}>
-              <a href="{% firstof model.admin_url model.add_url '#' %}" title="{% if not model.admin_url and not model.add_url %}{% trans "You don't have permission to edit anything." %}{% endif %}">{{ model.name }}</a>
-            </li>
-          {% endfor %}
-        </ul>
-      {% endfor %}
-    {% else %}
-      <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
-    {% endif %}
     {% if "progress" in request.path or "queue" in request.path or "chat" in request.path or "management" in request.path or "emails" in request.path or "charts" in request.path or "info" in request.path or "hints" in request.path %}
         <ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
     {% else %}
@@ -104,5 +85,24 @@
               <a href="/staff/charts">Charts</a>
             </li>
         </ul>
+      {% if available_apps %}
+      {% for app in available_apps %}
+        <ul class="nav nav-sidebar app-{{ app.app_label }} module{% if app.app_url in request.path %} has-active-menu show-models{% endif %}">
+          <li {% if app.app_url == request.path %} class="active"{% endif %}>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
+              {{ app.name }}
+              <span style="float: right; font-size:1.3em; margin-top: -1px; margin-right: 9px" class="glyphicon glyphicon-menu-hamburger"></span>
+            </a>
+          </li>
+          {% for model in app.models %}
+            <li {% if model.admin_url in request.path %}class="active"{% endif %}>
+              <a href="{% firstof model.admin_url model.add_url '#' %}" title="{% if not model.admin_url and not model.add_url %}{% trans "You don't have permission to edit anything." %}{% endif %}">{{ model.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    {% else %}
+      <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
+    {% endif %}
     </div>
 {% endblock sidebar_menu %}
