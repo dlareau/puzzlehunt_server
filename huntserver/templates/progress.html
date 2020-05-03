@@ -83,17 +83,7 @@
           <td class='last_time'></td>
           {% for cell in row.cells %}
           {% if cell.0 == "locked"%}
-            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='unavailable' 
-             style='text-align:center;'>
-              <form class='unlock_form' action="/staff/progress/" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="team_id" value="{{ row.team.pk }}">
-                <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">
-                <input type="hidden" name="action" value="unlock">
-                <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
-                  Unlock
-                </button>
-        </form>
+            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='unavailable' style='text-align:center;'>
             </td>
           {% elif cell.0 == "unlocked" %}
             <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}>
