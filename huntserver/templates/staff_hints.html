@@ -70,7 +70,11 @@
       </select>
       <button type="submit" value="Filter" class="btn btn-default"> Filter </button>
     </form>
-
+    {% if team_id or puzzle_id or hint_status %}
+    <div class="alert alert-info" style="margin-top: 10px; padding: 10px;" role="alert">
+      You are viewing filtered hints. <u><a href=".">Click here to remove filtering.</a></u>
+    </div>
+    {% endif %}
     <table id='hints' class="table table-condensed" style="margin-top: 10px;">
       <tbody id='sub_table'>
         {% for hint in hint_list %}

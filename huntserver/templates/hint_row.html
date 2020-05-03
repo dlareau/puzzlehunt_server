@@ -6,7 +6,14 @@
                 <td width="70px">Request</td>
                 <td width="100px">{{ hint.request_time|time:"h:i a" }}</td>
                 <td>
-                    <b>Puzzle: {{hint.puzzle.puzzle_name}} | Team: {{hint.team.short_name}}</b>
+                    <b>
+                        Puzzle: <a href="./?team_id={{request.GET.team_id}}&puzzle_id={{hint.puzzle.pk}}&hint_status={{request.GET.hint_status}}">
+                            {{hint.puzzle.puzzle_name}}
+                        </a>
+                      | Team: <a href="./?team_id={{hint.team.pk}}&puzzle_id={{request.GET.puzzle_id}}&hint_status={{request.GET.hint_status}}">
+                            {{hint.team.short_name}}
+                        </a>
+                    </b>
                     <br>
                     {{ hint.request }}
                 </td>
