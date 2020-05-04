@@ -18,7 +18,7 @@ import itertools
 import json
 from copy import deepcopy
 
-from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint
+from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
 from .utils import download_puzzles_task, download_zip_task
 
@@ -420,9 +420,12 @@ def hunt_info(request):
         return HttpResponse('teams updated!')
     else:
         teams = curr_hunt.real_teams
-        people = []
-        for team in teams:
-            people = people + list(team.person_set.all())
+        people = Person.objects.filter(teams__hunt=curr_hunt)
+        try:
+            old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
+            new_people = people.filter(user__date_joined_gt=old_hunt.start_date)
+        except Hunt.DoesNotExist:
+            new_people = people
 
         need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
         have_teams = (teams.exclude(location="need_a_room")
@@ -432,6 +435,7 @@ def hunt_info(request):
 
         context = {'curr_hunt': curr_hunt,
                    'people': people,
+                   'new_people': new_people,
                    'need_teams': need_teams.order_by('id').all(),
                    'have_teams': have_teams.all(),
                    'offsite_teams': offsite_teams.all(),
