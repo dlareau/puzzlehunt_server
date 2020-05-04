@@ -119,9 +119,9 @@ $(document).ready(function() {
       });
       update_values();
       if($("#sort_check").is(":checked")) {
-        sort_table($("table"));
+        sort_table($("#progress"));
       } else {
-        unsort_table($("table"));
+        unsort_table($("#progress"));
       }
     }
   }

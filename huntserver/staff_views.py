@@ -11,11 +11,12 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib import messages
-from django.db.models import F
+from django.db.models import F, Max, Count
 from django.db.models.functions import Lower
 from huey.contrib.djhuey import result
 import itertools
 import json
+from copy import deepcopy
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
@@ -139,20 +140,20 @@ def progress(request):
         results = []
 
         last_solve_pk = request.GET.get("last_solve_pk")
-        solves = list(Solve.objects.filter(pk__gt=last_solve_pk))
-        for i in range(len(solves)):
-            results.append(solves[i].serialize_for_ajax())
+        solves = Solve.objects.filter(pk__gt=last_solve_pk)
+        for solve in solves:
+            results.append(solve.serialize_for_ajax())
 
         last_unlock_pk = request.GET.get("last_unlock_pk")
-        unlocks = list(Unlock.objects.filter(pk__gt=last_unlock_pk))
-        for i in range(len(unlocks)):
-            results.append(unlocks[i].serialize_for_ajax())
+        unlocks = Unlock.objects.filter(pk__gt=last_unlock_pk)
+        for unlock in unlocks:
+            results.append(unlock.serialize_for_ajax())
 
         last_submission_pk = request.GET.get("last_submission_pk")
-        submissions = list(Submission.objects.filter(pk__gt=last_submission_pk))
-        for i in range(len(submissions)):
-            if(not submissions[i].team.solved.filter(pk=submissions[i].puzzle.pk).exists()):
-                results.append(submissions[i].serialize_for_ajax())
+        submissions = Submission.objects.filter(pk__gt=last_submission_pk)
+        for submission in submissions:
+            if(not submission.team.solved.filter(pk=submission.puzzle.pk).exists()):
+                results.append(submission.serialize_for_ajax())
 
         if(len(results) > 0):
             try:
@@ -178,37 +179,35 @@ def progress(request):
         # An array of solves, organized by team then by puzzle
         # This array is essentially the grid on the progress page
         # The structure is messy, it was built part by part as features were added
-        sol_array = []
-        for team in teams:
-            # These are defined to reduce DB queries
-            solved = team.solved.all()                            # puzzles
-            unlocked = team.unlocked.all()                        # puzzles
-            solves = team.solve_set.select_related('submission')  # solves
-            unlocks = team.unlock_set.all()                       # unlocks
-            submissions = team.submission_set.all()               # submissions
 
-            # Basic team information for row headers
-            # The last element ('cells') is an array of the row's data
-            sol_array.append({'team': team, 'cells': []})
-            # What goes in each cell (item in "cells") is based on puzzle status
-            for puzzle in puzzles:
-                # Solved => solve object and puzzle id
-                if puzzle in solved:
-                    solve_time = solves.get(puzzle=puzzle).submission.submission_time
-                    sol_array[-1]['cells'].append([solve_time, puzzle.puzzle_id])
-                # Unlocked => Identify as unlocked, puzzle id, and unlock time
-                elif puzzle in unlocked:
-                    unlock_time = unlocks.get(puzzle=puzzle).time
-                    puzzle_submissions = submissions.filter(puzzle=puzzle)
-                    if(puzzle_submissions.exists()):
-                        last_sub_time = puzzle_submissions.latest('id').submission_time
-                    else:
-                        last_sub_time = None
-                    sol_array[-1]['cells'].append(["unlocked", puzzle.puzzle_id,
-                                                   unlock_time, last_sub_time])
-                # Locked => Identify as locked and puzzle id
-                else:
-                    sol_array[-1]['cells'].append(["locked", puzzle.puzzle_id])
+        sol_dict = {}
+        puzzle_dict = {}
+        for puzzle in puzzles:
+            puzzle_dict[puzzle.pk] = ['locked', puzzle.puzzle_id]
+        for team in teams:
+            sol_dict[team.pk] = deepcopy(puzzle_dict)
+
+        data = Unlock.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY').values_list('team', 'puzzle')
+        data = data.annotate(Max('time'))
+
+        for point in data:
+            sol_dict[point[0]][point[1]] = ['unlocked', point[2]]
+
+        data = Submission.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY').values_list('team', 'puzzle')
+        data = data.annotate(Max('submission_time'))
+        data = data.annotate(Count('solve'))
+
+        for point in data:
+            if(point[3] == 0):
+                sol_dict[point[0]][point[1]].append(point[2])
+            else:
+                sol_dict[point[0]][point[1]] = ['solved', point[2]]
+        sol_list = []
+        for team in teams:
+            puzzle_list = [[puzzle.puzzle_id] + sol_dict[team.pk][puzzle.pk] for puzzle in puzzles]
+            sol_list.append({'team': {'name': team.team_name, 'pk': team.pk},
+                             'puzzles': puzzle_list})
+
         try:
             last_solve_pk = Solve.objects.latest('id').id
         except Solve.DoesNotExist:
@@ -221,7 +220,7 @@ def progress(request):
             last_submission_pk = Submission.objects.latest('id').id
         except Submission.DoesNotExist:
             last_submission_pk = 0
-        context = {'puzzle_list': puzzles, 'team_list': teams, 'sol_array': sol_array,
+        context = {'puzzle_list': puzzles, 'team_list': teams, 'sol_list': sol_list,
                    'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk,
                    'last_submission_pk': last_submission_pk}
         return render(request, 'progress.html', add_apps_to_context(context, request))
@@ -422,14 +421,8 @@ def hunt_info(request):
     else:
         teams = curr_hunt.real_teams
         people = []
-        new_people = []
         for team in teams:
             people = people + list(team.person_set.all())
-        try:
-            old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
-            new_people = [p for p in people if p.user.date_joined > old_hunt.start_date]
-        except Hunt.DoesNotExist:
-            new_people = people
 
         need_teams = teams.filter(location="need_a_room") | teams.filter(location="needs_a_room")
         have_teams = (teams.exclude(location="need_a_room")
@@ -439,7 +432,6 @@ def hunt_info(request):
 
         context = {'curr_hunt': curr_hunt,
                    'people': people,
-                   'new_people': new_people,
                    'need_teams': need_teams.order_by('id').all(),
                    'have_teams': have_teams.all(),
                    'offsite_teams': offsite_teams.all(),
