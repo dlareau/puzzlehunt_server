@@ -11,12 +11,13 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib import messages
-from django.db.models import F, Max, Count
+from django.db.models import F, Max, Count, Min, Subquery, OuterRef
 from django.db.models.functions import Lower
 from huey.contrib.djhuey import result
-import itertools
 import json
+import random
 from copy import deepcopy
+# from silk.profiling.profiler import silk_profile
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
@@ -230,102 +231,140 @@ def progress(request):
 def charts(request):
     """ A view to render the charts page. Mostly just collecting and organizing data """
 
-    # Charts 1 and 2
     curr_hunt = Hunt.objects.get(is_current_hunt=True)
-    puzzles = curr_hunt.puzzle_set.all().order_by('puzzle_number')
+    puzzles = curr_hunt.puzzle_set.order_by('puzzle_number')
+    teams = curr_hunt.real_teams.exclude(location="DUMMY")
+    num_teams = teams.count()
+    num_puzzles = puzzles.count()
+
+    names = puzzles.values_list('puzzle_name', flat=True)
+
+    # Charts 1, 2 and 7
+    # with silk_profile(name="Chart 1 and 2"):
     puzzle_info_dict1 = []
     puzzle_info_dict2 = []
-    for puzzle in puzzles:
-        team_count = (curr_hunt.team_set.exclude(location="DUMMY")
-                                        .exclude(location="off_campus")
-                                        .count())
-        unlocked_count = (puzzle.unlocked_for.exclude(location="DUMMY")
-                                             .exclude(location="off_campus")
-                                             .filter(hunt=curr_hunt)
-                                             .count())
-        solved_count = (puzzle.solved_for.exclude(location="DUMMY")
-                                         .exclude(location="off_campus")
-                                         .filter(hunt=curr_hunt)
-                                         .count())
-        submission_count = (puzzle.submission_set.exclude(team__location="DUMMY")
-                                                 .exclude(team__location="off_campus")
-                                                 .filter(puzzle__hunt=curr_hunt)
-                                                 .count())
+    puzzle_info_dict7 = []
+
+    solves = puzzles.annotate(solved=Count('solve')).values_list('solved', flat=True)
+    subs = puzzles.annotate(subs=Count('submission')).values_list('subs', flat=True)
+    unlocks = puzzles.annotate(unlocked=Count('unlock')).values_list('unlocked', flat=True)
+    hints = puzzles.annotate(hints=Count('hint')).values_list('hints', flat=True)
+    puzzle_data = zip(names, solves, subs, unlocks, hints)
+    for puzzle in puzzle_data:
         puzzle_info_dict1.append({
-            "name": puzzle.puzzle_name,
-            "locked": team_count - unlocked_count,
-            "unlocked": unlocked_count - solved_count,
-            "solved": solved_count
+            "name": puzzle[0],
+            "locked": num_teams - puzzle[3],
+            "unlocked": puzzle[3] - puzzle[1],
+            "solved": puzzle[1]
         })
 
         puzzle_info_dict2.append({
-            "name": puzzle.puzzle_name,
-            "incorrect": submission_count - solved_count,
-            "correct": solved_count
+            "name": puzzle[0],
+            "incorrect": puzzle[2] - puzzle[1],
+            "correct": puzzle[1]
+        })
+
+        puzzle_info_dict7.append({
+            "name": puzzle[0],
+            "hints": puzzle[4]
         })
 
     # Chart 3
-    time_zone = tz.gettz(settings.TIME_ZONE)
-    subs = Submission.objects.filter(puzzle__hunt=curr_hunt).all().order_by("submission_time")
-    grouped = itertools.groupby(subs, lambda x: x.submission_time.astimezone(time_zone)
-                                                                 .strftime("%x - %H:00"))
     submission_hours = []
-    for group, matches in grouped:
-        matches = list(matches)
-        amount = len(matches)
-        # TODO: change this to be based on hunt date
-        if(matches[0].puzzle.hunt.start_date < matches[0].submission_time and
-           matches[0].submission_time < matches[0].puzzle.hunt.end_date):
-            submission_hours.append({"hour": group, "amount": amount})
+    # with silk_profile(name="Chart 3"):
+    subs = Submission.objects.filter(puzzle__hunt=curr_hunt,
+                                     submission_time__gte=curr_hunt.start_date,
+                                     submission_time__lte=curr_hunt.end_date)
+    subs = subs.values_list('submission_time__year',
+                            'submission_time__month',
+                            'submission_time__day',
+                            'submission_time__hour')
+    subs = subs.annotate(Count("id")).order_by('submission_time__year',
+                                               'submission_time__month',
+                                               'submission_time__day',
+                                               'submission_time__hour')
+    for sub in subs:
+        time_string = "%02d/%02d/%04d - %02d:00" % (sub[1], sub[2], sub[0], sub[3])
+        submission_hours.append({"hour": time_string, "amount": sub[4]})
 
     # Chart 4
-    solves = (Solve.objects.filter(puzzle__hunt=curr_hunt).all()
-                           .order_by("submission__submission_time"))
-    grouped = itertools.groupby(solves, lambda x: x.submission.submission_time
-                                                              .astimezone(time_zone)
-                                                              .strftime("%x - %H:00"))
     solve_hours = []
-    for group, matches in grouped:
-        matches = list(matches)
-        amount = len(matches)
-        if(matches[0].puzzle.hunt.start_date < matches[0].submission.submission_time and
-           matches[0].submission.submission_time < matches[0].puzzle.hunt.end_date):
-            solve_hours.append({"hour": group, "amount": amount})
+    # with silk_profile(name="Chart 4"):
+    solves = Solve.objects.filter(puzzle__hunt=curr_hunt,
+                                  submission__submission_time__gte=curr_hunt.start_date,
+                                  submission__submission_time__lte=curr_hunt.end_date)
+    solves = solves.values_list('submission__submission_time__year',
+                                'submission__submission_time__month',
+                                'submission__submission_time__day',
+                                'submission__submission_time__hour')
+    solves = solves.annotate(Count("id")).order_by('submission__submission_time__year',
+                                                   'submission__submission_time__month',
+                                                   'submission__submission_time__day',
+                                                   'submission__submission_time__hour')
+    for solve in solves:
+        time_string = "%02d/%02d/%04d - %02d:00" % (solve[1], solve[2], solve[0], solve[3])
+        solve_hours.append({"hour": time_string, "amount": solve[4]})
 
     # Chart 5
-    solves = solves.order_by("submission__submission_time")
-    teams = list(curr_hunt.real_teams.exclude(location="off_campus"))
-    num_puzzles = puzzles.count()
+    # with silk_profile(name="Chart 5"):
     solve_points = []
-    tmp = [None]
-    for team in teams:
-        tmp.append(0)
-    for solve in solves:
-        tmp[0] = solve.submission.submission_time
-        if(solve.team in teams):
-            tmp[teams.index(solve.team) + 1] += 1
-            solve_points.append(tmp[:])
+    # solves = Solve.objects.filter(puzzle__hunt=curr_hunt,
+    #                               submission__submission_time__gte=curr_hunt.start_date,
+    #                               submission__submission_time__lte=curr_hunt.end_date)
+    # solves = solves.order_by('submission__submission_time')
+
+    # team_dict = {}
+    # for team in teams:
+    #     team_dict[team] = 0
+    # progress = [0] * (num_puzzles + 1)
+    # progress[0] = num_teams
+    # solve_points.append([curr_hunt.start_date] + progress[::-1])
+    # for solve in solves:
+    #     progress[team_dict[solve.team]] -= 1
+    #     team_dict[solve.team] += 1
+    #     progress[team_dict[solve.team]] += 1
+    #     solve_points.append([solve.submission.submission_time] + progress[::-1])
+
+    # for puzzle in puzzles:
+    #     points = puzzle.solve_set.order_by('submission__submission_time')
+    #     points = points.values_list('submission__submission_time', flat=True)
+    #     points = zip([curr_hunt.start_date] + list(points), range(len(points) + 1))
+    #     solve_points.append({'puzzle': puzzle, 'points': points})
+
+    # for team in teams:
+    #     points = team.solve_set.order_by('submission__submission_time')
+    #     points = points.values_list('submission__submission_time', flat=True)
+    #     points = zip([curr_hunt.start_date] + list(points), range(len(points) + 1))
+    #     solve_points.append({'team': team, 'points': points})
+
+    # Chart 6
+    solve_time_data = []
+    # sq1 = Unlock.objects.filter(puzzle=OuterRef('puzzle'), team=OuterRef('team')).values('time')[:1]
+    # sq2 = Solve.objects.filter(pk=OuterRef('pk')).values('submission__submission_time')[:1]
+    # solves = Solve.objects.filter(puzzle__hunt=curr_hunt,
+    #                               submission__submission_time__gte=curr_hunt.start_date,
+    #                               submission__submission_time__lte=curr_hunt.end_date)
+    # solves = solves.annotate(t1=Subquery(sq1), t2=Subquery(sq2))
+    # solves = solves.annotate(solve_duration=F('t2') - F('t1'))
+    # solve_time_data = solves.values_list('puzzle__puzzle_number', 'solve_duration')
+    # solve_time_data = [(x[0]+(random.random()/2)-0.5, x[1].total_seconds()/60) for x in solve_time_data]
+
 
     # Info Table
-    table_dict = {}
-    for puzzle in puzzles:
-        try:
-            solve_set = (puzzle.solve_set.exclude(team__location="DUMMY")
-                                         .exclude(team__location="off_campus"))
-            solve = solve_set.order_by("submission__submission_time")[:1].get()
-            table_dict[puzzle.puzzle_name] = {'first_team': solve.team.team_name,
-                                              'first_time': solve.submission.submission_time,
-                                              'num_solves': solve_set.count()}
-        except Solve.DoesNotExist:
-            max_time = datetime.max.replace(tzinfo=tz.gettz('UTC'))
-            table_dict[puzzle.puzzle_name] = {'first_team': None,
-                                              'first_time': max_time,
-                                              'num_solves': puzzle.solve_set.count()}
+    # with silk_profile(name="Info Table"):
+    solves = Solve.objects.filter(team__hunt=curr_hunt)
+    mins = solves.values_list('puzzle').annotate(m=Min('id')).values_list('m', flat=True)
+    results = Solve.objects.filter(pk__in=mins).values_list('puzzle__puzzle_id',
+                                                            'puzzle__puzzle_name',
+                                                            'team__team_name',
+                                                            'submission__submission_time')
+    results = results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_id')
 
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
-               'table_dict': sorted(iter(table_dict.items()), key=lambda x: x[1]['first_time'])}
+               'chart_rows': results, 'puzzles': puzzles, 'data6_list': solve_time_data,
+               'data7_list': puzzle_info_dict7}
     return render(request, 'charts.html', add_apps_to_context(context, request))
 
 
