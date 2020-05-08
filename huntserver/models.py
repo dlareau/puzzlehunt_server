@@ -156,6 +156,7 @@ class Puzzle(models.Model):
         indexes = [
             models.Index(fields=['puzzle_id']),
         ]
+        ordering = ['-hunt', 'puzzle_number']
 
     SOLVES_UNLOCK = 'SOL'
     POINTS_UNLOCK = 'POT'
@@ -284,6 +285,16 @@ class Prepuzzle(models.Model):
             return "prepuzzle " + str(self.pk)
 
 
+class TeamManager(models.Manager):
+    def search(self, query=None):
+        qs = self.get_queryset()
+        if query is not None:
+            or_lookup = (models.Q(team_name__icontains=query) |
+                         models.Q(location__icontains=query))
+            qs = qs.filter(or_lookup).distinct()
+        return qs
+
+
 @python_2_unicode_compatible
 class Team(models.Model):
     """ A class representing a team within a hunt """
@@ -338,6 +349,8 @@ class Team(models.Model):
     num_unlock_points = models.IntegerField(
         default=0,
         help_text="The number of points the team has earned")
+
+    objects = TeamManager()
 
     @property
     def is_playtester_team(self):
@@ -457,6 +470,18 @@ class Team(models.Model):
         return str(self.size) + " (" + self.location + ") " + self.short_name
 
 
+class PersonManager(models.Manager):
+    def search(self, query=None):
+        qs = self.get_queryset()
+        if query is not None:
+            or_lookup = (models.Q(user__username__icontains=query) |
+                         models.Q(user__first_name__icontains=query) |
+                         models.Q(user__last_name__icontains=query) |
+                         models.Q(user__email__icontains=query))
+            qs = qs.filter(or_lookup).distinct()
+        return qs
+
+
 @python_2_unicode_compatible
 class Person(models.Model):
     """ A class to associate more personal information with the default django auth user class """
@@ -484,12 +509,21 @@ class Person(models.Model):
     is_shib_acct = models.BooleanField(
         help_text="A boolean to indicate if the person uses shibboleth authentication for login")
 
+    objects = PersonManager()
+
     def __str__(self):
         name = self.user.first_name + " " + self.user.last_name + " (" + self.user.username + ")"
         if(name == "  ()"):
             return "Anonymous User"
         else:
             return name
+
+    @property
+    def formatted_phone_number(self):
+        match = re.match("(?:\\+?1 ?-?)?\\(?([0-9]{3})\\)?-? ?([0-9]{3})-? ?([0-9]{4})", self.phone)
+        if(match):
+            return match.expand("(\\1)-\\2-\\3")
+        return self.phone
 
 
 @python_2_unicode_compatible

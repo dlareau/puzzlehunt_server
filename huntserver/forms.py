@@ -1,6 +1,8 @@
 from django import forms
 from .models import Person
 from django.contrib.auth.models import User
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Layout
 import re
 
 
@@ -115,3 +117,19 @@ class HintResponseForm(forms.Form):
                                widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}),
                                help_text="Max length 1000 characters.")
     hint_id = forms.CharField(label='hint_id', widget=forms.HiddenInput())
+
+
+class LookupForm(forms.Form):
+    search_string = forms.CharField(max_length=100, label='Search String',
+                                    help_text="Searches team names, team locations, usernames, "
+                                              "first/last names, and user emails")
+
+    def __init__(self, *args, **kwargs):
+        super(LookupForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline'
+        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
+        self.helper.layout = Layout(
+            'search_string',
+            Submit('submit', 'Submit')
+        )

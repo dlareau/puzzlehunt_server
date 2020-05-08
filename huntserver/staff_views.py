@@ -12,15 +12,15 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import F, Max, Count, Min, Subquery, OuterRef
+from django.db.models.fields import PositiveIntegerField
 from django.db.models.functions import Lower
 from huey.contrib.djhuey import result
 import json
-import random
 from copy import deepcopy
 # from silk.profiling.profiler import silk_profile
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
-from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm
+from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm, LookupForm
 from .utils import download_puzzles_task, download_zip_task
 
 DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -188,14 +188,14 @@ def progress(request):
         for team in teams:
             sol_dict[team.pk] = deepcopy(puzzle_dict)
 
-        data = Unlock.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY').values_list('team', 'puzzle')
-        data = data.annotate(Max('time'))
+        data = Unlock.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY')
+        data = data.values_list('team', 'puzzle').annotate(Max('time'))
 
         for point in data:
             sol_dict[point[0]][point[1]] = ['unlocked', point[2]]
 
-        data = Submission.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY').values_list('team', 'puzzle')
-        data = data.annotate(Max('submission_time'))
+        data = Submission.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY')
+        data = data.values_list('team', 'puzzle').annotate(Max('submission_time'))
         data = data.annotate(Count('solve'))
 
         for point in data:
@@ -240,7 +240,6 @@ def charts(request):
     names = puzzles.values_list('puzzle_name', flat=True)
 
     # Charts 1, 2 and 7
-    # with silk_profile(name="Chart 1 and 2"):
     puzzle_info_dict1 = []
     puzzle_info_dict2 = []
     puzzle_info_dict7 = []
@@ -271,7 +270,6 @@ def charts(request):
 
     # Chart 3
     submission_hours = []
-    # with silk_profile(name="Chart 3"):
     subs = Submission.objects.filter(puzzle__hunt=curr_hunt,
                                      submission_time__gte=curr_hunt.start_date,
                                      submission_time__lte=curr_hunt.end_date)
@@ -289,7 +287,6 @@ def charts(request):
 
     # Chart 4
     solve_hours = []
-    # with silk_profile(name="Chart 4"):
     solves = Solve.objects.filter(puzzle__hunt=curr_hunt,
                                   submission__submission_time__gte=curr_hunt.start_date,
                                   submission__submission_time__lte=curr_hunt.end_date)
@@ -306,7 +303,6 @@ def charts(request):
         solve_hours.append({"hour": time_string, "amount": solve[4]})
 
     # Chart 5
-    # with silk_profile(name="Chart 5"):
     solve_points = []
     # solves = Solve.objects.filter(puzzle__hunt=curr_hunt,
     #                               submission__submission_time__gte=curr_hunt.start_date,
@@ -339,16 +335,16 @@ def charts(request):
 
     # Chart 6
     solve_time_data = []
-    # sq1 = Unlock.objects.filter(puzzle=OuterRef('puzzle'), team=OuterRef('team')).values('time')[:1]
+    # sq1 = Unlock.objects.filter(puzzle=OuterRef('puzzle'), team=OuterRef('team'))
+    # sq1 = sq1.values('time')[:1]
     # sq2 = Solve.objects.filter(pk=OuterRef('pk')).values('submission__submission_time')[:1]
     # solves = Solve.objects.filter(puzzle__hunt=curr_hunt,
     #                               submission__submission_time__gte=curr_hunt.start_date,
     #                               submission__submission_time__lte=curr_hunt.end_date)
     # solves = solves.annotate(t1=Subquery(sq1), t2=Subquery(sq2))
     # solves = solves.annotate(solve_duration=F('t2') - F('t1'))
-    # solve_time_data = solves.values_list('puzzle__puzzle_number', 'solve_duration')
-    # solve_time_data = [(x[0]+(random.random()/2)-0.5, x[1].total_seconds()/60) for x in solve_time_data]
-
+    # std = solves.values_list('puzzle__puzzle_number', 'solve_duration')
+    # solve_time_data = [(x[0]+(random.random()/2)-0.5, x[1].total_seconds()/60) for x in std]
 
     # Info Table
     # with silk_profile(name="Info Table"):
@@ -358,7 +354,7 @@ def charts(request):
                                                             'puzzle__puzzle_name',
                                                             'team__team_name',
                                                             'submission__submission_time')
-    results = results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_id')
+    results = list(results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_id'))
 
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
@@ -462,7 +458,7 @@ def hunt_info(request):
         people = Person.objects.filter(teams__hunt=curr_hunt)
         try:
             old_hunt = Hunt.objects.get(hunt_number=curr_hunt.hunt_number - 1)
-            new_people = people.filter(user__date_joined_gt=old_hunt.start_date)
+            new_people = people.filter(user__date_joined__gt=old_hunt.end_date)
         except Hunt.DoesNotExist:
             new_people = people
 
@@ -685,3 +681,41 @@ def emails(request):
         email_form = EmailForm()
     context = {'email_list': (', ').join(email_list), 'email_form': email_form}
     return render(request, 'email.html', add_apps_to_context(context, request))
+
+
+@staff_member_required
+def lookup(request):
+    """
+    A view to search for users/teams
+    """
+    person = None
+    team = None
+    curr_hunt = Hunt.objects.get(is_current_hunt=True)
+    if request.method == 'POST':
+        lookup_form = LookupForm(request.POST)
+        if lookup_form.is_valid():
+            search_string = lookup_form.cleaned_data['search_string']
+            results = {'teams': Team.objects.search(search_string),
+                       'people': Person.objects.search(search_string)}
+    else:
+        if("person_pk" in request.GET):
+            person = Person.objects.get(pk=request.GET.get("person_pk"))
+        if("team_pk" in request.GET):
+            team = Team.objects.get(pk=request.GET.get("team_pk"))
+            team.latest_submissions = team.submission_set.values_list('puzzle')
+            team.latest_submissions = team.latest_submissions.annotate(Max('submission_time'))
+            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__is_meta=True).order_by()
+            sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
+            sq1 = Subquery(sq1, output_field=PositiveIntegerField())
+            all_teams = team.hunt.team_set.annotate(metas=sq1, solves=Count('solved'))
+            all_teams = all_teams.annotate(last_time=Max('solve__submission__submission_time'))
+            ids = all_teams.order_by(F('metas').desc(nulls_last=True),
+                                     F('solves').desc(nulls_last=True),
+                                     F('last_time').asc(nulls_last=True))
+            team.rank = list(ids.values_list('pk', flat=True)).index(team.pk) + 1
+
+        lookup_form = LookupForm()
+        results = {}
+    context = {'lookup_form': lookup_form, 'results': results, 'person': person, 'team': team,
+               'curr_hunt': curr_hunt}
+    return render(request, 'lookup.html', add_apps_to_context(context, request))

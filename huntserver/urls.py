@@ -70,6 +70,7 @@ urlpatterns = [
         url(r'^hints/$', staff_views.staff_hints_text, name='staff_hints_text'),
         url(r'^hints/control/$', staff_views.staff_hints_control, name='staff_hints_control'),
         url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
+        url(r'^lookup/$', staff_views.lookup, name='lookup'),
     ])),
 
     url(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView.as_view(), name='logout',
