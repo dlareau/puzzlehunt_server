@@ -15,10 +15,7 @@
 
 {% block content %}
   <h3> Search for users/teams: </h3>
-  <form method="POST" action="/staff/lookup/">
-    {% csrf_token %}
-    {% crispy lookup_form lookup_form.helper %}
-  </form>
+  {% crispy lookup_form %}
 
   {% if person %}
     <h3> {{person.user.username}} </h3>

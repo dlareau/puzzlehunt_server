@@ -2,7 +2,8 @@ from django import forms
 from .models import Person
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout
+from crispy_forms.layout import Submit, Layout, ButtonHolder
+from crispy_forms.bootstrap import FormActions, Field, StrictButton
 import re
 
 
@@ -131,5 +132,5 @@ class LookupForm(forms.Form):
         self.helper.field_template = 'bootstrap3/layout/inline_field.html'
         self.helper.layout = Layout(
             'search_string',
-            Submit('submit', 'Submit')
+            Submit('submit', 'Submit', css_class='btn btn-primary')
         )
