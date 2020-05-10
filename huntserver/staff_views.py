@@ -568,14 +568,7 @@ def staff_hints_text(request):
         h.last_modified_time = timezone.now()
         h.save()
         hints = [h]
-
-    elif request.is_ajax():
-        last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
-        last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
-        hints = Hint.objects.filter(last_modified_time__gt=last_date)
-
     else:
-        page_num = request.GET.get("page_num")
         team_id = request.GET.get("team_id")
         hint_status = request.GET.get("hint_status")
         puzzle_id = request.GET.get("puzzle_id")
@@ -596,14 +589,20 @@ def staff_hints_text(request):
             elif(hint_status == "unanswered"):
                 hints = hints.filter(response="")
             arg_string = arg_string + ("&hint_status=%s" % hint_status)
-        hints = hints.select_related('team', 'puzzle').order_by('-pk')
-        pages = Paginator(hints, 10)
-        try:
-            hints = pages.page(page_num)
-        except PageNotAnInteger:
-            hints = pages.page(1)
-        except EmptyPage:
-            hints = pages.page(pages.num_pages)
+        if(request.is_ajax()):
+            last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
+            last_date = last_date.replace(tzinfo=tz.gettz('UTC'))
+            hints = hints.filter(last_modified_time__gt=last_date)
+        else:  # Normal get request
+            page_num = request.GET.get("page_num")
+            hints = hints.select_related('team', 'puzzle').order_by('-pk')
+            pages = Paginator(hints, 10)
+            try:
+                hints = pages.page(page_num)
+            except PageNotAnInteger:
+                hints = pages.page(1)
+            except EmptyPage:
+                hints = pages.page(pages.num_pages)
 
     try:
         time_query = Hint.objects.latest('last_modified_time').last_modified_time
@@ -613,17 +612,17 @@ def staff_hints_text(request):
 
     hint_list = []
     for hint in hints:
-        form = HintResponseForm(initial={"response": hint.response, "hint_id": hint.pk})
-        hint_list.append(render_to_string('hint_row.html', {'hint': hint, "response_form": form},
+        hint_list.append(render_to_string('hint_row.html', {'hint': hint, 'staff_side': True},
                                           request=request))
 
     if request.is_ajax() or request.method == 'POST':
         context = {'hint_list': hint_list, 'last_date': last_date}
         return HttpResponse(json.dumps(context))
     else:
+        form = HintResponseForm()
         context = {'page_info': hints, 'hint_list': hint_list,  'arg_string': arg_string,
                    'last_date': last_date, 'hunt': hunt, 'puzzle_id': puzzle_id, 'team_id': team_id,
-                   'hint_status': hint_status}
+                   'hint_status': hint_status, "response_form": form}
         return render(request, 'staff_hints.html', add_apps_to_context(context, request))
 
 

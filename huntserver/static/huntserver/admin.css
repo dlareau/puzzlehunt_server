@@ -130,3 +130,23 @@ select {
   padding: 3px 12px 1px 12px;
   margin-top: -2px;
 }
+
+.vertical-alignment-helper {
+    display:table;
+    height: 100%;
+    width: 100%;
+    pointer-events:none;
+}
+.vertical-align-center {
+    /* To center vertically */
+    display: table-cell;
+    vertical-align: middle;
+    pointer-events:none;
+}
+.modal-content {
+    width:inherit;
+    max-width:inherit;
+    height:inherit;
+    margin: 0 auto;
+    pointer-events: all;
+}
