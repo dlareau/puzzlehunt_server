@@ -86,6 +86,9 @@
               <h4 class="modal-title" id="formModalLabel">Respond to Hint</h4>
             </div>
             <div class="modal-body">
+              <b>Request:</b>
+              <div id="modal-hint-text"></div>
+              <br>
               <form class='sub_form' action="/staff/hints/" method="post">
                 {% csrf_token %}
                 {{ response_form|crispy }}

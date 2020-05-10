@@ -2,8 +2,7 @@ from django import forms
 from .models import Person
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, ButtonHolder
-from crispy_forms.bootstrap import FormActions, Field, StrictButton
+from crispy_forms.layout import Submit, Layout
 import re
 
 

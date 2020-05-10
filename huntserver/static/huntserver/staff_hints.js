@@ -117,6 +117,7 @@ $(document).ready(function() {
     var response = hint_request.find(".hint-response");
     var outer_row = hint_request.parent().parent().parent();
     modal.find('.modal-title').html(title.html());
+    modal.find('.modal-body #modal-hint-text').text(hint_request.find(".hint-text").text());
     modal.find('.modal-body #id_response').val(response.text());
     modal.find('.modal-body #id_hint_id').val(outer_row.data("id"));
   })
