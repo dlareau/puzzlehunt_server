@@ -3,14 +3,32 @@ from .models import Person
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
+from crispy_forms.bootstrap import StrictButton
+from django.core.exceptions import ValidationError
 import re
 
 
 class AnswerForm(forms.Form):
     answer = forms.CharField(max_length=100, label='Answer')
 
+    def __init__(self, *args, **kwargs):
+        super(AnswerForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline'
+        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
+        self.helper.form_id = "sub_form"
+        self.helper.layout = Layout(
+            'answer',
+            StrictButton('Submit', value="submit", type="submit", css_class='btn btn-default')
+        )
+
     def clean_answer(self):
-        return re.sub(r"[ _\-;:+,.!?]", "", self.cleaned_data.get('answer'))
+        # Currently the desire is to strip all non A-Z characters (Github issue #129)
+        new_cleaned_data = re.sub(r"[^A-Z]", "", self.cleaned_data.get('answer').upper())
+        if(new_cleaned_data == ""):
+            raise ValidationError("Submission was empty after stripping non A-Z characters",
+                                  code='all_spaces')
+        return new_cleaned_data
 
 
 class SubmissionForm(forms.Form):

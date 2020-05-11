@@ -561,7 +561,7 @@ class Submission(models.Model):
     @property
     def is_correct(self):
         """ A boolean indicating if the submission given is exactly correct """
-        return self.submission_text.lower() == self.puzzle.answer.lower()
+        return self.submission_text.upper() == self.puzzle.answer.upper()
 
     @property
     def convert_markdown_response(self):
@@ -603,7 +603,7 @@ class Submission(models.Model):
             if(re.match(resp.regex, self.submission_text, re.IGNORECASE)):
                 response = resp.text
                 break
-        else:
+        else:  # Give a default response if no regex matches
             if(self.is_correct):
                 response = "Correct"
             else:
@@ -619,7 +619,7 @@ class Submission(models.Model):
     def update_response(self, text):
         """ Updates the response with the given text """
         self.response_text = text
-        self.modified_date = timezone.now()
+        self.modified_date = timezone.now()  # TODO: I think this line is useless because of ^ save
         self.save()
 
     def __str__(self):

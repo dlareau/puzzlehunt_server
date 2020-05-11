@@ -4,13 +4,14 @@ from django.conf import settings
 from ratelimit.utils import is_ratelimited
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import smart_str
 from django.db.models import F
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 import json
 import os
 import re
@@ -197,37 +198,41 @@ def puzzle_view(request, puzzle_id):
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
     if request.method == 'POST':
-        # Deal with answers from archived hunts
-        if(puzzle.hunt.is_public):
-            form = AnswerForm(request.POST)
-            team = puzzle.hunt.dummy_team
-            if form.is_valid():
-                user_answer = form.cleaned_data['answer']
-                s = Submission.objects.create(submission_text=user_answer, team=team,
-                                              puzzle=puzzle, submission_time=timezone.now())
-                s.respond()
-                response = s.response_text
-                is_correct = s.is_correct
-            else:
-                response = "Invalid Submission"
-                is_correct = None
-            context = {'form': form, 'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
-                       'response': response, 'is_correct': is_correct}
-            return render(request, 'puzzle.html', context)
-
-        # If the hunt isn't public and you aren't signed in, please stop...
         if(team is None):
-            return HttpResponse('fail')
+            if(puzzle.hunt.is_public):
+                team = puzzle.hunt.dummy_team
+            else:
+                # If the hunt isn't public and you aren't signed in, please stop...
+                return HttpResponse('fail')
 
-        # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
+        form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
+
         if form.is_valid():
             user_answer = form.cleaned_data['answer']
             s = Submission.objects.create(submission_text=user_answer, team=team,
                                           puzzle=puzzle, submission_time=timezone.now())
             s.respond()
+        else:
+            s = None
 
-        # Render response to HTML
+        # Deal with answers for public hunts
+        if(puzzle.hunt.is_public):
+            if(s is None):
+                response = "Invalid Submission"
+                is_correct = None
+            else:
+                response = s.response_text
+                is_correct = s.is_correct
+
+            context = {'form': form, 'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
+                       'response': response, 'is_correct': is_correct}
+            return render(request, 'puzzle.html', context)
+
+        if(s is None):
+            return HttpResponseBadRequest(form.errors.as_json())
+
+        # Render response to HTML for live hunts
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': s})]
 
         try:
@@ -275,6 +280,7 @@ def puzzle_view(request, puzzle_id):
         # the user 1) is signed in, 2) not staff, 3) is on a team, and 4) has access
         submissions = puzzle.submission_set.filter(team=team).order_by('pk')
         form = AnswerForm()
+        form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
         try:
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
