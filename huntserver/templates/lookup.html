@@ -67,6 +67,10 @@
           </li>
         {% endfor %}
       </ul>
+    <b>Emails: </b>
+    {% for person in team.person_set.all %}
+      {{person.user.email}};
+    {% endfor %}
     <b>Puzzle status:</b>
     <table style="width:450px" class="table table-bordered table-condensed">
       <thead>
