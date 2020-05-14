@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg)](https://travis-ci.org/dlareau/puzzlehunt_server)
+[![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg?branch=master)](https://travis-ci.org/dlareau/puzzlehunt_server)
 [![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg)](https://coveralls.io/github/dlareau/puzzlehunt_server)
 
 # puzzlehunt_server
