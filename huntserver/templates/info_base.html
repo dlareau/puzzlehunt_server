@@ -1,21 +1,46 @@
 {% extends 'base.html' %}
 {% load bootstrap_tags %}
+{% load hunt_tags %}
 {% load static %}
 {% load flatpages %}
 
 {% block base_includes %}
 <link rel="stylesheet" type="text/css" href="{% static "huntserver/info_base.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "huntserver/navbar.css" %}">
 {% endblock base_includes %}
 
 {% block left-header %}
-    {% get_flatpages '/extra/' as flatpages %}
-    <li class='{% active_page request "index" %} visible-sm visible-xs'><a href="{% url 'huntserver:index' %}"> Homepage </a></li>
-    <li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:current_hunt' %}"> Current Hunt </a></li>
-    <li class='{% active_page request "current_hunt_info" %}'><a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Info</a></li>
-    <li class='{% active_page request "previous_hunts" %}'><a href="{% url 'huntserver:previous_hunts' %}"> Previous Hunts </a></li>
-    {% for page in flatpages|dictsort:"url" %}
-        <li class='{% active_page request page.url %}'><a href="/info{{ page.url }}"> {{ page.title }} </a></li>
-    {% endfor %}
-    <li class='{% active_page request "contact_us" %}'><a href="{% url 'huntserver:contact_us' %}"> Contact Us </a></li>
+  {% get_flatpages '/extra/' as flatpages %}
+  <li class="dropdown hidden-xs">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Information <span class="caret"></span></a>
+    <ul class="dropdown-menu">
+      <li class='{% active_page request "current_hunt_info" %}'>
+        <a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Details </a>
+      </li>
+      {% for page in flatpages|dictsort:"url" %}
+        <li class='{% active_page request page.url %}'>
+          <a href="/info{{ page.url }}"> {{ page.title }} </a>
+        </li>
+      {% endfor %}
+      <li class='{% active_page request "contact_us" %}'>
+        <a href="{% url 'huntserver:contact_us' %}"> Contact Us </a>
+      </li>
+    </ul>
+  </li>
+
+  <li class='visible-xs-block {% active_page request "current_hunt_info" %}'>
+    <a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Details </a>
+  </li>
+  {% for page in flatpages|dictsort:"url" %}
+    <li class='visible-xs-block {% active_page request page.url %}'>
+      <a href="/info{{ page.url }}"> {{ page.title }} </a>
+    </li>
+  {% endfor %}
+  <li class='visible-xs-block {% active_page request "contact_us" %}'>
+    <a href="{% url 'huntserver:contact_us' %}"> Contact Us </a>
+  </li>
+
+  <li class='{% active_page request "current_hunt" %}'>
+    {% set_curr_hunt %}
+    <a href="{% url 'huntserver:current_hunt' %}"> Latest Hunt </a>
+  </li>
 {% endblock %}

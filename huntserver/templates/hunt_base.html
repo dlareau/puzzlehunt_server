@@ -6,69 +6,29 @@
 {% endblock base_includes %}
 
 {% block left-header %}
-	{% if hunt %}
-		<li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:hunt' hunt.hunt_number %}"> Puzzles </a></li>
-	{% elif puzzle %}
-		<li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:hunt' puzzle.hunt.hunt_number %}"> Puzzles </a></li>
-	{% else %}
-    <li class='{% active_page request "current_hunt" %}'><a href="{% url 'huntserver:current_hunt' %}"> Puzzles </a></li>
-  {% endif %}
-  {% if not hunt.is_public %}
-    <!-- TODO: Move to separate file. Quick inline script done for Spring 2020 hunt. -->
-    <script type="text/javascript">
-      $(document).ready(function() {
-        function is_visible(){
-          var stateKey, keys = {
-            hidden: "visibilitychange",
-            webkitHidden: "webkitvisibilitychange",
-            mozHidden: "mozvisibilitychange",
-            msHidden: "msvisibilitychange"
-          };
-          for (stateKey in keys) {
-            if (stateKey in document) {
-              return !document[stateKey];
-            }
-          }
-          return true;
-        }
-
-        var get_posts = function() {
-          if(is_visible()){
-            $.getJSON("{% url 'huntserver:chat_status' %}")
-              .done(function(result){
-                num_messages = result['num_messages']
-                if(num_messages > 0) {
-                  $("#num_messages").css("background-color", "indianred");
-                } else {
-                  $("#num_messages").css("background-color", "");
-                }
-                $("#num_messages").text(num_messages);
-              })
-              .fail( function(xhr, textStatus, errorThrown) {
-                console.log(xhr);
-              });
-          }
-        }
-
-        setInterval(get_posts, 120000); //Two minutes
-      });
-    </script>
+  {% set_hunt_from_context %}
+	<li class='{% active_page request "current_hunt" %}'>
+    <a href="{% url 'huntserver:hunt' tmpl_hunt.hunt_number %}"> Puzzles </a>
+  </li>
+  {% if not tmpl_hunt.is_public %}
+    <!-- Kinda weird to include this here, but better than running the template tag twice -->
+    <script src="{{ STATIC_URL }}huntserver/chat_poll.js"></script>
     <li class='{% active_page request "chat" %}'>
-      <a href="{% url 'huntserver:chat' %}"> 
+      <a href="{% url 'huntserver:chat' %}">
         Chat
         {% if team %}
           {% if team.num_waiting_messages %}
             <span id="num_messages" class="badge" style="background-color: indianred">
               {{team.num_waiting_messages}}
             </span>
-          {% else %}  
+          {% else %}
             <span id="num_messages" class="badge">0</span>
           {% endif %}
         {% endif %}
       </a>
     </li>
   {% endif %}
-    <li class='{% active_page request "index" %}'><a href="{% url 'huntserver:index' %}"> Main Site </a></li>
+  <li><a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Info </a></li>
 {% endblock %}
 
 {% block content_wrapper %}
