@@ -18,9 +18,9 @@ wget_arguments = "--max-redirect=20 --show-progress --progress=bar:force:noscrol
 def filter_wget_response(response):
     lines = response.split("\n")
     exclude_lines = ("Resolving", "Connecting", "Location", "Reusing")
-    lines = [l for l in lines if not l.startswith(exclude_lines)]
+    lines = [line for line in lines if not line.startswith(exclude_lines)]
     first_line = lines[0]
-    lines = [l for l in lines if not l.startswith("--")]
+    lines = [line for line in lines if not line.startswith("--")]
     result = "\n".join([first_line] + lines)
     return result
 
