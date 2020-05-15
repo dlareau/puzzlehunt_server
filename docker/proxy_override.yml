@@ -31,9 +31,9 @@ services:
       # Redirects any other URL (https) to proper URL (https)
       - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.entrypoints=websecure"
       - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.rule=Host(${REDIRECT_DOMAINS})"
-      - "traefik.http.middlewares.redirect_domain.redirectregex.regex=^https://[0-9a-zA-Z.]+/(.*)"
-      - "traefik.http.middlewares.redirect_domain.redirectregex.replacement=https://${DOMAIN}/$${1}"
-      - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.middlewares=redirect_domain"
+      - "traefik.http.middlewares.redirect_domain_${PROJECT_NAME}.redirectregex.regex=^https://[0-9a-zA-Z.]+/(.*)"
+      - "traefik.http.middlewares.redirect_domain_${PROJECT_NAME}.redirectregex.replacement=https://${DOMAIN}/$${1}"
+      - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.middlewares=redirect_domain_${PROJECT_NAME}"
       - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.tls.certresolver=puzzlehunt_resolver"
 
       # HTTPS redirect for any other URL
