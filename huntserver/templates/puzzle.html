@@ -63,10 +63,12 @@
       <p style="width: 80%; margin: auto;"> We are sorry, previous guess viewing is not available in old puzzlehunts </p>
       <br>
       {% if response %}
-      <div style='width: 80%; height: 40px; line-height: 40px;
+      <div style='width: 80%; height: auto; line-height: 40px;
                   text-align: center; margin: auto;
                   {% if is_correct %}
                     background-color: lightgreen;'>
+                  {% elif response != "Wrong Answer." %}
+                    background-color: gold;'>
                   {% else %}
                     background-color: indianred;'>
                   {% endif %}
