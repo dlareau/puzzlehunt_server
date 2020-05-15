@@ -3,7 +3,7 @@ from .models import Person
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
-from crispy_forms.bootstrap import StrictButton
+from crispy_forms.bootstrap import StrictButton, InlineField
 from django.core.exceptions import ValidationError
 import re
 
@@ -12,15 +12,23 @@ class AnswerForm(forms.Form):
     answer = forms.CharField(max_length=100, label='Answer')
 
     def __init__(self, *args, **kwargs):
+        disable_form = kwargs.pop('disable_form', False)
         super(AnswerForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-inline'
         self.helper.field_template = 'bootstrap3/layout/inline_field.html'
         self.helper.form_id = "sub_form"
-        self.helper.layout = Layout(
-            'answer',
-            StrictButton('Submit', value="submit", type="submit", css_class='btn btn-default')
-        )
+        if(disable_form):
+            self.helper.layout = Layout(
+                InlineField('answer', readonly=disable_form),
+                StrictButton('Submit', value="submit", type="submit", disabled="disabled",
+                             css_class='btn btn-default disabled')
+            )
+        else:
+            self.helper.layout = Layout(
+                'answer',
+                StrictButton('Submit', value="submit", type="submit", css_class='btn btn-default')
+            )
 
     def clean_answer(self):
         # Currently the desire is to strip all non A-Z characters (Github issue #129)

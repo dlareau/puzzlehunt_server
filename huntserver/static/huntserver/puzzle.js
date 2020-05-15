@@ -117,9 +117,9 @@ jQuery(document).ready(function($) {
       $('tr[data-id=' + pk + ']').replaceWith(submission);
     }
     if(submission.data('correct') == "True") {
-      $("#submit_container").hide();
-      $("#answer_container").removeClass("col-md-6");
-      $("#answer_container").addClass("col-md-10");
+      $("#id_answer").prop("disabled", true);
+      $('button[type="submit"]').addClass("disabled");
+      $('button[type="submit"]').attr('disabled', 'disabled');
     }
   }
 });

@@ -279,7 +279,7 @@ def puzzle_view(request, puzzle_id):
         # If we've made it here, the hunt is public OR the user is staff OR
         # the user 1) is signed in, 2) not staff, 3) is on a team, and 4) has access
         submissions = puzzle.submission_set.filter(team=team).order_by('pk')
-        form = AnswerForm()
+        form = AnswerForm(disable_form=(puzzle in team.solved.all()))
         form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
         try:
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)

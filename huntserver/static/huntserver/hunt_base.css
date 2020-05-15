@@ -44,8 +44,8 @@ th {
 }
 
 .puzzle .info a {
-    float: right;
-    margin-left: 40px;
+    margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 .puzzle fieldset {
@@ -69,4 +69,13 @@ th {
 
 .hint_table > tr > td {
     vertical-align: middle;
+}
+
+/* Override bootstrap's xs and sm inline form behavior */
+@media (max-width: 767px) {
+  .form-inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+  }
 }
