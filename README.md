@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg)](https://travis-ci.org/dlareau/puzzlehunt_server)
+[![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg?branch=master)](https://travis-ci.org/dlareau/puzzlehunt_server)
 [![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg)](https://coveralls.io/github/dlareau/puzzlehunt_server)
 
 # puzzlehunt_server
@@ -6,7 +6,7 @@ A server for running puzzlehunts. This project is mainly used by PuzzlehuntCMU t
 
 Documentation can be found at http://docs.puzzlehunt.club
 
-If you are interested in getting this running elsewhere, let me (dlareau@cmu.edu) know. I'd be happy to help anyone who wants to get this up and running for their needs, and get help get you over any gaps in setup documentation.
+If you are interested in getting this running elsewhere, let me (dlareau@cmu.edu) know. I'd be happy to help anyone who wants to get this up and running for their needs, and get help get you over any gaps in setup documentation. I'd also recommend if possible waiting for version 4.1 which will make adapting this software to other hunts easier: https://github.com/dlareau/puzzlehunt_server/issues/121
 
 Please submit issues for any bugs reports or feature requests.
 
