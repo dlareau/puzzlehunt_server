@@ -75,6 +75,7 @@ class HuntAdmin(admin.ModelAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display = [short_team_name, 'short_message']
     search_fields = ['text']
+    autocomplete_fields = ['team']
 
     def short_message(self, message):
         return truncatechars(message.text, 60)
@@ -234,6 +235,7 @@ class ResponseAdmin(admin.ModelAdmin):
 
 class SolveAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'solve_time']
+    autocomplete_fields = ['team', 'submission']
 
     def solve_time(self, solve):
         return solve.submission.submission_time
@@ -242,6 +244,7 @@ class SolveAdmin(admin.ModelAdmin):
 class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ['submission_text']
     list_display = ['submission_text', short_team_name, 'submission_time']
+    autocomplete_fields = ['team']
 
 
 class TeamAdminForm(forms.ModelForm):
@@ -295,6 +298,7 @@ class TeamAdmin(admin.ModelAdmin):
 
 class UnlockAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'time']
+    autocomplete_fields = ['team']
 
 
 class UserProxyObject(User):
