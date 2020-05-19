@@ -3,7 +3,7 @@ How to Create a Hunt
 
 .. contents:: Table of Contents
 
-This is a guide describing how to set up a new puzzlehunt on the PuzzlehuntCMU
+This is a guide describing how to set up a new puzzlehunt on the Puzzle Hunt CMU
 server. This guide assumes that the server itself is already set up and that you
 already have an account on the server with both "Staff" and "Superuser"
 permissions.
