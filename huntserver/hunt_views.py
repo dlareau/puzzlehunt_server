@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 from django.db.models import F
 from django.urls import reverse_lazy, reverse
+from pathlib import Path
 import json
 import os
 import re
@@ -32,28 +33,32 @@ def protected_static(request, file_path):
     """
 
     allowed = False
-    levels = file_path.split("/")
-    if(levels[0] == "puzzles"):
-        puzzle_id = levels[1].split("-")[0].split(".")[0]
-        puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
-        hunt = puzzle.hunt
-        user = request.user
+    path = Path(file_path)
+    base = path.parts[0]
+    response = HttpResponse()
+    if(len(path.parts) < 2):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
+    puzzle_id = re.match(r'[0-9a-fA-F]+', path.parts[1])
+    if(puzzle_id is None):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
+    puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id.group(0))
+    hunt = puzzle.hunt
+    user = request.user
+    if(base == "puzzles" or base == "solutions"):
+        disposition = 'filename="{}_{}"'.format(puzzle.safename, path.name)
+        response['Content-Disposition'] = disposition
         if (hunt.is_public or user.is_staff):
             allowed = True
-        else:
+        elif(base == "puzzles"):  # This is messy and the most common case, this should be fixed
             team = hunt.team_from_user(user)
             if (team is not None and puzzle in team.unlocked.all()):
                 allowed = True
-    elif(levels[0] == "solutions"):
-        puzzle_id = levels[1].split("-")[0].split("_")[0]
-        hunt = get_object_or_404(Puzzle, puzzle_id=puzzle_id).hunt
-        if (hunt.is_public or user.is_staff):
-            allowed = True
     else:
         allowed = True
 
     if allowed:
-        response = HttpResponse()
         # let apache determine the correct content type
         response['Content-Type'] = ""
         # This is what lets django access the normally restricted /media/
