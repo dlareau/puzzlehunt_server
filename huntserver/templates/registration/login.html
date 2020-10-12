@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container">
   <div class="row content">
-    <p>Please enter your Puzzle Hunt CMU username and password:<p>
+    <p>Please enter your Rice Puzzlehunt username and password:<p>
     <form method="post" action="/accounts/login/">
       {% csrf_token %}
       {{ form|crispy }}
@@ -22,4 +22,4 @@
     </p>
   </div>
 </div>
-{% endblock %} 
+{% endblock %}

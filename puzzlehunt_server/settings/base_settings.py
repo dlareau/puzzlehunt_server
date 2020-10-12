@@ -12,7 +12,7 @@ codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else Non
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 # Application definition
-SITE_TITLE = "Puzzlehunt CMU"
+SITE_TITLE = "Rice Puzzlehunt"
 
 INSTALLED_APPS = (
     'bootstrap_admin',
@@ -104,7 +104,7 @@ HUNT_REGISTRATION_LOCKOUT = 2  # 2 Days
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'America/New_York'
+TIME_ZONE = 'America/Chicago'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -158,7 +158,7 @@ LOGGING = {
 }
 
 # Email settings
-CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
+CONTACT_EMAIL = 'mmr7@rice.edu'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'

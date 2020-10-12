@@ -2,7 +2,7 @@
 {% load hunt_tags %}
 
 {% block includes %}
-  <script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
 {% endblock includes %}
 
 {% block content %}
@@ -10,32 +10,33 @@
 <div class="container">
   <div id='logos'>
     <p align="center">
-        <a href="{% url 'huntserver:registration' %}"> <img id="phlogo" src='/static/huntserver/phcmulogo.png'/></a>
+      <a href="{% url 'huntserver:registration' %}"> <img id="phlogo" src='/static/huntserver/phcmulogo.png' /></a>
     </p>
     <p align="center"><strong>
-      {% if curr_hunt.is_locked %}
+        {% if curr_hunt.is_locked %}
         Our next hunt: <br>
-      {% elif curr_hunt.is_public %}
+        {% elif curr_hunt.is_public %}
         Our previous hunt: <br>
-      {% elif curr_hunt.is_day_of_hunt %}
+        {% elif curr_hunt.is_day_of_hunt %}
         Our current hunt: <br>
-      {% else %}
+        {% else %}
         Our next hunt: <br>
-      {% endif %}
-    </strong></p>
+        {% endif %}
+      </strong></p>
     <p align="center"><strong>
-      {{curr_hunt.hunt_name}}<br>
-      {{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}<br>
-      Kickoff location is {{ curr_hunt.location }}
-    </strong></p>
+        {{curr_hunt.hunt_name}}<br>
+        {{ curr_hunt.display_start_date|date:" m/d/y " }} {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash;
+        {{ curr_hunt.display_end_date|date:" m/d/y "}} {{ curr_hunt.display_end_date|time:"h:iA e" }}<br>
+        Kickoff location is {{ curr_hunt.location }}
+      </strong></p>
     {% if not curr_hunt.is_public %}
     <p align="center">
       <a href="{% url 'huntserver:registration' %}">
         <strong>
           {% if team %}
-            View Registration
+          View Registration
           {% else %}
-            Register Now!
+          Register Now!
           {% endif %}
         </strong>
       </a>
@@ -46,20 +47,28 @@
   <div id='qa'>
     <h2>Who are we?</h2>
     <p>
-      We are Puzzle Hunt CMU, a group of puzzle enthusiasts from Carnegie Mellon University. We work together to solve Puzzle Hunts such as the <a href="http://www.mit.edu/~puzzle/">MIT mystery hunt</a>, or any of the many tech company puzzle hunts (examples of such companies include Microsoft, APT and Palantir). We also write and host CMU's very own puzzle hunt once a semester, with the goal of providing a fun-filled experience to as many members of the community as possible.
+      We are Rice Puzzlehunt, a group of puzzle enthusiasts from Rice University. We work together to solve Puzzle Hunts
+      such as the <a href="http://www.mit.edu/~puzzle/">MIT mystery hunt</a>, or any of the many tech company puzzle
+      hunts (examples of such companies include Microsoft, APT and Palantir). We also write and host CMU's very own
+      puzzle hunt once a semester, with the goal of providing a fun-filled experience to as many members of the
+      community as possible.
     </p>
     <h2>What is a puzzle hunt?</h2>
     <p>
-      Very simply put, it's an event where people get together to solve carefully designed puzzles which somehow link together on a larger scale.
+      Very simply put, it's an event where people get together to solve carefully designed puzzles which somehow link
+      together on a larger scale.
       <br>
-      A puzzle hunt is typically characterized by its structure. In addition to several normal puzzles, each round has a meta-puzzle, which requires teams to have solved most of the normal puzzles to even unlock, and often requires solvers to incorporate answers from that round's normal puzzles to make sense of.
+      A puzzle hunt is typically characterized by its structure. In addition to several normal puzzles, each round has a
+      meta-puzzle, which requires teams to have solved most of the normal puzzles to even unlock, and often requires
+      solvers to incorporate answers from that round's normal puzzles to make sense of.
       <br>
       Our puzzle hunt's structure changes from semester to semester so as to provide new challenges for solvers.
     </p>
     <h2>Wait that sounds cool, can I participate?</h2>
     <p>Yeah, check out our <a href="{% url 'huntserver:current_hunt_info' %}">current hunt page</a>!</p>
     <h2>Wait, I have more questions!</h2>
-    <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
+    <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a>
+      ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
   </div>
 </div>
 {% endblock content %}

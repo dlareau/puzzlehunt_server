@@ -3,11 +3,12 @@
 
 {% load humanize %}
 <h1 class="title">{{curr_hunt.hunt_name}}</h1>
-<h2 class="title">{{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}<br>
-      Kickoff location is {{ curr_hunt.location }}</h2>
+<h2 class="title">{{ curr_hunt.display_start_date|date:" m/d/y " }} {{ curr_hunt.display_start_date|time:"h:iA" }}
+  &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}} {{ curr_hunt.display_end_date|time:"h:iA e" }}<br></h2>
 <div id='qa'>
   <h2>What are the puzzles like?</h2>
-  <p>For examples of the kinds of puzzles we'll give you, check out our <a href="{% url 'huntserver:previous_hunts' %}">Past Hunts</a></p>
+  <p>For examples of the kinds of puzzles we'll give you, check out our <a
+      href="{% url 'huntserver:previous_hunts' %}">Past Hunts</a></p>
   <p>Or these similar hunts:</p>
   <ul>
     <li><a href="http://www.collegepuzzlechallenge.com/">Microsoft College Puzzle Challenge</a></li>
@@ -21,36 +22,43 @@
     complete the puzzles the fastest.
   </p>
   <h2>How do I register?</h2>
-  <p>Register your team of {{curr_hunt.team_size|apnumber}} (or fewer if you want) <a href="{% url 'huntserver:registration' %}">here!</a>
+  <p>Register your team of {{curr_hunt.team_size|apnumber}} (or fewer if you want) <a
+      href="{% url 'huntserver:registration' %}">here!</a>
   </p>
 
   <h2>What should I bring?</h2>
   <p>
   <ul>
-      <li>A team of no more than {{curr_hunt.team_size|apnumber}} people. Humans only, please. Robots are discouraged; they mess up the sensors.</li>
-      <li>Laptops. All of our puzzles will be online. </li>
-  <li>Scissors. These will be helpful. </li> 
-      
+    <li>A team of no more than {{curr_hunt.team_size|apnumber}} people. Humans only, please. Robots are discouraged;
+      they mess up the sensors.</li>
+    <li>Laptops. All of our puzzles will be online. </li>
+    <li>Scissors. These will be helpful. </li>
+
   </ul>
   </p>
 
   <h2>How long will it last?</h2>
-  <p>The hunt is expected to run 8 hours. If there isn't a winner by 8 hours in (rare), we'll inform all teams to keep playing and continue until there's a winner.</p>
+  <p>The hunt is expected to run 8 hours. If there isn't a winner by 8 hours in (rare), we'll inform all teams to keep
+    playing and continue until there's a winner.</p>
 
   <h2>Will there be food?</h2>
   <p>
-     Yes, there will be food, usually pizza. If you have dietary restrictions, please list them in the appropriate box when registering. 
+    Yes, there will be food, usually pizza. If you have dietary restrictions, please list them in the appropriate box
+    when registering.
   </p>
 
   <h2>Is there anything else I should know?</h2>
   <p>
   <ul>
-      <li>There may be some running around campus required.</li>
-      <li>You CAN register a partial team and we'll do our best to try to match all of the partial teams on the day of.</li>
-      <li>Nothing on this and the registration page is a puzzle crucial for completing the hunt. No, really, this is not a puzzle.</li>
+    <li>There may be some running around campus required.</li>
+    <li>You CAN register a partial team and we'll do our best to try to match all of the partial teams on the day of.
+    </li>
+    <li>Nothing on this and the registration page is a puzzle crucial for completing the hunt. No, really, this is not a
+      puzzle.</li>
   </ul>
   </p>
 
   <h2>Wait, I have more questions!</h2>
-  <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
+  <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a>
+    ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
 </div>
