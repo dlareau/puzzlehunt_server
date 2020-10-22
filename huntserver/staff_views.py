@@ -21,7 +21,6 @@ from copy import deepcopy
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm, LookupForm
-from .utils import download_puzzles_task, download_zip_task
 
 DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -511,34 +510,6 @@ def control(request):
                 team.reset()
             messages.success(request, "Progress reset")
             return redirect('huntserver:hunt_management')
-
-        if(request.POST["action"] == "getpuzzles"):
-            task_id = -1
-            if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
-                puzzles = Puzzle.objects.filter(puzzle_id=request.POST["puzzle_id"])
-                task_id = download_puzzles_task(puzzles)
-
-            elif("hunt_number" in request.POST and request.POST["hunt_number"]):
-                hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
-                task_id = download_puzzles_task(hunt.puzzle_set.all())
-
-            return HttpResponse(task_id.id)
-
-        if(request.POST["action"] == "getprepuzzle"):
-            if("puzzle_number" in request.POST and request.POST["puzzle_number"]):
-                puzzle = Prepuzzle.objects.get(pk=int(request.POST["puzzle_number"]))
-                directory = settings.MEDIA_ROOT + "prepuzzles"
-                task_id = download_zip_task(directory, str(puzzle.pk), puzzle.resource_link)
-
-            return HttpResponse(task_id.id)
-
-        if(request.POST["action"] == "gethunt"):
-            if("hunt_number" in request.POST and request.POST["hunt_number"]):
-                hunt = Hunt.objects.get(hunt_number=int(request.POST["hunt_number"]))
-                directory = settings.MEDIA_ROOT + "hunt"
-                task_id = download_zip_task(directory, str(hunt.hunt_number), hunt.resource_link)
-
-            return HttpResponse(task_id.id)
 
         if(request.POST["action"] == "new_current_hunt"):
             new_curr = Hunt.objects.get(hunt_number=int(request.POST.get('hunt_number')))

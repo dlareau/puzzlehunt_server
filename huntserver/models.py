@@ -10,11 +10,50 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import os
 import re
+import zipfile
 
 import logging
 logger = logging.getLogger(__name__)
 
 time_zone = tz.gettz(settings.TIME_ZONE)
+
+
+# TODO: cleanup duplicate functions
+def get_puzzle_file_path(puzzle, filename):
+    return "puzzles/" + puzzle.puzzle_id + "." + filename.split('.')[-1]
+
+
+def get_solution_file_path(puzzle, filename):
+    return "solutions/" + puzzle.puzzle_id + "_sol." + filename.split('.')[-1]
+
+
+def get_prepuzzle_file_path(prepuzzle, filename):
+    return "prepuzzles/" + str(prepuzzle.pk) + "." + filename.split('.')[-1]
+
+
+def get_hunt_file_path(hunt, filename):
+    return "hunt/" + str(hunt.hunt_number) + "." + filename.split('.')[-1]
+
+
+class PuzzleOverwriteStorage(FileSystemStorage):
+    """ A custom storage class that just overwrites existing files rather than erroring """
+    def get_available_name(self, name, max_length=None):
+        # If the filename already exists, remove it as if it was a true file system
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+    def url(self, name):
+        return settings.PROTECTED_URL + name
+
+    def _save(self, name, content):
+        rc = super(PuzzleOverwriteStorage, self)._save(name, content)
+        extension = name.split('.')[-1]
+        folder = "".join(name.split('.')[:-1])
+        if(extension == "zip"):
+            with zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, name), "r") as zip_ref:
+                zip_ref.extractall(path=os.path.join(settings.MEDIA_ROOT, folder))
+        return rc
 
 
 @python_2_unicode_compatible
@@ -44,10 +83,11 @@ class Hunt(models.Model):
     location = models.CharField(
         max_length=100,
         help_text="Starting location of the puzzlehunt")
-    resource_link = models.URLField(
-        max_length=200,
+    resource_file = models.FileField(
+        upload_to=get_hunt_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a folder of additional resources.")
+        help_text="Hunt resources, MUST BE A ZIP FILE.")
     is_current_hunt = models.BooleanField(
         default=False)
     extra_data = models.CharField(
@@ -170,6 +210,16 @@ class Puzzle(models.Model):
         (BOTH_UNLOCK, 'Both (AND) Unlocking Methods'),
     ]
 
+    PDF_PUZZLE = 'PDF'
+    LINK_PUZZLE = 'LNK'
+    WEB_PUZZLE = 'WEB'
+
+    puzzle_page_type_choices = [
+        (PDF_PUZZLE, 'Puzzle page displays a PDF'),
+        (LINK_PUZZLE, 'Puzzle page links a webpage'),
+        (WEB_PUZZLE, 'Puzzle page displays a webpage'),
+    ]
+
     hunt = models.ForeignKey(
         Hunt,
         on_delete=models.CASCADE,
@@ -190,24 +240,31 @@ class Puzzle(models.Model):
         default=False,
         verbose_name="Is a metapuzzle",
         help_text="Is this puzzle a meta-puzzle?")
-    is_html_puzzle = models.BooleanField(
-        default=False,
-        help_text="Does this puzzle use an HTML folder as it's source?")
+    puzzle_page_type = models.CharField(
+        max_length=3,
+        choices=puzzle_page_type_choices,
+        default=WEB_PUZZLE,
+        blank=False,
+        help_text="The type of webpage for this puzzle."
+    )
     doesnt_count = models.BooleanField(
         default=False,
         help_text="Should this puzzle not count towards scoring?")
-    link = models.URLField(
-        max_length=200,
+    puzzle_file = models.FileField(
+        upload_to=get_puzzle_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a publicly accessible PDF of the puzzle")
-    resource_link = models.URLField(
-        max_length=200,
+        help_text="Puzzle file. MUST BE A PDF")
+    resource_file = models.FileField(
+        upload_to=get_puzzle_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a folder of additional resources.")
-    solution_link = models.URLField(
-        max_length=200,
+        help_text="Puzzle resources, MUST BE A ZIP FILE.")
+    solution_file = models.FileField(
+        upload_to=get_solution_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a publicly accessible PDF of the solution")
+        help_text="Puzzle solution. MUST BE A PDF.")
     extra_data = models.CharField(
         max_length=200,
         blank=True,
@@ -244,6 +301,11 @@ class Puzzle(models.Model):
         message['name'] = self.puzzle_name
         return message
 
+    @property
+    def safename(self):
+        name = self.puzzle_name.lower().replace(" ", "_")
+        return re.sub(r'[^a-z_]', '', name)
+
     def __str__(self):
         return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
 
@@ -270,10 +332,11 @@ class Prepuzzle(models.Model):
         default='{% extends "prepuzzle.html" %}\r\n{% load prepuzzle_tags %}\r\n' +
                 '\r\n{% block content %}\r\n{% endblock content %}',
         help_text="The template string to be rendered to HTML on the hunt page")
-    resource_link = models.URLField(
-        max_length=200,
+    resource_file = models.FileField(
+        upload_to=get_prepuzzle_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a folder of additional resources.")
+        help_text="Prepuzzle resources, MUST BE A ZIP FILE.")
     response_string = models.TextField(
         default="",
         help_text="Data returned to the webpage for use upon solving.")
@@ -834,7 +897,7 @@ class HintUnlockPlan(models.Model):
 
 class OverwriteStorage(FileSystemStorage):
     """ A custom storage class that just overwrites existing files rather than erroring """
-    def get_available_name(self, name):
+    def get_available_name(self, name, max_length=None):
         # If the filename already exists, remove it as if it was a true file system
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))

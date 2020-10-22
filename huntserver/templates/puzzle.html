@@ -22,17 +22,21 @@
         <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
         <h4> {{ puzzle.solved_for.count }} teams have solved this puzzle so far.</h4>
         <div>
-        {% if puzzle.is_html_puzzle %}
+        {% if puzzle.puzzle_page_type == puzzle.LINK_PUZZLE %}
           <a class="btn btn-default" href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html'>
             Go to puzzle
           </a>
-        {% else %}
+        {% elif puzzle.puzzle_page_type == puzzle.PDF_PUZZLE %}
           <a class="btn btn-default" href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf' target="_blank">
             Download PDF
           </a>
+        {% elif puzzle.puzzle_page_type == puzzle.WEB_PUZZLE %}
+          <a class="btn btn-default" href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html' target="_blank">
+            Open separate page
+          </a>
         {% endif %}
         {% if puzzle.hunt.is_public %}
-          {% if puzzle.solution_link != "" %}
+          {% if puzzle.solution_file != "" %}
             <a class="btn btn-default" href='{{ PROTECTED_URL }}solutions/{{ puzzle.puzzle_id }}_sol.pdf'>
                 View solution
             </a>
@@ -94,7 +98,7 @@
     {% endif %}
     </div>
     <div class='col-md-12'><br></div>
-    {% if puzzle.is_html_puzzle %}
+    {% if puzzle.puzzle_page_type == puzzle.LINK_PUZZLE %}
       <div style="text-align: center;" class="col-md-10 col-md-offset-1">
         <h4>
           <br>
@@ -103,9 +107,13 @@
           <a href="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html">Click here to go to the puzzle.</a>
         </h4>
       </div>
-    {% else %}
+    {% elif puzzle.puzzle_page_type == puzzle.PDF_PUZZLE %}
       <div class="col-md-12">
         <embed width="100%" height="1000px" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf" type="application/pdf"></embed>
+      </div>
+    {% elif puzzle.puzzle_page_type == puzzle.WEB_PUZZLE %}
+      <div class="col-md-12">
+        <iframe width="100%" height="1000px" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html" title="Puzzle iframe"></iframe>
       </div>
     {% endif %}
   </div>

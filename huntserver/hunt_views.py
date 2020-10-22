@@ -39,14 +39,14 @@ def protected_static(request, file_path):
     if(len(path.parts) < 2):
         return HttpResponseNotFound('<h1>Page not found</h1>')
 
-    puzzle_id = re.match(r'[0-9a-fA-F]+', path.parts[1])
-    if(puzzle_id is None):
-        return HttpResponseNotFound('<h1>Page not found</h1>')
-
-    puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id.group(0))
-    hunt = puzzle.hunt
-    user = request.user
     if(base == "puzzles" or base == "solutions"):
+        puzzle_id = re.match(r'[0-9a-fA-F]+', path.parts[1])
+        if(puzzle_id is None):
+            return HttpResponseNotFound('<h1>Page not found</h1>')
+
+        puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id.group(0))
+        hunt = puzzle.hunt
+        user = request.user
         disposition = 'filename="{}_{}"'.format(puzzle.safename, path.name)
         response['Content-Disposition'] = disposition
         if (hunt.is_public or user.is_staff):
