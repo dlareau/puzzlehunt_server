@@ -1,5 +1,5 @@
 /* Generic */
-* { font-family: Helvetica, Verdana, Arial, sans-serif; }
+.container { font-family: Helvetica, Verdana, Arial, sans-serif; }
 
 body {
     background: url(/static/huntserver/background1.jpg);
@@ -12,6 +12,10 @@ body {
     margin: 10px auto;
     border: 5px solid black;
     border-radius: 10px;
+}
+.container.no_outline {
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 #phlogo {

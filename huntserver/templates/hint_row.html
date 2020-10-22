@@ -1,4 +1,3 @@
-{% load crispy_forms_tags %}
 <tr data-id='{{hint.pk}}'>
     <td>
         <table class="table table-bordered hint_table">
@@ -6,37 +5,39 @@
                 <td width="70px">Request</td>
                 <td width="100px">{{ hint.request_time|time:"h:i a" }}</td>
                 <td>
-                    <b>Puzzle: {{hint.puzzle.puzzle_name}} | Team: {{hint.team.short_name}}</b>
-                    <br>
-                    {{ hint.request }}
+                    <div class="hint-title">
+                        <b>
+                            Puzzle: <a href="./?team_id={{request.GET.team_id}}&puzzle_id={{hint.puzzle.pk}}&hint_status={{request.GET.hint_status}}">
+                                {{hint.puzzle.puzzle_name}}
+                            </a>
+                          | Team: <a href="./?team_id={{hint.team.pk}}&puzzle_id={{request.GET.puzzle_id}}&hint_status={{request.GET.hint_status}}">
+                                {{hint.team.short_name}}
+                            </a>
+                        </b>
+                    </div>
+                    <div class="hint-text">
+                        {{ hint.request }}
+                    </div>
                 </td>
             </tr>
             <tr>
                 <td width="70px">Response</td>
-                {% if response_form %}
+                {% if staff_side %}
                     {% if hint.response %}
                         <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
                         <td>
-                            <div>
-                                <p>{{ hint.response }}</p>
-                                <a href='#' class='fix_link'>Edit Response</a>
-                                <form class='sub_form' action="/staff/hints/" method="post" style="display:none">
-                                    {% csrf_token %}
-                                    {{ response_form|crispy }}
-                                    <input class="btn btn-default" type='submit' value='Submit'/>
-                                </form>
-                            </div>
+                            <div class="hint-response">{{ hint.response }}</div>
+                            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#formModal">
+                              Edit response
+                            </button>
                         </td>
                     {% else %}
                         <td width="100px"></td>
                         <td>
-                            <div>
-                                <form class='sub_form' action="/staff/hints/" method="post">
-                                    {% csrf_token %}
-                                    {{ response_form|crispy }}
-                                    <input class="btn btn-default" type='submit' value='Submit'/>
-                                </form>
-                            </div>
+                            <div class="hint-response"></div>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+                              Respond to hint
+                            </button>
                         </td>
                     {% endif %}
                 {% else %}

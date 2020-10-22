@@ -49,6 +49,45 @@
       {% endblock branding %}
       {% block filters %}{% endblock filters %}
 
+    {% if "progress" in request.path or "queue" in request.path or "chat" in request.path or "management" in request.path or "emails" in request.path or "charts" in request.path or "info" in request.path or "hints" in request.path or "lookup" in request.path %}
+        <ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
+    {% else %}
+        <ul class="nav nav-sidebar app-staffpages module">
+    {% endif %}
+          <li>
+            <a href="/staff" class="section">
+              Staff Pages
+              <span style="float: right; font-size:1.3em; margin-top: -1px; margin-right: 9px" class="glyphicon glyphicon-menu-hamburger"></span>
+            </a>
+          </li>
+            <li {% if "progress" in request.path %}class="active"{% endif %}>
+              <a href="/staff/progress">Progress</a>
+            </li>
+            <li {% if "queue" in request.path %}class="active"{% endif %}>
+              <a href="/staff/queue">Queue</a>
+            </li>
+            <li {% if "chat" in request.path %}class="active"{% endif %}>
+              <a href="/staff/chat">Chat</a>
+            </li>
+            <li {% if "hints" in request.path %}class="active"{% endif %}>
+              <a href="/staff/hints">Hint Requests</a>
+            </li>
+            <li {% if "management" in request.path %}class="active"{% endif %}>
+              <a href="/staff/management">Management</a>
+            </li>
+            <li {% if "info" in request.path %}class="active"{% endif %}>
+              <a href="/staff/info">Info</a>
+            </li>
+            <li {% if "emails" in request.path %}class="active"{% endif %}>
+              <a href="/staff/emails">Email</a>
+            </li>
+            <li {% if "charts" in request.path %}class="active"{% endif %}>
+              <a href="/staff/charts">Charts</a>
+            </li>
+            <li {% if "lookup" in request.path %}class="active"{% endif %}>
+              <a href="/staff/lookup">Lookup</a>
+            </li>
+        </ul>
       {% if available_apps %}
       {% for app in available_apps %}
         <ul class="nav nav-sidebar app-{{ app.app_label }} module{% if app.app_url in request.path %} has-active-menu show-models{% endif %}">
@@ -68,41 +107,5 @@
     {% else %}
       <p class="permission-warning">{% trans "You don't have permission to edit anything." %}</p>
     {% endif %}
-    {% if "progress" in request.path or "queue" in request.path or "chat" in request.path or "management" in request.path or "emails" in request.path or "charts" in request.path or "info" in request.path or "hints" in request.path %}
-        <ul class="nav nav-sidebar app-staffpages module has-active-menu show-models">
-    {% else %}
-        <ul class="nav nav-sidebar app-staffpages module">
-    {% endif %}
-          <li>
-            <a href="/staff" class="section">
-              Other Staff Pages
-              <span style="float: right; font-size:1.3em; margin-top: -1px; margin-right: 9px" class="glyphicon glyphicon-menu-hamburger"></span>
-            </a>
-          </li>
-            <li {% if "progress" in request.path %}class="active"{% endif %}>
-              <a href="/staff/progress">Progress</a>
-            </li>
-            <li {% if "queue" in request.path %}class="active"{% endif %}>
-              <a href="/staff/queue">Queue</a>
-            </li>
-            <li {% if "chat" in request.path %}class="active"{% endif %}>
-              <a href="/staff/chat">Chat</a>
-            </li>
-            <li {% if "hints" in request.path %}class="active"{% endif %}>
-              <a href="/staff/hints">Hints</a>
-            </li>
-            <li {% if "management" in request.path %}class="active"{% endif %}>
-              <a href="/staff/management">Management</a>
-            </li>
-            <li {% if "info" in request.path %}class="active"{% endif %}>
-              <a href="/staff/info">Info</a>
-            </li>
-            <li {% if "emails" in request.path %}class="active"{% endif %}>
-              <a href="/staff/emails">Email</a>
-            </li>
-            <li {% if "charts" in request.path %}class="active"{% endif %}>
-              <a href="/staff/charts">Charts</a>
-            </li>
-        </ul>
     </div>
 {% endblock sidebar_menu %}

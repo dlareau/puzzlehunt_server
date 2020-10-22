@@ -91,25 +91,8 @@
   <h3> Hunt Downloads: </h3>
   <div class="list-group list-group-root well" style="max-width: 700px;">
     {% for hunt in hunts %}
-      <a href="#item-{{ forloop.counter }}" class="list-group-item" data-toggle="collapse">
-        <i class="glyphicon glyphicon-chevron-right"></i>
+      <div href="#item-{{ forloop.counter }}" class="list-group-item" data-toggle="collapse">
         {{ hunt }}
-        <form method="Post" class="downloadForm" action="/staff/control/" style="float: right;">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="gethunt">
-          <input type="hidden" name="hunt_number" value="{{hunt.hunt_number}}">
-          <button type="submit" class="download-btn btn btn-success" onclick="return confirm('Are you sure?')">
-            Resources <i class="glyphicon glyphicon-download"></i>
-          </button>
-        </form>
-        <form method="Post" class="downloadForm" action="/staff/control/" style="float: right;">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="getpuzzles">
-          <input type="hidden" name="hunt_number" value="{{hunt.hunt_number}}">
-          <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
-            Puzzles <i class="glyphicon glyphicon-download"></i>
-          </button>
-        </form>
         <form method="Post" action="/staff/control/" style="float: right;">
           {% csrf_token %}
           <input type="hidden" name="action" value="new_current_hunt">
@@ -118,40 +101,7 @@
             Set Current
           </button>
         </form>
-      </a>
-      <div class="list-group collapse" id="item-{{ forloop.counter }}">
-        {% for puzzle in hunt.puzzle_set.all|dictsort:"puzzle_number" %}
-          <a href="#item-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" class="list-group-item" data-toggle="collapse">
-            {{ puzzle }}
-            <form method="Post" class="downloadForm" action="/staff/control/" style="float: right;">
-              {% csrf_token %}
-              <input type="hidden" name="action" value="getpuzzles">
-              <input type="hidden" name="puzzle_number" value="{{puzzle.puzzle_number}}">
-              <input type="hidden" name="puzzle_id" value="{{puzzle.puzzle_id}}">
-              <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
-                Download
-              </button>
-            </form>
-          </a>
-        {% endfor %}
       </div>
-    {% endfor %}
-  </div>
-
-  <h3> Prepuzzle Downloads: </h3>
-  <div class="list-group list-group-root well" style="max-width: 700px;">
-    {% for puzzle in prepuzzles|dictsort:"pk" %}
-      <a href="#item-{{ forloop.counter }}" class="list-group-item">
-        {{ puzzle }}
-        <form method="Post" class="downloadForm" action="/staff/control/" style="float: right;">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="getprepuzzle">
-          <input type="hidden" name="puzzle_number" value="{{puzzle.pk}}">
-          <button type="submit" class="download-btn btn btn-primary" onclick="return confirm('Are you sure?')">
-            Download
-          </button>
-        </form>
-      </a>
     {% endfor %}
   </div>
 

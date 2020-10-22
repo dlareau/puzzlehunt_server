@@ -9,19 +9,46 @@ services:
     networks:
       local:
 
+  huey:
+    networks:
+      local:
+
+  redis:
+    networks:
+      local:
+
   web:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy-net"
-      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${DOMAIN}`)"
+
+      # HTTPS redirect for any other URL
+      - "traefik.http.routers.${PROJECT_NAME}_redirect.entrypoints=web"
+      - "traefik.http.routers.${PROJECT_NAME}_redirect.rule=Host(${REDIRECT_DOMAINS})"
+      - "traefik.http.middlewares.redirect_https.redirectscheme.scheme=https"
+      - "traefik.http.routers.${PROJECT_NAME}_redirect.middlewares=redirect_https"
+
+      # Redirects any other URL (https) to proper URL (https)
+      - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.entrypoints=websecure"
+      - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.rule=Host(${REDIRECT_DOMAINS})"
+      - "traefik.http.middlewares.redirect_domain_${PROJECT_NAME}.redirectregex.regex=^https://[0-9a-zA-Z.]+/(.*)"
+      - "traefik.http.middlewares.redirect_domain_${PROJECT_NAME}.redirectregex.replacement=https://${DOMAIN}/$${1}"
+      - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.middlewares=redirect_domain_${PROJECT_NAME}"
+      - "traefik.http.routers.${PROJECT_NAME}_redirect_secure.tls.certresolver=puzzlehunt_resolver"
+
+      # HTTPS redirect for any other URL
       - "traefik.http.routers.${PROJECT_NAME}.entrypoints=web"
-      - "traefik.http.routers.${PROJECT_NAME}.service=${PROJECT_NAME}"
+      - "traefik.http.routers.${PROJECT_NAME}.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.middlewares.base_https.redirectscheme.scheme=https"
+      - "traefik.http.routers.${PROJECT_NAME}.middlewares=base_https"
+
+      # This just routes to the actual service
+      - "traefik.http.routers.${PROJECT_NAME}_secure.entrypoints=websecure"
+      - "traefik.http.routers.${PROJECT_NAME}_secure.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${PROJECT_NAME}_secure.service=${PROJECT_NAME}"
+      - "traefik.http.routers.${PROJECT_NAME}_secure.tls.certresolver=puzzlehunt_resolver"
+
       - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=80"
-      - "traefik.tcp.routers.${PROJECT_NAME}_secure.rule=HostSNI(`${DOMAIN}`)"
-      - "traefik.tcp.routers.${PROJECT_NAME}_secure.tls.passthrough=true"
-      - "traefik.tcp.routers.${PROJECT_NAME}_secure.entrypoints=web,websecure"
-      - "traefik.tcp.routers.${PROJECT_NAME}_secure.service=${PROJECT_NAME}_secure"
-      - "traefik.tcp.services.${PROJECT_NAME}_secure.loadbalancer.server.port=443"
 
     networks:
       local:

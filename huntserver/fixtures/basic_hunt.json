@@ -328,7 +328,6 @@
         "puzzle_number": 1,
         "hunt": 1,
         "num_required_to_unlock": 0,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER11",
         "puzzle_id": "101"
     },
@@ -342,7 +341,6 @@
         "puzzle_number": 2,
         "hunt": 1,
         "num_required_to_unlock": 0,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER12",
         "puzzle_id": "102"
     },
@@ -356,7 +354,6 @@
         "puzzle_number": 3,
         "hunt": 1,
         "num_required_to_unlock": 1,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER13",
         "puzzle_id": "103"
     },
@@ -370,7 +367,6 @@
         "puzzle_number": 1,
         "hunt": 2,
         "num_required_to_unlock": 0,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER21",
         "puzzle_id": "201"
     },
@@ -384,7 +380,6 @@
         "puzzle_number": 2,
         "hunt": 2,
         "num_required_to_unlock": 0,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER22",
         "puzzle_id": "202"
     },
@@ -398,7 +393,6 @@
         "puzzle_number": 3,
         "hunt": 2,
         "num_required_to_unlock": 1,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER23",
         "puzzle_id": "203"
     },
@@ -412,7 +406,6 @@
         "puzzle_number": 1,
         "hunt": 3,
         "num_required_to_unlock": 0,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER31",
         "puzzle_id": "301"
     },
@@ -426,7 +419,6 @@
         "puzzle_number": 2,
         "hunt": 3,
         "num_required_to_unlock": 0,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER32",
         "puzzle_id": "302"
     },
@@ -440,7 +432,6 @@
         "puzzle_number": 3,
         "hunt": 3,
         "num_required_to_unlock": 1,
-        "link": "http://localhost:8898/huntserver/static/sample.pdf",
         "answer": "ANSWER33",
         "puzzle_id": "303"
     },

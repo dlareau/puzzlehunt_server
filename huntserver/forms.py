@@ -1,14 +1,42 @@
 from django import forms
 from .models import Person
 from django.contrib.auth.models import User
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Layout
+from crispy_forms.bootstrap import StrictButton, InlineField
+from django.core.exceptions import ValidationError
 import re
 
 
 class AnswerForm(forms.Form):
     answer = forms.CharField(max_length=100, label='Answer')
 
+    def __init__(self, *args, **kwargs):
+        disable_form = kwargs.pop('disable_form', False)
+        super(AnswerForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline'
+        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
+        self.helper.form_id = "sub_form"
+        if(disable_form):
+            self.helper.layout = Layout(
+                InlineField('answer', readonly=disable_form),
+                StrictButton('Submit', value="submit", type="submit", disabled="disabled",
+                             css_class='btn btn-default disabled')
+            )
+        else:
+            self.helper.layout = Layout(
+                'answer',
+                StrictButton('Submit', value="submit", type="submit", css_class='btn btn-default')
+            )
+
     def clean_answer(self):
-        return re.sub(r"[ _\-;:+,.!?]", "", self.cleaned_data.get('answer'))
+        # Currently the desire is to strip all non A-Z characters (Github issue #129)
+        new_cleaned_data = re.sub(r"[^A-Z]", "", self.cleaned_data.get('answer').upper())
+        if(new_cleaned_data == ""):
+            raise ValidationError("Submission was empty after stripping non A-Z characters",
+                                  code='all_spaces')
+        return new_cleaned_data
 
 
 class SubmissionForm(forms.Form):
@@ -115,3 +143,19 @@ class HintResponseForm(forms.Form):
                                widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}),
                                help_text="Max length 1000 characters.")
     hint_id = forms.CharField(label='hint_id', widget=forms.HiddenInput())
+
+
+class LookupForm(forms.Form):
+    search_string = forms.CharField(max_length=100, label='Search String',
+                                    help_text="Searches team names, team locations, usernames, "
+                                              "first/last names, and user emails")
+
+    def __init__(self, *args, **kwargs):
+        super(LookupForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline'
+        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
+        self.helper.layout = Layout(
+            'search_string',
+            Submit('submit', 'Submit', css_class='btn btn-primary')
+        )

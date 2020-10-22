@@ -10,11 +10,50 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import os
 import re
+import zipfile
 
 import logging
 logger = logging.getLogger(__name__)
 
 time_zone = tz.gettz(settings.TIME_ZONE)
+
+
+# TODO: cleanup duplicate functions
+def get_puzzle_file_path(puzzle, filename):
+    return "puzzles/" + puzzle.puzzle_id + "." + filename.split('.')[-1]
+
+
+def get_solution_file_path(puzzle, filename):
+    return "solutions/" + puzzle.puzzle_id + "_sol." + filename.split('.')[-1]
+
+
+def get_prepuzzle_file_path(prepuzzle, filename):
+    return "prepuzzles/" + str(prepuzzle.pk) + "." + filename.split('.')[-1]
+
+
+def get_hunt_file_path(hunt, filename):
+    return "hunt/" + str(hunt.hunt_number) + "." + filename.split('.')[-1]
+
+
+class PuzzleOverwriteStorage(FileSystemStorage):
+    """ A custom storage class that just overwrites existing files rather than erroring """
+    def get_available_name(self, name, max_length=None):
+        # If the filename already exists, remove it as if it was a true file system
+        if self.exists(name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, name))
+        return name
+
+    def url(self, name):
+        return settings.PROTECTED_URL + name
+
+    def _save(self, name, content):
+        rc = super(PuzzleOverwriteStorage, self)._save(name, content)
+        extension = name.split('.')[-1]
+        folder = "".join(name.split('.')[:-1])
+        if(extension == "zip"):
+            with zipfile.ZipFile(os.path.join(settings.MEDIA_ROOT, name), "r") as zip_ref:
+                zip_ref.extractall(path=os.path.join(settings.MEDIA_ROOT, folder))
+        return rc
 
 
 @python_2_unicode_compatible
@@ -44,10 +83,11 @@ class Hunt(models.Model):
     location = models.CharField(
         max_length=100,
         help_text="Starting location of the puzzlehunt")
-    resource_link = models.URLField(
-        max_length=200,
+    resource_file = models.FileField(
+        upload_to=get_hunt_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a folder of additional resources.")
+        help_text="Hunt resources, MUST BE A ZIP FILE.")
     is_current_hunt = models.BooleanField(
         default=False)
     extra_data = models.CharField(
@@ -156,6 +196,7 @@ class Puzzle(models.Model):
         indexes = [
             models.Index(fields=['puzzle_id']),
         ]
+        ordering = ['-hunt', 'puzzle_number']
 
     SOLVES_UNLOCK = 'SOL'
     POINTS_UNLOCK = 'POT'
@@ -167,6 +208,16 @@ class Puzzle(models.Model):
         (POINTS_UNLOCK, 'Points Based Unlock'),
         (EITHER_UNLOCK, 'Either (OR) Unlocking Method'),
         (BOTH_UNLOCK, 'Both (AND) Unlocking Methods'),
+    ]
+
+    PDF_PUZZLE = 'PDF'
+    LINK_PUZZLE = 'LNK'
+    WEB_PUZZLE = 'WEB'
+
+    puzzle_page_type_choices = [
+        (PDF_PUZZLE, 'Puzzle page displays a PDF'),
+        (LINK_PUZZLE, 'Puzzle page links a webpage'),
+        (WEB_PUZZLE, 'Puzzle page displays a webpage'),
     ]
 
     hunt = models.ForeignKey(
@@ -189,24 +240,31 @@ class Puzzle(models.Model):
         default=False,
         verbose_name="Is a metapuzzle",
         help_text="Is this puzzle a meta-puzzle?")
-    is_html_puzzle = models.BooleanField(
-        default=False,
-        help_text="Does this puzzle use an HTML folder as it's source?")
+    puzzle_page_type = models.CharField(
+        max_length=3,
+        choices=puzzle_page_type_choices,
+        default=WEB_PUZZLE,
+        blank=False,
+        help_text="The type of webpage for this puzzle."
+    )
     doesnt_count = models.BooleanField(
         default=False,
         help_text="Should this puzzle not count towards scoring?")
-    link = models.URLField(
-        max_length=200,
+    puzzle_file = models.FileField(
+        upload_to=get_puzzle_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a publicly accessible PDF of the puzzle")
-    resource_link = models.URLField(
-        max_length=200,
+        help_text="Puzzle file. MUST BE A PDF")
+    resource_file = models.FileField(
+        upload_to=get_puzzle_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a folder of additional resources.")
-    solution_link = models.URLField(
-        max_length=200,
+        help_text="Puzzle resources, MUST BE A ZIP FILE.")
+    solution_file = models.FileField(
+        upload_to=get_solution_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a publicly accessible PDF of the solution")
+        help_text="Puzzle solution. MUST BE A PDF.")
     extra_data = models.CharField(
         max_length=200,
         blank=True,
@@ -243,6 +301,11 @@ class Puzzle(models.Model):
         message['name'] = self.puzzle_name
         return message
 
+    @property
+    def safename(self):
+        name = self.puzzle_name.lower().replace(" ", "_")
+        return re.sub(r'[^a-z_]', '', name)
+
     def __str__(self):
         return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
 
@@ -269,10 +332,11 @@ class Prepuzzle(models.Model):
         default='{% extends "prepuzzle.html" %}\r\n{% load prepuzzle_tags %}\r\n' +
                 '\r\n{% block content %}\r\n{% endblock content %}',
         help_text="The template string to be rendered to HTML on the hunt page")
-    resource_link = models.URLField(
-        max_length=200,
+    resource_file = models.FileField(
+        upload_to=get_prepuzzle_file_path,
+        storage=PuzzleOverwriteStorage(),
         blank=True,
-        help_text="The full link (needs http://) to a folder of additional resources.")
+        help_text="Prepuzzle resources, MUST BE A ZIP FILE.")
     response_string = models.TextField(
         default="",
         help_text="Data returned to the webpage for use upon solving.")
@@ -282,6 +346,16 @@ class Prepuzzle(models.Model):
             return "prepuzzle " + str(self.pk) + " (" + str(self.hunt.hunt_name) + ")"
         else:
             return "prepuzzle " + str(self.pk)
+
+
+class TeamManager(models.Manager):
+    def search(self, query=None):
+        qs = self.get_queryset()
+        if query is not None:
+            or_lookup = (models.Q(team_name__icontains=query) |
+                         models.Q(location__icontains=query))
+            qs = qs.filter(or_lookup).distinct()
+        return qs
 
 
 @python_2_unicode_compatible
@@ -338,6 +412,8 @@ class Team(models.Model):
     num_unlock_points = models.IntegerField(
         default=0,
         help_text="The number of points the team has earned")
+
+    objects = TeamManager()
 
     @property
     def is_playtester_team(self):
@@ -457,6 +533,18 @@ class Team(models.Model):
         return str(self.size) + " (" + self.location + ") " + self.short_name
 
 
+class PersonManager(models.Manager):
+    def search(self, query=None):
+        qs = self.get_queryset()
+        if query is not None:
+            or_lookup = (models.Q(user__username__icontains=query) |
+                         models.Q(user__first_name__icontains=query) |
+                         models.Q(user__last_name__icontains=query) |
+                         models.Q(user__email__icontains=query))
+            qs = qs.filter(or_lookup).distinct()
+        return qs
+
+
 @python_2_unicode_compatible
 class Person(models.Model):
     """ A class to associate more personal information with the default django auth user class """
@@ -484,12 +572,21 @@ class Person(models.Model):
     is_shib_acct = models.BooleanField(
         help_text="A boolean to indicate if the person uses shibboleth authentication for login")
 
+    objects = PersonManager()
+
     def __str__(self):
         name = self.user.first_name + " " + self.user.last_name + " (" + self.user.username + ")"
         if(name == "  ()"):
             return "Anonymous User"
         else:
             return name
+
+    @property
+    def formatted_phone_number(self):
+        match = re.match("(?:\\+?1 ?-?)?\\(?([0-9]{3})\\)?-? ?([0-9]{3})-? ?([0-9]{4})", self.phone)
+        if(match):
+            return match.expand("(\\1)-\\2-\\3")
+        return self.phone
 
 
 @python_2_unicode_compatible
@@ -527,7 +624,7 @@ class Submission(models.Model):
     @property
     def is_correct(self):
         """ A boolean indicating if the submission given is exactly correct """
-        return self.submission_text.lower() == self.puzzle.answer.lower()
+        return self.submission_text.upper() == self.puzzle.answer.upper()
 
     @property
     def convert_markdown_response(self):
@@ -569,7 +666,7 @@ class Submission(models.Model):
             if(re.match(resp.regex, self.submission_text, re.IGNORECASE)):
                 response = resp.text
                 break
-        else:
+        else:  # Give a default response if no regex matches
             if(self.is_correct):
                 response = "Correct"
             else:
@@ -585,7 +682,7 @@ class Submission(models.Model):
     def update_response(self, text):
         """ Updates the response with the given text """
         self.response_text = text
-        self.modified_date = timezone.now()
+        self.modified_date = timezone.now()  # TODO: I think this line is useless because of ^ save
         self.save()
 
     def __str__(self):
@@ -800,7 +897,7 @@ class HintUnlockPlan(models.Model):
 
 class OverwriteStorage(FileSystemStorage):
     """ A custom storage class that just overwrites existing files rather than erroring """
-    def get_available_name(self, name):
+    def get_available_name(self, name, max_length=None):
         # If the filename already exists, remove it as if it was a true file system
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))

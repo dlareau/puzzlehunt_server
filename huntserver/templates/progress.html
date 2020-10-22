@@ -38,75 +38,66 @@
     <option># Puzzle Solves</option>
   </select>
   </span>
-  <table id='progress' class="table table-bordered table-condensed">
-    <thead>
-      <tr>
-        <td class="actions">All teams:</td>
-        <td class="actions"></td>
-        <td class="actions"></td>
-        <td class="actions"></td>
-        {% for puzzle in puzzle_list %}
-          <td class="actions">
-            <form class='unlock_form' action="/staff/progress/" method="post">
-              {% csrf_token %}
-              <input type="hidden" name="puzzle_id" value="{{ puzzle.pk }}">
-              <input type="hidden" name="action" value="unlock_all">
-              <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
-                Unlock All
-              </button>
-            </form>
-          </td>
-        {% endfor %}
-      </tr>
-      <tr>
-        <th>Team</th>
-        <th>#</br>M</th>
-        <th>#</br>P</th>
-        <th>Last&nbsp;Time</th>
-        {% for puzzle in puzzle_list %}
-          <th {% if puzzle.is_meta %} class="metapuzzle" {% endif %}
-              {% if puzzle.doesnt_count %} class="nocount" {% endif %}
-              data-id='{{ puzzle.puzzle_id }}'>
-            {{ puzzle.puzzle_name }}
-          </th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in sol_array %}
-        <tr class="team_row">
-          <td data-id={{row.team.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-            {{ row.team.team_name|truncatechars:40 }}
-          </td>
-          <td class='num_metas'></td>
-          <td class='num_puzzles'></td>
-          <td class='last_time'></td>
-          {% for cell in row.cells %}
-          {% if cell.0 == "locked"%}
-            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='unavailable' 
-             style='text-align:center;'>
+  <div id=table-container>
+    <table id='progress' class="table table-bordered table-condensed">
+      <thead class="progress-thead">
+        <tr>
+          <td class="actions leftmost">All teams:</td>
+          <td class="actions"></td>
+          <td class="actions"></td>
+          <td class="actions"></td>
+          {% for puzzle in puzzle_list %}
+            <td class="actions">
               <form class='unlock_form' action="/staff/progress/" method="post">
                 {% csrf_token %}
-                <input type="hidden" name="team_id" value="{{ row.team.pk }}">
-                <input type="hidden" name="puzzle_id" value="{{ cell.1 }}">
-                <input type="hidden" name="action" value="unlock">
+                <input type="hidden" name="puzzle_id" value="{{ puzzle.pk }}">
+                <input type="hidden" name="action" value="unlock_all">
                 <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
-                  Unlock
+                  Unlock All
                 </button>
-        </form>
+              </form>
             </td>
-          {% elif cell.0 == "unlocked" %}
-            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='available' data-date={{ cell.2 |date:"U"}}>
-              <b>{{ cell.3|time:"h:i a" }}</b>
-            </td>
-          {% else %}
-            <td id='p{{ cell.1 }}t{{ row.team.pk }}' class='solved' data-date={{ cell.0 |date:"U"}}> 
-              {{ cell.0|time:"h:i a" }}
-            </td>
-          {% endif %}
           {% endfor %}
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        <tr>
+          <th class="leftmost topmost">Team</th>
+          <th>#</br>M</th>
+          <th>#</br>P</th>
+          <th>Last&nbsp;Time</th>
+          {% for puzzle in puzzle_list %}
+            <th {% if puzzle.is_meta %} class="metapuzzle" {% endif %}
+                {% if puzzle.doesnt_count %} class="nocount" {% endif %}
+                data-id='{{ puzzle.puzzle_id }}'>
+              {{ puzzle.puzzle_name }}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for team_dict in sol_list %}
+          <tr class="team_row">
+            <td class="leftmost" data-id={{team_dict.team.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+              {{ team_dict.team.name|truncatechars:40 }}
+            </td>
+            <td class='num_metas'></td>
+            <td class='num_puzzles'></td>
+            <td class='last_time'></td>
+            {% for puzzle in team_dict.puzzles %}
+              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}'
+              {% if puzzle.1 == "locked"%}
+                class='unavailable' style='text-align:center;'>
+              {% elif puzzle.1 == "unlocked" %}
+                class='available' data-date={{ puzzle.2 |date:"U"}}>
+                  <b>{{ puzzle.3|time:"h:i a" }}</b>
+              {% else %}
+                class='solved' data-date={{ puzzle.2 |date:"U"}}>
+                  {{ puzzle.2|time:"h:i a" }}
+              {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock content %}

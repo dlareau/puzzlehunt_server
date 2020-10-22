@@ -2,6 +2,7 @@
 
 from django.db import migrations
 from django.template.loader import get_template
+from django.conf import settings
 
 
 def setup_pages(apps, schema_editor):
@@ -11,7 +12,7 @@ def setup_pages(apps, schema_editor):
     try:
         our_site = Site.objects.get(pk=1)
     except:
-        our_site = Site.objects.create(domain="example.com", name="example.com")
+        our_site = Site.objects.create(domain=settings.DOMAIN, name=settings.DOMAIN)
 
         source = get_template("contact_us.html").template.source.split("</readme> -->")[1]
         fp = FlatPage.objects.create(url='/contact-us/', title='Contact Us', content=source)

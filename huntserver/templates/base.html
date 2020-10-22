@@ -18,22 +18,48 @@
   </head>
   <body>
 
-    <nav class="navbar navbar-default navbar-fixed-top" {% if debug %} style="background-color: darkred;" {% endif %} >
+    <nav class="navbar navbar-default navbar-fixed-top" {% if debug %} style="background-color: lightgoldenrodyellow;" {% endif %} >
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-wrapper" aria-expanded="false">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/"> {% if debug %} DEVELOPMENT SERVER {% else %} Puzzlehunt CMU {% endif %}</a>
+          <a class="navbar-brand" href="/">
+            <span class="glyphicon glyphicon-home"></span>
+          </a>
+          <a class="navbar-brand" href="/">
+            {% if debug %} Dev Server {% else %} {% site_title %} {% endif %}
+          </a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="navbar-collapse-wrapper">
           <ul class="nav navbar-nav">
+            {% block prev-hunts-header %}
+              {% set_hunts %}
+              {% if tmpl_hunts %}
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Previous Hunts <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li class="dropdown-header"> Previous Hunts: </li>
+                  {% for hunt in tmpl_hunts %}
+                    <li>
+                      <a href="{% url 'huntserver:hunt' hunt.hunt_number %}">
+                        {{ hunt.hunt_name }} - {{ hunt.season.0 }}'{{ hunt.start_date|date:"y" }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                  <li class='{% active_page request "previous_hunts" %}'>
+                    <a href="{% url 'huntserver:previous_hunts' %}"> ... Even older hunts </a>
+                  </li>
+                </ul>
+              </li>
+              {% endif %}
+            {% endblock %}
             {% block left-header %}
             {% endblock %}
           </ul>
@@ -41,15 +67,24 @@
             {% block right-header %}
               {% if user.is_authenticated %}
                 <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">User: {{request.user.username}} <span class="caret"></span></a>
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-user"></span> Profile <span class="caret"></span>
+                  </a>
                   <ul class="dropdown-menu">
+                    <li class="dropdown-header">{{request.user.username}}</li>
                     <li><a href="{% url 'huntserver:user_profile' %}">Edit Profile</a></li>
+                    <li><a href="{% url 'huntserver:registration' %}">Join/Manage Team</a></li>
                     <li role="separator" class="divider"></li>
                     <li><a href="/logout/">Log Out</a></li>
                   </ul>
                 </li>
               {% else %}
-                <a class="btn btn-default navbar-btn" href="{% url 'huntserver:login_selection' %}">Log in</a>
+                <li><a href="{% url 'huntserver:create_account' %}">
+                  <span class="glyphicon glyphicon-user"></span> Sign Up
+                </a></li>
+                <li><a href="{% url 'huntserver:login_selection' %}">
+                  <span class="glyphicon glyphicon-log-in"></span> Login
+                </a></li>
               {% endif %}
             {% endblock %}
           </ul>
@@ -58,7 +93,7 @@
     </nav>
 
     {% if messages %}
-    <div class="col-md-6 col-md-offset-3" style="position: absolute; z-index: 10;">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3" style="position: absolute; z-index: 10;">
       {% for message in messages %}
       <div class="alert alert-dismissible
       {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}

@@ -1,5 +1,6 @@
 {% extends "staff_base.html" %}
 {% block title %}Hint Management{% endblock title %}
+{% load crispy_forms_tags %}
 
 {% block includes %}
   <script src="{{ STATIC_URL }}js.cookie.js"></script>
@@ -42,7 +43,7 @@
     <button style="float: left; margin-right: 20px;" class="btn btn-default" type="button" data-toggle="collapse" data-target="#hint_counts" aria-expanded="false" aria-controls="collapseExample">
       Show/Hide hint counts
     </button>
-    <form method="GET" action="" class="form-inline">
+    <form id="filter_form" method="GET" action="" class="form-inline">
       <select name="team_id" style="width: 200px;" class="form-control">
         <option value="">Filter by team</option>
         {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
@@ -70,6 +71,34 @@
       </select>
       <button type="submit" value="Filter" class="btn btn-default"> Filter </button>
     </form>
+    {% if team_id or puzzle_id or hint_status %}
+    <div class="alert alert-info" style="margin-top: 10px; padding: 10px;" role="alert">
+      You are viewing filtered hints. <u><a href=".">Click here to remove filtering.</a></u>
+    </div>
+    {% endif %}
+
+    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel">
+      <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="formModalLabel">Respond to Hint</h4>
+            </div>
+            <div class="modal-body">
+              <b>Request:</b>
+              <div id="modal-hint-text"></div>
+              <br>
+              <form class='sub_form' action="/staff/hints/" method="post">
+                {% csrf_token %}
+                {{ response_form|crispy }}
+                <input class="btn btn-default" type='submit' value='Submit'/>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <table id='hints' class="table table-condensed" style="margin-top: 10px;">
       <tbody id='sub_table'>

@@ -52,7 +52,7 @@ urlpatterns = [
     url(r'^prepuzzle/(?P<prepuzzle_num>[0-9]+)/$', hunt_views.prepuzzle, name='prepuzzle'),
     url(r'^hunt/current/prepuzzle/$', hunt_views.current_prepuzzle, name='current_prepuzzle'),
     url(r'^chat/$', hunt_views.chat, name='chat'),
-    url(r'^chat/status$', hunt_views.chat_status, name='chat_status'),
+    url(r'^chat/status/$', hunt_views.chat_status, name='chat_status'),
     url(r'^objects/$', hunt_views.unlockables, name='unlockables'),
     url(r'^protected/(?P<file_path>.+)$', hunt_views.protected_static, name='protected_static'),
 
@@ -70,6 +70,7 @@ urlpatterns = [
         url(r'^hints/$', staff_views.staff_hints_text, name='staff_hints_text'),
         url(r'^hints/control/$', staff_views.staff_hints_control, name='staff_hints_control'),
         url(r'^info/$', staff_views.hunt_info, name='hunt_info'),
+        url(r'^lookup/$', staff_views.lookup, name='lookup'),
     ])),
 
     url(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView.as_view(), name='logout',

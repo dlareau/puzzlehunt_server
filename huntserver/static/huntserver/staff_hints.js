@@ -17,8 +17,8 @@ $(document).ready(function() {
     e.preventDefault();
     team  = $(this).attr('data-team');
     value = $(this).attr('data-value');
-    $.post("/staff/hints/control/", 
-      {action:'update', 'team_pk': team, value: value, csrfmiddlewaretoken: csrf_token}, 
+    $.post("/staff/hints/control/",
+      {action:'update', 'team_pk': team, value: value, csrfmiddlewaretoken: csrf_token},
       function( data ) {
         var response = JSON.parse(data);
         for (var i = 0; i < response.length; i++) {
@@ -43,10 +43,11 @@ $(document).ready(function() {
 
   var get_posts = function() {
     // Hint texts:
+    data_str = "&last_date=" + last_date;
     $.ajax({
       type: 'get',
       url: "/staff/hints/",
-      data: {last_date: last_date},
+      data: $("#filter_form").serialize() + data_str,
       success: function (response) {
         var response = JSON.parse(response);
         messages = response.hint_list;
@@ -57,7 +58,7 @@ $(document).ready(function() {
             if ($('tr[data-id=' + pk + ']').length == 0) {
               submission.prependTo("#sub_table");
               if($('#sub_table tr').length >= 10){
-                $('#sub_table tr:last').remove();
+                $('#sub_table table:last').parent().parent().remove();
               }
             } else {
               $('tr[data-id=' + pk + ']').replaceWith(submission);
@@ -91,29 +92,38 @@ $(document).ready(function() {
 
   function formListener(e) {
     e.preventDefault();
-    // This sucks, I should be more precise
-    old_row = $(this).parent().parent().parent().parent().parent().parent().parent();
+    var hint_id = $(this).find("#id_hint_id").val()
     $.ajax({
       url : $(this).attr('action') || window.location.pathname,
       type: "POST",
       data: $(this).serialize(),
       success: function (response) {
         response = JSON.parse(response);
-        old_row.replaceWith($(response.hint_list[0]));
-        $('.sub_form').on('submit', formListener);
+        $("[data-id=" + hint_id + "]").replaceWith($(response.hint_list[0]))
         last_date = response.last_date;
       },
       error: function (jXHR, textStatus, errorThrown) {
         console.log(jXHR);
       }
     });
+    $('#formModal').modal('hide');
   }
 
-  /* open a text box for submitting an email */
+  $('#formModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var modal = $(this);
+    var hint_request = button.parent().parent().parent();
+    var title = hint_request.find(".hint-title");
+    var response = hint_request.find(".hint-response");
+    var outer_row = hint_request.parent().parent().parent();
+    modal.find('.modal-title').html(title.html());
+    modal.find('.modal-body #modal-hint-text').text(hint_request.find(".hint-text").text());
+    modal.find('.modal-body #id_response').val(response.text());
+    modal.find('.modal-body #id_hint_id').val(outer_row.data("id"));
+  })
+
   $(document).delegate('.fix_link', 'click', function() {
-    $(this).siblings('form').show();
-    $(this).siblings('p').hide();
-    $(this).hide();
+    $('#formModal').modal('show');
     return false;
   });
 });

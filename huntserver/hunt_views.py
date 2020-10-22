@@ -4,13 +4,15 @@ from django.conf import settings
 from ratelimit.utils import is_ratelimited
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import smart_str
 from django.db.models import F
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from pathlib import Path
 import json
 import os
 import re
@@ -31,28 +33,32 @@ def protected_static(request, file_path):
     """
 
     allowed = False
-    levels = file_path.split("/")
-    if(levels[0] == "puzzles"):
-        puzzle_id = levels[1].split("-")[0].split(".")[0]
-        puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id)
+    path = Path(file_path)
+    base = path.parts[0]
+    response = HttpResponse()
+    if(len(path.parts) < 2):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
+    if(base == "puzzles" or base == "solutions"):
+        puzzle_id = re.match(r'[0-9a-fA-F]+', path.parts[1])
+        if(puzzle_id is None):
+            return HttpResponseNotFound('<h1>Page not found</h1>')
+
+        puzzle = get_object_or_404(Puzzle, puzzle_id=puzzle_id.group(0))
         hunt = puzzle.hunt
         user = request.user
+        disposition = 'filename="{}_{}"'.format(puzzle.safename, path.name)
+        response['Content-Disposition'] = disposition
         if (hunt.is_public or user.is_staff):
             allowed = True
-        else:
+        elif(base == "puzzles"):  # This is messy and the most common case, this should be fixed
             team = hunt.team_from_user(user)
             if (team is not None and puzzle in team.unlocked.all()):
                 allowed = True
-    elif(levels[0] == "solutions"):
-        puzzle_id = levels[1].split("-")[0].split("_")[0]
-        hunt = get_object_or_404(Puzzle, puzzle_id=puzzle_id).hunt
-        if (hunt.is_public or user.is_staff):
-            allowed = True
     else:
         allowed = True
 
     if allowed:
-        response = HttpResponse()
         # let apache determine the correct content type
         response['Content-Type'] = ""
         # This is what lets django access the normally restricted /media/
@@ -197,37 +203,41 @@ def puzzle_view(request, puzzle_id):
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
     if request.method == 'POST':
-        # Deal with answers from archived hunts
-        if(puzzle.hunt.is_public):
-            form = AnswerForm(request.POST)
-            team = puzzle.hunt.dummy_team
-            if form.is_valid():
-                user_answer = form.cleaned_data['answer']
-                s = Submission.objects.create(submission_text=user_answer, team=team,
-                                              puzzle=puzzle, submission_time=timezone.now())
-                s.respond()
-                response = s.response_text
-                is_correct = s.is_correct
-            else:
-                response = "Invalid Submission"
-                is_correct = None
-            context = {'form': form, 'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
-                       'response': response, 'is_correct': is_correct}
-            return render(request, 'puzzle.html', context)
-
-        # If the hunt isn't public and you aren't signed in, please stop...
         if(team is None):
-            return HttpResponse('fail')
+            if(puzzle.hunt.is_public):
+                team = puzzle.hunt.dummy_team
+            else:
+                # If the hunt isn't public and you aren't signed in, please stop...
+                return HttpResponse('fail')
 
-        # Normal answer responses for a signed in user in an ongoing hunt
         form = AnswerForm(request.POST)
+        form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
+
         if form.is_valid():
             user_answer = form.cleaned_data['answer']
             s = Submission.objects.create(submission_text=user_answer, team=team,
                                           puzzle=puzzle, submission_time=timezone.now())
             s.respond()
+        else:
+            s = None
 
-        # Render response to HTML
+        # Deal with answers for public hunts
+        if(puzzle.hunt.is_public):
+            if(s is None):
+                response = "Invalid Submission"
+                is_correct = None
+            else:
+                response = s.response_text
+                is_correct = s.is_correct
+
+            context = {'form': form, 'puzzle': puzzle, 'PROTECTED_URL': settings.PROTECTED_URL,
+                       'response': response, 'is_correct': is_correct}
+            return render(request, 'puzzle.html', context)
+
+        if(s is None):
+            return HttpResponseBadRequest(form.errors.as_json())
+
+        # Render response to HTML for live hunts
         submission_list = [render_to_string('puzzle_sub_row.html', {'submission': s})]
 
         try:
@@ -273,8 +283,14 @@ def puzzle_view(request, puzzle_id):
         # The logic above is negated to weed out edge cases, so here is a summary:
         # If we've made it here, the hunt is public OR the user is staff OR
         # the user 1) is signed in, 2) not staff, 3) is on a team, and 4) has access
-        submissions = puzzle.submission_set.filter(team=team).order_by('pk')
-        form = AnswerForm()
+        if(team is not None):
+            submissions = puzzle.submission_set.filter(team=team).order_by('pk')
+            disable_form = puzzle in team.solved.all()
+        else:
+            submissions = None
+            disable_form = False
+        form = AnswerForm(disable_form=disable_form)
+        form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
         try:
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:

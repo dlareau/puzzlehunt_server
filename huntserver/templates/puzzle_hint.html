@@ -25,7 +25,7 @@
       </div>
     </div>
     {% if not puzzle.hunt.is_public %}
-    <div id='submit_container' class="col-md-10 col-md-offset-1">
+    <div id='submit_container' class="col-md-12">
       <fieldset id='submit'>
         <legend>Request a Hint</legend>
         <form id='sub_form' action="/hints/{{ puzzle.puzzle_id }}/" method='post'>

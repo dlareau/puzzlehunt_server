@@ -63,22 +63,44 @@ table.table.table-condensed > tbody > tr > td {
     vertical-align: middle;
 }
 
+#table-container {
+  overflow: scroll;
+  height: calc(100vh - 180px);
+}
+
+.progress-thead>tr>td {
+  padding: 3px;
+}
+
+.progress-thead>tr>th {
+  background-color: whitesmoke;
+  text-align: center;
+  position: -webkit-sticky; /* for Safari */
+  position: sticky;
+  top: 0;
+  box-shadow: black 1px 0px 0 1px
+}
+
+.leftmost {
+  background-color: whitesmoke;
+  position: -webkit-sticky; /* for Safari */
+  position: sticky;
+  left: 0;
+  box-shadow: black 0px 1px 0 1px;
+}
+
+.leftmost.topmost {
+  z-index: 10;
+}
+
 #progress {
   font-size: 80%; }
 
-  #progress .solved {
-    background: hsla(128, 100%, 75%, 1);; }
+#progress .solved {
+  background: hsla(128, 100%, 75%, 1);; }
 
-  #progress .available {
-      background: hsla(55, 100%, 75%, 1); }
-
-  #progress th {
-    text-align: center;
-  }
-
-  #progress.table-condensed>thead>tr>td {
-    padding: 3px;
-  }
+#progress .available {
+    background: hsla(55, 100%, 75%, 1); }
 
 .sort_select {
   display: inline;
@@ -86,6 +108,7 @@ table.table.table-condensed > tbody > tr > td {
   margin-bottom: 5px;
   -webkit-appearance: menulist;
 }
+
 
 .sort_label {
   margin-left: 20px;
@@ -129,4 +152,24 @@ select {
 .download-btn {
   padding: 3px 12px 1px 12px;
   margin-top: -2px;
+}
+
+.vertical-alignment-helper {
+    display:table;
+    height: 100%;
+    width: 100%;
+    pointer-events:none;
+}
+.vertical-align-center {
+    /* To center vertically */
+    display: table-cell;
+    vertical-align: middle;
+    pointer-events:none;
+}
+.modal-content {
+    width:inherit;
+    max-width:inherit;
+    height:inherit;
+    margin: 0 auto;
+    pointer-events: all;
 }

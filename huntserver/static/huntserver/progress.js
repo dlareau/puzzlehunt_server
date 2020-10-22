@@ -26,7 +26,7 @@ $(document).ready(function() {
   }
 
   sorting_dict = {
-    "# Meta Solves": "meta_rank", 
+    "# Meta Solves": "meta_rank",
     "# Puzzle Solves": "rank",
     "Last Solve Time": "last",
   }
@@ -60,7 +60,7 @@ $(document).ready(function() {
         $(this).data("index", $(this).index());
       }
     })
-  }  
+  }
 
   function sort_table(table) {
     tbody = table.find('tbody');
@@ -119,9 +119,9 @@ $(document).ready(function() {
       });
       update_values();
       if($("#sort_check").is(":checked")) {
-        sort_table($("table"));
+        sort_table($("#progress"));
       } else {
-        unsort_table($("table"));
+        unsort_table($("#progress"));
       }
     }
   }

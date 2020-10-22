@@ -1,0 +1,148 @@
+{% extends "staff_base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Lookup{% endblock title %}
+
+{% block includes %}
+<style type="text/css">
+  td {
+    border: none;
+  }
+  #id_search_string {
+    width: 500px;
+  }
+</style>
+{% endblock includes %}
+
+{% block content %}
+  <h3> Search for users/teams: </h3>
+  {% crispy lookup_form %}
+
+  {% if person %}
+    <h3> {{person.user.username}} </h3>
+    <b>Name:</b> {{person.user.first_name}} {{person.user.last_name}}<br>
+    <b>Email:</b> {{person.user.email}}<br>
+    <b>Phone:</b> {{person.formatted_phone_number}}<br>
+    <b>Allergies:</b> {{person.allergies}}<br>
+    <b>Account Type:</b>
+      {% if person.is_shib_acct %}
+        CMU login
+      {% else %}
+        Puzzlehunt login
+      {% endif %}
+    <br>
+    <b>Teams:</b><br>
+      <ul>
+        {% for team in person.teams.all reversed %}
+          <li>
+            <a href="./?team_pk={{team.pk}}">
+              {{team.short_name}} - {{team.hunt.hunt_name}} ({{team.hunt.season}} '{{team.hunt.start_date|date:"y"}})
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    <br>
+  {% endif %}
+
+  {% if team %}
+    <h3> {{team.team_name}} </h3>
+    <b>Hunt:</b> {{team.hunt.hunt_name}} - {{team.hunt.season}} '{{team.hunt.start_date|date:"y"}}<br>
+    <b>Location:</b> {{team.location}} <br>
+    <b>Playtester status:</b>
+      {% if team.playtester %}
+        Playtesting: {{team.playtest_start_date}} - {{team.playtest_end_date}}
+      {% else %}
+        Not playtesting
+      {% endif %}
+    <br>
+    <b># Hints:</b> {{team.num_available_hints}} Available - {{team.hint_set.count}} Used<br>
+    <b># "Unlock Points":</b> {{team.num_unlock_points}} <br>
+    <b>Rank (Metas, Puzzles, Last Time):</b> {{team.rank}} <br>
+    <b>Team members:</b>
+      <ul>
+        {% for person in team.person_set.all %}
+          <li>
+            <a href="./?person_pk={{person.pk}}">
+              {{person.user.username}} - {{person.user.first_name}} {{person.user.last_name}}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    <b>Emails: </b>
+    {% for person in team.person_set.all %}
+      {{person.user.email}};
+    {% endfor %}
+    <br>
+    <b>Puzzle status:</b>
+    <table style="width:450px" class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>Puzzle Name</th>
+          <th>Status</th>
+          <th>Solve Time /<br>Last Guess Time</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for puzzle in team.hunt.puzzle_set.all %}
+        <tr>
+          <td>{{puzzle.puzzle_name}}</td>
+            {% if puzzle in team.solved.all %}
+            <td style="background: hsla(128, 100%, 75%, 1);">
+              Solved
+            </td>
+            <td>
+              {% for solve in team.solve_set.all %}
+                {% if solve.puzzle == puzzle %}
+                  {{solve.submission.submission_time|time:"h:i a"}} (S)
+                {% endif %}
+              {% endfor %}
+            </td>
+            {% elif puzzle in team.unlocked.all %}
+            <td style="background: hsla(55, 100%, 75%, 1);">
+              Unlocked
+            </td>
+            <td>
+              {% for sub_tuple in team.latest_submissions.all %}
+                {% if sub_tuple.0 == puzzle.pk %}
+                  {{sub_tuple.1|time:"h:i a"}} (LG)
+                {% endif %}
+              {% endfor %}
+            </td>
+            {% else %}
+            <td>
+              Locked
+            </td>
+            <td></td>
+            {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+      <ul>
+      </ul>
+    <br>
+  {% endif %}
+
+  {% if results %}
+  <div>
+    {% if results.teams %}
+    <h4>Teams:</h4>
+    {% endif %}
+    <ul>
+      {% for team in results.teams %}
+        <li><a href="./?team_pk={{team.pk}}">
+          {{team.short_name}} - {{team.hunt.hunt_name}} ({{team.hunt.season}} '{{team.hunt.start_date|date:"y"}})
+        </a></li>
+      {% endfor %}
+    </ul>
+    {% if results.people %}
+    <h4>People:</h4>
+    {% endif %}
+    <ul>
+      {% for person in results.people %}
+        <li><a href="./?person_pk={{person.pk}}">{{person.user.username}}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+{% endblock content %}

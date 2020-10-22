@@ -11,10 +11,12 @@
   <p>These charts will not automatically refresh</p>
   <div id="chart_div1"></div>
   <div id="chart_div2"></div>
+  <div id="chart_div7"></div>
   <div id="chart_div3"></div>
   <div id="chart_div4"></div>
-  <div id="chart_div5" style="height: 700px; overflow: hidden;"></div>
-  <div id="chart_div6">
+  <div id="chart_div5"></div>
+  <div id="chart_div6"></div>
+  <div id="table_div">
     <h4>Puzzle stats</h4>
     <table class="table table-striped table-condensed">
       <tr>
@@ -23,17 +25,12 @@
         <td><b>First Time</b></td>
         <td><b>Num Soves</b></td>
       </tr>
-      {% for puzzle, info in table_dict %}
+      {% for row in chart_rows %}
       <tr>
-        <td>{{ puzzle }}</td>
-        <td>{{ info.first_team }}</td>
-        {% if info.num_solves != 0 %}
-          <td>{{ info.first_time|time:"h:i a" }}</td>
-          <td>{{ info.num_solves }}</td>
-        {% else %}
-          <td></td>
-          <td>{{ info.num_solves }}</td>
-        {% endif %}
+        <td>{{ row.1 }}</td>
+        <td>{{ row.2 }}</td>
+        <td>{{ row.3|time:"h:i a" }}</td>
+        <td>{{ row.4 }}</td>
       </tr>
       {% endfor %}
     </table>

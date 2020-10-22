@@ -66,7 +66,7 @@ class HuntAdmin(admin.ModelAdmin):
                         ('start_date', 'display_start_date'), ('end_date', 'display_end_date'),
                         'is_current_hunt')}),
         ('Hunt Behaviour', {'fields': ('points_per_minute', 'hint_lockout')}),
-        ('Resources/Template', {'fields': ('resource_link', 'extra_data', 'template')}),
+        ('Resources/Template', {'fields': ('resource_file', 'extra_data', 'template')}),
     )
 
     list_display = ['hunt_name', 'team_size', 'start_date', 'is_current_hunt']
@@ -75,6 +75,7 @@ class HuntAdmin(admin.ModelAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display = [short_team_name, 'short_message']
     search_fields = ['text']
+    autocomplete_fields = ['team']
 
     def short_message(self, message):
         return truncatechars(message.text, 60)
@@ -100,7 +101,7 @@ class PersonAdmin(admin.ModelAdmin):
 class PrepuzzleAdminForm(forms.ModelForm):
     class Meta:
         model = models.Prepuzzle
-        fields = ['puzzle_name', 'released', 'hunt', 'answer', 'resource_link', 'template',
+        fields = ['puzzle_name', 'released', 'hunt', 'answer', 'resource_file', 'template',
                   'response_string']
         widgets = {
             'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
@@ -181,9 +182,9 @@ class PuzzleAdminForm(forms.ModelForm):
     class Meta:
         model = models.Puzzle
         fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
-                  'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
-                  'extra_data', 'num_required_to_unlock', 'unlock_type', 'points_cost',
-                  'points_value')
+                  'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
+                  'solution_file', 'extra_data', 'num_required_to_unlock', 'unlock_type',
+                  'points_cost', 'points_value')
 
 
 class PuzzleAdmin(admin.ModelAdmin):
@@ -202,8 +203,8 @@ class PuzzleAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'is_meta',
-                       'doesnt_count', 'is_html_puzzle', 'link', 'resource_link', 'solution_link',
-                       'extra_data', 'unlock_type')
+                       'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
+                       'solution_file', 'extra_data', 'unlock_type')
         }),
         ('Solve Unlocking', {
             'classes': ('formset_border', 'solve_unlocking'),
@@ -234,6 +235,7 @@ class ResponseAdmin(admin.ModelAdmin):
 
 class SolveAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'solve_time']
+    autocomplete_fields = ['team', 'submission']
 
     def solve_time(self, solve):
         return solve.submission.submission_time
@@ -242,6 +244,7 @@ class SolveAdmin(admin.ModelAdmin):
 class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ['submission_text']
     list_display = ['submission_text', short_team_name, 'submission_time']
+    autocomplete_fields = ['team']
 
 
 class TeamAdminForm(forms.ModelForm):
@@ -295,6 +298,7 @@ class TeamAdmin(admin.ModelAdmin):
 
 class UnlockAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'time']
+    autocomplete_fields = ['team']
 
 
 class UserProxyObject(User):

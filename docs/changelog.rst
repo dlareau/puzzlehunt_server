@@ -5,6 +5,33 @@ Changelog
 Version 4
 *********
 
+v4.1.0
+======
+New: 
+   - Added in-page HTML puzzles
+   - Added lookup staff page
+   - Added autocomplete fields to admin
+   - Add github CI
+   - Moved to file uploads from URLS/downloads.
+
+Updates:
+   - Chat now has 2 min polling on all hunt pages
+   - Better chat notifications
+   - Redirect to login screen more often when permissions are wrong
+   - Removed individual unlock buttons from progress page
+   - Shibboleth works on traefik reverse proxy now
+   - Navbar rewrite
+   - Locust updates
+   - Deployment tweaks
+
+Bugfixes:
+   - Don't ratelimit by team for past hunts
+   - Removed hint submission box when hunt is public
+   - Display end date for multi-day hunts
+   - Fix flatpages deployment bugs
+   - More hint bugfixes
+
+
 v4.0.0
 ======
 

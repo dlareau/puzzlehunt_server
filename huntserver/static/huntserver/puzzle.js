@@ -63,6 +63,24 @@ jQuery(document).ready(function($) {
 
   $('#sub_form').on('submit', function(e) {
     e.preventDefault();
+    $("#answer_help").remove();
+    $(this).removeClass("has-error");
+    $(this).removeClass("has-warning");
+
+    // Check for invalid answers:
+    var non_alphabetical = /[^a-zA-Z \-_]/;
+    if(non_alphabetical.test($(this).find(":text").val())) {
+      $(this).append("<span class=\"help-block\" id=\"answer_help\">" +
+                     "Answers will only contain the letters A-Z.</span>");
+      $(this).addClass("has-error");
+      return;
+    }
+    var spacing = /[ \-_]/;
+    if(spacing.test($(this).find(":text").val())) {
+      $(this).append("<span class=\"help-block\" id=\"answer_help\">" +
+                     "Spacing characters are automatically removed from responses.</span>");
+      $(this).addClass("has-warning");
+    }
     $.ajax({
       url : $(this).attr('action') || window.location.pathname,
       type: "POST",
@@ -72,8 +90,10 @@ jQuery(document).ready(function($) {
           error = "Submission rejected due to exessive guessing."
           $("<tr><td colspan = 3><i>" + error +"</i></td></tr>").prependTo("#sub_table");
         } else {
-          console.log(jXHR.responseText);
-          alert(errorThrown);
+          var response = JSON.parse(jXHR.responseText);
+          if("answer" in response && "message" in response["answer"][0]) {
+            console.log(response["answer"][0]["message"]);
+          }
         }
       },
       success: function (response) {
@@ -85,7 +105,7 @@ jQuery(document).ready(function($) {
       }
     });
     $('#id_answer').val('');
-  }); 
+  });
 
   // receive a message though the websocket from the server
   function receiveMessage(submission) {
@@ -97,9 +117,9 @@ jQuery(document).ready(function($) {
       $('tr[data-id=' + pk + ']').replaceWith(submission);
     }
     if(submission.data('correct') == "True") {
-      $("#submit_container").hide();
-      $("#answer_container").removeClass("col-md-6");
-      $("#answer_container").addClass("col-md-10");
+      $("#id_answer").prop("disabled", true);
+      $('button[type="submit"]').addClass("disabled");
+      $('button[type="submit"]').attr('disabled', 'disabled');
     }
   }
 });

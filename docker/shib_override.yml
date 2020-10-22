@@ -6,9 +6,6 @@ services:
       dockerfile: apacheShibDockerfile
     volumes:
       - ./docker/volumes/shib-certs/:/etc/shibboleth/certs/
-      - ./docker/volumes/ssl-certs/:/etc/letsencrypt/
-    ports:
-      - "443"
   app:
     environment:
       - DJANGO_USE_SHIBBOLETH=True
