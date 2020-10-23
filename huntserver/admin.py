@@ -10,6 +10,7 @@ from django.contrib.sites.models import Site
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.flatpages.forms import FlatpageForm
+import re
 
 # Register your models here.
 from . import models
@@ -178,6 +179,12 @@ class PuzzleAdminForm(forms.ModelForm):
             instance.puzzle_set.clear()
             instance.puzzle_set.add(*self.cleaned_data['reverse_unlocks'])
         return instance
+
+    def clean_answer(self):
+        data = self.cleaned_data.get('answer')
+        if(re.fullmatch(r"[a-zA-Z]+", data.upper()) is None):
+            raise forms.ValidationError("Answer must only contain the characters A-Z.")
+        return data
 
     class Meta:
         model = models.Puzzle
