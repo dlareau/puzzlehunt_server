@@ -11,6 +11,7 @@ from django.core.files.storage import FileSystemStorage
 import os
 import re
 import zipfile
+import shutil
 
 import logging
 logger = logging.getLogger(__name__)
@@ -41,6 +42,10 @@ class PuzzleOverwriteStorage(FileSystemStorage):
         # If the filename already exists, remove it as if it was a true file system
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
+            extension = name.split('.')[-1]
+            folder = "".join(name.split('.')[:-1])
+            if(extension == "zip"):
+                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
         return name
 
     def url(self, name):
@@ -293,6 +298,26 @@ class Puzzle(models.Model):
         default=0,
         help_text="The number of points this puzzle grants upon solving.")
 
+    # Overridden to delete old files on clear
+    def save(self, *args, **kwargs):
+        if(self.puzzle_file.name == ""):
+            old_instance = Puzzle.objects.get(pk=self.pk)
+            extension = old_instance.puzzle_file.name.split('.')[-1]
+            folder = "".join(old_instance.puzzle_file.name.split('.')[:-1])
+            if(extension == "zip"):
+                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+            if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_instance.puzzle_file.name)):
+                os.remove(os.path.join(settings.MEDIA_ROOT, old_instance.puzzle_file.name))
+        if(self.resource_file.name == ""):
+            old_instance = Puzzle.objects.get(pk=self.pk)
+            extension = old_instance.resource_file.name.split('.')[-1]
+            folder = "".join(old_instance.resource_file.name.split('.')[:-1])
+            if(extension == "zip"):
+                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+            if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name)):
+                os.remove(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name))
+        super(Puzzle, self).save(*args, **kwargs)
+
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
         message = dict()
@@ -346,6 +371,18 @@ class Prepuzzle(models.Model):
             return "prepuzzle " + str(self.pk) + " (" + str(self.hunt.hunt_name) + ")"
         else:
             return "prepuzzle " + str(self.pk)
+
+    # Overridden to delete old files on clear
+    def save(self, *args, **kwargs):
+        if(self.resource_file.name == ""):
+            old_instance = Prepuzzle.objects.get(pk=self.pk)
+            extension = old_instance.resource_file.name.split('.')[-1]
+            folder = "".join(old_instance.resource_file.name.split('.')[:-1])
+            if(extension == "zip"):
+                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+            if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name)):
+                os.remove(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name))
+        super(Prepuzzle, self).save(*args, **kwargs)
 
 
 class TeamManager(models.Manager):
