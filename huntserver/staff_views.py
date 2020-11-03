@@ -1,6 +1,5 @@
 from datetime import datetime
 from dateutil import tz
-from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
