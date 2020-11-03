@@ -191,7 +191,7 @@ class PuzzleAdminForm(forms.ModelForm):
         fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
                   'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
                   'solution_file', 'extra_data', 'num_required_to_unlock', 'unlock_type',
-                  'points_cost', 'points_value')
+                  'points_cost', 'points_value', 'solution_is_webpage', 'solution_resource_file')
 
 
 class PuzzleAdmin(admin.ModelAdmin):
@@ -211,7 +211,8 @@ class PuzzleAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'is_meta',
                        'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
-                       'solution_file', 'extra_data', 'unlock_type')
+                       'solution_is_webpage', 'solution_file', 'solution_resource_file',
+                       'extra_data', 'unlock_type')
         }),
         ('Solve Unlocking', {
             'classes': ('formset_border', 'solve_unlocking'),

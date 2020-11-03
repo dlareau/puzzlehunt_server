@@ -113,8 +113,8 @@ class Hunt(models.Model):
         """ Overrides the standard clean method to ensure that only one hunt is the current hunt """
         if(not self.is_current_hunt):
             try:
-                old_instance = Hunt.objects.get(pk=self.pk)
-                if(old_instance.is_current_hunt):
+                old_obj = Hunt.objects.get(pk=self.pk)
+                if(old_obj.is_current_hunt):
                     raise ValidationError({'is_current_hunt':
                                            ["There must always be one current hunt", ]})
             except ObjectDoesNotExist:
@@ -265,11 +265,19 @@ class Puzzle(models.Model):
         storage=PuzzleOverwriteStorage(),
         blank=True,
         help_text="Puzzle resources, MUST BE A ZIP FILE.")
+    solution_is_webpage = models.BooleanField(
+        default=False,
+        help_text="Is this solution an html webpage?")
     solution_file = models.FileField(
         upload_to=get_solution_file_path,
         storage=PuzzleOverwriteStorage(),
         blank=True,
         help_text="Puzzle solution. MUST BE A PDF.")
+    solution_resource_file = models.FileField(
+        upload_to=get_solution_file_path,
+        storage=PuzzleOverwriteStorage(),
+        blank=True,
+        help_text="Puzzle solution resources, MUST BE A ZIP FILE.")
     extra_data = models.CharField(
         max_length=200,
         blank=True,
@@ -300,22 +308,43 @@ class Puzzle(models.Model):
 
     # Overridden to delete old files on clear
     def save(self, *args, **kwargs):
-        if(self.puzzle_file.name == ""):
-            old_instance = Puzzle.objects.get(pk=self.pk)
-            extension = old_instance.puzzle_file.name.split('.')[-1]
-            folder = "".join(old_instance.puzzle_file.name.split('.')[:-1])
-            if(extension == "zip"):
-                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-            if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_instance.puzzle_file.name)):
-                os.remove(os.path.join(settings.MEDIA_ROOT, old_instance.puzzle_file.name))
-        if(self.resource_file.name == ""):
-            old_instance = Puzzle.objects.get(pk=self.pk)
-            extension = old_instance.resource_file.name.split('.')[-1]
-            folder = "".join(old_instance.resource_file.name.split('.')[:-1])
-            if(extension == "zip"):
-                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-            if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name)):
-                os.remove(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name))
+        if(self.pk):
+            # TODO: Clean up this repetitive code
+            old_obj = Puzzle.objects.get(pk=self.pk)
+            if(self.puzzle_file.name == "" and old_obj.puzzle_file.name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.puzzle_file.name)
+                extension = old_obj.puzzle_file.name.split('.')[-1]
+                folder = "".join(old_obj.puzzle_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+            if(self.resource_file.name == "" and old_obj.resource_file.name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)
+                extension = old_obj.resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+            if(self.solution_file.name == "" and old_obj.solution_file.name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.solution_file.name)
+                extension = old_obj.solution_file.name.split('.')[-1]
+                folder = "".join(old_obj.solution_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+            old_name = old_obj.solution_resource_file.name
+            if(self.solution_resource_file.name == "" and old_name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.solution_resource_file.name)
+                extension = old_obj.solution_resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.solution_resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+
         super(Puzzle, self).save(*args, **kwargs)
 
     def serialize_for_ajax(self):
@@ -375,13 +404,14 @@ class Prepuzzle(models.Model):
     # Overridden to delete old files on clear
     def save(self, *args, **kwargs):
         if(self.resource_file.name == ""):
-            old_instance = Prepuzzle.objects.get(pk=self.pk)
-            extension = old_instance.resource_file.name.split('.')[-1]
-            folder = "".join(old_instance.resource_file.name.split('.')[:-1])
-            if(extension == "zip"):
-                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-            if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name)):
-                os.remove(os.path.join(settings.MEDIA_ROOT, old_instance.resource_file.name))
+            old_obj = Prepuzzle.objects.get(pk=self.pk)
+            if(old_obj.resource_file.name != ""):
+                extension = old_obj.resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)):
+                    os.remove(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name))
         super(Prepuzzle, self).save(*args, **kwargs)
 
 
