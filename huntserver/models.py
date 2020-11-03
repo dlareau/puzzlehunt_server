@@ -11,6 +11,7 @@ from django.core.files.storage import FileSystemStorage
 import os
 import re
 import zipfile
+import shutil
 
 import logging
 logger = logging.getLogger(__name__)
@@ -41,6 +42,10 @@ class PuzzleOverwriteStorage(FileSystemStorage):
         # If the filename already exists, remove it as if it was a true file system
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
+            extension = name.split('.')[-1]
+            folder = "".join(name.split('.')[:-1])
+            if(extension == "zip"):
+                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
         return name
 
     def url(self, name):
@@ -108,8 +113,8 @@ class Hunt(models.Model):
         """ Overrides the standard clean method to ensure that only one hunt is the current hunt """
         if(not self.is_current_hunt):
             try:
-                old_instance = Hunt.objects.get(pk=self.pk)
-                if(old_instance.is_current_hunt):
+                old_obj = Hunt.objects.get(pk=self.pk)
+                if(old_obj.is_current_hunt):
                     raise ValidationError({'is_current_hunt':
                                            ["There must always be one current hunt", ]})
             except ObjectDoesNotExist:
@@ -260,11 +265,19 @@ class Puzzle(models.Model):
         storage=PuzzleOverwriteStorage(),
         blank=True,
         help_text="Puzzle resources, MUST BE A ZIP FILE.")
+    solution_is_webpage = models.BooleanField(
+        default=False,
+        help_text="Is this solution an html webpage?")
     solution_file = models.FileField(
         upload_to=get_solution_file_path,
         storage=PuzzleOverwriteStorage(),
         blank=True,
         help_text="Puzzle solution. MUST BE A PDF.")
+    solution_resource_file = models.FileField(
+        upload_to=get_solution_file_path,
+        storage=PuzzleOverwriteStorage(),
+        blank=True,
+        help_text="Puzzle solution resources, MUST BE A ZIP FILE.")
     extra_data = models.CharField(
         max_length=200,
         blank=True,
@@ -292,6 +305,47 @@ class Puzzle(models.Model):
     points_value = models.IntegerField(
         default=0,
         help_text="The number of points this puzzle grants upon solving.")
+
+    # Overridden to delete old files on clear
+    def save(self, *args, **kwargs):
+        if(self.pk):
+            # TODO: Clean up this repetitive code
+            old_obj = Puzzle.objects.get(pk=self.pk)
+            if(self.puzzle_file.name == "" and old_obj.puzzle_file.name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.puzzle_file.name)
+                extension = old_obj.puzzle_file.name.split('.')[-1]
+                folder = "".join(old_obj.puzzle_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+            if(self.resource_file.name == "" and old_obj.resource_file.name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)
+                extension = old_obj.resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+            if(self.solution_file.name == "" and old_obj.solution_file.name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.solution_file.name)
+                extension = old_obj.solution_file.name.split('.')[-1]
+                folder = "".join(old_obj.solution_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+            old_name = old_obj.solution_resource_file.name
+            if(self.solution_resource_file.name == "" and old_name != ""):
+                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.solution_resource_file.name)
+                extension = old_obj.solution_resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.solution_resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(full_name):
+                    os.remove(full_name)
+
+        super(Puzzle, self).save(*args, **kwargs)
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
@@ -346,6 +400,19 @@ class Prepuzzle(models.Model):
             return "prepuzzle " + str(self.pk) + " (" + str(self.hunt.hunt_name) + ")"
         else:
             return "prepuzzle " + str(self.pk)
+
+    # Overridden to delete old files on clear
+    def save(self, *args, **kwargs):
+        if(self.resource_file.name == ""):
+            old_obj = Prepuzzle.objects.get(pk=self.pk)
+            if(old_obj.resource_file.name != ""):
+                extension = old_obj.resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)):
+                    os.remove(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name))
+        super(Prepuzzle, self).save(*args, **kwargs)
 
 
 class TeamManager(models.Manager):

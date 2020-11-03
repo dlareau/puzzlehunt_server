@@ -2,9 +2,7 @@ from django.conf import settings
 from django.db.models import F
 from django.utils import timezone
 from huey import crontab
-from huey.contrib.djhuey import db_task, db_periodic_task
-from subprocess import call, check_output, CalledProcessError, STDOUT
-import os
+from huey.contrib.djhuey import db_periodic_task
 from django.core.cache import cache
 
 from .models import Hunt, HintUnlockPlan

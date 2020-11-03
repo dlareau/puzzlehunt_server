@@ -32,11 +32,15 @@
           </a>
         {% elif puzzle.puzzle_page_type == puzzle.WEB_PUZZLE %}
           <a class="btn btn-default" href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html' target="_blank">
-            Open separate page
+            Open as separate page
           </a>
         {% endif %}
         {% if puzzle.hunt.is_public %}
-          {% if puzzle.solution_file != "" %}
+          {% if puzzle.solution_is_webpage and puzzle.solution_resource_file != "" %}
+            <a class="btn btn-default" href='{{ PROTECTED_URL }}solutions/{{ puzzle.puzzle_id }}_sol/index.html'>
+                View solution
+            </a>
+          {% elif not puzzle.solution_is_webpage and puzzle.solution_file != "" %}
             <a class="btn btn-default" href='{{ PROTECTED_URL }}solutions/{{ puzzle.puzzle_id }}_sol.pdf'>
                 View solution
             </a>

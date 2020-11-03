@@ -10,6 +10,7 @@ from django.contrib.sites.models import Site
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.flatpages.forms import FlatpageForm
+import re
 
 # Register your models here.
 from . import models
@@ -179,12 +180,18 @@ class PuzzleAdminForm(forms.ModelForm):
             instance.puzzle_set.add(*self.cleaned_data['reverse_unlocks'])
         return instance
 
+    def clean_answer(self):
+        data = self.cleaned_data.get('answer')
+        if(re.fullmatch(r"[a-zA-Z]+", data.upper()) is None):
+            raise forms.ValidationError("Answer must only contain the characters A-Z.")
+        return data
+
     class Meta:
         model = models.Puzzle
         fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
                   'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
                   'solution_file', 'extra_data', 'num_required_to_unlock', 'unlock_type',
-                  'points_cost', 'points_value')
+                  'points_cost', 'points_value', 'solution_is_webpage', 'solution_resource_file')
 
 
 class PuzzleAdmin(admin.ModelAdmin):
@@ -204,7 +211,8 @@ class PuzzleAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'is_meta',
                        'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
-                       'solution_file', 'extra_data', 'unlock_type')
+                       'solution_is_webpage', 'solution_file', 'solution_resource_file',
+                       'extra_data', 'unlock_type')
         }),
         ('Solve Unlocking', {
             'classes': ('formset_border', 'solve_unlocking'),
