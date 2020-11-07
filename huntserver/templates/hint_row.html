@@ -16,7 +16,7 @@
                         </b>
                     </div>
                     <div class="hint-text">
-                        {{ hint.request }}
+                        {{ hint.request|linebreaksbr }}
                     </div>
                 </td>
             </tr>
@@ -26,7 +26,7 @@
                     {% if hint.response %}
                         <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
                         <td>
-                            <div class="hint-response">{{ hint.response }}</div>
+                            <div class="hint-response">{{ hint.response|linebreaksbr }}</div>
                             <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#formModal">
                               Edit response
                             </button>
@@ -43,7 +43,7 @@
                 {% else %}
                     {% if hint.response %}
                         <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
-                        <td>{{ hint.response }}</td>
+                        <td>{{ hint.response|linebreaksbr }}</td>
                     {% else %}
                         <td width="100px"></td>
                         <td><b>No response yet.</b></td>

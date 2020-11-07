@@ -110,6 +110,7 @@ $(document).ready(function() {
   }
 
   $('#formModal').on('show.bs.modal', function (event) {
+    var regex = /<br\s*[\/]?>/gi;
     var button = $(event.relatedTarget);
     var modal = $(this);
     var hint_request = button.parent().parent().parent();
@@ -117,8 +118,8 @@ $(document).ready(function() {
     var response = hint_request.find(".hint-response");
     var outer_row = hint_request.parent().parent().parent();
     modal.find('.modal-title').html(title.html());
-    modal.find('.modal-body #modal-hint-text').text(hint_request.find(".hint-text").text());
-    modal.find('.modal-body #id_response').val(response.text());
+    modal.find('.modal-body #modal-hint-text').html(hint_request.find(".hint-text").html());
+    modal.find('.modal-body #id_response').val(response.html().replace(regex, "\n"));
     modal.find('.modal-body #id_hint_id').val(outer_row.data("id"));
   })
 
