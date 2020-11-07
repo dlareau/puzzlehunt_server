@@ -41,6 +41,7 @@ services:
       - DJANGO_EMAIL_PORT
       - DJANGO_EMAIL_FROM
       - DJANGO_USE_SHIBBOLETH
+      - PUZZLEHUNT_CHAT_ENABLED
       - DJANGO_SETTINGS_MODULE=puzzlehunt_server.settings.env_settings
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
       - ENABLE_DEBUG_TOOLBAR

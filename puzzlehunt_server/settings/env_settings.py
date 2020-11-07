@@ -16,5 +16,6 @@ EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_PASSWORD")
 EMAIL_FROM = os.environ.get("DJANGO_EMAIL_FROM")
 DOMAIN = os.getenv("DOMAIN", default="default.com")
+CHAT_ENABLED = os.getenv("PUZZLEHUNT_CHAT_ENABLED", default="True").lower() == "true"
 
 ALLOWED_HOSTS = ['*']

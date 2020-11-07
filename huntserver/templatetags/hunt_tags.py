@@ -21,6 +21,11 @@ def contact_email(context):
     return settings.CONTACT_EMAIL
 
 
+@register.simple_tag(takes_context=True)
+def chat_enabled(context):
+    return settings.CHAT_ENABLED
+
+
 @register.filter()
 def render_with_context(value):
     return Template(value).render(Context({'curr_hunt': Hunt.objects.get(is_current_hunt=True)}))

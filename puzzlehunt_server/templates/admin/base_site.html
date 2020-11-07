@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static bootstrap_admin_template_tags  %}
+{% load i18n static bootstrap_admin_template_tags hunt_tags %}
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 
 {% block extrahead %}
@@ -66,9 +66,12 @@
             <li {% if "queue" in request.path %}class="active"{% endif %}>
               <a href="/staff/queue">Queue</a>
             </li>
-            <li {% if "chat" in request.path %}class="active"{% endif %}>
-              <a href="/staff/chat">Chat</a>
-            </li>
+            {% chat_enabled as chat_enabled_bool %}
+            {% if chat_enabled_bool %}
+              <li {% if "chat" in request.path %}class="active"{% endif %}>
+                <a href="/staff/chat">Chat</a>
+              </li>
+            {% endif %}
             <li {% if "hints" in request.path %}class="active"{% endif %}>
               <a href="/staff/hints">Hint Requests</a>
             </li>
