@@ -233,7 +233,6 @@ class PuzzleAdmin(admin.ModelAdmin):
 class ResponseAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'puzzle_just_name']
     search_fields = ['regex', 'text']
-    ordering = ['-puzzle']
 
     def puzzle_just_name(self, response):
         return response.puzzle.puzzle_name
