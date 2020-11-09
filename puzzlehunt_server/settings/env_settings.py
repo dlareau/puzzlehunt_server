@@ -11,11 +11,16 @@ if(DATABASES['default']['ENGINE'] == 'django.db.backends.mysql'):
 
 INTERNAL_IPS = ['127.0.0.1', 'localhost']
 EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST")
-EMAIL_PORT = os.environ.get("DJANGO_EMAIL_PORT")
+EMAIL_PORT = int(os.environ.get("DJANGO_EMAIL_PORT", default="587"))
 EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_PASSWORD")
 EMAIL_FROM = os.environ.get("DJANGO_EMAIL_FROM")
+DEFAULT_FROM_EMAIL = EMAIL_FROM
+SERVER_EMAIL = EMAIL_FROM
 DOMAIN = os.getenv("DOMAIN", default="default.com")
 CHAT_ENABLED = os.getenv("PUZZLEHUNT_CHAT_ENABLED", default="True").lower() == "true"
+
+if "SITE_TITLE" in os.environ:
+    SITE_TITLE = os.getenv("SITE_TITLE")
 
 ALLOWED_HOSTS = ['*']
