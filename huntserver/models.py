@@ -127,6 +127,15 @@ class Hunt(models.Model):
         self.full_clean()
         if self.is_current_hunt:
             Hunt.objects.filter(is_current_hunt=True).update(is_current_hunt=False)
+        if(self.resource_file.name == ""):
+            old_obj = Hunt.objects.get(pk=self.pk)
+            if(old_obj.resource_file.name != ""):
+                extension = old_obj.resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)):
+                    os.remove(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name))
         super(Hunt, self).save(*args, **kwargs)
 
     @property
