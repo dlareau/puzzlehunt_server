@@ -2,7 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg)](https://coveralls.io/github/dlareau/puzzlehunt_server)
 
 # puzzlehunt_server
-A server for running puzzlehunts. This project is mainly used by PuzzlehuntCMU to run their puzzlehunt, but is generic enough to be used for nearly any puzzlehunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting.
+A server for running puzzle hunts. This project is mainly used by Puzzlehunt CMU to run their puzzlehunt, but is generic enough to be used for nearly any puzzle hunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting.
 
 Documentation can be found at http://docs.puzzlehunt.club
 

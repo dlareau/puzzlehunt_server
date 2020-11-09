@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PuzzlehuntCMU's Server documentation!
+Welcome to Puzzle Hunt CMU's Server documentation!
 ================================================
 
 If you're here as a user, start with the "How to Create a Hunt" and "How to Run

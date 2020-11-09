@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-<h2>Register for PuzzlehuntCMU</h2>
+<h2>Register for Puzzle Hunt CMU</h2>
 {% if user_form.subject.errors %}
     <ol>
     {% for error in user_form.subject.errors %}
@@ -20,7 +20,7 @@
 <form method="POST" action="/shib/login">
   {% csrf_token %}
   <div>
-    <p>By continuing, you agree to release the following attributes to PuzzlehuntCMU:</p>
+    <p>By continuing, you agree to release the following attributes to Puzzle Hunt CMU:</p>
     {{ user_form.as_p }}
     {{ person_form.as_p }}
   </div>
