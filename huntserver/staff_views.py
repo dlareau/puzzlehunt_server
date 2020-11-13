@@ -3,7 +3,6 @@ from dateutil import tz
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -15,12 +14,12 @@ from django.db.models.fields import PositiveIntegerField
 from django.db.models.functions import Lower
 from huey.contrib.djhuey import result
 import json
-from django.conf import settings
 from copy import deepcopy
 # from silk.profiling.profiler import silk_profile
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm, LookupForm
+from .utils import send_mass_email
 
 DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -649,11 +648,8 @@ def emails(request):
         if email_form.is_valid():
             subject = email_form.cleaned_data['subject']
             message = email_form.cleaned_data['message']
-            email_to_chunks = [email_list[x: x + 80] for x in range(0, len(email_list), 80)]
-            for to_chunk in email_to_chunks:
-                email = EmailMessage(subject, message, settings.EMAIL_FROM, [], to_chunk)
-                email.send()
-            return HttpResponseRedirect('')
+            task_id = send_mass_email(email_list, subject, message)
+            return HttpResponse(task_id.id)
     else:
         email_form = EmailForm()
     context = {'email_list': (', ').join(email_list), 'email_form': email_form}

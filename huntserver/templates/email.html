@@ -15,12 +15,83 @@
     height: 300px;
   }
 </style>
+
+<script type="text/javascript">
+  $(function() {
+    $('.download-btn').on('click', function(e) {
+      e.stopPropagation();
+    })
+
+    $(".emailForm").submit(function(e) {
+      e.preventDefault();
+
+      var form = $(this);
+      var url = form.attr('action');
+
+      $.ajax({
+        type: "POST",
+        url: url,
+        data: form.serialize(),
+        success: function(task_id) {
+          $('#emailResponse').html("Sending Emails (This can take up to 4 minutes) ");
+          $('#myModal').modal();
+          $(".emailForm").find("input[type=text], textarea").val("");
+          var num_requests = 0;
+          var checkInterval = setInterval(function(){
+            $.ajax({
+              type: "GET",
+              url: "/staff/control/",
+              data: {action: "check_task", task_id: task_id},
+              success: function(result) {
+                num_requests += 1;
+                if(num_requests > 200) {
+                  $('#emailResponse').append("<br>Request timed out");
+                  clearInterval(checkInterval);
+                  return;
+                }
+                var result = JSON.parse(result);
+                if(result['have_result']) {
+                  $('#emailResponse').html(result['result_text']);
+                  clearInterval(checkInterval);
+                } else {
+                  $('#emailResponse').append(".");
+                }
+              },
+              error: function(result) {
+                $('#emailResponse').append(" 500 Server Error<br>Please report this issue.");
+                clearInterval(checkInterval);
+              }
+            });
+          }, 500);
+        }
+      });
+    });
+
+  });
+</script>
 {% endblock includes %}
 
 {% block content %}
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Email Status</h4>
+        </div>
+        <div class="modal-body">
+          <div id="emailResponse" style="white-space: pre;"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <h1>Email</h1>
   <h3> Send email to all hunt competitors: </h3>
-  <form method="POST" action="/staff/emails/">
+  <form method="POST" class="emailForm" action="/staff/emails/">
     {% csrf_token %}
     {{ email_form|crispy }}
     <div class="submit-row">

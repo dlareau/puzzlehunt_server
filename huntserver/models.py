@@ -127,7 +127,7 @@ class Hunt(models.Model):
         self.full_clean()
         if self.is_current_hunt:
             Hunt.objects.filter(is_current_hunt=True).update(is_current_hunt=False)
-        if(self.resource_file.name == ""):
+        if(self.resource_file.name == "" and self.pk):
             old_obj = Hunt.objects.get(pk=self.pk)
             if(old_obj.resource_file.name != ""):
                 extension = old_obj.resource_file.name.split('.')[-1]
