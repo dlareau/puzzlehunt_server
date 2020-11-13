@@ -603,24 +603,31 @@ def staff_hints_control(request):
     A view to handle the incrementing, decrementing, and updating the team hint counts on
     the hints staff page.
     """
+    hunt = Hunt.objects.get(is_current_hunt=True)
 
     if request.is_ajax():
         if("action" in request.POST and "value" in request.POST and "team_pk" in request.POST):
             if(request.POST.get("action") == "update"):
                 try:
                     update_value = int(request.POST.get("value"))
-                    team_pk = int(request.POST.get("team_pk"))
-                    team = Team.objects.get(pk=team_pk)
-                    if(team.num_available_hints + update_value >= 0):
-                        team.num_available_hints = F('num_available_hints') + update_value
-                        team.save()
+                    team_pk = request.POST.get("team_pk")
+                    if(team_pk == "all_teams"):
+                        for team in hunt.team_set.all():
+                            if(team.num_available_hints + update_value >= 0):
+                                team.num_available_hints = F('num_available_hints') + update_value
+                                team.save()
+                    else:
+                        team_pk = int(team_pk)
+                        team = Team.objects.get(pk=team_pk)
+                        if(team.num_available_hints + update_value >= 0):
+                            team.num_available_hints = F('num_available_hints') + update_value
+                            team.save()
 
                 except ValueError:
                     pass  # Maybe a 4XX or 5XX in the future
     else:
         return HttpResponse("Incorrect usage of hint control page")
 
-    hunt = Hunt.objects.get(is_current_hunt=True)
     return HttpResponse(json.dumps(list(hunt.team_set.values_list('pk', 'num_available_hints'))))
 
 

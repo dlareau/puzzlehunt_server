@@ -17,6 +17,24 @@
 <div class="row puzzle content" style="display: flex;">
   <div id="hint_counts" class='col-sm-12 col-md-5 col-lg-4 collapse'>
     <table class="table table-condensed table-responsive" style="table-layout:fixed;">
+      <tr>
+        <td width="200px" style="overflow-wrap: break-word; padding: 0px;">ALL TEAMS (CAUTION)</td>
+        <td width="140px" style="padding: 0px;">
+          <div class="input-group">
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default btn-number" data-value="-1" data-team="all_teams" style="margin: 0px;">
+                <span class="glyphicon glyphicon-minus"></span>
+              </button>
+            </span>
+            <input type="text" data-team="all_teams" class="form-control input-number" value="N/A" disabled>
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default btn-number" data-value="1" data-team="all_teams" style="margin: 0px;">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </span>
+          </div>
+        </td>
+      </tr>
       {% for team in hunt.team_set.all|dictsort:"team_name.lower" %}
         <tr>
           <td width="200px" style="overflow-wrap: break-word; padding: 0px;">{{ team.short_name }}</td>

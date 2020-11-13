@@ -17,6 +17,12 @@ $(document).ready(function() {
     e.preventDefault();
     team  = $(this).attr('data-team');
     value = $(this).attr('data-value');
+    if(team == "all_teams"){
+      var r = confirm("Please confirm you want to add/remove a hint for all teams.");
+      if (r != true) {
+        return
+      }
+    }
     $.post("/staff/hints/control/",
       {action:'update', 'team_pk': team, value: value, csrfmiddlewaretoken: csrf_token},
       function( data ) {
