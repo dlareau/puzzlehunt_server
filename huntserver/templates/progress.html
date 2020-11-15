@@ -83,15 +83,15 @@
             <td class='num_puzzles'></td>
             <td class='last_time'></td>
             {% for puzzle in team_dict.puzzles %}
-              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}'
+              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}' style='text-align:center;'
               {% if puzzle.1 == "locked"%}
-                class='unavailable' style='text-align:center;'>
+                class='unavailable'>
               {% elif puzzle.1 == "unlocked" %}
                 class='available' data-date={{ puzzle.2 |date:"U"}}>
-                  <b>{{ puzzle.3|time:"h:i a" }}</b>
+                  <b>{{ puzzle.3|date:"m/d" }} <br> {{ puzzle.3|time:"h:i A" }}</b>
               {% else %}
                 class='solved' data-date={{ puzzle.2 |date:"U"}}>
-                  {{ puzzle.2|time:"h:i a" }}
+                  {{ puzzle.2|date:"m/d" }} <br> {{ puzzle.2|time:"h:i A" }}
               {% endif %}
               </td>
             {% endfor %}

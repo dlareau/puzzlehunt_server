@@ -670,7 +670,7 @@ class Submission(models.Model):
         """ Serializes the time, puzzle, team, and status fields for ajax transmission """
         message = dict()
         df = DateFormat(self.submission_time.astimezone(time_zone))
-        message['time_str'] = df.format("h:i a")
+        message['time_str'] = df.format("m/d") + "<br>" + df.format("h:i A")
         message['puzzle'] = self.puzzle.serialize_for_ajax()
         message['team_pk'] = self.team.pk
         message['status_type'] = "submission"
@@ -772,7 +772,7 @@ class Solve(models.Model):
         message['team_pk'] = self.team.pk
         time = self.submission.submission_time
         df = DateFormat(time.astimezone(time_zone))
-        message['time_str'] = df.format("h:i a")
+        message['time_str'] = df.format("m/d") + "<br>" + df.format("h:i A")
         message['status_type'] = "solve"
         return message
 
