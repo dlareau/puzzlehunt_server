@@ -39,12 +39,12 @@ def parse_attributes(META):
 
 
 def check_hints(hunt):
-    num_min = (timezone.now() - hunt.start_date).seconds / 60
+    num_min = (timezone.now() - hunt.start_date).seconds // 60
     for hup in hunt.hintunlockplan_set.exclude(unlock_type=HintUnlockPlan.SOLVES_UNLOCK):
         if((hup.unlock_type == hup.TIMED_UNLOCK and
            hup.num_triggered < 1 and num_min > hup.unlock_parameter) or
            (hup.unlock_type == hup.INTERVAL_UNLOCK and
-           num_min / hup.unlock_parameter > hup.num_triggered)):
+           num_min // hup.unlock_parameter > hup.num_triggered)):
             hunt.team_set.all().update(num_available_hints=F('num_available_hints') + 1)
             hup.num_triggered = hup.num_triggered + 1
             hup.save()
