@@ -39,6 +39,10 @@ def protected_static(request, file_path):
     if(len(path.parts) < 2):
         return HttpResponseNotFound('<h1>Page not found</h1>')
 
+    if(base == "puzzle"):
+        base = "puzzles"
+        file_path = file_path.replace("puzzle", "puzzles", 1)
+
     if(base == "puzzles" or base == "solutions"):
         puzzle_id = re.match(r'[0-9a-fA-F]+', path.parts[1])
         if(puzzle_id is None):

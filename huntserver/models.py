@@ -227,11 +227,13 @@ class Puzzle(models.Model):
     PDF_PUZZLE = 'PDF'
     LINK_PUZZLE = 'LNK'
     WEB_PUZZLE = 'WEB'
+    EMBED_PUZZLE = 'EMB'
 
     puzzle_page_type_choices = [
         (PDF_PUZZLE, 'Puzzle page displays a PDF'),
         (LINK_PUZZLE, 'Puzzle page links a webpage'),
         (WEB_PUZZLE, 'Puzzle page displays a webpage'),
+        (EMBED_PUZZLE, 'Puzzle is html embedded in the webpage'),
     ]
 
     hunt = models.ForeignKey(
