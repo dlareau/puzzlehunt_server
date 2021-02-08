@@ -39,6 +39,14 @@ th {
     overflow: auto;
 }
 
+.puzzle-title {
+    display: inline;
+}
+
+.title-number,.title-name {
+    display: inline-block;
+}
+
 .leftinfo {
     float: left;
 }
