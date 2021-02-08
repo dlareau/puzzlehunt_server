@@ -13,11 +13,13 @@ from django.utils.encoding import smart_str
 from django.db.models import F
 from django.urls import reverse_lazy, reverse
 from pathlib import Path
+from django.db.models import F, Max, Count, Min, Subquery, OuterRef
+from django.db.models.fields import PositiveIntegerField
 import json
 import os
 import re
 
-from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle, Hint
+from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle, Hint, Solve
 from .forms import AnswerForm, HintRequestForm
 
 import logging
@@ -419,6 +421,25 @@ def chat(request):
     else:
         context['team'] = team
         return render(request, 'chat.html', context)
+
+
+@login_required
+def leaderboard(request, criteria=""):
+    curr_hunt = get_object_or_404(Hunt, is_current_hunt=True)
+    if(criteria == "cmu"):
+        teams = curr_hunt.real_teams.exclude(location="off_campus")
+    else:
+        teams = curr_hunt.real_teams.all()
+    sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__is_meta=True).order_by()
+    sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
+    sq1 = Subquery(sq1, output_field=PositiveIntegerField())
+    all_teams = teams.annotate(metas=sq1, solves=Count('solved'))
+    all_teams = all_teams.annotate(last_time=Max('solve__submission__submission_time'))
+    all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
+                                   F('solves').desc(nulls_last=True),
+                                   F('last_time').asc(nulls_last=True))
+    context = {'team_data': all_teams}
+    return render(request, 'leaderboard.html', context)
 
 
 @login_required

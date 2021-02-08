@@ -1,0 +1,41 @@
+{% extends "hunt_base.html" %}
+{% block title %} Team Leaderboard {% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/chat.css">
+{% endblock includes %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      <h1 style="text-align: center;"> Team Leaderboard </h1>
+      <br>
+      <div style="text-align: center;">
+        <a href="/leaderboard/" style="margin-right: 20px">All Teams</a>
+        <a href="/leaderboard/cmu/" style="margin-right: 0px">CMU Teams</a>
+      </div>
+      <br>
+      <table class="table table-striped table-condensed">
+        <tr>
+          <th>Rank</th>
+          <th>Team</th>
+          <th>Meta Solves</th>
+          <th>Solves</th>
+          <th>Last Solve Time</th>
+        </tr>
+        {% for team in team_data %}
+        <tr>
+          <td>{{forloop.counter}}</td>
+          <td>{{team.team_name|truncatechars:30}}</td>
+          <td>{{team.metas}}</td>
+          <td>{{team.solves}}</td>
+          <td>{{team.last_time|date:"M nS, h:i a" }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}
