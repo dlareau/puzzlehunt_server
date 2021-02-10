@@ -236,6 +236,18 @@ class Puzzle(models.Model):
         (EMBED_PUZZLE, 'Puzzle is html embedded in the webpage'),
     ]
 
+    STANDARD_PUZZLE = 'STD'
+    META_PUZZLE = 'MET'
+    FINAL_PUZZLE = 'FIN'
+    NON_PUZZLE = 'NON'
+
+    puzzle_type_choices = [
+        (STANDARD_PUZZLE, 'Standard'),
+        (META_PUZZLE, 'Meta'),
+        (FINAL_PUZZLE, 'Final'),
+        (NON_PUZZLE, 'Non-puzzle'),
+    ]
+
     hunt = models.ForeignKey(
         Hunt,
         on_delete=models.CASCADE,
@@ -252,10 +264,13 @@ class Puzzle(models.Model):
     answer = models.CharField(
         max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
-    is_meta = models.BooleanField(
-        default=False,
-        verbose_name="Is a metapuzzle",
-        help_text="Is this puzzle a meta-puzzle?")
+    puzzle_type = models.CharField(
+        max_length=3,
+        choices=puzzle_type_choices,
+        default=STANDARD_PUZZLE,
+        blank=False,
+        help_text="The type of puzzle."
+    )
     puzzle_page_type = models.CharField(
         max_length=3,
         choices=puzzle_page_type_choices,
@@ -263,9 +278,6 @@ class Puzzle(models.Model):
         blank=False,
         help_text="The type of webpage for this puzzle."
     )
-    doesnt_count = models.BooleanField(
-        default=False,
-        help_text="Should this puzzle not count towards scoring?")
     puzzle_file = models.FileField(
         upload_to=get_puzzle_file_path,
         storage=PuzzleOverwriteStorage(),

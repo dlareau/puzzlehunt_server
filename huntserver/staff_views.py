@@ -677,7 +677,7 @@ def lookup(request):
             team = Team.objects.get(pk=request.GET.get("team_pk"))
             team.latest_submissions = team.submission_set.values_list('puzzle')
             team.latest_submissions = team.latest_submissions.annotate(Max('submission_time'))
-            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__is_meta=True).order_by()
+            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
             sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
             sq1 = Subquery(sq1, output_field=PositiveIntegerField())
             all_teams = team.hunt.team_set.annotate(metas=sq1, solves=Count('solved'))

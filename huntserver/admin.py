@@ -188,8 +188,8 @@ class PuzzleAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Puzzle
-        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
-                  'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
+        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'puzzle_type',
+                  'puzzle_page_type', 'puzzle_file', 'resource_file',
                   'solution_file', 'extra_data', 'num_required_to_unlock', 'unlock_type',
                   'points_cost', 'points_value', 'solution_is_webpage', 'solution_resource_file')
 
@@ -202,15 +202,15 @@ class PuzzleAdmin(admin.ModelAdmin):
 
     list_filter = ('hunt',)
     search_fields = ['puzzle_id', 'puzzle_name']
-    list_display = ['combined_id', 'puzzle_name', 'hunt', 'is_meta']
+    list_display = ['combined_id', 'puzzle_name', 'hunt', 'puzzle_type']
     list_display_links = ['combined_id', 'puzzle_name']
     ordering = ['-hunt', 'puzzle_number']
     inlines = (ResponseInline,)
     radio_fields = {"unlock_type": admin.VERTICAL}
     fieldsets = (
         (None, {
-            'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'is_meta',
-                       'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
+            'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'puzzle_type',
+                       'puzzle_page_type', 'puzzle_file', 'resource_file',
                        'solution_is_webpage', 'solution_file', 'solution_resource_file',
                        'extra_data', 'unlock_type')
         }),

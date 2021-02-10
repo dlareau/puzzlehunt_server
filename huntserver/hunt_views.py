@@ -430,7 +430,7 @@ def leaderboard(request, criteria=""):
         teams = curr_hunt.real_teams.exclude(location="off_campus")
     else:
         teams = curr_hunt.real_teams.all()
-    sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__is_meta=True).order_by()
+    sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
     sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
     sq1 = Subquery(sq1, output_field=PositiveIntegerField())
     all_teams = teams.annotate(metas=sq1, solves=Count('solved'))
