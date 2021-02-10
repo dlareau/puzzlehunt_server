@@ -209,10 +209,10 @@ def puzzle_view(request, puzzle_id):
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
     if request.method == 'POST':
-        if(team is None):
-            if(puzzle.hunt.is_public):
-                team = puzzle.hunt.dummy_team
-            else:
+        if(puzzle.hunt.is_public):
+            team = puzzle.hunt.dummy_team
+        else:
+            if(team is None):
                 # If the hunt isn't public and you aren't signed in, please stop...
                 return HttpResponse('fail')
 
