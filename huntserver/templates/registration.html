@@ -34,7 +34,7 @@
         {% endif %}
       </div>
       <br>
-      <div>
+<!--       <div>
         <span> <b> Team Location: </b> {{ registered_team.location }} </span>
         <a href='#' class='edit_button'>[Change Location]</a>
         <form method="Post" style="display: none;">
@@ -43,6 +43,28 @@
           <b> Team Location: </b>
           <input name="team_location" value="{{ registered_team.location }}" type="text">
           <input type="submit" value="Change Location">
+        </form>
+      </div> -->
+      <div>
+        <span>
+          <b> CMU Team: </b>
+          {% if registered_team.is_local %}
+            Yes
+          {% else %}
+            No
+          {% endif %}
+        </span>
+        <a href='#' class='edit_button'>[Change]</a>
+        <form method="Post" style="display: none;">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="new_affiliation">
+          <b> CMU Team: </b>
+          {% if registered_team.is_local %}
+            <input name="team_is_local" value="team_is_local" type="checkbox" checked>
+          {% else %}
+            <input name="team_is_local" value="team_is_local" type="checkbox">
+          {% endif %}
+          <input type="submit" value="Change">
         </form>
       </div>
       <br>
@@ -82,7 +104,7 @@
               Please enter a new team name:
               <input class="form-control" name="team_name" type="text">
               <br>
-              {% if not curr_hunt.in_reg_lockdown %}
+<!--               {% if not curr_hunt.in_reg_lockdown %}
               Does your team need a room for the hunt?
               <select id="room_select" class="form-control" name="need_room">
                 <option value="need_a_room">Yes</option>
@@ -99,6 +121,12 @@
                 <option value="off_campus">Our team is off-campus</option>
               </select>
               {% endif %}
+              <br> -->
+              <input name="team_is_local" value="team_is_local" type="checkbox">
+              Check this box if at least half of the team will be composed of CMU students.
+              <br>
+              <small>Don't worry about getting this precisely correct. This only affects how your team shows up on the leaderboard and does not affect eligibility for prizes.<small>
+              <br>
               <br>
               <input class="btn btn-primary" type="submit" value="Create and Join Team">
             </form>

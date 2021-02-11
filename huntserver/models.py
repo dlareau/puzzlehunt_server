@@ -458,6 +458,9 @@ class Team(models.Model):
         max_length=80,
         blank=True,
         help_text="The physical location that the team is solving at")
+    is_local = models.BooleanField(
+        default=False,
+        help_text="Is this team from CMU (or your organization)")
     join_code = models.CharField(
         max_length=5,
         help_text="The 5 character random alphanumeric password needed for a user to join a team")
