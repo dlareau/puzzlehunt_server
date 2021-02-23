@@ -18,4 +18,9 @@ This project now uses docker-compose as it's main form of setup. You can use the
 3. Make a copy of ```sample.env``` named ```.env``` (yes, it starts with a dot).
 4. Edit the new ```.env``` file, filling in new values for the first block of uncommented lines. Other lines can be safely ignored as they only provide additional functionality.
 5. Run ```docker-compose up``` (possibly prepending ```sudo``` if needed)
-6. You should now have the server running on a newly created VM, accessible via [http://localhost](http://localhost). The repository you cloned has been linked into the VM by docker, so any changes made to the repository on the host system should show up automatically. (A ```docker-compose restart``` may be needed for some changes to take effect)
+6. Once up, you'll need to run the following commands to collect all the static files (to be run any time you alter static files) and to load in an initial hunt to pacify some of the display logic (to be run only once) :
+```
+docker-compose exec app python3 /code/manage.py collectstatic --noinput
+docker-compose exec app python3 /code/manage.py loaddata initial_hunt
+```
+7. You should now have the server running on a newly created VM, accessible via [http://localhost](http://localhost). The repository you cloned has been linked into the VM by docker, so any changes made to the repository on the host system should show up automatically. (A ```docker-compose restart``` may be needed for some changes to take effect)
