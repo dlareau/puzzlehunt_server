@@ -9,6 +9,7 @@
 {% block content %}
   <div class="container">
     <h1>Registration</h1>
+    <p>None of the information collected here will be displayed publicly.</p>
     <form method="POST" action="">
       {% csrf_token %}
       {{uf|crispy}}

@@ -405,7 +405,7 @@ class Prepuzzle(models.Model):
 
     # Overridden to delete old files on clear
     def save(self, *args, **kwargs):
-        if(self.resource_file.name == ""):
+        if(self.pk and self.resource_file.name == ""):
             old_obj = Prepuzzle.objects.get(pk=self.pk)
             if(old_obj.resource_file.name != ""):
                 extension = old_obj.resource_file.name.split('.')[-1]

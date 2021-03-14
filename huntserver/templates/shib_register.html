@@ -20,7 +20,8 @@
 <form method="POST" action="/shib/login">
   {% csrf_token %}
   <div>
-    <p>By continuing, you agree to release the following attributes to Puzzle Hunt CMU:</p>
+    <p>By continuing, you agree to release the following attributes to Puzzle Hunt CMU.</p>
+    <p>None of the information collected here will be displayed publicly.</p>
     {{ user_form.as_p }}
     {{ person_form.as_p }}
   </div>
