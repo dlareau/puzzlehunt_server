@@ -721,9 +721,18 @@ class Submission(models.Model):
 
     def create_solve(self):
         """ Creates a solve based on this submission """
-        Solve.objects.create(puzzle=self.puzzle, team=self.team, submission=self)
-        logger.info("Team %s correctly solved puzzle %s" % (str(self.team.team_name),
-                                                            str(self.puzzle.puzzle_id)))
+
+        # Make sure we don't have duplicate submission objects
+        if(self.puzzle not in self.team.solved.all()):
+            Solve.objects.create(puzzle=self.puzzle, team=self.team, submission=self)
+            logger.info("Team %s correctly solved puzzle %s" % (str(self.team.team_name),
+                                                                str(self.puzzle.puzzle_id)))
+            t = self.team
+            t.num_unlock_points = models.F('num_unlock_points') + self.puzzle.points_value
+            t.save()
+            t.refresh_from_db()
+            t.unlock_puzzles()
+            t.unlock_hints()  # The one and only place to call unlock hints
 
     # Automatic submission response system
     # Returning an empty string means that huntstaff should respond via the queue
@@ -731,18 +740,6 @@ class Submission(models.Model):
     def respond(self):
         """ Takes the submission's text and uses various methods to craft and populate a response.
             If the response is correct a solve is created and the correct puzzles are unlocked """
-        # Compare against correct answer
-        if(self.is_correct):
-            # Make sure we don't have duplicate or after hunt submission objects
-            if(not self.puzzle.hunt.is_public):
-                if(self.puzzle not in self.team.solved.all()):
-                    self.create_solve()
-                    t = self.team
-                    t.num_unlock_points = models.F('num_unlock_points') + self.puzzle.points_value
-                    t.save()
-                    t.refresh_from_db()
-                    t.unlock_puzzles()
-                    t.unlock_hints()  # The one and only place to call unlock hints
 
         # Check against regexes
         for resp in self.puzzle.response_set.all():
@@ -760,7 +757,6 @@ class Submission(models.Model):
                              str(self.puzzle.puzzle_id)))
 
         self.response_text = response
-        self.save()
 
     def update_response(self, text):
         """ Updates the response with the given text """
