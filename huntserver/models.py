@@ -349,6 +349,17 @@ class Puzzle(models.Model):
 
         super(Puzzle, self).save(*args, **kwargs)
 
+    def clean(self):
+        if not (self.puzzle_file.name.lower().endswith(".pdf") or self.puzzle_file.name == ""):
+            raise ValidationError('Puzzle files must be a .pdf file')
+        if not (self.solution_file.name.lower().endswith(".pdf") or self.solution_file.name == ""):
+            raise ValidationError('Solution files must be a .pdf file')
+        if not (self.resource_file.name.lower().endswith(".zip") or self.resource_file.name == ""):
+            raise ValidationError('Resource files must be a .zip file')
+        if not (self.solution_resource_file.name.lower().endswith(".zip") or
+                self.solution_resource_file.name == ""):
+            raise ValidationError('Solution resource files must be a .zip file')
+
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
         message = dict()
