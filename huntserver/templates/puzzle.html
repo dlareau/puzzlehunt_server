@@ -12,6 +12,13 @@
 </script>
 <script src="{{ STATIC_URL }}huntserver/puzzle.js"></script>
 {% endif %}
+<script type="text/javascript">
+  jQuery(document).ready(function($) {
+  if ($('#embed-target').length){
+    $("#embed-target").load($("#embed-target").data("target"));
+  }
+});
+</script>
 {% endblock includes %}
 
 {% block content %}
@@ -38,7 +45,7 @@
             Open as separate page
           </a>
         {% endif %}
-        {% if puzzle.hunt.is_public %}
+        {% if puzzle.hunt.is_public or request.user.is_staff %}
           {% if puzzle.solution_is_webpage and puzzle.solution_resource_file != "" %}
             <a class="btn btn-default" href='{{ PROTECTED_URL }}solutions/{{ puzzle.puzzle_id }}_sol/index.html'>
                 View solution
@@ -52,7 +59,8 @@
                 No solution available
             </a>
           {% endif %}
-        {% else %}
+        {% endif %}
+        {% if not puzzle.hunt.is_public %}
           {% hints_open team puzzle as show_hint_link %}
           {% if show_hint_link %}
             <a class="btn btn-default" href='/hints/{{ puzzle.puzzle_id }}/'>

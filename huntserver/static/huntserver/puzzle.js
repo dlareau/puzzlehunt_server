@@ -122,8 +122,4 @@ jQuery(document).ready(function($) {
       $('button[type="submit"]').attr('disabled', 'disabled');
     }
   }
-
-  if ($('#embed-target').length){
-    $("#embed-target").load($("#embed-target").data("target"));
-  }
 });
