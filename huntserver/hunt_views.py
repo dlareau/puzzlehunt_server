@@ -10,10 +10,9 @@ from django.template import Template, RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import smart_str
-from django.db.models import F
 from django.urls import reverse_lazy, reverse
 from pathlib import Path
-from django.db.models import F, Max, Count, Min, Subquery, OuterRef
+from django.db.models import F, Max, Count, Subquery, OuterRef
 from django.db.models.fields import PositiveIntegerField
 import json
 import os
@@ -196,7 +195,6 @@ def puzzle_view(request, puzzle_id):
     if(team is not None):
         request.ratelimit_key = team.team_name
 
-
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
     if request.method == 'POST':
@@ -227,9 +225,10 @@ def puzzle_view(request, puzzle_id):
             logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
             return HttpResponseForbidden()
 
-        s.save()
-        if(s.is_correct and not puzzle.hunt.is_public):
-            s.create_solve()
+        if(s is not None):
+            s.save()
+            if(s.is_correct and not puzzle.hunt.is_public):
+                s.create_solve()
 
         # Deal with answers for public hunts
         if(puzzle.hunt.is_public):
@@ -434,7 +433,8 @@ def leaderboard(request, criteria=""):
         teams = curr_hunt.real_teams.exclude(location="off_campus")
     else:
         teams = curr_hunt.real_teams.all()
-    sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
+    sq1 = Solve.objects.filter(team__pk=OuterRef('pk'),
+                               puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
     sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
     sq1 = Subquery(sq1, output_field=PositiveIntegerField())
     all_teams = teams.annotate(metas=sq1, solves=Count('solved'))

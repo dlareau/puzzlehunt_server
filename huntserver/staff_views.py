@@ -4,7 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -690,7 +690,8 @@ def lookup(request):
             team = Team.objects.get(pk=request.GET.get("team_pk"))
             team.latest_submissions = team.submission_set.values_list('puzzle')
             team.latest_submissions = team.latest_submissions.annotate(Max('submission_time'))
-            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
+            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'),
+                                       puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
             sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
             sq1 = Subquery(sq1, output_field=PositiveIntegerField())
             all_teams = team.hunt.team_set.annotate(metas=sq1, solves=Count('solved'))

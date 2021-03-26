@@ -44,7 +44,8 @@ urlpatterns = [
 
     # Hunt Pages
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_view, name='puzzle'),
-    url(r'^(?P<file_path>puzzle/[0-9a-fA-F]{3,5}/.+)$', hunt_views.protected_static, name='protected_static_2'),
+    url(r'^(?P<file_path>puzzle/[0-9a-fA-F]{3,5}/.+)$', hunt_views.protected_static,
+        name='protected_static_2'),
     url(r'^hints/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_hint, name='puzzle_hint'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
     url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
