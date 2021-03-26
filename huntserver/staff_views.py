@@ -528,16 +528,27 @@ def staff_hints_text(request):
     and render the hint page. Hints are pre-rendered for standard and AJAX requests.
     """
 
+    claim_failed = False
     if request.method == 'POST':
-        form = HintResponseForm(request.POST)
-        if not form.is_valid():
-            return HttpResponse(status=400)
-        h = Hint.objects.get(pk=form.cleaned_data['hint_id'])
-        h.response = form.cleaned_data['response']
-        h.response_time = timezone.now()
-        h.last_modified_time = timezone.now()
-        h.save()
-        hints = [h]
+        if("claim" in request.POST and "hint_id" in request.POST):
+            h = Hint.objects.get(pk=request.POST.get("hint_id"))
+            if(not h.responder):
+                h.responder = request.user.person
+                h.last_modified_time = timezone.now()
+                h.save()
+            else:
+                claim_failed = True
+            hints = [h]
+        else:
+            form = HintResponseForm(request.POST)
+            if not form.is_valid():
+                return HttpResponse(status=400)
+            h = Hint.objects.get(pk=form.cleaned_data['hint_id'])
+            h.response = form.cleaned_data['response']
+            h.response_time = timezone.now()
+            h.last_modified_time = timezone.now()
+            h.save()
+            hints = [h]
     else:
         team_id = request.GET.get("team_id")
         hint_status = request.GET.get("hint_status")
@@ -556,8 +567,10 @@ def staff_hints_text(request):
         if(hint_status):
             if(hint_status == "answered"):
                 hints = hints.exclude(response="")
-            elif(hint_status == "unanswered"):
-                hints = hints.filter(response="")
+            elif(hint_status == "claimed"):
+                hints = hints.exclude(responder=None)
+            elif(hint_status == "unclaimed"):
+                hints = hints.filter(responder=None)
             arg_string = arg_string + ("&hint_status=%s" % hint_status)
         if(request.is_ajax()):
             last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
@@ -586,7 +599,7 @@ def staff_hints_text(request):
                                           request=request))
 
     if request.is_ajax() or request.method == 'POST':
-        context = {'hint_list': hint_list, 'last_date': last_date}
+        context = {'hint_list': hint_list, 'last_date': last_date, 'claim_failed': claim_failed}
         return HttpResponse(json.dumps(context))
     else:
         form = HintResponseForm()

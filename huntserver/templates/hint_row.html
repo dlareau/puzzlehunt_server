@@ -1,4 +1,4 @@
-<tr data-id='{{hint.pk}}'>
+<tr data-id='{{hint.pk}}' data-owner='{{hint.responder.user.username}}' data-status='{{hint.status}}' class='{{hint.status}}'>
     <td>
         <table class="table table-bordered hint_table">
             <tr>
@@ -32,12 +32,28 @@
                             </button>
                         </td>
                     {% else %}
-                        <td width="100px"></td>
+                        <td width="150px">
+                            {% if hint.responder %}
+                            <i>CLAIMED BY <br> {{hint.responder.full_name}}</i>
+                            {% endif %}
+                        </td>
                         <td>
+                            {% if not hint.responder %}
                             <div class="hint-response"></div>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+                            <button type="button" class="btn btn-primary claim-btn" data-id='{{hint.pk}}' data-toggle="modal" data-target="#formModal">
+                              Claim/Respond
+                            </button>
+                            {% elif hint.responder.user == request.user %}
+                            <div class="hint-response"></div>
+                            <button type="button" class="btn btn-primary" data-id='{{hint.pk}}' data-toggle="modal" data-target="#formModal">
                               Respond to hint
                             </button>
+                            {% else %}
+                            <div class="hint-response"></div>
+                            <button type="button" class="btn btn-danger" data-id='{{hint.pk}}' data-toggle="modal" data-target="#formModal">
+                              Respond Anyway
+                            </button>
+                            {% endif %}
                         </td>
                     {% endif %}
                 {% else %}

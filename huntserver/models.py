@@ -274,7 +274,7 @@ class Puzzle(models.Model):
     puzzle_page_type = models.CharField(
         max_length=3,
         choices=puzzle_page_type_choices,
-        default=WEB_PUZZLE,
+        default=EMBED_PUZZLE,
         blank=False,
         help_text="The type of webpage for this puzzle."
     )
@@ -289,7 +289,7 @@ class Puzzle(models.Model):
         blank=True,
         help_text="Puzzle resources, MUST BE A ZIP FILE.")
     solution_is_webpage = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Is this solution an html webpage?")
     solution_file = models.FileField(
         upload_to=get_solution_file_path,
@@ -665,6 +665,14 @@ class Person(models.Model):
             return name
 
     @property
+    def full_name(self):
+        name = self.user.first_name + " " + self.user.last_name
+        if(name == " "):
+            return "Anonymous User"
+        else:
+            return name
+
+    @property
     def formatted_phone_number(self):
         match = re.match("(?:\\+?1 ?-?)?\\(?([0-9]{3})\\)?-? ?([0-9]{3})-? ?([0-9]{4})", self.phone)
         if(match):
@@ -927,6 +935,27 @@ class Hint(models.Model):
         help_text="Hint response time")
     last_modified_time = models.DateTimeField(
         help_text="Last time of modification")
+    responder = models.ForeignKey(
+        Person,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Staff member that has claimed the hint.")
+
+    @property
+    def answered(self):
+        """ A boolean indicating if the hint has been answered """
+        return self.response != ""
+
+    @property
+    def status(self):
+        """ A string indicating the status of the hint """
+        if(self.answered):
+            return "answered"
+        elif(self.responder):
+            return "claimed"
+        else:
+            return "unclaimed"
 
     def __str__(self):
         return (self.team.short_name + ": " + self.puzzle.puzzle_name +

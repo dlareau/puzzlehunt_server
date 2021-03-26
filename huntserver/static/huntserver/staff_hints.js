@@ -94,7 +94,7 @@ $(document).ready(function() {
       }
     });
   }
-  setInterval(get_posts, 30000);
+  setInterval(get_posts, 10000);
 
   function formListener(e) {
     e.preventDefault();
@@ -115,6 +115,26 @@ $(document).ready(function() {
     $('#formModal').modal('hide');
   }
 
+  $('.claim-btn').on('click', function(e) {
+    var hint_id = $(this).data('id')
+    $.ajax({
+      url : window.location.pathname,
+      type: "POST",
+      data: {"claim": true, "hint_id": $(this).data('id'), csrfmiddlewaretoken: csrf_token},
+      error: function (jXHR, textStatus, errorThrown) {
+        console.log(jXHR.responseText);
+      },
+      success: function (response) {
+        response = JSON.parse(response);
+        $("[data-id=" + hint_id + "]").replaceWith($(response.hint_list[0]))
+        last_date = response.last_date;
+        if(response.claim_failed) {
+          $('#formModal').modal('hide');
+        }
+      }
+    });
+  });
+
   $('#formModal').on('show.bs.modal', function (event) {
     var regex = /<br\s*[\/]?>/gi;
     var button = $(event.relatedTarget);
@@ -123,7 +143,11 @@ $(document).ready(function() {
     var title = hint_request.find(".hint-title");
     var response = hint_request.find(".hint-response");
     var outer_row = hint_request.parent().parent().parent();
-    modal.find('.modal-title').html(title.html());
+    if(outer_row.data("status") == 'claimed' && outer_row.data("owner") != staff_user) {
+      modal.find('.modal-title').html("WARNING: RESPONDING TO OTHER USER'S CLAIMED HINT<br>" + title.html());
+    } else {
+      modal.find('.modal-title').html(title.html());
+    }
     modal.find('.modal-body #modal-hint-text').html(hint_request.find(".hint-text").html());
     modal.find('.modal-body #id_response').val(response.html().replace(regex, "\n"));
     modal.find('.modal-body #id_hint_id').val(outer_row.data("id"));

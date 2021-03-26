@@ -62,6 +62,7 @@ class HuntAdminForm(forms.ModelForm):
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
     inlines = (HintUnlockPLanInline,)
+    ordering = ['-hunt_number']
     fieldsets = (
         ('Basic Info', {'fields': ('hunt_name', 'hunt_number', 'team_size', 'location',
                         ('start_date', 'display_start_date'), ('end_date', 'display_end_date'),

@@ -7,6 +7,7 @@
   <script>
     last_date = '{{last_date}}';
     csrf_token = '{{csrf_token}}';
+    staff_user = '{{request.user.username}}';
   </script>
   <script src="{{ STATIC_URL }}huntserver/staff_hints.js"></script>
 {% endblock includes %}
@@ -83,8 +84,11 @@
           <option value="answered" {% if hint_status == "answered" %} selected {% endif %}>
             Answered
           </option>
-          <option value="unanswered" {% if hint_status == "unanswered" %} selected {% endif %}>
-            Unanswered
+          <option value="claimed" {% if hint_status == "claimed" %} selected {% endif %}>
+            Claimed
+          </option>
+          <option value="unclaimed" {% if hint_status == "unclaimed" %} selected {% endif %}>
+            Unclaimed
           </option>
       </select>
       <button type="submit" value="Filter" class="btn btn-default"> Filter </button>
