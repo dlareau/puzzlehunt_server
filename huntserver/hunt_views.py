@@ -193,7 +193,7 @@ def puzzle_view(request, puzzle_id):
     team = puzzle.hunt.team_from_user(request.user)
 
     if(team is not None):
-        request.ratelimit_key = team.team_name
+        request.ratelimit_key = puzzle_id + team.team_name
 
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
@@ -218,7 +218,7 @@ def puzzle_view(request, puzzle_id):
 
         if(not (puzzle.hunt.is_public or s.is_correct or
                 (not s.is_correct and s.response_text != "Wrong Answer."))):
-            is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='3/5m',
+            is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='4/5m',
                            method='POST', increment=True)
 
         if(getattr(request, 'limited', False)):
