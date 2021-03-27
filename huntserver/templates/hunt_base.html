@@ -32,6 +32,9 @@
     </li>
   {% endif %}
   <li><a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Info </a></li>
+  <li class='{% active_page request "leaderboard" %}'>
+    <a href="{% url 'huntserver:leaderboard' %}"> Leaderboard </a>
+  </li>
 {% endblock %}
 
 {% block content_wrapper %}
