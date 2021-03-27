@@ -30,7 +30,7 @@
           <h1 class='title-number'>P{{ puzzle.puzzle_number }} -&nbsp</h1>
           <h1 class='title-name'>{{ puzzle.puzzle_name}}</h1>
         </div>
-        <h4 class='solve-count'> {{ puzzle.solved_for.count }} teams have solved this puzzle so far.</h4>
+        <h4 class='solve-count'> {{ solve_count }} teams have solved this puzzle so far.</h4>
         <div class='puzzle-link'>
         {% if puzzle.puzzle_page_type == puzzle.LINK_PUZZLE %}
           <a class="btn btn-default" href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html'>
