@@ -194,6 +194,8 @@ def puzzle_view(request, puzzle_id):
 
     if(team is not None):
         request.ratelimit_key = puzzle_id + team.team_name
+    else:
+        request.ratelimit_key = ""
 
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
@@ -216,12 +218,17 @@ def puzzle_view(request, puzzle_id):
         else:
             s = None
 
-        if(not (puzzle.hunt.is_public or s.is_correct or
-                (not s.is_correct and s.response_text != "Wrong Answer."))):
-            is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='4/5m',
-                           method='POST', increment=True)
+        if(puzzle.hunt.is_public):
+            limited = False
+        else:
+            if(not s.is_correct and s.response_text == "Wrong Answer."):
+                limited = is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key,
+                                         rate='3/5m', method='POST', increment=True)
+            else:
+                limited = is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key,
+                                         rate='3/5m', method='POST', increment=False)
 
-        if(getattr(request, 'limited', False)):
+        if(limited):
             logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
             return HttpResponseForbidden()
 
