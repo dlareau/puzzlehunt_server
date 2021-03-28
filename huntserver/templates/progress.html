@@ -66,6 +66,7 @@
           <th>Last&nbsp;Time</th>
           {% for puzzle in puzzle_list %}
             <th {% if puzzle.puzzle_type == puzzle.META_PUZZLE %} class="metapuzzle" {% endif %}
+                {% if puzzle.puzzle_type == puzzle.FINAL_PUZZLE %} class="metapuzzle" {% endif %}
                 {% if puzzle.puzzle_type == puzzle.NON_PUZZLE %} class="nocount" {% endif %}
                 data-id='{{ puzzle.puzzle_id }}'>
               {{ puzzle.puzzle_name }}
