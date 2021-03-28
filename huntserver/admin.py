@@ -295,7 +295,7 @@ class TeamAdminForm(forms.ModelForm):
 class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
     search_fields = ['team_name']
-    list_display = ['short_team_name', 'location', 'hunt', 'playtester']
+    list_display = ['short_team_name', 'hunt', 'is_local', 'playtester']
     list_filter = ['hunt']
 
     def short_team_name(self, team):

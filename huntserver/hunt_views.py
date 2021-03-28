@@ -439,7 +439,7 @@ def chat(request):
 def leaderboard(request, criteria=""):
     curr_hunt = get_object_or_404(Hunt, is_current_hunt=True)
     if(criteria == "cmu"):
-        teams = curr_hunt.real_teams.exclude(location="off_campus")
+        teams = curr_hunt.real_teams.filter(is_local=True)
     else:
         teams = curr_hunt.real_teams.all()
     teams = teams.exclude(playtester=True)
