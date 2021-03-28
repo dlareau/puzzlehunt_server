@@ -144,7 +144,7 @@ $(document).ready(function() {
     var response = hint_request.find(".hint-response");
     var outer_row = hint_request.parent().parent().parent();
     if(outer_row.data("status") == 'claimed' && outer_row.data("owner") != staff_user) {
-      modal.find('.modal-title').html("WARNING: RESPONDING TO OTHER USER'S CLAIMED HINT<br>" + title.html());
+      modal.find('.modal-title').html("<b style='color: red;'>WARNING: RESPONDING TO OTHER USER'S CLAIMED HINT</b><br>" + title.html());
     } else {
       modal.find('.modal-title').html(title.html());
     }
