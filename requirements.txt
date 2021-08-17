@@ -10,7 +10,7 @@ django-ratelimit==1.1.0
 coverage
 django-crispy-forms==1.8.1
 gunicorn
-psycopg2
+psycopg2==2.8.6
 dj-database-url
 django-redis
 redis
