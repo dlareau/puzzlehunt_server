@@ -352,7 +352,7 @@ def charts(request):
                                                             'puzzle__puzzle_name',
                                                             'team__team_name',
                                                             'submission__submission_time')
-    results = list(results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_id'))
+    results = list(results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_number'))
 
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
@@ -568,9 +568,9 @@ def staff_hints_text(request):
             if(hint_status == "answered"):
                 hints = hints.exclude(response="")
             elif(hint_status == "claimed"):
-                hints = hints.exclude(responder=None)
+                hints = hints.exclude(responder=None).filter(response="")
             elif(hint_status == "unclaimed"):
-                hints = hints.filter(responder=None)
+                hints = hints.filter(responder=None).filter(response="")
             arg_string = arg_string + ("&hint_status=%s" % hint_status)
         if(request.is_ajax()):
             last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
@@ -665,7 +665,7 @@ def emails(request):
             return HttpResponse(task_id.id)
     else:
         email_form = EmailForm()
-    context = {'email_list': (', ').join(email_list), 'email_form': email_form}
+    context = {'email_list': ('<br>').join(email_list), 'email_form': email_form}
     return render(request, 'email.html', add_apps_to_context(context, request))
 
 

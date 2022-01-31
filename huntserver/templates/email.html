@@ -105,6 +105,6 @@
   <button data-toggle="collapse" data-target="#demo">Click to show all Emails</button>
 
   <div id="demo" class="collapse">
-    {{email_list}}
+    {{email_list|safe}}
   </div>
 {% endblock content %}

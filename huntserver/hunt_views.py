@@ -13,7 +13,7 @@ from django.utils.encoding import smart_str
 from django.urls import reverse_lazy, reverse
 from pathlib import Path
 from django.db.models import F, Max, Count, Subquery, OuterRef
-from django.db.models.fields import PositiveIntegerField
+from django.db.models.fields import PositiveIntegerField, DateTimeField
 import json
 import os
 import re
@@ -447,9 +447,14 @@ def leaderboard(request, criteria=""):
                                puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
     sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
     sq1 = Subquery(sq1, output_field=PositiveIntegerField())
-    all_teams = teams.annotate(metas=sq1, solves=Count('solved'))
+    sq2 = Solve.objects.filter(team__pk=OuterRef('pk'),
+                               puzzle__puzzle_type=Puzzle.FINAL_PUZZLE).order_by()
+    sq2 = sq2.annotate(last_time=Max('submission__submission_time')).values('last_time')
+    sq2 = Subquery(sq2, output_field=DateTimeField())
+    all_teams = teams.annotate(metas=sq1, finals=sq2, solves=Count('solved'))
     all_teams = all_teams.annotate(last_time=Max('solve__submission__submission_time'))
-    all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
+    all_teams = all_teams.order_by(F('finals').asc(nulls_last=True),
+                                   F('metas').desc(nulls_last=True),
                                    F('solves').desc(nulls_last=True),
                                    F('last_time').asc(nulls_last=True))
     context = {'team_data': all_teams}

@@ -71,6 +71,7 @@ $(document).ready(function() {
             }
             $('.sub_form').on('submit', formListener);
           };
+          $('.claim-btn').on('click', claimListener);
           last_date = response.last_date;
         }
       },
@@ -115,7 +116,7 @@ $(document).ready(function() {
     $('#formModal').modal('hide');
   }
 
-  $('.claim-btn').on('click', function(e) {
+  function claimListener(e) {
     var hint_id = $(this).data('id')
     $.ajax({
       url : window.location.pathname,
@@ -133,7 +134,9 @@ $(document).ready(function() {
         }
       }
     });
-  });
+  }
+
+  $('.claim-btn').on('click', claimListener);
 
   $('#formModal').on('show.bs.modal', function (event) {
     var regex = /<br\s*[\/]?>/gi;

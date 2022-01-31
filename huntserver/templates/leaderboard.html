@@ -21,6 +21,7 @@
         <tr>
           <th>Rank</th>
           <th>Team</th>
+          <th>Finish Time</th>
           <th>Meta Solves</th>
           <th>Solves</th>
           <th>Last Solve Time</th>
@@ -29,7 +30,14 @@
         <tr>
           <td>{{forloop.counter}}</td>
           <td>{{team.team_name|truncatechars:30}}</td>
-          <td>{{team.metas}}</td>
+          <td>{{team.finals|date:"M dS, h:i a" }}</td>
+          <td>
+            {% if team.metas %}
+              {{team.metas}}
+            {% else %}
+              0
+            {% endif %}
+          </td>
           <td>{{team.solves}}</td>
           <td>{{team.last_time|date:"M dS, h:i a" }}</td>
         </tr>
