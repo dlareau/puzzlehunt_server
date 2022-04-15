@@ -68,19 +68,29 @@ jQuery(document).ready(function($) {
     $(this).removeClass("has-warning");
 
     // Check for invalid answers:
-    var non_alphabetical = /[^a-zA-Z \-_]/;
-    if(non_alphabetical.test($(this).find(":text").val())) {
-      $(this).append("<span class=\"help-block\" id=\"answer_help\">" +
-                     "Answers will only contain the letters A-Z.</span>");
+    answer = $(this).find(":text").val();
+    if(upper_case) {
+      answer = answer.toUpperCase();
+    }
+    if(!validation_regex.test(answer)) {
+      $(this).append("<span class=\"help-block\" id=\"answer_help\">" + validation_error + "</span>");
       $(this).addClass("has-error");
       return;
     }
-    var spacing = /[ \-_]/;
-    if(spacing.test($(this).find(":text").val())) {
-      $(this).append("<span class=\"help-block\" id=\"answer_help\">" +
-                     "Spacing characters are automatically removed from responses.</span>");
-      $(this).addClass("has-warning");
-    }
+
+
+    // var non_alphabetical = /[^a-zA-Z \-_]/;
+    // if(non_alphabetical.test()) {
+    // }
+    // var spacing = /[ \-_]/;
+    // if(spacing.test($(this).find(":text").val())) {
+    //   $(this).append("<span class=\"help-block\" id=\"answer_help\">" +
+    //                  "Spacing characters are automatically removed from responses.</span>");
+    //   $(this).addClass("has-warning");
+    // }
+
+
+
     $.ajax({
       url : $(this).attr('action') || window.location.pathname,
       type: "POST",

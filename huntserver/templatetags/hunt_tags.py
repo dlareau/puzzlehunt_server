@@ -3,6 +3,7 @@ from django.conf import settings
 from django.template import Template, Context
 from huntserver.models import Hunt
 from django.utils import timezone
+from huntserver.utils import get_puzzle_answer_regex, get_validation_error
 register = template.Library()
 
 
@@ -77,6 +78,16 @@ def hints_open(team, puzzle):
     if(team is None or puzzle is None):
         return False
     return team.hints_open_for_puzzle(puzzle)
+
+
+@register.simple_tag()
+def puzzle_answer_regex(puzzle):
+    return get_puzzle_answer_regex(puzzle.answer_validation_type)
+
+
+@register.simple_tag()
+def puzzle_validation_error(puzzle):
+    return get_validation_error(puzzle.answer_validation_type)
 
 
 @register.simple_tag(takes_context=True)

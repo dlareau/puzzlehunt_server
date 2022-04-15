@@ -11,6 +11,7 @@ from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.flatpages.forms import FlatpageForm
 import re
+from .utils import get_validation_error, get_puzzle_answer_regex
 
 # Register your models here.
 from . import models
@@ -103,8 +104,8 @@ class PersonAdmin(admin.ModelAdmin):
 class PrepuzzleAdminForm(forms.ModelForm):
     class Meta:
         model = models.Prepuzzle
-        fields = ['puzzle_name', 'released', 'hunt', 'answer', 'resource_file', 'template',
-                  'response_string']
+        fields = ['puzzle_name', 'released', 'hunt', 'answer', 'answer_validation_type',
+                  'resource_file', 'template', 'response_string']
         widgets = {
             'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
         }
@@ -112,7 +113,7 @@ class PrepuzzleAdminForm(forms.ModelForm):
 
 class PrepuzzleAdmin(admin.ModelAdmin):
     form = PrepuzzleAdminForm
-    list_display = ['puzzle_name', 'hunt', 'released']
+    list_display = ['puzzle_name', 'hunt', 'released', 'answer_validation_type']
     readonly_fields = ('puzzle_url',)
 
     # Needed to add request to modelAdmin
@@ -181,18 +182,23 @@ class PuzzleAdminForm(forms.ModelForm):
             instance.puzzle_set.add(*self.cleaned_data['reverse_unlocks'])
         return instance
 
-    def clean_answer(self):
-        data = self.cleaned_data.get('answer')
-        if(re.fullmatch(r"[a-zA-Z]+", data.upper()) is None):
-            raise forms.ValidationError("Answer must only contain the characters A-Z.")
+    def clean(self):
+        data = self.cleaned_data
+        answer = data.get('answer')
+        validation_type = data.get('answer_validation_type')
+        if(validation_type == models.Puzzle.ANSWER_STRICT):
+            data['answer'] = answer.upper()
+        if(re.fullmatch(get_puzzle_answer_regex(validation_type), answer) is None):
+            self.add_error('answer', forms.ValidationError(get_validation_error(validation_type)))
         return data
 
     class Meta:
         model = models.Puzzle
-        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'puzzle_type',
-                  'puzzle_page_type', 'puzzle_file', 'resource_file',
-                  'solution_file', 'extra_data', 'num_required_to_unlock', 'unlock_type',
-                  'points_cost', 'points_value', 'solution_is_webpage', 'solution_resource_file')
+        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer',
+                  'answer_validation_type', 'puzzle_type', 'puzzle_page_type', 'puzzle_file',
+                  'resource_file', 'solution_file', 'extra_data', 'num_required_to_unlock',
+                  'unlock_type', 'points_cost', 'points_value', 'solution_is_webpage',
+                  'solution_resource_file')
 
 
 class PuzzleAdmin(admin.ModelAdmin):
@@ -210,8 +216,8 @@ class PuzzleAdmin(admin.ModelAdmin):
     radio_fields = {"unlock_type": admin.VERTICAL}
     fieldsets = (
         (None, {
-            'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'puzzle_type',
-                       'puzzle_page_type', 'puzzle_file', 'resource_file',
+            'fields': ('hunt', 'puzzle_name', 'answer', 'answer_validation_type', 'puzzle_number',
+                       'puzzle_id', 'puzzle_type', 'puzzle_page_type', 'puzzle_file', 'resource_file',
                        'solution_is_webpage', 'solution_file', 'solution_resource_file',
                        'extra_data', 'unlock_type')
         }),

@@ -8,7 +8,14 @@
 {% if not puzzle.hunt.is_public %}
 <script type="text/javascript">
     last_date = '{{last_date}}';
-    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}/'
+    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}/';
+    {% if puzzle.answer_validation_type == puzzle.ANSWER_STRICT %}
+      upper_case = true;
+    {% else %}
+      upper_case = false;
+    {% endif %}
+    validation_regex = /{% puzzle_answer_regex puzzle %}/;
+    validation_error = "{% puzzle_validation_error puzzle %}";
 </script>
 <script src="{{ STATIC_URL }}huntserver/puzzle.js"></script>
 {% endif %}

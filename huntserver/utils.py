@@ -6,8 +6,9 @@ from huey.contrib.djhuey import db_periodic_task, db_task
 from django.core.cache import cache
 from django.core.mail import EmailMessage, get_connection
 import time
+import re
 
-from .models import Hunt, HintUnlockPlan
+from .models import Hunt, HintUnlockPlan, Puzzle
 
 
 import logging
@@ -107,3 +108,42 @@ def send_mass_email(email_list, subject, message):
             result += "Emailed: " + ", ".join(to_chunk) + "\n"
             time.sleep(1)
     return result
+
+
+def get_puzzle_answer_regex(validation_type):
+    if(validation_type == Puzzle.ANSWER_STRICT):
+        return r"^[A-Z]+$"
+    elif(validation_type == Puzzle.ANSWER_ANY_CASE):
+        return r"^[a-zA-Z]+$"
+    elif(validation_type == Puzzle.ANSWER_CASE_AND_SPACES):
+        return r"^[a-zA-Z ]+$"
+    elif(validation_type == Puzzle.ANSWER_ANYTHING):
+        return r"^.*$"
+    else:
+        return r""
+
+
+def strip_puzzle_answer(answer, validation_type):
+    if(validation_type == Puzzle.ANSWER_STRICT):
+        return re.sub(r"[^A-Z]", "", answer)
+    elif(validation_type == Puzzle.ANSWER_ANY_CASE):
+        return re.sub(r"[^a-zA-Z]", "", answer)
+    elif(validation_type == Puzzle.ANSWER_CASE_AND_SPACES):
+        return re.sub(r"[^a-zA-Z ]", "", answer)
+    elif(validation_type == Puzzle.ANSWER_ANYTHING):
+        return answer
+    else:
+        return answer
+
+
+def get_validation_error(validation_type):
+    if(validation_type == Puzzle.ANSWER_STRICT):
+        return "Answer must only contain the characters A-Z, case doesn't matter."
+    elif(validation_type == Puzzle.ANSWER_ANY_CASE):
+        return "Answer must only contain the characters a-z, case matters."
+    elif(validation_type == Puzzle.ANSWER_CASE_AND_SPACES):
+        return "Answer must only contain the characters A-Z and spaces, case matters."
+    elif(validation_type == Puzzle.ANSWER_ANYTHING):
+        return "I don't know how you triggered this message, any answer SHOULD be valid."
+    else:
+        return "Invalid validation type, anything entered will be invalid"

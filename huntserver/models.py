@@ -248,6 +248,18 @@ class Puzzle(models.Model):
         (NON_PUZZLE, 'Non-puzzle'),
     ]
 
+    ANSWER_STRICT = 'STR'
+    ANSWER_ANY_CASE = 'ACA'
+    ANSWER_CASE_AND_SPACES = 'CAS'
+    ANSWER_ANYTHING = "ANY"
+
+    answer_validation_choices = [
+        (ANSWER_STRICT, 'Strict: Only uppercase A-Z'),
+        (ANSWER_ANY_CASE, 'Case sensitive, no spaces'),
+        (ANSWER_CASE_AND_SPACES, 'Case sensitive, spaces allowed'),
+        (ANSWER_ANYTHING, 'Anything: Full unicode, any case'),
+    ]
+
     hunt = models.ForeignKey(
         Hunt,
         on_delete=models.CASCADE,
@@ -305,6 +317,13 @@ class Puzzle(models.Model):
         max_length=200,
         blank=True,
         help_text="A misc. field for any extra data to be stored with the puzzle.")
+    answer_validation_type = models.CharField(
+        max_length=3,
+        choices=answer_validation_choices,
+        default=ANSWER_STRICT,
+        blank=False,
+        help_text="The type of answer validation used for this puzzle."
+    )
 
     # Unlocking:
     unlock_type = models.CharField(
@@ -328,6 +347,8 @@ class Puzzle(models.Model):
     points_value = models.IntegerField(
         default=0,
         help_text="The number of points this puzzle grants upon solving.")
+
+
 
     # Overridden to delete old files on clear
     def save(self, *args, **kwargs):
@@ -381,6 +402,18 @@ class Puzzle(models.Model):
 class Prepuzzle(models.Model):
     """ A class representing a pre-puzzle within a hunt """
 
+    ANSWER_STRICT = 'STR'
+    ANSWER_ANY_CASE = 'ACA'
+    ANSWER_CASE_AND_SPACES = 'CAS'
+    ANSWER_ANYTHING = "ANY"
+
+    answer_validation_choices = [
+        (ANSWER_STRICT, 'Strict: Only uppercase A-Z'),
+        (ANSWER_ANY_CASE, 'Case sensitive, no spaces'),
+        (ANSWER_CASE_AND_SPACES, 'Case sensitive, spaces allowed'),
+        (ANSWER_ANYTHING, 'Anything: Full unicode, any case'),
+    ]
+
     puzzle_name = models.CharField(
         max_length=200,
         help_text="The name of the puzzle as it will be seen by hunt participants")
@@ -407,6 +440,13 @@ class Prepuzzle(models.Model):
     response_string = models.TextField(
         default="",
         help_text="Data returned to the webpage for use upon solving.")
+    answer_validation_type = models.CharField(
+        max_length=3,
+        choices=answer_validation_choices,
+        default=ANSWER_STRICT,
+        blank=False,
+        help_text="The type of answer validation used for this puzzle."
+    )
 
     def __str__(self):
         if(self.hunt):
@@ -715,7 +755,10 @@ class Submission(models.Model):
     @property
     def is_correct(self):
         """ A boolean indicating if the submission given is exactly correct """
-        return self.submission_text.upper() == self.puzzle.answer.upper()
+        if(self.puzzle.answer_validation_type == Puzzle.ANSWER_STRICT):
+            return self.submission_text.upper() == self.puzzle.answer.upper()
+        else:
+            return self.submission_text == self.puzzle.answer
 
     @property
     def convert_markdown_response(self):

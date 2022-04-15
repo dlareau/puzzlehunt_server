@@ -135,7 +135,7 @@ def prepuzzle(request, prepuzzle_num):
     puzzle = Prepuzzle.objects.get(pk=prepuzzle_num)
 
     if request.method == 'POST':
-        form = AnswerForm(request.POST)
+        form = AnswerForm(request.POST , validation_type=puzzle.answer_validation_type)
         if form.is_valid():
             user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
 
@@ -156,7 +156,7 @@ def prepuzzle(request, prepuzzle_num):
     else:
         if(not (puzzle.released or request.user.is_staff)):
             return redirect('huntserver:current_hunt_info')
-        form = AnswerForm()
+        form = AnswerForm(validation_type=puzzle.answer_validation_type)
         context = {'form': form, 'puzzle': puzzle}
         return HttpResponse(Template(puzzle.template).render(RequestContext(request, context)))
 
@@ -207,7 +207,7 @@ def puzzle_view(request, puzzle_id):
                 # If the hunt isn't public and you aren't signed in, please stop...
                 return HttpResponse('fail')
 
-        form = AnswerForm(request.POST)
+        form = AnswerForm(request.POST, validation_type=puzzle.answer_validation_type)
         form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
 
         if form.is_valid():
@@ -305,7 +305,7 @@ def puzzle_view(request, puzzle_id):
         else:
             submissions = None
             disable_form = False
-        form = AnswerForm(disable_form=disable_form)
+        form = AnswerForm(disable_form=disable_form, validation_type=puzzle.answer_validation_type)
         form.helper.form_action = reverse('huntserver:puzzle', kwargs={'puzzle_id': puzzle_id})
         try:
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)

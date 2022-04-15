@@ -1,8 +1,9 @@
 from django import forms
-from .models import Person
+from .models import Person, Puzzle
+from .utils import get_puzzle_answer_regex, get_validation_error
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout
+from crispy_forms.layout import Submit, Layout, Hidden
 from crispy_forms.bootstrap import StrictButton, InlineField
 from django.core.exceptions import ValidationError
 import re
@@ -10,9 +11,11 @@ import re
 
 class AnswerForm(forms.Form):
     answer = forms.CharField(max_length=100, label='Answer')
+    answer_validation_type = forms.CharField(max_length=3)
 
     def __init__(self, *args, **kwargs):
         disable_form = kwargs.pop('disable_form', False)
+        validation_type = kwargs.pop('validation_type', Puzzle.ANSWER_STRICT)
         super(AnswerForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-inline'
@@ -21,22 +24,29 @@ class AnswerForm(forms.Form):
         if(disable_form):
             self.helper.layout = Layout(
                 InlineField('answer', readonly=disable_form),
+                Hidden('answer_validation_type', validation_type),
                 StrictButton('Submit', value="submit", type="submit", disabled="disabled",
                              css_class='btn btn-default disabled')
             )
         else:
             self.helper.layout = Layout(
                 'answer',
+                Hidden('answer_validation_type', validation_type),
                 StrictButton('Submit', value="submit", type="submit", css_class='btn btn-default')
             )
 
-    def clean_answer(self):
-        # Currently the desire is to strip all non A-Z characters (Github issue #129)
-        new_cleaned_data = re.sub(r"[^A-Z]", "", self.cleaned_data.get('answer').upper())
-        if(new_cleaned_data == ""):
-            raise ValidationError("Submission was empty after stripping non A-Z characters",
-                                  code='all_spaces')
-        return new_cleaned_data
+    def clean(self):
+        data = self.cleaned_data
+        answer = data.get('answer')
+        validation_type = data.get('answer_validation_type')
+        print(data)
+        if(validation_type == Puzzle.ANSWER_STRICT):
+            data['answer'] = answer.upper()
+            answer = data['answer']
+        if(re.fullmatch(get_puzzle_answer_regex(validation_type), answer) is None):
+            print("error", get_puzzle_answer_regex(validation_type), answer)
+            self.add_error('answer', forms.ValidationError(get_validation_error(validation_type)))
+        return data
 
 
 class SubmissionForm(forms.Form):
