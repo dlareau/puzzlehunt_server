@@ -790,7 +790,7 @@ class Submission(models.Model):
     # Order of response importance: Regex, Defaults, Staff response.
     def respond(self):
         """ Takes the submission's text and uses various methods to craft and populate a response.
-            If the response is correct a solve is created and the correct puzzles are unlocked """
+            If the response is correct, a solve is created and the correct puzzles are unlocked """
 
         # Check against regexes
         for resp in self.puzzle.response_set.all():

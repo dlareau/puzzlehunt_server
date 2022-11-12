@@ -13,7 +13,6 @@
   </li>
   {% chat_enabled as chat_enabled_bool %}
   {% if not tmpl_hunt.is_public and chat_enabled_bool %}
-    {% chat_enabled %}
     <!-- Kinda weird to include this here, but better than running the template tag twice -->
     <script src="{{ STATIC_URL }}huntserver/chat_poll.js"></script>
     <li class='{% active_page request "chat" %}'>

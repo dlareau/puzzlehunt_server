@@ -69,27 +69,10 @@ jQuery(document).ready(function($) {
 
     // Check for invalid answers:
     answer = $(this).find(":text").val();
+
     if(upper_case) {
       answer = answer.toUpperCase();
     }
-    if(!validation_regex.test(answer)) {
-      $(this).append("<span class=\"help-block\" id=\"answer_help\">" + validation_error + "</span>");
-      $(this).addClass("has-error");
-      return;
-    }
-
-
-    // var non_alphabetical = /[^a-zA-Z \-_]/;
-    // if(non_alphabetical.test()) {
-    // }
-    // var spacing = /[ \-_]/;
-    // if(spacing.test($(this).find(":text").val())) {
-    //   $(this).append("<span class=\"help-block\" id=\"answer_help\">" +
-    //                  "Spacing characters are automatically removed from responses.</span>");
-    //   $(this).addClass("has-warning");
-    // }
-
-
 
     $.ajax({
       url : $(this).attr('action') || window.location.pathname,
@@ -102,6 +85,9 @@ jQuery(document).ready(function($) {
         } else {
           var response = JSON.parse(jXHR.responseText);
           if("answer" in response && "message" in response["answer"][0]) {
+            $("#sub_form").append("<span class=\"help-block\" id=\"answer_help\">" +
+                response["answer"][0]["message"] + "</span>");
+            $("#sub_form").addClass("has-warning");
             console.log(response["answer"][0]["message"]);
           }
         }
@@ -111,6 +97,11 @@ jQuery(document).ready(function($) {
         ajax_delay = 3;
         ajax_timeout = setTimeout(get_posts, ajax_delay*1000);
         response = JSON.parse(response);
+        if(response.submission != answer) {
+          $("#sub_form").append("<span class=\"help-block\" id=\"answer_help\">" +
+                         "Submission was automatically filtered to only valid characters.</span>");
+          $("#sub_form").addClass("has-warning");
+        }
         receiveMessage(response.submission_list[0]);
       }
     });

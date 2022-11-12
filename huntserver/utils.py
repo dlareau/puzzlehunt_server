@@ -60,8 +60,8 @@ def check_puzzles(hunt, new_points, teams, team_is_list=False):
         else:
             teams.update(num_unlock_points=F('num_unlock_points') + new_points)
 
-        for team in teams:
-            team.unlock_puzzles()
+    for team in teams:
+        team.unlock_puzzles()
 
 
 @db_periodic_task(crontab(minute='*/1'))

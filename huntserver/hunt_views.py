@@ -136,6 +136,8 @@ def prepuzzle(request, prepuzzle_num):
 
     if request.method == 'POST':
         form = AnswerForm(request.POST , validation_type=puzzle.answer_validation_type)
+        is_correct = False
+        response = ""
         if form.is_valid():
             user_answer = re.sub(r"[ _\-;:+,.!?]", "", form.cleaned_data['answer'])
 
@@ -144,12 +146,6 @@ def prepuzzle(request, prepuzzle_num):
                 is_correct = True
                 response = puzzle.response_string
                 logger.info("User %s solved prepuzzle %s." % (str(request.user), prepuzzle_num))
-            else:
-                is_correct = False
-                response = ""
-        else:
-            is_correct = None
-            response = ""
         response_vars = {'response': response, 'is_correct': is_correct}
         return HttpResponse(json.dumps(response_vars))
 
@@ -221,7 +217,7 @@ def puzzle_view(request, puzzle_id):
         if(puzzle.hunt.is_public):
             limited = False
         else:
-            if(not s.is_correct and s.response_text == "Wrong Answer."):
+            if(s is not None and not s.is_correct and s.response_text == "Wrong Answer."):
                 limited = is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key,
                                          rate='3/5m', method='POST', increment=True)
             else:
@@ -262,7 +258,7 @@ def puzzle_view(request, puzzle_id):
             last_date = timezone.now().strftime(DT_FORMAT)
 
         # Send back rendered response for display
-        context = {'submission_list': submission_list, 'last_date': last_date}
+        context = {'submission_list': submission_list, 'last_date': last_date, 'submission':user_answer}
         return HttpResponse(json.dumps(context))
 
     # Will return HTML rows for all submissions the user does not yet have

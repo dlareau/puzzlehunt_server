@@ -271,13 +271,13 @@ class TeamAdminForm(forms.ModelForm):
         )
     )
 
-    num_unlock_points = forms.IntegerField(disabled=True)
+    num_unlock_points = forms.IntegerField(disabled=True, initial=0)
 
     class Meta:
         model = models.Team
         fields = ['team_name', 'hunt', 'location', 'join_code', 'playtester', 'is_local',
                   'playtest_start_date', 'playtest_end_date', 'num_available_hints',
-                  'num_unlock_points', 'unlockables', 'num_unlock_points', ]
+                  'num_unlock_points', 'unlockables']
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)
