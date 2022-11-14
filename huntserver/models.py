@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.dateformat import DateFormat
-from django.utils.encoding import python_2_unicode_compatible
 from dateutil import tz
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -61,7 +60,6 @@ class PuzzleOverwriteStorage(FileSystemStorage):
         return rc
 
 
-@python_2_unicode_compatible
 class Hunt(models.Model):
     """ Base class for a hunt. Contains basic details about a puzzlehunt. """
 
@@ -202,7 +200,6 @@ class Hunt(models.Model):
         return teams[0] if (len(teams) > 0) else None
 
 
-@python_2_unicode_compatible
 class Puzzle(models.Model):
     """ A class representing a puzzle within a hunt """
 
@@ -398,7 +395,6 @@ class Puzzle(models.Model):
         return str(self.puzzle_number) + "-" + str(self.puzzle_id) + " " + self.puzzle_name
 
 
-@python_2_unicode_compatible
 class Prepuzzle(models.Model):
     """ A class representing a pre-puzzle within a hunt """
 
@@ -478,7 +474,6 @@ class TeamManager(models.Manager):
         return qs
 
 
-@python_2_unicode_compatible
 class Team(models.Model):
     """ A class representing a team within a hunt """
 
@@ -668,7 +663,6 @@ class PersonManager(models.Manager):
         return qs
 
 
-@python_2_unicode_compatible
 class Person(models.Model):
     """ A class to associate more personal information with the default django auth user class """
 
@@ -720,7 +714,6 @@ class Person(models.Model):
         return self.phone
 
 
-@python_2_unicode_compatible
 class Submission(models.Model):
     """ A class representing a submission to a given puzzle from a given team """
 
@@ -819,7 +812,6 @@ class Submission(models.Model):
         return self.submission_text
 
 
-@python_2_unicode_compatible
 class Solve(models.Model):
     """ A class that links a team and a puzzle to indicate that the team has solved the puzzle """
 
@@ -855,7 +847,6 @@ class Solve(models.Model):
         return self.team.short_name + " => " + self.puzzle.puzzle_name
 
 
-@python_2_unicode_compatible
 class Unlock(models.Model):
     """ A class that links a team and a puzzle to indicate that the team has unlocked the puzzle """
 
@@ -885,7 +876,6 @@ class Unlock(models.Model):
         return self.team.short_name + ": " + self.puzzle.puzzle_name
 
 
-@python_2_unicode_compatible
 class Message(models.Model):
     """ A class that represents a message sent using the chat functionality """
 
@@ -905,7 +895,6 @@ class Message(models.Model):
         return self.team.short_name + ": " + self.text
 
 
-@python_2_unicode_compatible
 class Unlockable(models.Model):
     """ A class that represents an object to be unlocked after solving a puzzle """
 
@@ -932,7 +921,6 @@ class Unlockable(models.Model):
         return "%s (%s)" % (self.puzzle.puzzle_name, self.content_type)
 
 
-@python_2_unicode_compatible
 class Response(models.Model):
     """ A class to represent an automated response regex """
 
@@ -951,7 +939,6 @@ class Response(models.Model):
         return self.regex + " => " + self.text
 
 
-@python_2_unicode_compatible
 class Hint(models.Model):
     """ A class to represent a hint to a puzzle """
 
@@ -1005,7 +992,6 @@ class Hint(models.Model):
                 " (" + str(self.request_time) + ")")
 
 
-@python_2_unicode_compatible
 class HintUnlockPlan(models.Model):
     """ A class to represent when Teams are given hints """
     hunt = models.ForeignKey(
@@ -1055,7 +1041,6 @@ class OverwriteStorage(FileSystemStorage):
         return name
 
 
-@python_2_unicode_compatible
 class HuntAssetFile(models.Model):
     """ A class to represent an asset file for a puzzlehunt """
     file = models.FileField(upload_to='hunt/assets/', storage=OverwriteStorage())

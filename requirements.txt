@@ -1,4 +1,4 @@
-Django==2.2.24
+Django==3.2.*
 decorator==4.1.2
 bootstrap-admin==0.4.*
 django-debug-toolbar==1.11.1
