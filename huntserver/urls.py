@@ -19,6 +19,8 @@ class PuzzleConverter:
 
 register_converter(PuzzleConverter, 'puzzle')
 
+# Note: For a few reasons, all admin/staff pages are declared in admin.py
+
 urlpatterns = [
     # Pages made with flatpages
     path('hunt-info/', views.flatpage, {'url': '/hunt-info/'}, name='current_hunt_info'),
@@ -55,23 +57,6 @@ urlpatterns = [
     path('leaderboard/<str:criteria>/', hunt_views.leaderboard, name='leaderboard'),
     path('objects/', hunt_views.unlockables, name='unlockables'),
     path('protected/<path:file_path>', hunt_views.protected_static, name='protected_static'),
-
-    # Staff pages
-    path('staff/', include([
-        path('queue/', staff_views.queue, name='queue'),
-        path('progress/', staff_views.progress, name='progress'),
-        path('charts/', staff_views.charts, name='charts'),
-        path('chat/', staff_views.admin_chat, name='admin_chat'),
-        path('control/', staff_views.control, name='control'),
-        path('teams/', RedirectView.as_view(url='/admin/huntserver/team/', permanent=False)),
-        path('puzzles/', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
-        path('emails/', staff_views.emails, name='emails'),
-        path('management/', staff_views.hunt_management, name='hunt_management'),
-        path('hints/', staff_views.staff_hints_text, name='staff_hints_text'),
-        path('hints/control/', staff_views.staff_hints_control, name='staff_hints_control'),
-        path('info/', staff_views.hunt_info, name='hunt_info'),
-        path('lookup/', staff_views.lookup, name='lookup'),
-    ])),
 
     re_path(r'^Shibboleth.sso/Logout', base_auth_views.LogoutView.as_view(), name='logout',
         kwargs={'next_page': '/'}),

@@ -1,24 +1,27 @@
-from django.contrib import admin
-from django import forms
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.widgets import FilteredSelectMultiple
-from huntserver.widgets import HtmlEditor
-from django.contrib.auth.models import User, Group
-from django.utils.safestring import mark_safe
-from django.template.defaultfilters import truncatechars
-from django.contrib.sites.models import Site
-from django.contrib.flatpages.admin import FlatPageAdmin
-from django.contrib.flatpages.models import FlatPage
-from django.contrib.flatpages.forms import FlatpageForm
+import inspect
 import re
+
+from django import forms
+from django.contrib import admin
+from django.contrib.admin.sites import AdminSite
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.models import User, Group
+from django.contrib.flatpages.admin import FlatPageAdmin
+from django.contrib.flatpages.forms import FlatpageForm
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.sites.models import Site
+from django.template.defaultfilters import truncatechars
+from django.urls import re_path
+from django.utils.safestring import mark_safe
+from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import View
+from huntserver.widgets import HtmlEditor
+
 from .utils import get_validation_error, get_puzzle_answer_regex
-
-# Register your models here.
 from . import models
+from . import staff_views
 
-from adminplus.sites import AdminSitePlus
-
-huntserver_admin = AdminSitePlus()
 
 def short_team_name(teamable_object):
     return truncatechars(teamable_object.team.team_name, 50)
@@ -375,6 +378,61 @@ class FlatPageProxyAdmin(FlatPageAdmin):
         return form
 
 
+class StaffPagesAdmin(AdminSite):
+    """A Django AdminSite with the ability to register custom staff pages not connected to models."""
+    # Pattern taken from django adminplus from jsocol
+
+    def __init__(self, *args, **kwargs):
+        self.custom_views = []
+        return super(StaffPagesAdmin, self).__init__(*args, **kwargs)
+
+    def register_view(self, path, name=None, urlname=None, visible=True, view=None):
+        self.custom_views.append((path, view, name, urlname, visible))
+
+    def get_urls(self):
+        urls = super(StaffPagesAdmin, self).get_urls()
+        for path, view, name, urlname, visible in self.custom_views:
+            urls.insert(0, re_path(r"^%s$" % path, self.admin_view(view), name=urlname))
+        return urls
+
+    def get_app_list(self, request, app_label=None):
+        app_list = super(StaffPagesAdmin, self).get_app_list(request)
+        app_list.insert(0, {
+            "name": "Staff Pages",
+            "app_label": "staff-pages",
+            "app_url": "/staff/",
+            "has_module_perms": True,
+            "models": [
+                {
+                    "model": None,
+                    "name": name if name else capfirst(view.__name__),
+                    "object_name": view.__name__,
+                    "perms": {},
+                    "admin_url": path,
+                    "add_url": None,
+                    "view_only": True
+                } for path, view, name, urlname, visible in self.custom_views if visible
+            ]
+        })
+        return app_list
+
+
+huntserver_admin = StaffPagesAdmin()
+huntserver_admin.register_view('queue/', view=staff_views.queue, urlname='queue')
+huntserver_admin.register_view('progress/', view=staff_views.progress, urlname='progress')
+huntserver_admin.register_view('charts/', view=staff_views.charts, urlname='charts')
+huntserver_admin.register_view('chat/', view=staff_views.admin_chat, name="Chat", urlname='admin_chat')
+huntserver_admin.register_view('emails/', view=staff_views.emails, urlname='emails')
+huntserver_admin.register_view('management/', view=staff_views.hunt_management, name="Hunt Management", urlname='hunt_management')
+huntserver_admin.register_view('hints/', view=staff_views.staff_hints_text, name="Hints", urlname='staff_hints_text')
+huntserver_admin.register_view('info/', view=staff_views.hunt_info, name="Hunt Info", urlname='hunt_info')
+huntserver_admin.register_view('lookup/', view=staff_views.lookup, urlname='lookup')
+
+huntserver_admin.register_view('control/', view=staff_views.control, urlname='control', visible=False)
+huntserver_admin.register_view('hints/control/', view=staff_views.staff_hints_control, urlname='staff_hints_control', visible=False)
+
+# path('teams/', RedirectView.as_view(url='/admin/huntserver/team/', permanent=False)),
+# path('puzzles/', RedirectView.as_view(url='/admin/huntserver/puzzle/', permanent=False)),
 
 huntserver_admin.register(models.Hint,       HintAdmin)
 huntserver_admin.register(models.Hunt,       HuntAdmin)

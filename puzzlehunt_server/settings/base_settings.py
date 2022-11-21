@@ -29,7 +29,6 @@ INSTALLED_APPS = (
     'huntserver',
     'crispy_forms',
     'huey.contrib.djhuey',
-    'adminplus',
 )
 
 
