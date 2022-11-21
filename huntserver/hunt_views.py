@@ -32,6 +32,7 @@ def protected_static(request, file_path):
     A view to serve protected static content. Does a permission check and if it passes,
     the file is served via X-Sendfile.
     """
+    # TODO: replace file_path with a better path converter
 
     allowed = False
     path = Path(file_path)
@@ -185,6 +186,9 @@ def puzzle_view(request, puzzle_id):
     A view to handle answer submissions via POST, handle response update requests via AJAX, and
     render the basic per-puzzle pages.
     """
+
+    # TODO: fetch puzzle in path converter
+
     puzzle = get_object_or_404(Puzzle, puzzle_id__iexact=puzzle_id)
     team = puzzle.hunt.team_from_user(request.user)
 

@@ -15,8 +15,9 @@ BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 SITE_TITLE = "Puzzlehunt CMU"
 
 INSTALLED_APPS = (
-    'bootstrap_admin',
-    'django.contrib.admin',
+    'admin_interface',
+    'colorfield',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -28,9 +29,9 @@ INSTALLED_APPS = (
     'huntserver',
     'crispy_forms',
     'huey.contrib.djhuey',
+    'adminplus',
 )
 
-SITE_ID = 1  # For flatpages
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,9 +99,13 @@ LOGIN_URL = 'huntserver:login_selection'
 SILENCED_SYSTEM_CHECKS = ["urls.W005"]  # silences admin url override warning
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
-BOOTSTRAP_ADMIN_SIDEBAR_MENU = True
 DEFAULT_HINT_LOCKOUT = 60  # 60 Minutes
 HUNT_REGISTRATION_LOCKOUT = 2  # 2 Days
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
+SITE_ID = 1  # For flatpages
+
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

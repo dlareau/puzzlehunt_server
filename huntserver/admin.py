@@ -16,6 +16,9 @@ from .utils import get_validation_error, get_puzzle_answer_regex
 # Register your models here.
 from . import models
 
+from adminplus.sites import AdminSitePlus
+
+huntserver_admin = AdminSitePlus()
 
 def short_team_name(teamable_object):
     return truncatechars(teamable_object.team.team_name, 50)
@@ -372,22 +375,18 @@ class FlatPageProxyAdmin(FlatPageAdmin):
         return form
 
 
-admin.site.unregister(User)
-admin.site.unregister(Group)
-admin.site.unregister(Site)
-admin.site.unregister(FlatPage)
 
-admin.site.register(models.Hint,       HintAdmin)
-admin.site.register(models.Hunt,       HuntAdmin)
-admin.site.register(models.Message,    MessageAdmin)
-admin.site.register(models.Person,     PersonAdmin)
-admin.site.register(models.Prepuzzle,  PrepuzzleAdmin)
-admin.site.register(models.Puzzle,     PuzzleAdmin)
-admin.site.register(models.Response,   ResponseAdmin)
-admin.site.register(models.Solve,      SolveAdmin)
-admin.site.register(models.Submission, SubmissionAdmin)
-admin.site.register(models.Team,       TeamAdmin)
-admin.site.register(models.Unlockable)
-admin.site.register(models.Unlock,     UnlockAdmin)
-admin.site.register(UserProxyObject,   UserProxyAdmin)
-admin.site.register(FlatPageProxyObject, FlatPageProxyAdmin)
+huntserver_admin.register(models.Hint,       HintAdmin)
+huntserver_admin.register(models.Hunt,       HuntAdmin)
+huntserver_admin.register(models.Message,    MessageAdmin)
+huntserver_admin.register(models.Person,     PersonAdmin)
+huntserver_admin.register(models.Prepuzzle,  PrepuzzleAdmin)
+huntserver_admin.register(models.Puzzle,     PuzzleAdmin)
+huntserver_admin.register(models.Response,   ResponseAdmin)
+huntserver_admin.register(models.Solve,      SolveAdmin)
+huntserver_admin.register(models.Submission, SubmissionAdmin)
+huntserver_admin.register(models.Team,       TeamAdmin)
+huntserver_admin.register(models.Unlockable)
+huntserver_admin.register(models.Unlock,     UnlockAdmin)
+huntserver_admin.register(UserProxyObject,   UserProxyAdmin)
+huntserver_admin.register(FlatPageProxyObject, FlatPageProxyAdmin)

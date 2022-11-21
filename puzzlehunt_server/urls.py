@@ -1,39 +1,37 @@
-from django.conf.urls import include, url
+from django.conf.urls import include
 from django.contrib import admin
 from django.contrib.auth import views as base_auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
+from huntserver.admin import huntserver_admin
+
+admin.site = huntserver_admin
 
 urlpatterns = [
     # Admin redirections/views
-    url(r'^admin/login/$', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL),
-                                                query_string=True)),
-    url(r'^staff/login/$', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL),
-                                                query_string=True)),
-    url(r'^admin/$', RedirectView.as_view(url=reverse_lazy('admin:app_list',
-                                          args=('huntserver',)))),
-    url(r'^staff/$', RedirectView.as_view(url=reverse_lazy('admin:app_list',
-                                          args=('huntserver',)))),
-    url(r'^staff/', admin.site.urls),
-    url(r'^admin/', admin.site.urls),
+    path('admin/login/', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL), query_string=True)),
+    path('staff/login/', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL), query_string=True)),
+    path('staff/', admin.site.urls),
+    path('admin/', admin.site.urls),
 
     # All of the huntserver URLs
-    url(r'^', include('huntserver.urls', namespace="huntserver")),
+    path('', include('huntserver.urls', namespace="huntserver")),
 
     # User auth/password reset
-    url(r'^accounts/logout/$', base_auth_views.LogoutView.as_view(),
+    path('accounts/logout/', base_auth_views.LogoutView.as_view(),
         name='logout', kwargs={'next_page': '/'}),
-    url(r'^accounts/login/$', base_auth_views.LoginView.as_view()),
-    url(r'^password_reset/$', base_auth_views.PasswordResetView.as_view(), name='password_reset'),
-    url(r'^password_reset/done/$', base_auth_views.PasswordResetDoneView.as_view(),
+    path('accounts/login/', base_auth_views.LoginView.as_view()),
+    path('password_reset/', base_auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', base_auth_views.PasswordResetDoneView.as_view(),
         name='password_reset_done'),
-    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    re_path(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         base_auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    url(r'^reset/done/$', base_auth_views.PasswordResetCompleteView.as_view(),
+    path('reset/done/', base_auth_views.PasswordResetCompleteView.as_view(),
         name='password_reset_complete'),
 ]
+
 
 # Use silk if enabled
 if 'silk' in settings.INSTALLED_APPS:
@@ -43,4 +41,4 @@ if 'silk' in settings.INSTALLED_APPS:
 if(settings.DEBUG):
     import debug_toolbar
     urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+    urlpatterns.append(re_path(r'^__debug__/', include(debug_toolbar.urls)))

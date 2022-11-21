@@ -1,13 +1,13 @@
 Django==3.2.*
 decorator==4.1.2
-bootstrap-admin==0.4.*
-django-debug-toolbar==1.11.1
+django-debug-toolbar==3.7.*
 python-dateutil==2.6.1
 sqlparse==0.2.3
 sphinx
 sphinx_rtd_theme
 django-ratelimit==1.1.0
 coverage
+django-admin-interface
 django-crispy-forms==1.8.1
 gunicorn
 psycopg2==2.8.6
