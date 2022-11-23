@@ -5,15 +5,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import reverse_lazy, path, re_path
 from django.views.generic import RedirectView
-from huntserver.admin import huntserver_admin
+from huntserver.sites import huntserver_admin
+from huntserver import admin as _ # load bearing import
 
 admin.site = huntserver_admin
 
 urlpatterns = [
     # Admin redirections/views
     path('admin/login/', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL), query_string=True)),
-    path('staff/login/', RedirectView.as_view(url=reverse_lazy(settings.LOGIN_URL), query_string=True)),
-    path('staff/', admin.site.urls),
     path('admin/', admin.site.urls),
 
     # All of the huntserver URLs

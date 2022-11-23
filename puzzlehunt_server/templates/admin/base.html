@@ -1,0 +1,25 @@
+{% extends 'admin/base.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<!-- Make the admin navbar show down to 767 instead of the default 1279 -->
+<style type="text/css">
+	@media (min-width:767px) {
+		.admin-interface #nav-sidebar,
+		.admin-interface #toggle-nav-sidebar {
+			display: block;
+		}
+
+		.admin-interface #main.shifted > #toggle-nav-sidebar {
+			left: 310px;
+		}
+	}
+
+	/* Also make it narrower overall */
+	.admin-interface #nav-sidebar {
+    	flex: 0 0 270px;
+    	left: -270px;
+    	margin-left: -310px;
+	}
+</style>
+{% endblock %}

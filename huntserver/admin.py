@@ -1,9 +1,7 @@
-import inspect
 import re
 
 from django import forms
 from django.contrib import admin
-from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import User, Group
 from django.contrib.flatpages.admin import FlatPageAdmin
@@ -11,16 +9,18 @@ from django.contrib.flatpages.forms import FlatpageForm
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 from django.template.defaultfilters import truncatechars
-from django.urls import re_path
 from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from huntserver.widgets import HtmlEditor
+from admin_interface.models import Theme
+from admin_interface.admin import ThemeAdmin
 
 from .utils import get_validation_error, get_puzzle_answer_regex
 from . import models
 from . import staff_views
+from .sites import huntserver_admin
 
 
 def short_team_name(teamable_object):
@@ -62,7 +62,7 @@ class HuntAdminForm(forms.ModelForm):
 
     class Meta:
         widgets = {
-            'template': HtmlEditor(attrs={'style': 'width: 90%; height: 400px;'}),
+            'template': HtmlEditor(),
         }
 
 
@@ -377,47 +377,6 @@ class FlatPageProxyAdmin(FlatPageAdmin):
                                              "trailing slashes.")
         return form
 
-
-class StaffPagesAdmin(AdminSite):
-    """A Django AdminSite with the ability to register custom staff pages not connected to models."""
-    # Pattern taken from django adminplus from jsocol
-
-    def __init__(self, *args, **kwargs):
-        self.custom_views = []
-        return super(StaffPagesAdmin, self).__init__(*args, **kwargs)
-
-    def register_view(self, path, name=None, urlname=None, visible=True, view=None):
-        self.custom_views.append((path, view, name, urlname, visible))
-
-    def get_urls(self):
-        urls = super(StaffPagesAdmin, self).get_urls()
-        for path, view, name, urlname, visible in self.custom_views:
-            urls.insert(0, re_path(r"^%s$" % path, self.admin_view(view), name=urlname))
-        return urls
-
-    def get_app_list(self, request, app_label=None):
-        app_list = super(StaffPagesAdmin, self).get_app_list(request)
-        app_list.insert(0, {
-            "name": "Staff Pages",
-            "app_label": "staff-pages",
-            "app_url": "/staff/",
-            "has_module_perms": True,
-            "models": [
-                {
-                    "model": None,
-                    "name": name if name else capfirst(view.__name__),
-                    "object_name": view.__name__,
-                    "perms": {},
-                    "admin_url": path,
-                    "add_url": None,
-                    "view_only": True
-                } for path, view, name, urlname, visible in self.custom_views if visible
-            ]
-        })
-        return app_list
-
-
-huntserver_admin = StaffPagesAdmin()
 huntserver_admin.register_view('queue/', view=staff_views.queue, urlname='queue')
 huntserver_admin.register_view('progress/', view=staff_views.progress, urlname='progress')
 huntserver_admin.register_view('charts/', view=staff_views.charts, urlname='charts')
@@ -448,3 +407,5 @@ huntserver_admin.register(models.Unlockable)
 huntserver_admin.register(models.Unlock,     UnlockAdmin)
 huntserver_admin.register(UserProxyObject,   UserProxyAdmin)
 huntserver_admin.register(FlatPageProxyObject, FlatPageProxyAdmin)
+
+huntserver_admin.register(Theme, ThemeAdmin)

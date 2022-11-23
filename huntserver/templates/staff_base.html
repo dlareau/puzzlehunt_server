@@ -1,23 +1,12 @@
 {% extends "admin/base_site.html" %}
+{% load i18n static %}
 
 {% block title %} Puzzlehunt Admin {% endblock title %}
 
 {% block extrahead %}
-	<script src="{{ STATIC_URL }}jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin_addon.css">
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/admin.css">
 {% block includes %} {% endblock %}
-{% endblock %}
-
-{% block js %}
-	<script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-93459400-1', 'auto');
-      ga('send', 'pageview');
-
-    </script>
 {% endblock %}

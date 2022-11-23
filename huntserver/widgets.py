@@ -10,6 +10,7 @@ class HtmlEditor(forms.Textarea):
         css = {
             'all': (
                 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.9.0/codemirror.css',
+                'huntserver/codemirror_addon.css',
             )
         }
         js = (

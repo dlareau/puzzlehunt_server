@@ -1029,7 +1029,7 @@ class HintUnlockPlan(models.Model):
         self.num_triggered = 0
 
     def __str__(self):
-        return "Nope"
+        return "Hint Unlock Plan"
 
 
 class OverwriteStorage(FileSystemStorage):
