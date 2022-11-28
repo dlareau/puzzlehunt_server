@@ -1,0 +1,104 @@
+{% extends "staff_base.html" %}
+{% block title %}Puzzle Progress{% endblock title %}
+
+{% block includes %}
+<script src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript">
+  last_solve_pk = {{last_solve_pk}};
+  last_unlock_pk = {{last_unlock_pk}};
+  last_submission_pk = {{last_submission_pk}}
+</script>
+<script src="{{ STATIC_URL }}huntserver/progress.js"></script>
+{% endblock includes %}
+
+{% block content %}
+  <h1>Puzzle Progress</h1>
+  <span>
+  <input type="checkbox" class="form-check-input" id="sort_check">
+  <label class="form-check-label" for="sort_check">Sort?</label>
+  <label class="sort_label" for="sort_select1">Sort 1:</label>
+  <select class="form-control sort_select" id="sort_select1">
+    <option># Meta Solves</option>
+    <option></option>
+    <option># Puzzle Solves</option>
+    <option>Last Solve Time</option>
+  </select>
+  <label class="sort_label" for="sort_select2">2:</label>
+  <select class="form-control sort_select" id="sort_select2">
+    <option># Puzzle Solves</option>
+    <option></option>
+    <option># Meta Solves</option>
+    <option>Last Solve Time</option>
+  </select>
+  <label class="sort_label" for="sort_select3">3:</label>
+  <select class="form-control sort_select" id="sort_select3">
+    <option>Last Solve Time</option>
+    <option></option>
+    <option># Meta Solves</option>
+    <option># Puzzle Solves</option>
+  </select>
+  </span>
+  <div id=table-container>
+    <table id='progress' class="table table-bordered table-condensed">
+      <thead class="progress-thead">
+        <tr>
+          <td class="actions leftmost">All teams:</td>
+          <td class="actions"></td>
+          <td class="actions"></td>
+          <td class="actions"></td>
+          {% for puzzle in puzzle_list %}
+            <td class="actions">
+              <form class='unlock_form' action="/staff/progress/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="puzzle_id" value="{{ puzzle.pk }}">
+                <input type="hidden" name="action" value="unlock_all">
+                <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
+                  Unlock All
+                </button>
+              </form>
+            </td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th class="leftmost topmost">Team</th>
+          <th>#</br>M</th>
+          <th>#</br>P</th>
+          <th>Last&nbsp;Time</th>
+          {% for puzzle in puzzle_list %}
+            <th {% if puzzle.puzzle_type == puzzle.META_PUZZLE %} class="metapuzzle" {% endif %}
+                {% if puzzle.puzzle_type == puzzle.FINAL_PUZZLE %} class="metapuzzle" {% endif %}
+                {% if puzzle.puzzle_type == puzzle.NON_PUZZLE %} class="nocount" {% endif %}
+                data-id='{{ puzzle.puzzle_id }}'>
+              {{ puzzle.puzzle_name }}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for team_dict in sol_list %}
+          <tr class="team_row">
+            <td class="leftmost" data-id={{team_dict.team.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+              {{ team_dict.team.name|truncatechars:40 }}
+            </td>
+            <td class='num_metas'></td>
+            <td class='num_puzzles'></td>
+            <td class='last_time'></td>
+            {% for puzzle in team_dict.puzzles %}
+              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}' style='text-align:center;'
+              {% if puzzle.1 == "locked"%}
+                class='unavailable'>
+              {% elif puzzle.1 == "unlocked" %}
+                class='available' data-date={{ puzzle.2 |date:"U"}}>
+                  <b>{{ puzzle.3|date:"m/d" }} <br> {{ puzzle.3|time:"h:i A" }}</b>
+              {% else %}
+                class='solved' data-date={{ puzzle.2 |date:"U"}}>
+                  {{ puzzle.2|date:"m/d" }} <br> {{ puzzle.2|time:"h:i A" }}
+              {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock content %}

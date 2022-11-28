@@ -2,97 +2,134 @@
 {% block title %}Puzzle Progress{% endblock title %}
 
 {% block includes %}
-<script src="{{ STATIC_URL }}jquery.min.js"></script>
 <script type="text/javascript">
   last_solve_pk = {{last_solve_pk}};
   last_unlock_pk = {{last_unlock_pk}};
   last_submission_pk = {{last_submission_pk}}
 </script>
-<script src="{{ STATIC_URL }}huntserver/progress.js"></script>
+
+<style type="text/css">
+  /* temp style */
+  #progress thead tr th {
+    vertical-align: bottom;
+  }
+
+  #progress tbody tr td {
+    padding: 2px;
+    width: 30px;
+    vertical-align: middle;
+    height: 30px;
+  }
+
+  #progress thead tr {
+    border-top: none;
+  }
+
+  #table-container {
+    overflow-x: scroll;
+  }
+
+  th.rotate {
+    /* Something you can count on */
+    height: 140px;
+    white-space: nowrap;
+  }
+
+  th.rotate > div {
+    transform: 
+      /* Magic Numbers */
+      translate(12px, 0px)
+      /* 45 is really 360 - 45 */
+      rotate(300deg);
+    width: 20px;
+  }
+  th.rotate > div > span {
+    border-bottom: 1px solid #ccc;
+    padding: 5px 5px;
+  }
+
+  @property --p{
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+
+  .pie {
+    --w:20px;
+    
+    width:var(--w);
+    aspect-ratio:1;
+    position:relative;
+    display:inline-grid;
+    place-content:center;
+  }
+  .pie:before,
+  .pie:after {
+    content:"";
+    position:absolute;
+    border-radius:50%;
+  }
+  .pie:before {
+    inset:0;
+    background:
+      radial-gradient(farthest-side,var(--c) 98%,#0000) top/var(--b) var(--b) no-repeat,
+      conic-gradient(var(--c) calc(var(--p)*1%),#0000 0);
+  }
+  .pie:after {
+    inset:calc(50% - var(--b)/2);
+    background:var(--c);
+    transform:rotate(calc(var(--p)*3.6deg)) translateY(calc(50% - var(--w)/2));
+  }
+  .no-round:before {
+    background-size:0 0,auto;
+  }
+  .no-round:after {
+    content:none;
+  }
+
+  #progress .solved {
+    background: hsla(128, 100%, 75%, 1);; }
+
+  #progress .available {
+    background: hsla(55, 100%, 75%, 1); }
+</style>
 {% endblock includes %}
 
 {% block content %}
-  <h1>Puzzle Progress</h1>
-  <span>
-  <input type="checkbox" class="form-check-input" id="sort_check">
-  <label class="form-check-label" for="sort_check">Sort?</label>
-  <label class="sort_label" for="sort_select1">Sort 1:</label>
-  <select class="form-control sort_select" id="sort_select1">
-    <option># Meta Solves</option>
-    <option></option>
-    <option># Puzzle Solves</option>
-    <option>Last Solve Time</option>
-  </select>
-  <label class="sort_label" for="sort_select2">2:</label>
-  <select class="form-control sort_select" id="sort_select2">
-    <option># Puzzle Solves</option>
-    <option></option>
-    <option># Meta Solves</option>
-    <option>Last Solve Time</option>
-  </select>
-  <label class="sort_label" for="sort_select3">3:</label>
-  <select class="form-control sort_select" id="sort_select3">
-    <option>Last Solve Time</option>
-    <option></option>
-    <option># Meta Solves</option>
-    <option># Puzzle Solves</option>
-  </select>
-  </span>
+  <h2>Puzzle Progress</h2>
   <div id=table-container>
-    <table id='progress' class="table table-bordered table-condensed">
-      <thead class="progress-thead">
+    <table id='progress' class="table table-bordered border-dark">
+      <thead>
         <tr>
-          <td class="actions leftmost">All teams:</td>
-          <td class="actions"></td>
-          <td class="actions"></td>
-          <td class="actions"></td>
-          {% for puzzle in puzzle_list %}
-            <td class="actions">
-              <form class='unlock_form' action="/staff/progress/" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="puzzle_id" value="{{ puzzle.pk }}">
-                <input type="hidden" name="action" value="unlock_all">
-                <button type="Submit" class="btn btn-default btn-xs" onclick="return confirm('Are you sure?')">
-                  Unlock All
-                </button>
-              </form>
-            </td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <th class="leftmost topmost">Team</th>
-          <th>#</br>M</th>
-          <th>#</br>P</th>
-          <th>Last&nbsp;Time</th>
-          {% for puzzle in puzzle_list %}
-            <th {% if puzzle.puzzle_type == puzzle.META_PUZZLE %} class="metapuzzle" {% endif %}
-                {% if puzzle.puzzle_type == puzzle.FINAL_PUZZLE %} class="metapuzzle" {% endif %}
-                {% if puzzle.puzzle_type == puzzle.NON_PUZZLE %} class="nocount" {% endif %}
-                data-id='{{ puzzle.puzzle_id }}'>
-              {{ puzzle.puzzle_name }}
-            </th>
+          <th>Puzzle</th>
+<!--           <th>#M</th>
+          <th>#P</th>
+          <th class="rotate"><div><span>Last&nbsp;Time</span></div></th> -->
+          {% for team in team_list %}
+            <th class="rotate"><div><span>
+              {{ team.team_name }}
+            </span></div></th>
           {% endfor %}
         </tr>
       </thead>
       <tbody>
-        {% for team_dict in sol_list %}
-          <tr class="team_row">
-            <td class="leftmost" data-id={{team_dict.team.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-              {{ team_dict.team.name|truncatechars:40 }}
+        {% for puzzle_dict in sol_list %}
+          <tr>
+            <td class="leftmost" data-id={{puzzle_dict.puzzle.pk}} style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+              {{ puzzle_dict.puzzle.name }}
             </td>
-            <td class='num_metas'></td>
+<!--             <td class='num_metas'></td>
             <td class='num_puzzles'></td>
-            <td class='last_time'></td>
-            {% for puzzle in team_dict.puzzles %}
-              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}' style='text-align:center;'
-              {% if puzzle.1 == "locked"%}
+            <td class='last_time'></td> -->
+            {% for team in puzzle_dict.teams %}
+              <td id='p{{ team.0 }}t{{ puzzle_dict.team.pk }}' style='text-align:center;'
+              {% if team.1 == "locked"%}
                 class='unavailable'>
-              {% elif puzzle.1 == "unlocked" %}
-                class='available' data-date={{ puzzle.2 |date:"U"}}>
-                  <b>{{ puzzle.3|date:"m/d" }} <br> {{ puzzle.3|time:"h:i A" }}</b>
+              {% elif team.1 == "unlocked" %}
+                class='available' data-date={{ team.2 |date:"U"}}>
+                  <div class="pie no-round" style="--p:{% widthratio team.2|add:-55000 300 1 %};--c:slategray;--b:15px"></div>
               {% else %}
-                class='solved' data-date={{ puzzle.2 |date:"U"}}>
-                  {{ puzzle.2|date:"m/d" }} <br> {{ puzzle.2|time:"h:i A" }}
+                class='solved' data-date={{ team.2 |date:"U"}}>
               {% endif %}
               </td>
             {% endfor %}

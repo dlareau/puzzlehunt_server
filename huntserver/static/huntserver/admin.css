@@ -3,8 +3,27 @@
   Contents do not get applied to included django admin pages 
 */
 
-/* Global */
+/* These restore the django admin-interface styling */
 
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+  color: var(--body-fg);
+  background: var(--body-bg);
+  line-height: normal;
+}
+
+table {
+  caption-side: top;
+}
+
+
+/* ========================== Old Stuff =============================*/
+
+/* Global */
+/*
 button {
     background-color: white;
     border: 1px solid black;
@@ -35,10 +54,10 @@ table.table-bordered > tbody > tr > td {
 }
 table.table-bordered > thead > tr > td {
     border:1px solid black;
-}
+}*/
 
 /* Queue */
-#queue {
+/*#queue {
   width: 100%; }
 
   #queue tbody .success td {
@@ -49,10 +68,10 @@ table.table-bordered > thead > tr > td {
 
   #queue tbody .danger td {
     background-color: #ffc5c5; }
-
+*/
 
 /* Progress */
-.actions {
+/*.actions {
   text-align: center;
 }
 
@@ -75,7 +94,7 @@ table.table.table-condensed > tbody > tr > td {
 .progress-thead>tr>th {
   background-color: whitesmoke;
   text-align: center;
-  position: -webkit-sticky; /* for Safari */
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   box-shadow: black 1px 0px 0 1px
@@ -83,7 +102,7 @@ table.table.table-condensed > tbody > tr > td {
 
 .leftmost {
   background-color: whitesmoke;
-  position: -webkit-sticky; /* for Safari */
+  position: -webkit-sticky;
   position: sticky;
   left: 0;
   box-shadow: black 0px 1px 0 1px;
@@ -117,8 +136,8 @@ table.table.table-condensed > tbody > tr > td {
 select {
   -webkit-appearance: menulist;
 }
-
-/* Management */
+*/
+/* Management *//*
 .list-group.list-group-root {
     padding: 0;
     overflow: hidden;
@@ -161,7 +180,6 @@ select {
     pointer-events:none;
 }
 .vertical-align-center {
-    /* To center vertically */
     display: table-cell;
     vertical-align: middle;
     pointer-events:none;
@@ -179,4 +197,4 @@ select {
 
 .answered table.table {
   background-color: lightgrey;
-}
+}*/

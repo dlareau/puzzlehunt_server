@@ -1,7 +1,6 @@
 from datetime import datetime
 from dateutil import tz
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseNotFound
@@ -20,12 +19,13 @@ from copy import deepcopy
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm, LookupForm
 from .utils import send_mass_email
+from .sites import huntserver_admin
 
 DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
-def add_apps_to_context(context, request):
-    context['available_apps'] = admin.site.get_app_list(request)
+def add_admin_context(context, request):
+    context.update(huntserver_admin.each_context(request))
     return context
 
 
@@ -97,7 +97,7 @@ def queue(request):
         context = {'form': form, 'page_info': submissions, 'arg_string': arg_string,
                    'submission_list': submission_list, 'last_date': last_date, 'hunt': hunt,
                    'puzzle_id': puzzle_id, 'team_id': team_id}
-        return render(request, 'queue.html', add_apps_to_context(context, request))
+        return render(request, 'queue.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -107,6 +107,7 @@ def progress(request):
     and render the progress page. Rendering the progress page is extremely data intensive and so
     the view involves a good amount of pre-fetching.
     """
+
 
     if request.method == 'POST':
         if "action" in request.POST:
@@ -179,33 +180,34 @@ def progress(request):
         # This array is essentially the grid on the progress page
         # The structure is messy, it was built part by part as features were added
 
+        now = timezone.now()
         sol_dict = {}
-        puzzle_dict = {}
-        for puzzle in puzzles:
-            puzzle_dict[puzzle.pk] = ['locked', puzzle.puzzle_id]
+        team_dict = {}
         for team in teams:
-            sol_dict[team.pk] = deepcopy(puzzle_dict)
+            team_dict[team.pk] = ['locked']
+        for puzzle in puzzles:
+            sol_dict[puzzle.pk] = deepcopy(team_dict)
 
         data = Unlock.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY')
-        data = data.values_list('team', 'puzzle').annotate(Max('time'))
+        data = data.values_list('puzzle', 'team').annotate(Max('time'))
 
         for point in data:
-            sol_dict[point[0]][point[1]] = ['unlocked', point[2]]
+            sol_dict[point[0]][point[1]] = ['unlocked', (now-point[2]).seconds]
 
         data = Submission.objects.filter(team__hunt=curr_hunt).exclude(team__location='DUMMY')
-        data = data.values_list('team', 'puzzle').annotate(Max('submission_time'))
+        data = data.values_list('puzzle', 'team').annotate(Max('submission_time'))
         data = data.annotate(Count('solve'))
 
         for point in data:
             if(point[3] == 0):
-                sol_dict[point[0]][point[1]].append(point[2])
+                sol_dict[point[0]][point[1]].append((now-point[2]).seconds)
             else:
-                sol_dict[point[0]][point[1]] = ['solved', point[2]]
+                sol_dict[point[0]][point[1]] = ['solved', (now-point[2]).seconds]
         sol_list = []
-        for team in teams:
-            puzzle_list = [[puzzle.puzzle_id] + sol_dict[team.pk][puzzle.pk] for puzzle in puzzles]
-            sol_list.append({'team': {'name': team.team_name, 'pk': team.pk},
-                             'puzzles': puzzle_list})
+        for puzzle in puzzles:
+            team_list = [[puzzle.puzzle_id] + sol_dict[puzzle.pk][team.pk] for team in teams]
+            sol_list.append({'puzzle': {'name': puzzle.puzzle_name, 'pk': puzzle.pk},
+                             'teams': team_list})
 
         try:
             last_solve_pk = Solve.objects.latest('id').id
@@ -222,7 +224,7 @@ def progress(request):
         context = {'puzzle_list': puzzles, 'team_list': teams, 'sol_list': sol_list,
                    'last_unlock_pk': last_unlock_pk, 'last_solve_pk': last_solve_pk,
                    'last_submission_pk': last_submission_pk}
-        return render(request, 'progress.html', add_apps_to_context(context, request))
+        return render(request, 'progress.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -359,7 +361,7 @@ def charts(request):
                'data5_list': solve_points, 'teams': teams, 'num_puzzles': num_puzzles,
                'chart_rows': results, 'puzzles': puzzles, 'data6_list': solve_time_data,
                'data7_list': puzzle_info_dict7}
-    return render(request, 'charts.html', add_apps_to_context(context, request))
+    return render(request, 'charts.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -421,7 +423,7 @@ def admin_chat(request):
     else:
         teams = curr_hunt.team_set.order_by(Lower("team_name")).all()
         context['teams'] = teams
-        return render(request, 'staff_chat.html', add_apps_to_context(context, request))
+        return render(request, 'staff_chat.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -431,7 +433,7 @@ def hunt_management(request):
     hunts = Hunt.objects.all()
     prepuzzles = Prepuzzle.objects.all()
     context = {'hunts': hunts, 'prepuzzles': prepuzzles}
-    return render(request, 'hunt_management.html', add_apps_to_context(context, request))
+    return render(request, 'hunt_management.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -473,7 +475,7 @@ def hunt_info(request):
                    'have_teams': have_teams.all(),
                    'offsite_teams': offsite_teams.all(),
                    }
-        return render(request, 'staff_hunt_info.html', add_apps_to_context(context, request))
+        return render(request, 'staff_hunt_info.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -606,7 +608,7 @@ def staff_hints_text(request):
         context = {'page_info': hints, 'hint_list': hint_list,  'arg_string': arg_string,
                    'last_date': last_date, 'hunt': hunt, 'puzzle_id': puzzle_id, 'team_id': team_id,
                    'hint_status': hint_status, "response_form": form}
-        return render(request, 'staff_hints.html', add_apps_to_context(context, request))
+        return render(request, 'staff_hints.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -666,7 +668,7 @@ def emails(request):
     else:
         email_form = EmailForm()
     context = {'email_list': ('<br>').join(email_list), 'email_form': email_form}
-    return render(request, 'email.html', add_apps_to_context(context, request))
+    return render(request, 'email.html', add_admin_context(context, request))
 
 
 @staff_member_required
@@ -705,4 +707,4 @@ def lookup(request):
         results = {}
     context = {'lookup_form': lookup_form, 'results': results, 'person': person, 'team': team,
                'curr_hunt': curr_hunt}
-    return render(request, 'lookup.html', add_apps_to_context(context, request))
+    return render(request, 'lookup.html', add_admin_context(context, request))
