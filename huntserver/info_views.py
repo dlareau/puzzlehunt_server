@@ -43,7 +43,9 @@ def registration(request):
             elif(re.match(".*[A-Za-z0-9].*", request.POST.get("team_name"))):
                 join_code = ''.join(random.choice("ACDEFGHJKMNPRSTUVWXYZ2345679") for _ in range(5))
                 team = Team.objects.create(team_name=request.POST.get("team_name"), hunt=curr_hunt,
-                                           location=request.POST.get("need_room"),
+                                           # location=request.POST.get("need_room"),
+                                           location="remote",
+                                           is_local=(request.POST.get("team_is_local") is not None),
                                            join_code=join_code)
                 request.user.person.teams.add(team)
                 logger.info("User %s created team %s" % (str(request.user), str(team)))
@@ -76,6 +78,13 @@ def registration(request):
             logger.info("User %s changed the location for team %s from %s to %s" %
                         (str(request.user), str(team.team_name), old_location, team.location))
             messages.success(request, "Location successfully updated")
+        elif(request.POST["form_type"] == "new_affiliation" and team is not None):
+            old_affiliation = team.is_local
+            team.is_local = (request.POST.get("team_is_local") is not None)
+            team.save()
+            logger.info("User %s changed the affiliation for team %s from %s to %s" %
+                        (str(request.user), str(team.team_name), old_affiliation, team.is_local))
+            messages.success(request, "Affiliation successfully updated")
         elif(request.POST["form_type"] == "new_name" and team is not None and
                 not team.hunt.in_reg_lockdown):
             if(curr_hunt.team_set.filter(team_name__iexact=request.POST.get("team_name")).exists()):

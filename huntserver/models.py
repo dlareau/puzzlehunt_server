@@ -127,6 +127,15 @@ class Hunt(models.Model):
         self.full_clean()
         if self.is_current_hunt:
             Hunt.objects.filter(is_current_hunt=True).update(is_current_hunt=False)
+        if(self.resource_file.name == "" and self.pk):
+            old_obj = Hunt.objects.get(pk=self.pk)
+            if(old_obj.resource_file.name != ""):
+                extension = old_obj.resource_file.name.split('.')[-1]
+                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
+                if(extension == "zip"):
+                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                if os.path.exists(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)):
+                    os.remove(os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name))
         super(Hunt, self).save(*args, **kwargs)
 
     @property
@@ -218,11 +227,37 @@ class Puzzle(models.Model):
     PDF_PUZZLE = 'PDF'
     LINK_PUZZLE = 'LNK'
     WEB_PUZZLE = 'WEB'
+    EMBED_PUZZLE = 'EMB'
 
     puzzle_page_type_choices = [
         (PDF_PUZZLE, 'Puzzle page displays a PDF'),
         (LINK_PUZZLE, 'Puzzle page links a webpage'),
         (WEB_PUZZLE, 'Puzzle page displays a webpage'),
+        (EMBED_PUZZLE, 'Puzzle is html embedded in the webpage'),
+    ]
+
+    STANDARD_PUZZLE = 'STD'
+    META_PUZZLE = 'MET'
+    FINAL_PUZZLE = 'FIN'
+    NON_PUZZLE = 'NON'
+
+    puzzle_type_choices = [
+        (STANDARD_PUZZLE, 'Standard'),
+        (META_PUZZLE, 'Meta'),
+        (FINAL_PUZZLE, 'Final'),
+        (NON_PUZZLE, 'Non-puzzle'),
+    ]
+
+    ANSWER_STRICT = 'STR'
+    ANSWER_ANY_CASE = 'ACA'
+    ANSWER_CASE_AND_SPACES = 'CAS'
+    ANSWER_ANYTHING = "ANY"
+
+    answer_validation_choices = [
+        (ANSWER_STRICT, 'Strict: Only uppercase A-Z'),
+        (ANSWER_ANY_CASE, 'Case sensitive, no spaces'),
+        (ANSWER_CASE_AND_SPACES, 'Case sensitive, spaces allowed'),
+        (ANSWER_ANYTHING, 'Anything: Full unicode, any case'),
     ]
 
     hunt = models.ForeignKey(
@@ -241,20 +276,20 @@ class Puzzle(models.Model):
     answer = models.CharField(
         max_length=100,
         help_text="The answer to the puzzle, not case sensitive")
-    is_meta = models.BooleanField(
-        default=False,
-        verbose_name="Is a metapuzzle",
-        help_text="Is this puzzle a meta-puzzle?")
+    puzzle_type = models.CharField(
+        max_length=3,
+        choices=puzzle_type_choices,
+        default=STANDARD_PUZZLE,
+        blank=False,
+        help_text="The type of puzzle."
+    )
     puzzle_page_type = models.CharField(
         max_length=3,
         choices=puzzle_page_type_choices,
-        default=WEB_PUZZLE,
+        default=EMBED_PUZZLE,
         blank=False,
         help_text="The type of webpage for this puzzle."
     )
-    doesnt_count = models.BooleanField(
-        default=False,
-        help_text="Should this puzzle not count towards scoring?")
     puzzle_file = models.FileField(
         upload_to=get_puzzle_file_path,
         storage=PuzzleOverwriteStorage(),
@@ -266,7 +301,7 @@ class Puzzle(models.Model):
         blank=True,
         help_text="Puzzle resources, MUST BE A ZIP FILE.")
     solution_is_webpage = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Is this solution an html webpage?")
     solution_file = models.FileField(
         upload_to=get_solution_file_path,
@@ -282,6 +317,13 @@ class Puzzle(models.Model):
         max_length=200,
         blank=True,
         help_text="A misc. field for any extra data to be stored with the puzzle.")
+    answer_validation_type = models.CharField(
+        max_length=3,
+        choices=answer_validation_choices,
+        default=ANSWER_STRICT,
+        blank=False,
+        help_text="The type of answer validation used for this puzzle."
+    )
 
     # Unlocking:
     unlock_type = models.CharField(
@@ -306,46 +348,38 @@ class Puzzle(models.Model):
         default=0,
         help_text="The number of points this puzzle grants upon solving.")
 
+
+
     # Overridden to delete old files on clear
     def save(self, *args, **kwargs):
+        check_attrs = ["puzzle_file", "resource_file", "solution_file", "solution_resource_file"]
         if(self.pk):
-            # TODO: Clean up this repetitive code
             old_obj = Puzzle.objects.get(pk=self.pk)
-            if(self.puzzle_file.name == "" and old_obj.puzzle_file.name != ""):
-                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.puzzle_file.name)
-                extension = old_obj.puzzle_file.name.split('.')[-1]
-                folder = "".join(old_obj.puzzle_file.name.split('.')[:-1])
-                if(extension == "zip"):
-                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-                if os.path.exists(full_name):
-                    os.remove(full_name)
-            if(self.resource_file.name == "" and old_obj.resource_file.name != ""):
-                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.resource_file.name)
-                extension = old_obj.resource_file.name.split('.')[-1]
-                folder = "".join(old_obj.resource_file.name.split('.')[:-1])
-                if(extension == "zip"):
-                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-                if os.path.exists(full_name):
-                    os.remove(full_name)
-            if(self.solution_file.name == "" and old_obj.solution_file.name != ""):
-                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.solution_file.name)
-                extension = old_obj.solution_file.name.split('.')[-1]
-                folder = "".join(old_obj.solution_file.name.split('.')[:-1])
-                if(extension == "zip"):
-                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-                if os.path.exists(full_name):
-                    os.remove(full_name)
-            old_name = old_obj.solution_resource_file.name
-            if(self.solution_resource_file.name == "" and old_name != ""):
-                full_name = os.path.join(settings.MEDIA_ROOT, old_obj.solution_resource_file.name)
-                extension = old_obj.solution_resource_file.name.split('.')[-1]
-                folder = "".join(old_obj.solution_resource_file.name.split('.')[:-1])
-                if(extension == "zip"):
-                    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
-                if os.path.exists(full_name):
-                    os.remove(full_name)
+            for attr in check_attrs:
+                file = getattr(self, attr)
+                old_file = getattr(old_obj, attr)
+
+                if(file.name == "" and old_file.name != ""):
+                    full_name = os.path.join(settings.MEDIA_ROOT, old_file.name)
+                    extension = old_file.name.split('.')[-1]
+                    folder = "".join(old_file.name.split('.')[:-1])
+                    if(extension == "zip"):
+                        shutil.rmtree(os.path.join(settings.MEDIA_ROOT, folder), ignore_errors=True)
+                    if os.path.exists(full_name):
+                        os.remove(full_name)
 
         super(Puzzle, self).save(*args, **kwargs)
+
+    def clean(self):
+        if not (self.puzzle_file.name.lower().endswith(".pdf") or self.puzzle_file.name == ""):
+            raise ValidationError('Puzzle files must be a .pdf file')
+        if not (self.solution_file.name.lower().endswith(".pdf") or self.solution_file.name == ""):
+            raise ValidationError('Solution files must be a .pdf file')
+        if not (self.resource_file.name.lower().endswith(".zip") or self.resource_file.name == ""):
+            raise ValidationError('Resource files must be a .zip file')
+        if not (self.solution_resource_file.name.lower().endswith(".zip") or
+                self.solution_resource_file.name == ""):
+            raise ValidationError('Solution resource files must be a .zip file')
 
     def serialize_for_ajax(self):
         """ Serializes the ID, puzzle_number and puzzle_name fields for ajax transmission """
@@ -367,6 +401,18 @@ class Puzzle(models.Model):
 @python_2_unicode_compatible
 class Prepuzzle(models.Model):
     """ A class representing a pre-puzzle within a hunt """
+
+    ANSWER_STRICT = 'STR'
+    ANSWER_ANY_CASE = 'ACA'
+    ANSWER_CASE_AND_SPACES = 'CAS'
+    ANSWER_ANYTHING = "ANY"
+
+    answer_validation_choices = [
+        (ANSWER_STRICT, 'Strict: Only uppercase A-Z'),
+        (ANSWER_ANY_CASE, 'Case sensitive, no spaces'),
+        (ANSWER_CASE_AND_SPACES, 'Case sensitive, spaces allowed'),
+        (ANSWER_ANYTHING, 'Anything: Full unicode, any case'),
+    ]
 
     puzzle_name = models.CharField(
         max_length=200,
@@ -394,6 +440,13 @@ class Prepuzzle(models.Model):
     response_string = models.TextField(
         default="",
         help_text="Data returned to the webpage for use upon solving.")
+    answer_validation_type = models.CharField(
+        max_length=3,
+        choices=answer_validation_choices,
+        default=ANSWER_STRICT,
+        blank=False,
+        help_text="The type of answer validation used for this puzzle."
+    )
 
     def __str__(self):
         if(self.hunt):
@@ -403,7 +456,7 @@ class Prepuzzle(models.Model):
 
     # Overridden to delete old files on clear
     def save(self, *args, **kwargs):
-        if(self.resource_file.name == ""):
+        if(self.pk and self.resource_file.name == ""):
             old_obj = Prepuzzle.objects.get(pk=self.pk)
             if(old_obj.resource_file.name != ""):
                 extension = old_obj.resource_file.name.split('.')[-1]
@@ -456,6 +509,9 @@ class Team(models.Model):
         max_length=80,
         blank=True,
         help_text="The physical location that the team is solving at")
+    is_local = models.BooleanField(
+        default=False,
+        help_text="Is this team from CMU (or your organization)")
     join_code = models.CharField(
         max_length=5,
         help_text="The 5 character random alphanumeric password needed for a user to join a team")
@@ -649,6 +705,14 @@ class Person(models.Model):
             return name
 
     @property
+    def full_name(self):
+        name = self.user.first_name + " " + self.user.last_name
+        if(name == " "):
+            return "Anonymous User"
+        else:
+            return name
+
+    @property
     def formatted_phone_number(self):
         match = re.match("(?:\\+?1 ?-?)?\\(?([0-9]{3})\\)?-? ?([0-9]{3})-? ?([0-9]{4})", self.phone)
         if(match):
@@ -682,7 +746,7 @@ class Submission(models.Model):
         """ Serializes the time, puzzle, team, and status fields for ajax transmission """
         message = dict()
         df = DateFormat(self.submission_time.astimezone(time_zone))
-        message['time_str'] = df.format("h:i a")
+        message['time_str'] = df.format("m/d") + "<br>" + df.format("h:i A")
         message['puzzle'] = self.puzzle.serialize_for_ajax()
         message['team_pk'] = self.team.pk
         message['status_type'] = "submission"
@@ -691,7 +755,10 @@ class Submission(models.Model):
     @property
     def is_correct(self):
         """ A boolean indicating if the submission given is exactly correct """
-        return self.submission_text.upper() == self.puzzle.answer.upper()
+        if(self.puzzle.answer_validation_type == Puzzle.ANSWER_STRICT):
+            return self.submission_text.upper() == self.puzzle.answer.upper()
+        else:
+            return self.submission_text == self.puzzle.answer
 
     @property
     def convert_markdown_response(self):
@@ -705,28 +772,25 @@ class Submission(models.Model):
 
     def create_solve(self):
         """ Creates a solve based on this submission """
-        Solve.objects.create(puzzle=self.puzzle, team=self.team, submission=self)
-        logger.info("Team %s correctly solved puzzle %s" % (str(self.team.team_name),
-                                                            str(self.puzzle.puzzle_id)))
+
+        # Make sure we don't have duplicate submission objects
+        if(self.puzzle not in self.team.solved.all()):
+            Solve.objects.create(puzzle=self.puzzle, team=self.team, submission=self)
+            logger.info("Team %s correctly solved puzzle %s" % (str(self.team.team_name),
+                                                                str(self.puzzle.puzzle_id)))
+            t = self.team
+            t.num_unlock_points = models.F('num_unlock_points') + self.puzzle.points_value
+            t.save()
+            t.refresh_from_db()
+            t.unlock_puzzles()
+            t.unlock_hints()  # The one and only place to call unlock hints
 
     # Automatic submission response system
     # Returning an empty string means that huntstaff should respond via the queue
     # Order of response importance: Regex, Defaults, Staff response.
     def respond(self):
         """ Takes the submission's text and uses various methods to craft and populate a response.
-            If the response is correct a solve is created and the correct puzzles are unlocked """
-        # Compare against correct answer
-        if(self.is_correct):
-            # Make sure we don't have duplicate or after hunt submission objects
-            if(not self.puzzle.hunt.is_public):
-                if(self.puzzle not in self.team.solved.all()):
-                    self.create_solve()
-                    t = self.team
-                    t.num_unlock_points = models.F('num_unlock_points') + self.puzzle.points_value
-                    t.save()
-                    t.refresh_from_db()
-                    t.unlock_puzzles()
-                    t.unlock_hints()  # The one and only place to call unlock hints
+            If the response is correct, a solve is created and the correct puzzles are unlocked """
 
         # Check against regexes
         for resp in self.puzzle.response_set.all():
@@ -744,7 +808,6 @@ class Submission(models.Model):
                              str(self.puzzle.puzzle_id)))
 
         self.response_text = response
-        self.save()
 
     def update_response(self, text):
         """ Updates the response with the given text """
@@ -784,7 +847,7 @@ class Solve(models.Model):
         message['team_pk'] = self.team.pk
         time = self.submission.submission_time
         df = DateFormat(time.astimezone(time_zone))
-        message['time_str'] = df.format("h:i a")
+        message['time_str'] = df.format("m/d") + "<br>" + df.format("h:i A")
         message['status_type'] = "solve"
         return message
 
@@ -915,6 +978,27 @@ class Hint(models.Model):
         help_text="Hint response time")
     last_modified_time = models.DateTimeField(
         help_text="Last time of modification")
+    responder = models.ForeignKey(
+        Person,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Staff member that has claimed the hint.")
+
+    @property
+    def answered(self):
+        """ A boolean indicating if the hint has been answered """
+        return self.response != ""
+
+    @property
+    def status(self):
+        """ A string indicating the status of the hint """
+        if(self.answered):
+            return "answered"
+        elif(self.responder):
+            return "claimed"
+        else:
+            return "unclaimed"
 
     def __str__(self):
         return (self.team.short_name + ": " + self.puzzle.puzzle_name +

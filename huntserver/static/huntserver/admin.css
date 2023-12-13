@@ -173,3 +173,10 @@ select {
     margin: 0 auto;
     pointer-events: all;
 }
+.claimed table.table {
+  background-color: lightpink;
+}
+
+.answered table.table {
+  background-color: lightgrey;
+}

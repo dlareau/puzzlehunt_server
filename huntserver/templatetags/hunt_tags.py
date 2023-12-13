@@ -2,7 +2,8 @@ from django import template
 from django.conf import settings
 from django.template import Template, Context
 from huntserver.models import Hunt
-from datetime import datetime
+from django.utils import timezone
+from huntserver.utils import get_puzzle_answer_regex, get_validation_error
 register = template.Library()
 
 
@@ -19,6 +20,11 @@ def site_title(context):
 @register.simple_tag(takes_context=True)
 def contact_email(context):
     return settings.CONTACT_EMAIL
+
+
+@register.simple_tag(takes_context=True)
+def chat_enabled(context):
+    return settings.CHAT_ENABLED
 
 
 @register.filter()
@@ -44,7 +50,7 @@ def set_hunts(parser, token):
 
 class HuntsEventNode(template.Node):
     def render(self, context):
-        old_hunts = Hunt.objects.filter(end_date__lt=datetime.now()).exclude(is_current_hunt=True)
+        old_hunts = Hunt.objects.filter(end_date__lt=timezone.now()).exclude(is_current_hunt=True)
         context['tmpl_hunts'] = old_hunts.order_by("-hunt_number")[:5]
         return ''
 
@@ -72,6 +78,16 @@ def hints_open(team, puzzle):
     if(team is None or puzzle is None):
         return False
     return team.hints_open_for_puzzle(puzzle)
+
+
+@register.simple_tag()
+def puzzle_answer_regex(puzzle):
+    return get_puzzle_answer_regex(puzzle.answer_validation_type)
+
+
+@register.simple_tag()
+def puzzle_validation_error(puzzle):
+    return get_validation_error(puzzle.answer_validation_type)
 
 
 @register.simple_tag(takes_context=True)

@@ -16,7 +16,18 @@ following steps to get a sample server up and going
    uncommented lines. Other lines can be safely ignored as they only provide
    additional functionality.
 5. Run ``docker-compose up`` (possibly using ``sudo`` if needed)
-6. You should now have the server running on a newly created VM, accessible via
+6. Once up, you'll need to run the following commands to collect all the static
+   files (to be run any time after you alter the static files), to load in an
+   initial hunt to pacify some of the display logic (to be run only once), and
+   to create a new admin user (follow the prompts).
+
+.. code-block:: bash
+
+  docker-compose exec app python3 /code/manage.py collectstatic --noinput
+  docker-compose exec app python3 /code/manage.py loaddata initial_hunt
+  docker-compose exec app python3 /code/manage.py createsuperuser
+
+7. You should now have the server running on a newly created VM, accessible via
    (http://localhost). The repository you cloned has been
    linked into the VM by docker, so any changes made to the repository on the
    host system should show up automatically. (A ``docker-compose restart`` may

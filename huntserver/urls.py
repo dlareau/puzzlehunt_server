@@ -44,6 +44,8 @@ urlpatterns = [
 
     # Hunt Pages
     url(r'^puzzle/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_view, name='puzzle'),
+    url(r'^(?P<file_path>puzzle/[0-9a-fA-F]{3,5}/.+)$', hunt_views.protected_static,
+        name='protected_static_2'),
     url(r'^hints/(?P<puzzle_id>[0-9a-fA-F]{3,5})/$', hunt_views.puzzle_hint, name='puzzle_hint'),
     url(r'^hunt/(?P<hunt_num>[0-9]+)/$', hunt_views.hunt, name='hunt'),
     url(r'^hunt/current/$', hunt_views.current_hunt, name='current_hunt'),
@@ -53,6 +55,8 @@ urlpatterns = [
     url(r'^hunt/current/prepuzzle/$', hunt_views.current_prepuzzle, name='current_prepuzzle'),
     url(r'^chat/$', hunt_views.chat, name='chat'),
     url(r'^chat/status/$', hunt_views.chat_status, name='chat_status'),
+    url(r'^leaderboard/$', hunt_views.leaderboard, name='leaderboard'),
+    url(r'^leaderboard/(?P<criteria>.+)/$', hunt_views.leaderboard, name='leaderboard'),
     url(r'^objects/$', hunt_views.unlockables, name='unlockables'),
     url(r'^protected/(?P<file_path>.+)$', hunt_views.protected_static, name='protected_static'),
 

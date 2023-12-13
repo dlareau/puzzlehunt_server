@@ -6,6 +6,7 @@
 <h2>Change User Details</h2>
 <form method="POST">
   {% csrf_token %}
+  <p>None of the information collected here will be displayed publicly.</p>
   <div>
     {{ user_form|crispy }}
     {{ person_form|crispy }}

@@ -17,6 +17,12 @@ $(document).ready(function() {
     e.preventDefault();
     team  = $(this).attr('data-team');
     value = $(this).attr('data-value');
+    if(team == "all_teams"){
+      var r = confirm("Please confirm you want to add/remove a hint for all teams.");
+      if (r != true) {
+        return
+      }
+    }
     $.post("/staff/hints/control/",
       {action:'update', 'team_pk': team, value: value, csrfmiddlewaretoken: csrf_token},
       function( data ) {
@@ -65,6 +71,7 @@ $(document).ready(function() {
             }
             $('.sub_form').on('submit', formListener);
           };
+          $('.claim-btn').on('click', claimListener);
           last_date = response.last_date;
         }
       },
@@ -88,7 +95,7 @@ $(document).ready(function() {
       }
     });
   }
-  setInterval(get_posts, 30000);
+  setInterval(get_posts, 10000);
 
   function formListener(e) {
     e.preventDefault();
@@ -109,16 +116,43 @@ $(document).ready(function() {
     $('#formModal').modal('hide');
   }
 
+  function claimListener(e) {
+    var hint_id = $(this).data('id')
+    $.ajax({
+      url : window.location.pathname,
+      type: "POST",
+      data: {"claim": true, "hint_id": $(this).data('id'), csrfmiddlewaretoken: csrf_token},
+      error: function (jXHR, textStatus, errorThrown) {
+        console.log(jXHR.responseText);
+      },
+      success: function (response) {
+        response = JSON.parse(response);
+        $("[data-id=" + hint_id + "]").replaceWith($(response.hint_list[0]))
+        last_date = response.last_date;
+        if(response.claim_failed) {
+          $('#formModal').modal('hide');
+        }
+      }
+    });
+  }
+
+  $('.claim-btn').on('click', claimListener);
+
   $('#formModal').on('show.bs.modal', function (event) {
+    var regex = /<br\s*[\/]?>/gi;
     var button = $(event.relatedTarget);
     var modal = $(this);
     var hint_request = button.parent().parent().parent();
     var title = hint_request.find(".hint-title");
     var response = hint_request.find(".hint-response");
     var outer_row = hint_request.parent().parent().parent();
-    modal.find('.modal-title').html(title.html());
-    modal.find('.modal-body #modal-hint-text').text(hint_request.find(".hint-text").text());
-    modal.find('.modal-body #id_response').val(response.text());
+    if(outer_row.data("status") == 'claimed' && outer_row.data("owner") != staff_user) {
+      modal.find('.modal-title').html("<b style='color: red;'>WARNING: RESPONDING TO OTHER USER'S CLAIMED HINT</b><br>" + title.html());
+    } else {
+      modal.find('.modal-title').html(title.html());
+    }
+    modal.find('.modal-body #modal-hint-text').html(hint_request.find(".hint-text").html());
+    modal.find('.modal-body #id_response').val(response.html().replace(regex, "\n"));
     modal.find('.modal-body #id_hint_id').val(outer_row.data("id"));
   })
 

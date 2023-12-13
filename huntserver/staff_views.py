@@ -3,9 +3,8 @@ from dateutil import tz
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -20,6 +19,7 @@ from copy import deepcopy
 
 from .models import Submission, Hunt, Team, Puzzle, Unlock, Solve, Message, Prepuzzle, Hint, Person
 from .forms import SubmissionForm, UnlockForm, EmailForm, HintResponseForm, LookupForm
+from .utils import send_mass_email
 
 DT_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -352,7 +352,7 @@ def charts(request):
                                                             'puzzle__puzzle_name',
                                                             'team__team_name',
                                                             'submission__submission_time')
-    results = list(results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_id'))
+    results = list(results.annotate(Count('puzzle__solve')).order_by('puzzle__puzzle_number'))
 
     context = {'data1_list': puzzle_info_dict1, 'data2_list': puzzle_info_dict2,
                'data3_list': submission_hours, 'data4_list': solve_hours,
@@ -528,16 +528,27 @@ def staff_hints_text(request):
     and render the hint page. Hints are pre-rendered for standard and AJAX requests.
     """
 
+    claim_failed = False
     if request.method == 'POST':
-        form = HintResponseForm(request.POST)
-        if not form.is_valid():
-            return HttpResponse(status=400)
-        h = Hint.objects.get(pk=form.cleaned_data['hint_id'])
-        h.response = form.cleaned_data['response']
-        h.response_time = timezone.now()
-        h.last_modified_time = timezone.now()
-        h.save()
-        hints = [h]
+        if("claim" in request.POST and "hint_id" in request.POST):
+            h = Hint.objects.get(pk=request.POST.get("hint_id"))
+            if(not h.responder):
+                h.responder = request.user.person
+                h.last_modified_time = timezone.now()
+                h.save()
+            else:
+                claim_failed = True
+            hints = [h]
+        else:
+            form = HintResponseForm(request.POST)
+            if not form.is_valid():
+                return HttpResponse(status=400)
+            h = Hint.objects.get(pk=form.cleaned_data['hint_id'])
+            h.response = form.cleaned_data['response']
+            h.response_time = timezone.now()
+            h.last_modified_time = timezone.now()
+            h.save()
+            hints = [h]
     else:
         team_id = request.GET.get("team_id")
         hint_status = request.GET.get("hint_status")
@@ -556,8 +567,10 @@ def staff_hints_text(request):
         if(hint_status):
             if(hint_status == "answered"):
                 hints = hints.exclude(response="")
-            elif(hint_status == "unanswered"):
-                hints = hints.filter(response="")
+            elif(hint_status == "claimed"):
+                hints = hints.exclude(responder=None).filter(response="")
+            elif(hint_status == "unclaimed"):
+                hints = hints.filter(responder=None).filter(response="")
             arg_string = arg_string + ("&hint_status=%s" % hint_status)
         if(request.is_ajax()):
             last_date = datetime.strptime(request.GET.get("last_date"), DT_FORMAT)
@@ -586,7 +599,7 @@ def staff_hints_text(request):
                                           request=request))
 
     if request.is_ajax() or request.method == 'POST':
-        context = {'hint_list': hint_list, 'last_date': last_date}
+        context = {'hint_list': hint_list, 'last_date': last_date, 'claim_failed': claim_failed}
         return HttpResponse(json.dumps(context))
     else:
         form = HintResponseForm()
@@ -602,24 +615,31 @@ def staff_hints_control(request):
     A view to handle the incrementing, decrementing, and updating the team hint counts on
     the hints staff page.
     """
+    hunt = Hunt.objects.get(is_current_hunt=True)
 
     if request.is_ajax():
         if("action" in request.POST and "value" in request.POST and "team_pk" in request.POST):
             if(request.POST.get("action") == "update"):
                 try:
                     update_value = int(request.POST.get("value"))
-                    team_pk = int(request.POST.get("team_pk"))
-                    team = Team.objects.get(pk=team_pk)
-                    if(team.num_available_hints + update_value >= 0):
-                        team.num_available_hints = F('num_available_hints') + update_value
-                        team.save()
+                    team_pk = request.POST.get("team_pk")
+                    if(team_pk == "all_teams"):
+                        for team in hunt.team_set.all():
+                            if(team.num_available_hints + update_value >= 0):
+                                team.num_available_hints = F('num_available_hints') + update_value
+                                team.save()
+                    else:
+                        team_pk = int(team_pk)
+                        team = Team.objects.get(pk=team_pk)
+                        if(team.num_available_hints + update_value >= 0):
+                            team.num_available_hints = F('num_available_hints') + update_value
+                            team.save()
 
                 except ValueError:
                     pass  # Maybe a 4XX or 5XX in the future
     else:
         return HttpResponse("Incorrect usage of hint control page")
 
-    hunt = Hunt.objects.get(is_current_hunt=True)
     return HttpResponse(json.dumps(list(hunt.team_set.values_list('pk', 'num_available_hints'))))
 
 
@@ -641,14 +661,11 @@ def emails(request):
         if email_form.is_valid():
             subject = email_form.cleaned_data['subject']
             message = email_form.cleaned_data['message']
-            email_to_chunks = [email_list[x: x + 80] for x in range(0, len(email_list), 80)]
-            for to_chunk in email_to_chunks:
-                email = EmailMessage(subject, message, 'puzzlehuntcmu@gmail.com', [], to_chunk)
-                email.send()
-            return HttpResponseRedirect('')
+            task_id = send_mass_email(email_list, subject, message)
+            return HttpResponse(task_id.id)
     else:
         email_form = EmailForm()
-    context = {'email_list': (', ').join(email_list), 'email_form': email_form}
+    context = {'email_list': ('<br>').join(email_list), 'email_form': email_form}
     return render(request, 'email.html', add_apps_to_context(context, request))
 
 
@@ -673,7 +690,8 @@ def lookup(request):
             team = Team.objects.get(pk=request.GET.get("team_pk"))
             team.latest_submissions = team.submission_set.values_list('puzzle')
             team.latest_submissions = team.latest_submissions.annotate(Max('submission_time'))
-            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'), puzzle__is_meta=True).order_by()
+            sq1 = Solve.objects.filter(team__pk=OuterRef('pk'),
+                                       puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
             sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
             sq1 = Subquery(sq1, output_field=PositiveIntegerField())
             all_teams = team.hunt.team_set.annotate(metas=sq1, solves=Count('solved'))

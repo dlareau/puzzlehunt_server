@@ -15,7 +15,6 @@ function check_answer(callback, user_answer) {
     data: {answer: user_answer,
            csrfmiddlewaretoken: "{{ csrf_token }}" },
     error: function (jXHR, textStatus, errorThrown) {
-      console.log(jXHR.responseText);
       alert(errorThrown);
     },
     success: function (response) {

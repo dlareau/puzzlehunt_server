@@ -1,8 +1,9 @@
 from django import forms
-from .models import Person
+from .models import Person, Puzzle
+from .utils import get_puzzle_answer_regex, get_validation_error, strip_puzzle_answer
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout
+from crispy_forms.layout import Submit, Layout, Hidden
 from crispy_forms.bootstrap import StrictButton, InlineField
 from django.core.exceptions import ValidationError
 import re
@@ -13,6 +14,7 @@ class AnswerForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         disable_form = kwargs.pop('disable_form', False)
+        self.validation_type = kwargs.pop('validation_type', Puzzle.ANSWER_STRICT)
         super(AnswerForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'form-inline'
@@ -30,13 +32,15 @@ class AnswerForm(forms.Form):
                 StrictButton('Submit', value="submit", type="submit", css_class='btn btn-default')
             )
 
-    def clean_answer(self):
-        # Currently the desire is to strip all non A-Z characters (Github issue #129)
-        new_cleaned_data = re.sub(r"[^A-Z]", "", self.cleaned_data.get('answer').upper())
-        if(new_cleaned_data == ""):
-            raise ValidationError("Submission was empty after stripping non A-Z characters",
-                                  code='all_spaces')
-        return new_cleaned_data
+    def clean(self):
+        data = self.cleaned_data
+        if(self.validation_type == Puzzle.ANSWER_STRICT):
+            data['answer'] = data.get('answer').upper()
+        data['answer'] = strip_puzzle_answer(data.get('answer'), self.validation_type)
+        if(re.fullmatch(get_puzzle_answer_regex(self.validation_type), data.get('answer')) is None):
+            print("error", get_puzzle_answer_regex(self.validation_type), data.get('answer'))
+            self.add_error('answer', forms.ValidationError(get_validation_error(self.validation_type)))
+        return data
 
 
 class SubmissionForm(forms.Form):

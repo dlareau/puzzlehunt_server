@@ -161,8 +161,6 @@ LOGGING = {
 CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
 
 # Environment variable overrides
 if os.environ.get("ENABLE_DEBUG_EMAIL"):
@@ -170,6 +168,11 @@ if os.environ.get("ENABLE_DEBUG_EMAIL"):
     EMAIL_FILE_PATH = '/tmp/test_folder'
 
 if os.environ.get("ENABLE_DEBUG_TOOLBAR"):
+    DEBUG_TOOLBAR_PANELS = (
+      'debug_toolbar.panels.version.VersionDebugPanel',
+      'debug_toolbar.panels.timer.TimerDebugPanel',
+      'debug_toolbar.panels.profiling.ProfilingDebugPanel',
+    )
     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
     MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE
 

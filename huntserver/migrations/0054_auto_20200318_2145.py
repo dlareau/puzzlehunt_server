@@ -12,7 +12,7 @@ def setup_pages(apps, schema_editor):
     try:
         our_site = Site.objects.get(pk=1)
     except:
-        our_site = Site.objects.create(domain=settings.DOMAIN, name=settings.DOMAIN)
+        our_site = Site.objects.create(domain=settings.DOMAIN, name=settings.SITE_TITLE)
 
         source = get_template("contact_us.html").template.source.split("</readme> -->")[1]
         fp = FlatPage.objects.create(url='/contact-us/', title='Contact Us', content=source)

@@ -1,4 +1,4 @@
-<tr data-id='{{hint.pk}}'>
+<tr data-id='{{hint.pk}}' data-owner='{{hint.responder.user.username}}' data-status='{{hint.status}}' class='{{hint.status}}'>
     <td>
         <table class="table table-bordered hint_table">
             <tr>
@@ -16,7 +16,7 @@
                         </b>
                     </div>
                     <div class="hint-text">
-                        {{ hint.request }}
+                        {{ hint.request|linebreaksbr }}
                     </div>
                 </td>
             </tr>
@@ -26,24 +26,40 @@
                     {% if hint.response %}
                         <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
                         <td>
-                            <div class="hint-response">{{ hint.response }}</div>
+                            <div class="hint-response">{{ hint.response|linebreaksbr }}</div>
                             <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#formModal">
                               Edit response
                             </button>
                         </td>
                     {% else %}
-                        <td width="100px"></td>
+                        <td width="150px">
+                            {% if hint.responder %}
+                            <i>CLAIMED BY <br> {{hint.responder.full_name}}</i>
+                            {% endif %}
+                        </td>
                         <td>
+                            {% if not hint.responder %}
                             <div class="hint-response"></div>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+                            <button type="button" class="btn btn-primary claim-btn" data-id='{{hint.pk}}' data-toggle="modal" data-target="#formModal">
+                              Claim/Respond
+                            </button>
+                            {% elif hint.responder.user == request.user %}
+                            <div class="hint-response"></div>
+                            <button type="button" class="btn btn-primary" data-id='{{hint.pk}}' data-toggle="modal" data-target="#formModal">
                               Respond to hint
                             </button>
+                            {% else %}
+                            <div class="hint-response"></div>
+                            <button type="button" class="btn btn-danger" data-id='{{hint.pk}}' data-toggle="modal" data-target="#formModal">
+                              Respond Anyway
+                            </button>
+                            {% endif %}
                         </td>
                     {% endif %}
                 {% else %}
                     {% if hint.response %}
                         <td width="100px">{{ hint.response_time|time:"h:i a" }}</td>
-                        <td>{{ hint.response }}</td>
+                        <td>{{ hint.response|linebreaksbr }}</td>
                     {% else %}
                         <td width="100px"></td>
                         <td><b>No response yet.</b></td>

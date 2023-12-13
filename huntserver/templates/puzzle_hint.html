@@ -22,6 +22,9 @@
 	{% if not puzzle.hunt.is_public %}
         <h3 id="num_available_hints">You currently have {{team.num_available_hints}} available hint{{team.num_available_hints|pluralize}} for this hunt</h3>
 	{% endif %}
+        <a href='/puzzle/{{ puzzle.puzzle_id }}/'>
+          <h4 style="margin-bottom: -10px">Back to Puzzle Page</h4>
+        </a>
       </div>
     </div>
     {% if not puzzle.hunt.is_public %}
@@ -41,6 +44,7 @@
     <br>
     <div class="col-md-12">
       <h3>Previous Hint Requests: </h3>
+      <p>Hint responses will show up below automatically once your hint has been answered.</p>
         <table id="hint_table" class="table">
         {% if hint_list %}
           {% for hint in hint_list reversed %}

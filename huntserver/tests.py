@@ -164,7 +164,7 @@ class InfoTests(TestCase):
         "Test the registration page's join team functionality"
         login(self, 'user6')
         post_context = {"form_type": "new_team", "team_name": "new_team",
-                        "need_room": "need_a_room"}
+                        "need_room": "remote"}
         response = self.client.post(reverse('huntserver:registration'), post_context)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['user'].person.teams.all()), 1)
@@ -393,9 +393,9 @@ class HuntTests(TestCase):
         login(self, 'user2')
         post_context = {'answer': "Wrong Answer"}
         for i in range(20):
-            response = self.client.post(reverse('huntserver:puzzle', kwargs={"puzzle_id": "101"}),
+            response = self.client.post(reverse('huntserver:puzzle', kwargs={"puzzle_id": "201"}),
                                         post_context)
-        response = self.client.post(reverse('huntserver:puzzle', kwargs={"puzzle_id": "101"}),
+        response = self.client.post(reverse('huntserver:puzzle', kwargs={"puzzle_id": "201"}),
                                     post_context)
         self.assertEqual(response.status_code, 403)
 
@@ -636,7 +636,7 @@ class StaffTests(TestCase):
 
         post_context = {'subject': "test_subject", 'message': "test_message"}
         response = self.client.post(reverse('huntserver:emails'), post_context)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
     def test_staff_management(self):
         "Test the staff management view"

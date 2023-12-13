@@ -8,10 +8,24 @@
 {% if not puzzle.hunt.is_public %}
 <script type="text/javascript">
     last_date = '{{last_date}}';
-    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}/'
+    puzzle_url = '/puzzle/{{puzzle.puzzle_id}}/';
+    {% if puzzle.answer_validation_type == puzzle.ANSWER_STRICT %}
+      upper_case = true;
+    {% else %}
+      upper_case = false;
+    {% endif %}
+    validation_regex = /{% puzzle_answer_regex puzzle %}/;
+    validation_error = "{% puzzle_validation_error puzzle %}";
 </script>
 <script src="{{ STATIC_URL }}huntserver/puzzle.js"></script>
 {% endif %}
+<script type="text/javascript">
+  jQuery(document).ready(function($) {
+  if ($('#embed-target').length){
+    $("#embed-target").load($("#embed-target").data("target"));
+  }
+});
+</script>
 {% endblock includes %}
 
 {% block content %}
@@ -19,9 +33,12 @@
   <div class="row puzzle content">
     <div class='col-md-12 info'>
       <div class='leftinfo'>
-        <h1> P{{ puzzle.puzzle_number }} - {{ puzzle.puzzle_name}} </h1>
-        <h4> {{ puzzle.solved_for.count }} teams have solved this puzzle so far.</h4>
-        <div>
+        <div class='puzzle-title'>
+          <h1 class='title-number'>P{{ puzzle.puzzle_number }} -&nbsp</h1>
+          <h1 class='title-name'>{{ puzzle.puzzle_name}}</h1>
+        </div>
+        <h4 class='solve-count'> {{ solve_count }} teams have solved this puzzle so far.</h4>
+        <div class='puzzle-link'>
         {% if puzzle.puzzle_page_type == puzzle.LINK_PUZZLE %}
           <a class="btn btn-default" href='{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html'>
             Go to puzzle
@@ -35,7 +52,7 @@
             Open as separate page
           </a>
         {% endif %}
-        {% if puzzle.hunt.is_public %}
+        {% if puzzle.hunt.is_public or request.user.is_staff %}
           {% if puzzle.solution_is_webpage and puzzle.solution_resource_file != "" %}
             <a class="btn btn-default" href='{{ PROTECTED_URL }}solutions/{{ puzzle.puzzle_id }}_sol/index.html'>
                 View solution
@@ -49,7 +66,8 @@
                 No solution available
             </a>
           {% endif %}
-        {% else %}
+        {% endif %}
+        {% if not puzzle.hunt.is_public %}
           {% hints_open team puzzle as show_hint_link %}
           {% if show_hint_link %}
             <a class="btn btn-default" href='/hints/{{ puzzle.puzzle_id }}/'>
@@ -60,13 +78,13 @@
         </div>
       </div>
     </div>
-    <div class='col-md-12'><br></div>
-    <div id='submit_container' class="col-md-5">
+    <div class='col-md-12 puzzle-gap'><br></div>
+    <div id='submit_container' class="col-md-5 puzzle-submission-box">
       <legend>Submit an answer</legend>
       {% crispy form %}
       <br>
     </div>
-    <div id='answer_container' class="col-md-5 col-md-offset-1">
+    <div id='answer_container' class="col-md-5 col-md-offset-1 puzzle-answer-history">
     {% if puzzle.hunt.is_public %}
       <p style="width: 80%; margin: auto;"> We are sorry, previous guess viewing is not available in old puzzlehunts </p>
       <br>
@@ -101,9 +119,9 @@
      </table>
     {% endif %}
     </div>
-    <div class='col-md-12'><br></div>
+    <div class='col-md-12 puzzle-gap'><br></div>
     {% if puzzle.puzzle_page_type == puzzle.LINK_PUZZLE %}
-      <div style="text-align: center;" class="col-md-10 col-md-offset-1">
+      <div style="text-align: center;" class="col-md-10 col-md-offset-1 puzzle-body">
         <h4>
           <br>
           <br>
@@ -112,13 +130,15 @@
         </h4>
       </div>
     {% elif puzzle.puzzle_page_type == puzzle.PDF_PUZZLE %}
-      <div class="col-md-12">
+      <div class="col-md-12 puzzle-body">
         <embed width="100%" height="1000px" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}.pdf" type="application/pdf"></embed>
       </div>
     {% elif puzzle.puzzle_page_type == puzzle.WEB_PUZZLE %}
-      <div class="col-md-12">
+      <div class="col-md-12 puzzle-body">
         <iframe width="100%" height="1000px" src="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html" title="Puzzle iframe"></iframe>
       </div>
+    {% elif puzzle.puzzle_page_type == puzzle.EMBED_PUZZLE %}
+      <div class="col-md-12  puzzle-body" id="embed-target" data-target="{{ PROTECTED_URL }}puzzles/{{ puzzle.puzzle_id }}/index.html"></div>
     {% endif %}
   </div>
 </div>

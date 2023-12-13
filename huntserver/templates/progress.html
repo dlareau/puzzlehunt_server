@@ -65,8 +65,9 @@
           <th>#</br>P</th>
           <th>Last&nbsp;Time</th>
           {% for puzzle in puzzle_list %}
-            <th {% if puzzle.is_meta %} class="metapuzzle" {% endif %}
-                {% if puzzle.doesnt_count %} class="nocount" {% endif %}
+            <th {% if puzzle.puzzle_type == puzzle.META_PUZZLE %} class="metapuzzle" {% endif %}
+                {% if puzzle.puzzle_type == puzzle.FINAL_PUZZLE %} class="metapuzzle" {% endif %}
+                {% if puzzle.puzzle_type == puzzle.NON_PUZZLE %} class="nocount" {% endif %}
                 data-id='{{ puzzle.puzzle_id }}'>
               {{ puzzle.puzzle_name }}
             </th>
@@ -83,15 +84,15 @@
             <td class='num_puzzles'></td>
             <td class='last_time'></td>
             {% for puzzle in team_dict.puzzles %}
-              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}'
+              <td id='p{{ puzzle.0 }}t{{ team_dict.team.pk }}' style='text-align:center;'
               {% if puzzle.1 == "locked"%}
-                class='unavailable' style='text-align:center;'>
+                class='unavailable'>
               {% elif puzzle.1 == "unlocked" %}
                 class='available' data-date={{ puzzle.2 |date:"U"}}>
-                  <b>{{ puzzle.3|time:"h:i a" }}</b>
+                  <b>{{ puzzle.3|date:"m/d" }} <br> {{ puzzle.3|time:"h:i A" }}</b>
               {% else %}
                 class='solved' data-date={{ puzzle.2 |date:"U"}}>
-                  {{ puzzle.2|time:"h:i a" }}
+                  {{ puzzle.2|date:"m/d" }} <br> {{ puzzle.2|time:"h:i A" }}
               {% endif %}
               </td>
             {% endfor %}
