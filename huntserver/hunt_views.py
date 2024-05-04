@@ -54,6 +54,8 @@ def protected_static(request, file_path):
         user = request.user
         disposition = 'filename="{}_{}"'.format(puzzle.safename, path.name)
         response['Content-Disposition'] = disposition
+        if (base == "solutions"):
+            response['X-Robots-Tag'] = 'noindex'
         if (hunt.is_public or user.is_staff):
             allowed = True
         elif(base == "puzzles"):  # This is messy and the most common case, this should be fixed
