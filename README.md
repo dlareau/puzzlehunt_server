@@ -1,7 +1,12 @@
 [![Build Status](https://travis-ci.org/dlareau/puzzlehunt_server.svg?branch=master)](https://travis-ci.org/dlareau/puzzlehunt_server)
 [![Coverage Status](https://coveralls.io/repos/github/dlareau/puzzlehunt_server/badge.svg)](https://coveralls.io/github/dlareau/puzzlehunt_server)
 
-# puzzlehunt_server
+# puzzlehunt_server [Archive]
+## Note! This project has been deprecated in favor of [PuzzleSpring](https://github.com/dlareau/puzzlespring).
+Please consider using PuzzleSpring instead of this project for new setups. It is more flexible, easier to get started with, and will see regular updates. A migration script for those who have already deployed puzzlehunt_server will be be released alongside PuzzleSpring 1.0.
+
+
+## Old Description
 A server for running puzzle hunts. This project is mainly used by Puzzlehunt CMU to run their puzzlehunt, but is generic enough to be used for nearly any puzzle hunt. Includes basic features such as per-puzzle pages, automatic answer response, teams, customizable unlocking structure, and admin pages to manange submissions, teams, as well as hunt progress. It also includes automatic team creation from registration, privacy settings for hunts, cool charts, a built in chat, and automatic file fetching and hosting.
 
 Documentation can be found at http://docs.puzzlehunt.club
